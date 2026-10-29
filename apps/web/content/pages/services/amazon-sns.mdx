@@ -7,4 +7,100 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Amazon SNS (Simple Notification Service) es un servicio totalmente administrado que entrega mensajes de publicadores a suscriptores. Los publicadores envían mensajes de forma asíncrona a un **tema**, y SNS los entrega a todos los suscriptores de ese tema, ya sean otras aplicaciones o personas.
+
+## Qué problema resuelve
+
+Cuando un mismo hecho, como un pedido nuevo, interesa a varios sistemas, el productor tendría que conocer y llamar a cada uno. Con SNS el productor publica una sola vez en el tema y no necesita saber quién escucha: añadir o quitar consumidores no cambia el productor. Sirve tanto para la comunicación entre aplicaciones como para avisar a personas. El contraste con colas y otros modelos está en el tema «Colas, mensajería y publicación/suscripción».
+
+## Conceptos clave
+
+### Temas y suscripciones
+
+Un tema es el punto de acceso lógico y el canal de comunicación. Cada suscripción indica un punto de enlace que recibe los mensajes:
+
+- **De aplicación a aplicación**: colas de Amazon SQS, funciones de AWS Lambda, puntos de enlace HTTP(S), Amazon Data Firehose y proveedores externos.
+- **De aplicación a persona**: correo electrónico, notificaciones push móviles y mensajes de texto (SMS).
+
+### Fanout
+
+En el patrón fanout, un mensaje publicado en el tema se replica y se envía a varios puntos de enlace para procesarlo en paralelo. Por ejemplo, cada pedido se publica en un tema al que se suscriben dos colas de SQS: una para preparar el pedido y otra para analizarlo. Combinar SNS con colas de SQS evita perder mensajes cuando un suscriptor no está disponible, porque la cola los guarda hasta procesarlos.
+
+### Filtrado de mensajes
+
+Por defecto, cada suscriptor recibe todos los mensajes del tema. Una **política de filtro** en la suscripción hace que solo reciba los mensajes cuyos atributos o cuerpo cumplen sus condiciones.
+
+### Temas FIFO
+
+Los temas FIFO, combinados con colas FIFO de SQS, mantienen un orden estricto y eliminan duplicados, para casos en los que el orden importa o no se toleran duplicados. Solo entregan a colas de SQS: no admiten correo, SMS, aplicaciones móviles ni puntos de enlace HTTP(S).
+
+### Entregas fallidas
+
+Si el sistema del punto de enlace no está disponible (error del lado del servidor), SNS reintenta la entrega según una política de reintentos; los errores del lado del cliente, como un punto de enlace eliminado, no se reintentan. Para no descartar los mensajes que no se pueden entregar, puedes asociar a la suscripción una **cola de mensajes fallidos**, que es una cola de SQS en la misma cuenta y región.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Hace fanout a"
+    service="Amazon SQS"
+    description="Varias colas suscritas al tema reciben copias del mismo mensaje y lo procesan por separado."
+  />
+  <ConnectionCard
+    relation="Invoca"
+    service="AWS Lambda"
+    description="Una función suscrita al tema procesa cada mensaje de forma automática."
+  />
+  <ConnectionCard
+    relation="Entrega flujos a"
+    service="Amazon Data Firehose"
+    description="Un flujo de entrega suscrito al tema lleva los mensajes a almacenamiento o análisis."
+  />
+  <ConnectionCard
+    relation="Cifra con"
+    service="AWS KMS"
+    description="Para usar como cola de mensajes fallidos una cola de SQS cifrada, debe usar una clave de KMS propia cuya política permita el acceso a SNS."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="SNS cuando"
+    items={[
+      'El mismo mensaje debe llegar a varios consumidores en paralelo: fanout.',
+      'Necesitas avisar a personas por correo, SMS o notificaciones push.',
+      'Necesitas orden estricto y sin duplicados hacia varias colas: tema FIFO con colas FIFO.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Un solo consumidor procesa cada mensaje a su ritmo: Amazon SQS.',
+      'Enrutas eventos de servicios de AWS y socios SaaS con patrones de contenido: Amazon EventBridge.',
+      'Migras una aplicación que ya usa un agente con JMS o AMQP: Amazon MQ.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon SNS"
+  url="https://docs.aws.amazon.com/sns/latest/dg/welcome.html"
+/>
+<OfficialSource
+  title="Filtrado de mensajes de Amazon SNS"
+  url="https://docs.aws.amazon.com/sns/latest/dg/sns-message-filtering.html"
+/>
+<OfficialSource
+  title="Entrega de mensajes en temas FIFO de Amazon SNS"
+  url="https://docs.aws.amazon.com/sns/latest/dg/fifo-message-delivery.html"
+/>
+<OfficialSource
+  title="Colas de mensajes fallidos de Amazon SNS"
+  url="https://docs.aws.amazon.com/sns/latest/dg/sns-dead-letter-queues.html"
+/>
