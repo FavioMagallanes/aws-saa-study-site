@@ -7,4 +7,89 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Amazon Rekognition es un servicio de análisis de imágenes y video que añade visión artificial a tus aplicaciones sin necesidad de experiencia en aprendizaje automático. Se usa mediante una API que analiza imágenes y videos guardados en Amazon S3.
+
+## Qué problema resuelve
+
+Revisar a mano miles de imágenes o horas de video para encontrar objetos, personas o contenido inapropiado es lento y propenso a errores. Rekognition automatiza ese análisis y escala con el volumen: no planificas capacidad y pagas por lo que usas. Casos típicos: bibliotecas de medios con búsqueda por contenido visual, verificación de identidad basada en el rostro, moderación de contenido generado por usuarios y control del equipo de protección personal.
+
+## Conceptos clave
+
+### Capacidades principales
+
+- **Etiquetas**: detecta y clasifica objetos, escenas y conceptos.
+- **Texto**: detecta texto impreso y manuscrito en imágenes y videos.
+- **Contenido inseguro**: detecta contenido explícito, inapropiado o violento, con etiquetas para filtrar según tus necesidades.
+- **Rostros**: detecta, analiza y compara rostros. Una colección de rostros es un índice que administras; primero indexas los rostros y luego buscas coincidencias.
+- **Face Liveness**: comprueba que la persona está físicamente frente a la cámara, para frenar suplantaciones con fotos, videos o máscaras.
+- **Custom Labels**: entrenas clasificadores propios para objetos de tu negocio, como logotipos o productos.
+- **Celebridades**: reconoce personas famosas en imágenes y videos.
+
+### Video almacenado: un patrón asíncrono
+
+Rekognition Video analiza videos guardados en un bucket de S3 con operaciones asíncronas. Inicias el análisis con una operación `Start` (por ejemplo, `StartLabelDetection`), el estado de finalización se publica en un tema de Amazon SNS, lo recibes con una cola de Amazon SQS o una función de AWS Lambda y luego obtienes los resultados con la operación `Get` correspondiente.
+
+El análisis de video en streaming usa Amazon Kinesis Video Streams, pero según la documentación ya no está disponible para clientes nuevos.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Analiza imágenes y videos de"
+    service="Amazon S3"
+    description="Rekognition procesa los archivos directamente en S3, sin moverlos."
+  />
+  <ConnectionCard
+    relation="Se invoca desde"
+    service="AWS Lambda"
+    description="Rekognition se integra con Lambda: puedes llamar a su API desde una función y procesar imágenes de S3 sin moverlas."
+  />
+  <ConnectionCard
+    relation="Avisa de que terminó con"
+    service="Amazon SNS"
+    description="Los trabajos de video almacenado publican su estado de finalización en un tema de SNS."
+  />
+  <ConnectionCard
+    relation="Recibe el aviso con"
+    service="Amazon SQS"
+    description="Una cola de SQS suscrita al tema de SNS entrega el estado de finalización a tu aplicación."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Amazon Rekognition cuando"
+    items={[
+      'Necesitas detectar objetos, escenas, texto o rostros en imágenes o videos.',
+      'Debes moderar contenido visual generado por los usuarios.',
+      'Quieres verificación de identidad con comparación de rostros o detección de vida.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Necesitas extraer texto, formularios y tablas de documentos: Amazon Textract.',
+      'Necesitas entrenar y alojar tu propio modelo de visión: Amazon SageMaker AI.',
+      'Necesitas capturar y almacenar video en streaming: Amazon Kinesis Video Streams.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon Rekognition"
+  url="https://docs.aws.amazon.com/rekognition/latest/dg/what-is.html"
+/>
+<OfficialSource
+  title="Análisis de video almacenado"
+  url="https://docs.aws.amazon.com/rekognition/latest/dg/video.html"
+/>
+<OfficialSource
+  title="Eventos de video en streaming"
+  url="https://docs.aws.amazon.com/rekognition/latest/dg/streaming-video.html"
+/>
