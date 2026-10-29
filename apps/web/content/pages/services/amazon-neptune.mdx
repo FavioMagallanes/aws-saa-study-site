@@ -7,4 +7,75 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Amazon Neptune es un servicio de base de datos de grafos rápido, fiable y totalmente administrado, para aplicaciones que trabajan con conjuntos de datos muy conectados. Su núcleo es un motor de grafos diseñado para guardar miles de millones de relaciones y consultarlas con latencia de milisegundos.
+
+## Qué problema resuelve
+
+Cuando lo importante son las relaciones entre los datos, como quién conoce a quién, qué cuentas comparten datos o qué productos se compran juntos, las consultas SQL se vuelven complejas y difíciles de optimizar. Neptune modela esos datos como un grafo y los consulta con lenguajes diseñados para recorrer relaciones, lo que simplifica el código. Es la base para motores de recomendación, detección de fraude, grafos de conocimiento, descubrimiento de fármacos y seguridad de redes.
+
+## Conceptos clave
+
+- **Modelos y lenguajes de grafos**: admite grafos de propiedades, que se consultan con Apache TinkerPop Gremlin u openCypher, y grafos RDF del W3C, que se consultan con SPARQL.
+- **Arquitectura de clúster**: una instancia principal hace todas las escrituras y hasta 15 réplicas de Neptune atienden lecturas. Todas comparten un volumen de clúster con copias de los datos en varias zonas de disponibilidad de una región.
+- **Alta disponibilidad**: si falla la instancia principal, Neptune conmuta por error automáticamente a una de las réplicas. Colocar las réplicas en zonas de disponibilidad distintas aumenta la disponibilidad y reparte la carga de lectura.
+- **Copias de seguridad**: copia continua en Amazon S3 y recuperación a un momento dado.
+- **Seguridad**: aislamiento de red con Amazon VPC y cifrado en reposo con claves de AWS KMS, que también cubre las copias de seguridad, las instantáneas y las réplicas del clúster. Admite además cifrado en tránsito.
+- **Totalmente administrado**: Neptune se encarga del aprovisionamiento de hardware, los parches, la configuración y las copias de seguridad.
+- **Neptune Serverless**: configuración que ajusta la capacidad del clúster según la demanda, útil con cargas muy variables, y cobra solo por los recursos que se necesitan.
+- **Neptune Analytics**: motor complementario que analiza grandes volúmenes de datos de grafos en memoria con algoritmos de análisis de grafos.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Se aísla en"
+    service="Amazon VPC"
+    description="El clúster se ejecuta dentro de una VPC, con aislamiento de red para la base de datos."
+  />
+  <ConnectionCard
+    relation="Cifra los datos con"
+    service="AWS KMS"
+    description="Cifra el almacenamiento, las copias de seguridad, las instantáneas y las réplicas con claves que creas y controlas."
+  />
+  <ConnectionCard
+    relation="Guarda las copias en"
+    service="Amazon S3"
+    description="La copia de seguridad continua en S3 permite restaurar la base de datos a un momento dado."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+El tema «Elegir base de datos: tipo y motor» compara todos los modelos de datos. Desde la vista del servicio:
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Neptune cuando"
+    items={[
+      'Los datos están muy conectados y las consultas recorren muchas relaciones.',
+      'Construyes recomendaciones, detección de fraude, grafos de conocimiento o seguridad de redes.',
+      'Quieres consultar con Gremlin, openCypher o SPARQL.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Los datos son relacionales y se consultan con SQL: Amazon Aurora o Amazon RDS.',
+      'Accedes por clave con un volumen muy alto de solicitudes: Amazon DynamoDB.',
+      'Los datos son documentos JSON con esquema flexible: Amazon DocumentDB.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon Neptune"
+  url="https://docs.aws.amazon.com/neptune/latest/userguide/intro.html"
+/>
+<OfficialSource
+  title="Amazon Neptune Serverless"
+  url="https://docs.aws.amazon.com/neptune/latest/userguide/neptune-serverless.html"
+/>
