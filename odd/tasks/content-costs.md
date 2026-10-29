@@ -13,17 +13,18 @@ Writes the 10 `topic` pages of the category Costos (page orders 55 to 64). Same 
 
 Writer 1 takes T1-T5, writer 2 T6-T10; the parent commits one page per commit.
 
-- [ ] T1 herramientas-de-costos-y-etiquetas (4.1-k2, 4.1-k3, 4.2-k1, 4.2-k2, 4.3-k1, 4.3-k2, 4.4-k1, 4.4-k2)
-- [ ] T2 opciones-de-compra-bajo-demanda-spot-reservadas-y-savings-plans (4.2-k4)
-- [ ] T3 clases-de-almacenamiento-y-ciclo-de-vida-de-s3 (1.3-s6, 4.1-k10, 4.1-s10, 4.1-k1, 4.1-k7, 4.1-k9, 4.1-s1, 4.1-s5, 4.1-s8, 4.1-s9,)
-- [ ] T4 volumenes-de-ebs-ssd-frente-a-hdd (4.1-s10, 4.1-k6, 4.1-s2)
-- [ ] T5 costos-de-transferencia-de-datos (4.1-s1, 4.1-s3, 4.4-s3, 4.4-s5)
-- [ ] T6 nat-gateway-frente-a-instancia-nat (4.4-k4, 4.4-s1)
-- [ ] T7 transit-gateway-frente-a-interconexion-de-vpc (4.4-k6)
-- [ ] T8 bases-de-datos-rentables (4.3-k4, 4.3-k9, 4.3-s1, 4.3-s3, 4.3-s4)
-- [ ] T9 computo-rentable-segun-la-carga-de-trabajo (4.2-k8, 4.2-k9, 4.2-s2, 4.2-s3, 4.2-s4)
-- [ ] T10 copias-de-seguridad-y-archivado-rentables (4.1-k5, 4.1-s6)
+- [x] T1 herramientas-de-costos-y-etiquetas (4.1-k2, 4.1-k3, 4.2-k1, 4.2-k2, 4.3-k1, 4.3-k2, 4.4-k1, 4.4-k2)
+- [x] T2 opciones-de-compra-bajo-demanda-spot-reservadas-y-savings-plans (4.2-k4)
+- [x] T3 clases-de-almacenamiento-y-ciclo-de-vida-de-s3 (1.3-s6, 4.1-k10, 4.1-s10, 4.1-k1, 4.1-k7, 4.1-k9, 4.1-s1, 4.1-s5, 4.1-s8, 4.1-s9,)
+- [x] T4 volumenes-de-ebs-ssd-frente-a-hdd (4.1-s10, 4.1-k6, 4.1-s2)
+- [x] T5 costos-de-transferencia-de-datos (4.1-s1, 4.1-s3, 4.4-s3, 4.4-s5)
+- [x] T6 nat-gateway-frente-a-instancia-nat (4.4-k4, 4.4-s1)
+- [x] T7 transit-gateway-frente-a-interconexion-de-vpc (4.4-k6)
+- [x] T8 bases-de-datos-rentables (4.3-k4, 4.3-k9, 4.3-s1, 4.3-s3, 4.3-s4)
+- [x] T9 computo-rentable-segun-la-carga-de-trabajo (4.2-k8, 4.2-k9, 4.2-s2, 4.2-s3, 4.2-s4)
+- [x] T10 copias-de-seguridad-y-archivado-rentables (4.1-k5, 4.1-s6)
 
 ## Log
 
 - L1: "si" (continue with cost topics C1-C10)
+- L2: 10 pages written by 2 parallel writers (T1-T5, T6-T10), reviewed by the parent. Checks: 182 web tests, lint, prettier, check-sources (399 URLs). Limits: wording is mine and needs the owner's review; some NAT, Transit Gateway and compute cost guidance is my synthesis, softened; Timestream LiveAnalytics availability not checked.
