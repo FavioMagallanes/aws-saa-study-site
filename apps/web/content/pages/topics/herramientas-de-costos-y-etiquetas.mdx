@@ -7,4 +7,152 @@ export const meta = {
   covers: ['4.1-k2', '4.1-k3', '4.2-k1', '4.2-k2', '4.3-k1', '4.3-k2', '4.4-k1', '4.4-k2'],
 };
 
-Contenido pendiente.
+Para optimizar costos primero hay que verlos: saber cuánto gastas, en qué servicio, en qué cuenta y para qué proyecto. AWS ofrece funciones de facturación para organizar los cargos y herramientas para analizarlos, ponerles límites y recibir avisos antes de que el gasto se salga de lo previsto.
+
+## Qué problema resuelve
+
+Una factura que solo muestra un total por servicio no dice qué equipo, aplicación o entorno generó cada cargo. Sin esa información no sabes dónde recortar ni a quién avisar cuando el gasto crece. Las etiquetas de asignación de costos, la facturación consolidada y las herramientas de análisis te permiten repartir los cargos según tu organización, seguir tendencias y reaccionar a tiempo. En las preguntas del examen sobre almacenamiento, cómputo, bases de datos o redes rentables, estas herramientas son el primer paso para medir dónde está el gasto.
+
+## Conceptos clave
+
+### Etiquetas de asignación de costos
+
+Una etiqueta es un par clave-valor que tú o AWS asignan a un recurso. Las etiquetas sirven para organizar recursos, y las etiquetas de asignación de costos, para seguir el gasto con detalle.
+
+- **Dos tipos**: las etiquetas definidas por el usuario, que creas y aplicas tú (por ejemplo, centro de costos, aplicación o responsable), y las generadas por AWS, como `aws:createdBy`, que registra quién creó el recurso.
+- **Hay que activarlas**: ambos tipos se activan por separado en la consola de Billing and Cost Management antes de aparecer en Cost Explorer o en el informe de asignación de costos. Solo la cuenta de administración de una organización, o una cuenta independiente, tiene acceso al administrador de etiquetas de asignación de costos.
+- **No son retroactivas**: las etiquetas no se aplican a recursos creados antes de que existieran, y pueden tardar hasta 24 horas en aparecer en la consola.
+- **Informe de asignación de costos**: agrupa el uso y el costo por tus etiquetas activas, e incluye tanto los recursos etiquetados como los no etiquetados, así que puedes ver, por ejemplo, el costo total de una aplicación.
+- **Tag Editor**: AWS recomienda usarlo para crear y aplicar las etiquetas de forma centralizada. No guardes información sensible en las etiquetas.
+
+### AWS Cost Categories
+
+Las categorías de costos te permiten definir reglas para agrupar los costos según tu estructura interna, por ejemplo asignar las cuentas 1 a 3 al equipo 1. Puedes crear jerarquías (equipos dentro de unidades de negocio) y usar las categorías en Cost Explorer, AWS Budgets, el informe de costo y uso y Cost Anomaly Detection.
+
+### Facturación consolidada
+
+La facturación consolidada de AWS Organizations reúne la facturación y el pago de varias cuentas. La cuenta de administración paga los cargos de todas las cuentas miembro.
+
+- **Una sola factura** para varias cuentas y seguimiento de los cargos de cada una.
+- **Uso combinado**: el uso de todas las cuentas se suma, de modo que se comparten los descuentos por volumen, los descuentos de instancias reservadas y los Savings Plans. Esto puede costar menos que tener cuentas independientes.
+- **Sin cargo adicional** por usarla.
+
+### AWS Cost Explorer
+
+Cost Explorer sirve para ver y analizar tus costos y tu uso con gráficos e informes, filtrar por etiquetas y ver tendencias que necesitan más análisis.
+
+- Muestra hasta los últimos 13 meses, hace un pronóstico del gasto de los próximos 18 meses y recomienda qué instancias reservadas comprar.
+- Ofrece vistas preconfiguradas e informes de instancias reservadas, y los datos se pueden descargar en CSV.
+- Usar su interfaz no tiene costo; el acceso mediante la API sí tiene un cargo por solicitud.
+
+### AWS Budgets
+
+AWS Budgets sirve para seguir los costos y el uso y actuar sobre ellos. Admite estos tipos de presupuesto:
+
+- **De costo**: un límite de gasto con alertas al acercarte o superarlo.
+- **De uso**: un límite de uso de uno o varios servicios.
+- **De utilización y de cobertura de instancias reservadas y de Savings Plans**: te avisan si las usas por debajo de un umbral (compraste capacidad que no aprovechas) o si la parte de tu uso que cubren cae por debajo del objetivo.
+
+Las notificaciones pueden basarse en el gasto real o en el pronosticado y llegar por correo electrónico o a un tema de Amazon SNS. También puedes asociar acciones, como aplicar una política de IAM que impida crear más recursos. Ten en cuenta que hay un retraso entre el uso y la alerta, así que puedes superar el umbral antes de recibirla.
+
+### Informe de costo y uso (AWS CUR)
+
+El informe de costo y uso de AWS contiene el conjunto más completo de datos de costo y uso. Lo publica en un bucket de S3 tuyo, desglosado por hora, día o mes, por producto o recurso y por tus etiquetas. Se actualiza al menos una vez al día y puedes configurarlo para integrarlo con servicios como Amazon Athena o Amazon Redshift y analizarlo. Elígelo cuando necesitas el detalle línea a línea o procesar los datos con tus propias herramientas.
+
+### Otras herramientas útiles
+
+- **AWS Cost Anomaly Detection**: usa aprendizaje automático para detectar patrones de gasto anómalos y te avisa por correo o por SNS, con la causa raíz por servicio, cuenta, región o tipo de uso.
+- **AWS Compute Optimizer**: analiza la configuración y las métricas de uso de recursos como instancias EC2, volúmenes de EBS, funciones de Lambda o bases de datos, y recomienda el tamaño correcto o señala recursos inactivos.
+- **AWS Trusted Advisor**: revisa tu entorno y hace recomendaciones cuando hay oportunidades de ahorrar dinero, mejorar la disponibilidad y el rendimiento o cerrar brechas de seguridad. El conjunto de comprobaciones disponibles depende de tu plan de soporte.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Consolida la facturación con"
+    service="AWS Organizations"
+    description="La cuenta de administración paga por todas las cuentas miembro y combina su uso para compartir descuentos por volumen, de instancias reservadas y de Savings Plans."
+  />
+  <ConnectionCard
+    relation="Envía alertas con"
+    service="Amazon SNS"
+    description="AWS Budgets y Cost Anomaly Detection pueden notificar a un tema de SNS además de por correo electrónico."
+  />
+  <ConnectionCard
+    relation="Entrega el informe en"
+    service="Amazon S3"
+    description="El informe de costo y uso se publica en un bucket de S3 de tu propiedad, desde donde puedes analizarlo, por ejemplo, con Athena o Redshift."
+  />
+  <ConnectionCard
+    relation="Aplica límites con"
+    service="AWS IAM"
+    description="Una acción de presupuesto puede aplicar una política de IAM que impida aprovisionar más recursos al superar un umbral."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Usa cada herramienta cuando"
+    items={[
+      'Quieres explorar el gasto, ver tendencias o un pronóstico: Cost Explorer.',
+      'Quieres un límite de gasto o de uso con alertas o acciones: AWS Budgets.',
+      'Necesitas el detalle más completo para procesarlo con tus herramientas: el informe de costo y uso.',
+      'Quieres repartir el costo por proyecto, equipo o entorno: etiquetas de asignación de costos o Cost Categories.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Tienes varias cuentas y quieres una sola factura y descuentos compartidos: facturación consolidada de AWS Organizations.',
+      'Quieres detectar gastos inesperados sin fijar un umbral manual: Cost Anomaly Detection.',
+      'Buscas recursos sobredimensionados o inactivos: Compute Optimizer o Trusted Advisor.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Organizar y seguir costos con etiquetas de asignación de costos"
+  url="https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/cost-alloc-tags.html"
+/>
+<OfficialSource
+  title="Etiquetas de asignación de costos definidas por el usuario"
+  url="https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/custom-tags.html"
+/>
+<OfficialSource
+  title="Organizar costos con AWS Cost Categories"
+  url="https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/manage-cost-categories.html"
+/>
+<OfficialSource
+  title="Facturación consolidada de AWS Organizations"
+  url="https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/consolidated-billing.html"
+/>
+<OfficialSource
+  title="Analizar costos y uso con AWS Cost Explorer"
+  url="https://docs.aws.amazon.com/cost-management/latest/userguide/ce-what-is.html"
+/>
+<OfficialSource
+  title="Administrar costos con AWS Budgets"
+  url="https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-managing-costs.html"
+/>
+<OfficialSource
+  title="Qué son los informes de costo y uso de AWS"
+  url="https://docs.aws.amazon.com/cur/latest/userguide/what-is-cur.html"
+/>
+<OfficialSource
+  title="Detectar gastos inusuales con AWS Cost Anomaly Detection"
+  url="https://docs.aws.amazon.com/cost-management/latest/userguide/manage-ad.html"
+/>
+<OfficialSource
+  title="Qué es AWS Compute Optimizer"
+  url="https://docs.aws.amazon.com/compute-optimizer/latest/ug/what-is-compute-optimizer.html"
+/>
+<OfficialSource
+  title="AWS Trusted Advisor"
+  url="https://docs.aws.amazon.com/awssupport/latest/user/trusted-advisor.html"
+/>
