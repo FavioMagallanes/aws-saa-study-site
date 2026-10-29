@@ -1,0 +1,11 @@
+.card-grid {
+  display: grid;
+  gap: var(--space-4);
+  margin-block: 0 var(--space-5);
+}
+
+@media (min-width: 768px) {
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

@@ -1,4 +1,5 @@
 import type { ElementType, ReactNode } from 'react';
+import { CardGrid } from '../components/card-grid/card-grid';
 import { ConnectionCard } from '../components/connection-card/connection-card';
 import { DecisionBox } from '../components/decision-box/decision-box';
 import { DiagramNode } from '../components/diagram-node/diagram-node';
@@ -15,6 +16,7 @@ const SectionHeading = ({ children }: HeadingProps) => (
 
 export const mdxComponents: Record<string, ElementType> = {
   h2: SectionHeading,
+  CardGrid,
   ConnectionCard,
   DecisionBox,
   DiagramNode,

@@ -32,5 +32,5 @@ export default tseslint.config(
     files: ['**/*.config.{ts,js}', '**/*.d.ts', '**/global-setup.ts'],
     rules: { 'no-restricted-exports': 'off' },
   },
-  { files: ['**/*.js'], ...tseslint.configs.disableTypeChecked },
+  { files: ['**/*.js', '**/*.mjs'], ...tseslint.configs.disableTypeChecked },
 );
