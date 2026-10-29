@@ -7,4 +7,74 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Amazon Aurora sin servidor (Aurora Serverless) es una configuración de Amazon Aurora que ajusta la capacidad de la base de datos de forma automática según la demanda de la aplicación. En lugar de elegir una clase de instancia con una cantidad fija de memoria y CPU, defines un rango de capacidad mínima y máxima, y solo pagas por los recursos que el clúster consume. El motor sigue siendo Aurora MySQL o Aurora PostgreSQL.
+
+## Qué problema resuelve
+
+Con un clúster aprovisionado tienes que predecir la capacidad que vas a necesitar. Si te quedas corto, la base de datos va lenta; si te pasas, pagas por recursos que no usas. Además, cambiar la clase de instancia de la instancia de escritura y de las réplicas puede suponer breves cortes. Aurora sin servidor automatiza la supervisión de la carga y el ajuste de la capacidad, sin interrumpir las transacciones de los clientes, por lo que encaja con cargas variables o con picos difíciles de prever.
+
+## Conceptos clave
+
+- **Unidad de capacidad de Aurora (ACU)**: la medida de capacidad de Aurora sin servidor. Cada ACU combina unos 2 GiB de memoria con la CPU y la red correspondientes. El rango mínimo y máximo es el mismo para todas las instancias sin servidor del clúster, y cada una escala dentro de él de forma independiente.
+- **Escalado fino**: un clúster aprovisionado crece añadiendo instancias completas o cambiando su clase; Aurora sin servidor puede añadir o quitar capacidad en incrementos de media ACU.
+- **Cómputo separado del almacenamiento**: lo que escala es la capacidad de cómputo y memoria. El almacenamiento sigue siendo el volumen compartido de Aurora, así que un clúster puede guardar muchos terabytes aunque su capacidad de cómputo baje.
+- **Pausa automática**: si configuras una capacidad mínima de cero ACU, las instancias se pausan tras un periodo sin conexiones de usuarios y se reanudan cuando llega una nueva conexión. Mientras están en pausa no se cobra la capacidad de la instancia. Conviene en entornos que toleran una breve demora al reconectar, como desarrollo y pruebas o aplicaciones internas.
+- **Clústeres mixtos**: un mismo clúster puede combinar instancias sin servidor y aprovisionadas, por ejemplo una instancia de escritura aprovisionada muy grande con lectores sin servidor. Puedes convertir una instancia aprovisionada en sin servidor, o al revés, sin crear un clúster nuevo.
+- **Alta disponibilidad**: se mantienen las funciones de Aurora, como las réplicas repartidas en varias zonas de disponibilidad y la conmutación por error, y las instancias sin servidor también pueden usarse en los clústeres secundarios de Aurora Global Database.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Es una configuración de"
+    service="Amazon Aurora"
+    description="Usa el mismo motor, el mismo volumen de almacenamiento compartido y los mismos puntos de enlace que un clúster aprovisionado."
+  />
+  <ConnectionCard
+    relation="Se administra con"
+    service="Amazon RDS"
+    description="Se crea y se modifica con la consola, la AWS CLI y la API de RDS, como el resto de Aurora."
+  />
+  <ConnectionCard
+    relation="Se supervisa con"
+    service="Amazon CloudWatch"
+    description="Métricas como ServerlessDatabaseCapacity y ACUUtilization muestran cuánta capacidad usa la base de datos dentro del rango."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Aurora sin servidor cuando"
+    items={[
+      'La carga es relacional y muy variable o con picos imprevisibles.',
+      'Es una aplicación nueva y no sabes qué tamaño de instancia necesitas.',
+      'Tienes entornos de desarrollo y prueba o bases multiinquilino con periodos de poca o ninguna actividad.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'La carga es estable y puedes prever la capacidad: un clúster de Aurora aprovisionado.',
+      'Necesitas una base sin servidor de clave-valor sin uniones: Amazon DynamoDB en modo bajo demanda.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Uso de Aurora sin servidor"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless-v2.html"
+/>
+<OfficialSource
+  title="Cómo funciona Aurora sin servidor"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless-v2.how-it-works.html"
+/>
+<OfficialSource
+  title="Escalar a cero ACU con pausa y reanudación automáticas"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless-v2-auto-pause.html"
+/>
