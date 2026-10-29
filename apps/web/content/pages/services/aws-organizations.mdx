@@ -7,4 +7,97 @@ export const meta = {
   covers: ['1.1-s4'],
 };
 
-Contenido pendiente.
+AWS Organizations te ayuda a administrar y gobernar de forma central un entorno con varias cuentas de AWS. Con él creas cuentas, las agrupas, aplicas políticas de gobernanza a todas ellas y simplificas la facturación con un único método de pago. Es la base sobre la que se diseña una estrategia de seguridad para varias cuentas.
+
+## Qué problema resuelve
+
+Las cuentas de AWS son límites naturales de permisos, seguridad, costos y cargas de trabajo, y usar varias es una práctica recomendada al crecer. Pero administrarlas una por una no escala: cada cuenta tendría su propia factura, sus propias reglas y su propia configuración de seguridad. Organizations las reúne en una jerarquía para aplicar controles comunes, activar servicios de seguridad y auditoría en todas a la vez y pagar con una sola factura consolidada.
+
+## Conceptos clave
+
+### Estructura de la organización
+
+- **Cuenta de administración**: la cuenta con la que creas la organización. Desde ella creas e invitas cuentas, asocias políticas y habilitas la integración con otros servicios. Es la cuenta pagadora, responsable de todos los cargos, y no se puede cambiar por otra.
+- **Cuentas miembro**: el resto de las cuentas de la organización.
+- **Raíz**: el contenedor superior de la jerarquía. Solo hay una y se crea de forma automática.
+- **Unidades organizativas (OU)**: grupos de cuentas que pueden anidarse. Sirven para aplicar los mismos controles a un subconjunto de cuentas, por ejemplo separar producción de preproducción. Una OU hereda las políticas de su OU superior.
+
+### Conjuntos de funciones
+
+- **Todas las funciones** (recomendado): incluye la facturación consolidada y además las políticas y la integración con otros servicios.
+- **Solo facturación consolidada**: comparte la facturación, pero no permite usar políticas para restringir lo que pueden hacer los usuarios y roles de las cuentas.
+
+### Políticas de la organización
+
+Las políticas de control de servicios (SCP) fijan los **permisos máximos** de los usuarios y roles de IAM de las cuentas miembro, incluido su usuario raíz. No conceden permisos por sí mismas, no afectan a la cuenta de administración y solo están disponibles con todas las funciones habilitadas. Las políticas de control de recursos (RCP) ayudan a evitar el uso no intencionado de tus recursos. El tema «Estrategia de varias cuentas: Organizations, SCP y Control Tower» explica en detalle cómo se evalúan las SCP y cómo encaja AWS Control Tower.
+
+### Servicios para toda la organización
+
+Puedes activar AWS CloudTrail en todas las cuentas, con un registro que las cuentas miembro no pueden desactivar ni modificar; aplicar copias de seguridad con AWS Backup; definir configuraciones recomendadas con AWS Config; y dar a tu equipo de seguridad herramientas centrales como Amazon GuardDuty o IAM Access Analyzer.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Es la base de"
+    service="AWS Control Tower"
+    description="Control Tower orquesta las capacidades de Organizations y las amplía para montar una zona de aterrizaje y aplicar controles que evitan la deriva respecto de las prácticas recomendadas."
+  />
+  <ConnectionCard
+    relation="Da acceso a las cuentas con"
+    service="AWS IAM Identity Center"
+    description="Permite entrar a las cuentas de la organización con tu directorio y permisos según la función de cada persona."
+  />
+  <ConnectionCard
+    relation="Comparte recursos con"
+    service="AWS RAM"
+    description="Permite definir una vez recursos como subredes de una VPC y compartirlos en toda la organización."
+  />
+  <ConnectionCard
+    relation="Audita todas las cuentas con"
+    service="AWS CloudTrail"
+    description="Crea un registro central de toda la actividad que las cuentas miembro no pueden apagar."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Organizations cuando"
+    items={[
+      'Tienes varias cuentas y quieres una sola factura.',
+      'Necesitas limitar con SCP lo que pueden hacer las cuentas de una OU.',
+      'Quieres activar servicios de seguridad y auditoría en todas las cuentas a la vez.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Quieres un entorno de varias cuentas ya montado con prácticas recomendadas: AWS Control Tower.',
+      'Necesitas conceder permisos, no limitarlos: políticas de IAM.',
+      'Solo necesitas compartir un recurso con otra cuenta: AWS RAM.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Organizations"
+  url="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_introduction.html"
+/>
+<OfficialSource
+  title="Terminología y conceptos de AWS Organizations"
+  url="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_getting-started_concepts.html"
+/>
+<OfficialSource
+  title="Políticas de control de servicios (SCP)"
+  url="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps.html"
+/>
+<OfficialSource
+  title="Qué es AWS Control Tower"
+  url="https://docs.aws.amazon.com/controltower/latest/userguide/what-is-control-tower.html"
+/>
