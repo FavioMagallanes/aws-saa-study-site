@@ -7,4 +7,92 @@ export const meta = {
   covers: ['3.5-k1'],
 };
 
-Contenido pendiente.
+Amazon Quick es un servicio totalmente administrado y con IA para analizar datos, automatizar tareas, crear aplicaciones web e investigar. Evolucionó a partir de Amazon QuickSight, que continúa como Amazon Quick Sight, la función de visualización interactiva y de inteligencia de negocio (BI) dentro de Quick. Para el examen, lo importante es Quick Sight: conectar orígenes de datos, crear paneles y compartirlos o insertarlos en aplicaciones.
+
+## Qué problema resuelve
+
+Tener los datos en un lago o en un almacén no basta: las personas del negocio necesitan verlos en gráficos y paneles sin escribir SQL. Quick es totalmente administrado, sin infraestructura que aprovisionar: se conecta a los orígenes de datos, guarda los datos en un motor en memoria si quieres respuestas rápidas y publica paneles que cada usuario ve con los permisos que le corresponden. El tema «Análisis y visualización» explica cómo combinarlo con Athena y Lake Formation en una estrategia de visualización.
+
+## Conceptos clave
+
+### Funciones de Quick
+
+- **Quick Sight**: visualización interactiva y BI; conecta orígenes, crea paneles e inserta análisis en aplicaciones.
+- **Quick Flows y Quick Automate**: automatizan tareas y procesos de negocio con agentes de IA.
+- **Quick Index y Quick Research**: conectan los documentos de la organización para que las respuestas de IA se basen en ellos, y elaboran informes de investigación con citas.
+
+### Quick Sight en detalle
+
+- **Orígenes de datos**: Amazon Athena, Amazon Aurora, Amazon Redshift, Redshift Spectrum, Amazon S3, Amazon OpenSearch Service y bases de datos como MySQL, PostgreSQL, SQL Server u Oracle, entre otros. También archivos en S3 o en tu red local.
+- **SPICE o consulta directa**: al crear un conjunto de datos eliges entre consultar el origen directamente o importar los datos a SPICE, el motor de cálculo en memoria de Quick Sight. Con SPICE las consultas son más rápidas y reutilizas los datos sin costos adicionales; si el origen cobra por consulta, solo pagas al crear el conjunto de datos y al actualizarlo. La capacidad de SPICE se asigna por región.
+- **Paneles (dashboards)**: un panel es una instantánea de solo lectura de un análisis, que conserva filtros, parámetros y controles pero siempre muestra los datos actuales. Al compartirlo eliges qué usuarios tienen acceso. En la edición Enterprise puedes insertarlo en un sitio web o una aplicación.
+- **Seguridad por fila (RLS)**: en la edición Enterprise restringes qué filas ve cada lector, con reglas por usuario o grupo, o con etiquetas cuando insertas paneles para usuarios no registrados.
+- **Acceso**: una organización puede aprovisionar Quick desde la consola de AWS con IAM Identity Center o federación de IAM.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Consulta datos con"
+    service="Amazon Athena"
+    description="Quick Sight usa Athena como origen para visualizar datos del lago en S3."
+  />
+  <ConnectionCard
+    relation="Visualiza datos de"
+    service="Amazon Redshift"
+    description="Redshift y Redshift Spectrum son orígenes de datos para análisis y paneles."
+  />
+  <ConnectionCard
+    relation="Respeta los permisos de"
+    service="AWS Lake Formation"
+    description="Lake Formation aplica sus permisos por columna, fila y celda también en Amazon Quick."
+  />
+  <ConnectionCard
+    relation="Gestiona usuarios con"
+    service="AWS IAM Identity Center"
+    description="Las organizaciones configuran el acceso a Quick con IAM Identity Center o federación de IAM."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Amazon Quick cuando"
+    items={[
+      'Necesitas paneles de BI compartidos sobre Athena, Redshift u otros orígenes.',
+      'Quieres insertar paneles en tu aplicación para usuarios externos.',
+      'Cada lector debe ver solo ciertas filas.',
+      'Muchas personas consultan los mismos datos y quieres respuestas rápidas: SPICE.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Solo necesitas consultas SQL ad hoc sobre S3, sin paneles: Amazon Athena.',
+      'Buscas texto o analizas registros con OpenSearch Dashboards: Amazon OpenSearch Service.',
+      'Visualizas métricas, registros y trazas operativas de CloudWatch, X-Ray o Prometheus: Amazon Managed Grafana.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon Quick"
+  url="https://docs.aws.amazon.com/quick/latest/userguide/what-is.html"
+/>
+<OfficialSource
+  title="Importar datos a SPICE"
+  url="https://docs.aws.amazon.com/quick/latest/userguide/spice.html"
+/>
+<OfficialSource
+  title="Compartir datos con paneles e informes en Quick Sight"
+  url="https://docs.aws.amazon.com/quick/latest/userguide/working-with-dashboards.html"
+/>
+<OfficialSource
+  title="Seguridad por fila en Amazon Quick"
+  url="https://docs.aws.amazon.com/quick/latest/userguide/row-level-security.html"
+/>
