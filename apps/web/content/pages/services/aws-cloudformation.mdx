@@ -7,4 +7,96 @@ export const meta = {
   covers: ['2.2-s1'],
 };
 
-Contenido pendiente.
+AWS CloudFormation es el servicio de infraestructura como código de AWS: describes en una plantilla los recursos que necesitas, como instancias de EC2, balanceadores o bases de datos de RDS, y CloudFormation los aprovisiona y configura por ti, resolviendo el orden en que dependen unos de otros.
+
+## Qué problema resuelve
+
+Crear y conectar recursos a mano, servicio por servicio, lleva tiempo, cuesta repetirlo igual en otra región y hace difícil saber qué cambió y cómo volver atrás. Con CloudFormation la infraestructura queda descrita en un archivo de texto que se versiona como el código, se despliega siempre de la misma forma y se revierte usando una versión anterior de la plantilla. Así se mantiene la integridad de la infraestructura: lo desplegado coincide con lo que se probó. La estrategia completa de inmutabilidad y despliegues se explica en el tema "Infraestructura inmutable y automatización".
+
+## Conceptos clave
+
+### Plantillas y pilas
+
+- **Plantilla**: archivo de texto en YAML o JSON que sirve de plano para construir los recursos. Admite parámetros de entrada, como el tipo de instancia, para reutilizar la misma plantilla en contextos distintos.
+- **Pila (stack)**: el conjunto de recursos creado a partir de una plantilla, que se crea, actualiza y elimina como una sola unidad. Eliminar la pila elimina todos sus recursos.
+
+### Cambios controlados
+
+- **Conjuntos de cambios (change sets)**: antes de actualizar una pila, CloudFormation compara la plantilla modificada con la original y lista los cambios propuestos. Los revisas y solo entonces los aplicas, porque algunas actualizaciones pueden interrumpir o incluso reemplazar un recurso.
+- **Validación y reversión**: CloudFormation valida la plantilla antes de crear recursos; si la creación de la pila falla, revierte los cambios eliminando lo que había creado. También puedes conservar los recursos creados con éxito, corregir el fallo y reanudar desde ese punto.
+- **Control de versiones**: como la plantilla es texto, un sistema de control de versiones te dice qué cambió, quién lo cambió y cuándo.
+
+### Detección de desviaciones (drift)
+
+Aunque uses CloudFormation, alguien puede modificar un recurso directamente desde su servicio, por ejemplo desde la consola de EC2. La detección de desviaciones compara los valores reales de las propiedades con los esperados según la plantilla y sus parámetros, e indica qué recursos de la pila cambiaron fuera de CloudFormation, incluidos los eliminados. Así puedes corregirlos y volver a alinear la pila con su definición.
+
+### StackSets
+
+CloudFormation StackSets crea, actualiza o elimina pilas en varias cuentas y regiones con una sola operación, a partir de una plantilla administrada desde una cuenta de administrador. Se integra con AWS Organizations para desplegar en las cuentas de la organización.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Despliega en varias cuentas con"
+    service="AWS Organizations"
+    description="StackSets aprovisiona la misma plantilla en las cuentas y regiones de la organización."
+  />
+  <ConnectionCard
+    relation="Crea recursos como"
+    service="Amazon EC2 Auto Scaling"
+    description="Una pila puede incluir el grupo de Auto Scaling, el balanceador y la base de datos de una aplicación web."
+  />
+  <ConnectionCard
+    relation="Vigila la configuración junto a"
+    service="AWS Config"
+    description="Config evalúa la configuración de los recursos con reglas, más allá de lo que define la plantilla."
+  />
+  <ConnectionCard
+    relation="Se usa también desde"
+    service="AWS CLI"
+    description="Puedes crear y actualizar pilas con comandos e integrarlas en scripts de automatización."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="CloudFormation cuando"
+    items={[
+      'Quieres describir toda la infraestructura como código y versionarla.',
+      'Necesitas replicar el mismo entorno en varias regiones o cuentas.',
+      'Quieres revisar los cambios antes de aplicarlos y detectar desviaciones.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Debes evaluar la configuración de todos los recursos de la cuenta con reglas: AWS Config.',
+      'Solo quieres ejecutar comandos puntuales o scripts imperativos: AWS CLI.',
+      'Quieres gobernar un entorno de varias cuentas con controles listos: AWS Control Tower.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS CloudFormation"
+  url="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/Welcome.html"
+/>
+<OfficialSource
+  title="Cómo funciona CloudFormation"
+  url="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-overview.html"
+/>
+<OfficialSource
+  title="Detección de desviaciones en CloudFormation"
+  url="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-stack-drift.html"
+/>
+<OfficialSource
+  title="Administrar pilas en varias cuentas y regiones con StackSets"
+  url="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/what-is-cfnstacksets.html"
+/>
