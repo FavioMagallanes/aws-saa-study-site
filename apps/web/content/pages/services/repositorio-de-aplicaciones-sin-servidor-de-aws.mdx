@@ -7,4 +7,96 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+AWS Serverless Application Repository es un catálogo donde los desarrolladores y las empresas encuentran, despliegan y publican aplicaciones sin servidor. Contiene ejemplos de código, componentes y aplicaciones completas para casos comunes, como backends web y móviles, procesamiento de eventos y datos, registro, supervisión o IoT. No tiene cargo adicional: pagas solo los recursos de AWS que usan las aplicaciones que despliegas.
+
+## Qué problema resuelve
+
+Muchas piezas sin servidor se repiten de un proyecto a otro: un backend web o móvil, un procesador de datos, un chatbot. Construirlas cada vez desde cero lleva tiempo, y compartirlas entre equipos sin un mecanismo común obliga a copiar código y plantillas a mano. El repositorio permite reutilizar esas aplicaciones con unos pocos clics y publicar las propias para el equipo, la organización o toda la comunidad.
+
+## Conceptos clave
+
+### Plantilla de AWS SAM
+
+Cada aplicación se empaqueta con una plantilla de AWS Serverless Application Model (AWS SAM), que define los recursos de AWS que usa. AWS SAM es un framework de código abierto para definir aplicaciones sin servidor como infraestructura como código, con una sintaxis simplificada que extiende CloudFormation. Para compartirla públicamente necesitas además una licencia y una versión semántica, y conviene indicar la URL del código fuente.
+
+### Desplegar una aplicación
+
+- Buscas aplicaciones desde la consola del repositorio o desde la consola de AWS Lambda, por categoría, nombre, publicador o fuente de eventos.
+- Antes de desplegar puedes revisar los permisos, la plantilla de SAM, la licencia y el readme.
+- Si la aplicación crea roles de IAM personalizados o políticas de recursos, debes reconocerlo de forma explícita antes de desplegarla.
+- El despliegue se hace mediante un conjunto de cambios de CloudFormation, que crea una pila con los recursos en tu cuenta. Después los administras con las herramientas habituales de AWS.
+
+### Compartir una aplicación
+
+- **Privada** (predeterminada): solo la puede desplegar la cuenta que la creó.
+- **Compartida de forma privada**: con cuentas concretas o con las cuentas de una organización de AWS Organizations.
+- **Pública**: cualquiera la puede desplegar, y se muestra el enlace al código fuente.
+
+La información que introduces al publicar, como el nombre del autor, no se cifra, así que no incluyas datos personales que no quieras exponer.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Se integra con la consola de"
+    service="AWS Lambda"
+    description="Desde la consola de Lambda puedes buscar y desplegar aplicaciones del repositorio."
+  />
+  <ConnectionCard
+    relation="Despliega con"
+    service="AWS CloudFormation"
+    description="Cada despliegue crea una pila a partir de un conjunto de cambios."
+  />
+  <ConnectionCard
+    relation="Comparte con"
+    service="AWS Organizations"
+    description="Puedes compartir una aplicación con todas las cuentas de tu organización."
+  />
+  <ConnectionCard
+    relation="Lee los artefactos de"
+    service="Amazon S3"
+    description="Los artefactos empaquetados se suben a un bucket que el servicio debe poder leer."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="El repositorio cuando"
+    items={[
+      'Quieres desplegar rápido una aplicación sin servidor ya hecha para un caso común.',
+      'Necesitas compartir componentes sin servidor entre equipos o cuentas de tu organización.',
+      'Publicas una aplicación sin servidor para la comunidad.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Desarrollas y pruebas tu propia aplicación sin servidor como código: AWS SAM.',
+      'Defines infraestructura que no es solo sin servidor: AWS CloudFormation.',
+      'Tu organización ofrece un catálogo de servicios de TI aprobados, con restricciones de gobierno: AWS Service Catalog.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Serverless Application Repository"
+  url="https://docs.aws.amazon.com/serverlessrepo/latest/devguide/what-is-serverlessrepo.html"
+/>
+<OfficialSource
+  title="Cómo publicar aplicaciones"
+  url="https://docs.aws.amazon.com/serverlessrepo/latest/devguide/serverlessrepo-how-to-publish.html"
+/>
+<OfficialSource
+  title="Cómo desplegar aplicaciones"
+  url="https://docs.aws.amazon.com/serverlessrepo/latest/devguide/serverlessrepo-how-to-consume.html"
+/>
+<OfficialSource
+  title="Qué es AWS SAM"
+  url="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html"
+/>
