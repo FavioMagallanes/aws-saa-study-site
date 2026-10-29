@@ -12,10 +12,12 @@ Follows odd/tasks/web-cleanup.md. Direct pushes to main, no PRs.
 
 ## Tasks
 
-- [ ] T1 (S2,S3,S5) grouped search results and Penpot row/footer/input styling
-- [ ] T2 (S4) preload the lazy search dialog and keep early keystrokes
+- [x] T1 (S2,S3,S5) grouped search results and Penpot row/footer/input styling
+- [x] T2 (S4) preload the lazy search dialog and keep early keystrokes
 - [ ] T3 Design gaps without a Penpot design (write key dialog, empty state, tablet, mobile menu): scope pending the owner's decision
 
 ## Log
 
 - L1: "con el diseño, el deploy al final"
+- L2: T1-T2 built by a worker, reviewed by the parent: 381 web tests, lint, format, tsc pass; checked in desktop Chrome on the dev server (groups Siglas/Páginas/En el texto for 'rpo', Enter on a heading result opens /lectura/recuperacion-ante-desastres#rto-y-rpo and the h3 is scrolled into view). Added h3 ids (SubsectionHeading) so heading results deep link; the worker found only h2 had ids. Not checked in a browser: mobile layout (Cancelar), dark theme, early typing on a slow load.
+- L3: T3 (design gaps) — the owner chose 'Diseño en Penpot y luego código'. Eight boards drawn in the open Penpot file (page Móvil: Clave de escritura, Inicio vacío, Menú móvil, Inicio Tablet, Servicio Tablet; page Escritorio: Clave de escritura, Inicio vacío), built from shape operations only; no visual check (exports stale or timing out). Waiting for the owner's review before any code.
