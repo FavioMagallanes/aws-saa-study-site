@@ -7,4 +7,98 @@ export const meta = {
   covers: ['3.1-k2'],
 };
 
-Contenido pendiente.
+Amazon EBS (Elastic Block Store) ofrece almacenamiento de bloques escalable y de alto rendimiento para instancias de Amazon EC2. Un volumen de EBS se conecta a una instancia y se usa como un disco duro: puedes guardar archivos, instalar aplicaciones o alojar una base de datos.
+
+## Qué problema resuelve
+
+Una instancia necesita un disco que no desaparezca cuando la instancia se detiene o se reemplaza, con latencia baja y un rendimiento que puedas elegir. Los volúmenes de EBS persisten con independencia de la vida de la instancia y sirven como almacenamiento principal para datos que se actualizan a menudo, como el disco del sistema o una base de datos. Dentro de los servicios de almacenamiento, EBS es la opción de **bloques para una instancia**; la comparación con archivos y objetos está en el tema «Elegir almacenamiento por rendimiento y escala».
+
+## Conceptos clave
+
+### Volúmenes y zona de disponibilidad
+
+El volumen y la instancia deben estar en la misma zona de disponibilidad, y puedes conectar varios volúmenes a una instancia. Los datos de cada volumen se replican automáticamente en varios servidores de esa zona para que el fallo de un componente no los pierda. Eso no protege frente a la pérdida de la zona: para eso están las instantáneas.
+
+### Tipos de volumen
+
+Hay dos grandes familias: **SSD** (gp3, gp2, io2 Block Express e io1), para cargas transaccionales donde importa el IOPS, y **HDD** (st1 y sc1), para cargas donde importa el throughput. Los volúmenes Provisioned IOPS (io1 e io2) son para IOPS sostenidos y bases de datos con mucha E/S. El detalle está en el tema «Volúmenes de EBS: SSD frente a HDD».
+
+### Elastic Volumes y Multi-Attach
+
+- **Elastic Volumes**: aumentas la capacidad o ajustas el rendimiento sin tiempo de inactividad, a medida que cambian tus necesidades.
+- **Multi-Attach**: conecta un único volumen io1 o io2 a varias instancias de la misma zona, siempre que la aplicación gestione las escrituras concurrentes. Los sistemas de archivos estándar como XFS o EXT4 no están pensados para ese acceso simultáneo; para compartir archivos entre instancias suele encajar mejor Amazon EFS.
+
+### Instantáneas
+
+Una instantánea es una copia de seguridad incremental de un momento dado: solo guarda los bloques que cambiaron desde la anterior. Se guarda en S3, en buckets a los que no accedes directamente, y se replica en todas las zonas de la región, así que puedes restaurar el volumen en cualquier zona o copiarlo a otras cuentas y regiones. AWS **no** respalda tus volúmenes de forma automática: es tu responsabilidad crear instantáneas o programarlas con Amazon Data Lifecycle Manager o AWS Backup.
+
+### Cifrado
+
+El cifrado de EBS usa claves de AWS KMS y protege los datos en reposo y en tránsito entre la instancia y el volumen, además de las instantáneas. Puedes activarlo por defecto para la cuenta, región por región. No puedes cambiar la clave de KMS de un volumen o una instantánea que ya existe.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Se conecta a"
+    service="Amazon EC2"
+    description="Los volúmenes se conectan a instancias de la misma zona de disponibilidad y persisten aunque la instancia termine."
+  />
+  <ConnectionCard
+    relation="Cifra con"
+    service="AWS KMS"
+    description="Las claves de KMS cifran los volúmenes y sus instantáneas sin que gestiones tu propia infraestructura de claves."
+  />
+  <ConnectionCard
+    relation="Se respalda con"
+    service="AWS Backup"
+    description="Programa instantáneas de los volúmenes, junto con las copias de otros servicios, desde una sola política."
+  />
+  <ConnectionCard
+    relation="Guarda las instantáneas en"
+    service="Amazon S3"
+    description="Las instantáneas se guardan en S3 de forma gestionada por AWS y se replican entre las zonas de la región."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Amazon EBS cuando"
+    items={[
+      'Una instancia de EC2 necesita un disco persistente de baja latencia, como el del sistema o una base de datos.',
+      'Necesitas IOPS sostenidos y predecibles: volúmenes Provisioned IOPS.',
+      'Quieres elegir y ajustar la capacidad y el rendimiento que aprovisionas.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Muchas instancias Linux deben compartir los mismos archivos: Amazon EFS.',
+      'Necesitas un sistema de archivos Windows, Lustre, NetApp ONTAP u OpenZFS: Amazon FSx.',
+      'Guardas objetos a gran escala accesibles por API o desde internet: Amazon S3.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon EBS"
+  url="https://docs.aws.amazon.com/ebs/latest/userguide/what-is-ebs.html"
+/>
+<OfficialSource
+  title="Volúmenes de Amazon EBS"
+  url="https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volumes.html"
+/>
+<OfficialSource
+  title="Instantáneas de Amazon EBS"
+  url="https://docs.aws.amazon.com/ebs/latest/userguide/ebs-snapshots.html"
+/>
+<OfficialSource
+  title="Cifrado de Amazon EBS"
+  url="https://docs.aws.amazon.com/ebs/latest/userguide/ebs-encryption.html"
+/>
