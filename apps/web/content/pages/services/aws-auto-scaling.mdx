@@ -7,4 +7,106 @@ export const meta = {
   covers: ['3.2-k4'],
 };
 
-Contenido pendiente.
+AWS Auto Scaling es el servicio que permite configurar, desde un solo lugar, el escalado automático de varios recursos relacionados de una aplicación mediante planes de escalado (scaling plans). No sustituye a Amazon EC2 Auto Scaling ni a Application Auto Scaling: se apoya en ellos para ajustar la capacidad de cada recurso.
+
+## Qué problema resuelve
+
+Una aplicación real combina instancias EC2, tareas de ECS, tablas de DynamoDB o réplicas de Aurora, y configurar el escalado de cada una por separado, desde su propia consola, es lento y propenso a incoherencias. Un plan de escalado agrupa esos recursos, por ejemplo por etiquetas o por pila de AWS CloudFormation, y aplica una estrategia común en pocos minutos. Las métricas y políticas en detalle se explican en el tema "Escalado automático: métricas y políticas".
+
+## Conceptos clave
+
+### Plan de escalado
+
+Un plan de escalado es un conjunto de instrucciones para escalar los recursos de una aplicación. AWS Auto Scaling descubre de forma automática los recursos escalables de la aplicación. Los recursos admitidos son:
+
+- Grupos de Amazon EC2 Auto Scaling (capacidad deseada).
+- Servicios de Amazon ECS (número deseado de tareas).
+- Tablas e índices secundarios globales de DynamoDB (capacidad de lectura y escritura aprovisionada).
+- Réplicas de lectura de un clúster de Aurora.
+- Solicitudes de Spot Fleet (capacidad de destino).
+
+### Estrategia de escalado
+
+La estrategia indica cómo optimizar el uso de los recursos: para la disponibilidad, para el costo o con un equilibrio entre ambos. También puedes definir una estrategia personalizada con tus propias métricas y umbrales, y fijar estrategias distintas por recurso o tipo de recurso. La consola ofrece recomendaciones adaptadas a cada recurso.
+
+### Escalado dinámico y predictivo
+
+- **Dinámico**: el plan crea políticas de seguimiento de destino que ajustan la capacidad según el uso real, como un termostato.
+- **Predictivo** (solo para grupos de Auto Scaling): usa aprendizaje automático sobre el historial de carga para pronosticar la demanda y programa acciones que preparan la capacidad antes de que llegue. Si la demanda supera el pronóstico, el escalado dinámico añade capacidad.
+
+Si solo quieres escalado predictivo, AWS recomienda definir las políticas predictivas directamente en el grupo de Auto Scaling o en Application Auto Scaling, porque ofrecen más funciones.
+
+### Cuál es cuál
+
+- **Amazon EC2 Auto Scaling**: escala grupos de instancias EC2, revisa su estado y reemplaza las dañadas.
+- **Application Auto Scaling**: escala recursos de otros servicios, como servicios de ECS, tablas de DynamoDB, réplicas de Aurora o la concurrencia aprovisionada de Lambda.
+- **AWS Auto Scaling**: coordina con un plan el escalado de varios de esos recursos a la vez.
+
+Los planes de escalado no tienen cargo adicional más allá de CloudWatch y los recursos que uses; el escalado predictivo de un plan consulta métricas históricas de CloudWatch, y esas consultas sí generan costos.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Escala instancias con"
+    service="Amazon EC2 Auto Scaling"
+    description="Ajusta la capacidad deseada de los grupos de Auto Scaling, con escalado dinámico y predictivo."
+  />
+  <ConnectionCard
+    relation="Escala otros recursos con"
+    service="Application Auto Scaling"
+    description="Ajusta tareas de ECS, capacidad de DynamoDB, réplicas de Aurora y Spot Fleet."
+  />
+  <ConnectionCard
+    relation="Agrupa recursos por"
+    service="AWS CloudFormation"
+    description="Puedes crear un plan para los recursos escalables de una pila, o crear el plan con una plantilla."
+  />
+  <ConnectionCard
+    relation="Mide el uso con"
+    service="Amazon CloudWatch"
+    description="Las políticas de seguimiento de destino se basan en métricas de CloudWatch."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="AWS Auto Scaling cuando"
+    items={[
+      'Quieres configurar en un solo lugar el escalado de varios recursos de una aplicación.',
+      'Agrupas los recursos por etiquetas o por pila de CloudFormation.',
+      'Buscas una estrategia recomendada de disponibilidad, costo o equilibrio.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Solo escalas una flota de instancias EC2: Amazon EC2 Auto Scaling.',
+      'Escalas un único recurso de otro servicio, como ECS o Lambda: Application Auto Scaling.',
+      'Solo necesitas escalado predictivo: políticas predictivas directas en el grupo de Auto Scaling.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es un plan de escalado de AWS Auto Scaling"
+  url="https://docs.aws.amazon.com/autoscaling/plans/userguide/what-is-a-scaling-plan.html"
+/>
+<OfficialSource
+  title="Cómo funcionan los planes de escalado"
+  url="https://docs.aws.amazon.com/autoscaling/plans/userguide/how-it-works.html"
+/>
+<OfficialSource
+  title="Qué es Application Auto Scaling"
+  url="https://docs.aws.amazon.com/autoscaling/application/userguide/what-is-application-auto-scaling.html"
+/>
+<OfficialSource
+  title="Qué es Amazon EC2 Auto Scaling"
+  url="https://docs.aws.amazon.com/autoscaling/ec2/userguide/what-is-amazon-ec2-auto-scaling.html"
+/>
