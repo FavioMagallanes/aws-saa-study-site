@@ -7,6 +7,7 @@ export const bulletIdSchema = z.string().regex(/^[1-4]\.\d+-[ks]\d+$/, 'Expected
 
 export const pageMetaSchema = z.object({
   id: pageIdSchema,
+  order: z.number().int().positive(),
   title: z.string().min(1),
   kind: pageKindSchema,
   category: z.string().min(1).optional(),

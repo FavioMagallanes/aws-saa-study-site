@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { pageMetaSchema } from '../src/content/page-meta.ts';
 
-const valid = { id: 'amazon-sqs', title: 'Amazon SQS', kind: 'service', covers: ['2.1-k2'] };
+const valid = {
+  id: 'amazon-sqs',
+  order: 1,
+  title: 'Amazon SQS',
+  kind: 'service',
+  covers: ['2.1-k2'],
+};
 
 describe('page meta contract', () => {
   it('accepts a service page that covers a guide bullet', () => {

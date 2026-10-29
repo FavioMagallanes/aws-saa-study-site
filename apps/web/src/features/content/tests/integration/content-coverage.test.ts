@@ -46,3 +46,20 @@ describe('exam guide structure', () => {
     expect(dangling).toEqual([]);
   });
 });
+
+describe('page reading order', () => {
+  it('numbers the pages 1..N without gaps or repeats', () => {
+    const orders = loadPages()
+      .map((page) => page.order)
+      .sort((a, b) => a - b);
+    expect(orders).toEqual(orders.map((_, index) => index + 1));
+  });
+
+  it('places fundamentals first, then topics, then services', () => {
+    const kinds = loadPages()
+      .sort((a, b) => a.order - b.order)
+      .map((page) => page.kind);
+    const rank = { fundamental: 0, topic: 1, service: 2 } as const;
+    expect(kinds.map((kind) => rank[kind])).toEqual(kinds.map((kind) => rank[kind]).sort());
+  });
+});

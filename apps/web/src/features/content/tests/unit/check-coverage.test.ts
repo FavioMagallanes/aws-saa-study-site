@@ -18,6 +18,7 @@ const guide: ExamGuide = {
 
 const page = (overrides: Partial<PageMeta>): PageMeta => ({
   id: 'amazon-sqs',
+  order: 1,
   title: 'Amazon SQS',
   kind: 'service',
   covers: [],
