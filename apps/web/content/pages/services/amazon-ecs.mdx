@@ -7,4 +7,98 @@ export const meta = {
   covers: ['2.1-k14'],
 };
 
-Contenido pendiente.
+Amazon ECS (Elastic Container Service) es un servicio de orquestación de contenedores totalmente administrado para desplegar, administrar y escalar aplicaciones en contenedores. Trae integradas las buenas prácticas de configuración y operación de AWS, y no tienes que gestionar ningún plano de control.
+
+## Qué problema resuelve
+
+Cuando una aplicación se compone de muchos contenedores, alguien tiene que decidir dónde se ejecuta cada uno, mantener en marcha el número deseado y escalarlos según la demanda. ECS hace ese trabajo de orquestación sin que instales ni operes software de orquestación propio, y se integra con herramientas de AWS como Amazon ECR y con herramientas externas como Docker. Es una de las dos opciones de orquestación de contenedores que cita la guía del examen; la otra es Amazon EKS. Cuándo conviene usar contenedores y cómo migrar a ellos se explica en el tema «Contenedores: cuándo usarlos y cómo migrar».
+
+## Conceptos clave
+
+### Piezas de ECS
+
+- **Definición de tarea**: el plano de la aplicación: imagen, capacidad, red, registro y volúmenes.
+- **Clúster**: la infraestructura sobre la que se ejecuta la aplicación.
+- **Tarea**: una ejecución que hace un trabajo y termina, como un proceso por lotes.
+- **Servicio**: una aplicación sin estado de larga duración; ECS mantiene el número deseado de tareas.
+- **Rol de IAM de tarea**: entrega a los contenedores permisos para usar otros servicios, como Amazon S3, sin dárselos a la instancia que los aloja.
+
+### Opciones de capacidad
+
+- **AWS Fargate**: cómputo sin servidor y de pago por uso; no administras servidores ni planificas capacidad.
+- **Instancias de Amazon EC2**: eliges el tipo y el número de instancias y administras la capacidad.
+- **Amazon ECS Managed Instances**: instancias EC2, incluidas las de GPU o tipos especializados, cuyo aprovisionamiento, parches y escalado delegas en AWS.
+- **Servidores locales o máquinas virtuales**: registrados en el clúster con Amazon ECS Anywhere.
+
+### Escalado y balanceo de carga
+
+- **Escalado automático del servicio**: con Application Auto Scaling, ajusta el número de tareas según una métrica objetivo, alarmas de CloudWatch, una programación, patrones históricos o el trabajo pendiente en una cola de Amazon SQS.
+- **Escalado automático del clúster**: ECS ajusta las instancias EC2 registradas en el clúster.
+- **Balanceo de carga**: Elastic Load Balancing reparte el tráfico entre las tareas del servicio. AWS recomienda el Application Load Balancer para tráfico HTTP/HTTPS, que permite enrutar por ruta y servir varios servicios desde el mismo puerto.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Descarga imágenes de"
+    service="Amazon ECR"
+    description="Registro administrado donde guardas las imágenes que usan las definiciones de tarea."
+  />
+  <ConnectionCard
+    relation="Ejecuta sin servidores con"
+    service="AWS Fargate"
+    description="Aporta la capacidad para las tareas sin aprovisionar ni escalar instancias."
+  />
+  <ConnectionCard
+    relation="Reparte el tráfico con"
+    service="Elastic Load Balancing"
+    description="Distribuye las solicitudes entre las tareas de un servicio con un ALB, NLB o GWLB."
+  />
+  <ConnectionCard
+    relation="Se supervisa con"
+    service="Amazon CloudWatch"
+    description="Recibe las métricas de uso de CPU y memoria del servicio, que también sirven para escalarlo."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="ECS cuando"
+    items={[
+      'Quieres orquestar contenedores con integración nativa de AWS y sin plano de control que gestionar.',
+      'Necesitas más control sobre la red y la seguridad sin renunciar a escala.',
+      'Necesitas desplegar y administrar hasta miles de contenedores, en EC2 o en Fargate.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Ya usas Kubernetes o quieres su ecosistema y sus herramientas: Amazon EKS.',
+      'Tu equipo tiene poca experiencia con contenedores: AWS Lambda, Amazon Lightsail o AWS Batch.',
+      'Ejecutas trabajos por lotes con aprovisionamiento automático del cómputo: AWS Batch.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon ECS"
+  url="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/Welcome.html"
+/>
+<OfficialSource
+  title="Escalar automáticamente un servicio de Amazon ECS"
+  url="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-auto-scaling.html"
+/>
+<OfficialSource
+  title="Balanceo de carga para servicios de Amazon ECS"
+  url="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-load-balancing.html"
+/>
+<OfficialSource
+  title="Elegir un servicio de contenedores de AWS"
+  url="https://docs.aws.amazon.com/decision-guides/latest/containers-on-aws-how-to-choose/choosing-aws-container-service.html"
+/>
