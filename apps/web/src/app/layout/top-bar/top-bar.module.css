@@ -79,6 +79,9 @@
 
 .top-bar__search-text {
   flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .top-bar__shortcut {
