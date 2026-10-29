@@ -7,4 +7,100 @@ export const meta = {
   covers: ['2.1-k2'],
 };
 
-Contenido pendiente.
+Amazon SQS (Simple Queue Service) es un servicio administrado de colas de mensajes, seguro, duradero y disponible, para integrar y desacoplar sistemas y componentes distribuidos. No aprovisionas servidores: SQS guarda los mensajes de forma redundante y escala solo ante aumentos o picos de carga.
+
+## Qué problema resuelve
+
+Si un componente llama directamente a otro, una caída o un pico en el segundo afecta al primero. Una cola de SQS en medio permite que el productor deje el trabajo y siga adelante, mientras los consumidores lo procesan a su ritmo. Como servicio administrado, evita además instalar y operar un sistema de colas propio, que es justo el tipo de caso de uso que la guía del examen asocia a SQS. El funcionamiento detallado de las colas, el tiempo de espera de visibilidad y el escalado de consumidores se explica en el tema «Colas, mensajería y publicación/suscripción».
+
+## Conceptos clave
+
+### Casos de uso adecuados
+
+- **Separar las solicitudes de los usuarios del trabajo pesado**: la aplicación acepta rápido una subida y la redimensiona o codifica en segundo plano.
+- **Repartir tareas entre muchos nodos de trabajo**, por ejemplo un volumen alto de validaciones.
+- **Acumular trabajo para procesarlo por lotes**, como inserciones en una base de datos.
+- **Mantener el orden de las operaciones**, como los comandos de un usuario o los cambios de precio de un producto: cola FIFO.
+
+### Colas estándar y FIFO
+
+- **Estándar**: rendimiento casi ilimitado, entrega **al menos una vez** y orden de mejor esfuerzo. La aplicación debe tolerar duplicados con operaciones idempotentes.
+- **FIFO**: orden estricto dentro de cada grupo de mensajes y procesamiento **exactamente una vez** con deduplicación, a cambio de un rendimiento más limitado.
+
+### Ciclo de vida del mensaje
+
+Un consumidor recibe el mensaje, que queda oculto para los demás durante el **tiempo de espera de visibilidad** (30 segundos por defecto). Si no lo elimina a tiempo, vuelve a estar visible. Los mensajes se conservan 4 días por defecto, configurable entre 60 segundos y 14 días.
+
+### Otras funciones útiles
+
+- **Cola de mensajes fallidos (DLQ)**: recibe los mensajes que superan un número de recepciones (`maxReceiveCount`) sin procesarse, para aislarlos y analizarlos.
+- **Cola de retraso**: oculta los mensajes nuevos durante un tiempo, hasta 15 minutos. Para programaciones más largas, AWS recomienda EventBridge Scheduler.
+- **Mensajes grandes**: los que superan 1 MiB se pueden guardar en Amazon S3 o DynamoDB, con un puntero en la cola.
+- **Cifrado**: del lado del servidor, con claves administradas por SQS o con claves de AWS KMS.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Recibe mensajes de"
+    service="Amazon SNS"
+    description="Varias colas suscritas a un tema reciben copias del mismo mensaje (fanout)."
+  />
+  <ConnectionCard
+    relation="Es consumida por"
+    service="AWS Lambda"
+    description="Lambda lee los mensajes de la cola e invoca la función con ellos."
+  />
+  <ConnectionCard
+    relation="Escala los consumidores con"
+    service="Amazon EC2 Auto Scaling"
+    description="Ajusta las instancias según el trabajo pendiente por instancia en la cola."
+  />
+  <ConnectionCard
+    relation="Cifra los mensajes con"
+    service="AWS KMS"
+    description="Protege el contenido de los mensajes con claves propias de KMS."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="SQS cuando"
+    items={[
+      'Necesitas desacoplar un productor de sus consumidores y absorber picos de carga.',
+      'Cada mensaje lo procesa un solo consumidor, a su ritmo.',
+      'Importan el orden y evitar duplicados: cola FIFO.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'El mismo mensaje debe llegar a varios suscriptores a la vez: Amazon SNS, con fanout a colas de SQS.',
+      'Migras una aplicación que ya usa un agente con JMS, AMQP o MQTT: Amazon MQ.',
+      'Necesitas coordinar varios pasos con ramas y reintentos: AWS Step Functions.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon SQS"
+  url="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welcome.html"
+/>
+<OfficialSource
+  title="Tipos de cola de Amazon SQS"
+  url="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-queue-types.html"
+/>
+<OfficialSource
+  title="Colas de mensajes fallidos en Amazon SQS"
+  url="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html"
+/>
+<OfficialSource
+  title="Colas de retraso de Amazon SQS"
+  url="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-delay-queues.html"
+/>
