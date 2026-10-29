@@ -1,0 +1,27 @@
+.text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+  text-decoration: none;
+}
+
+.text-link:hover {
+  text-decoration: underline;
+}
+
+.text-link--next,
+.text-link--more {
+  color: var(--color-accent);
+}
+
+.text-link--previous {
+  color: var(--color-muted);
+}
+
+.text-link__icon {
+  display: inline-flex;
+}

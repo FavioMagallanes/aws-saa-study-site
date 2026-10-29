@@ -1,0 +1,24 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.chip--read {
+  border-color: transparent;
+  background: var(--color-ok-soft);
+  color: var(--color-ok);
+}
+
+.chip__icon {
+  display: inline-flex;
+}
