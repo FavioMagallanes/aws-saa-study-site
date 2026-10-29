@@ -7,4 +7,111 @@ export const meta = {
   covers: ['1.2-k2', '3.5-k5'],
 };
 
-Contenido pendiente.
+Por defecto, los recursos de una subred privada no llegan a los servicios de AWS sin pasar por una puerta de enlace de internet o un dispositivo NAT. Los puntos de enlace de VPC resuelven eso: conectan tu VPC con servicios y recursos de forma privada, de modo que el tráfico no tiene que salir a internet. AWS PrivateLink es la tecnología que hay detrás de la mayoría de ellos.
+
+## Qué problema resuelve
+
+Mandar el tráfico de tus aplicaciones hacia servicios como S3 o Kinesis por una puerta de enlace de internet o un NAT amplía tu superficie de exposición y complica las reglas. AWS PrivateLink permite conectar tu VPC a servicios y recursos como si estuvieran dentro de ella. No necesitas puerta de enlace de internet, dispositivo NAT, dirección IP pública, conexión de Direct Connect ni de Site-to-Site VPN para comunicarte desde tus subredes privadas, y controlas con precisión qué puntos de enlace de API, sitios, servicios y recursos son accesibles desde tu VPC.
+
+## Conceptos clave
+
+### Proveedores y consumidores
+
+Quien ofrece un servicio es el **proveedor de servicio**, que puede ser AWS, un socio de AWS u otra cuenta. Para ponerlo disponible crea un servicio de punto de enlace y debe indicar un balanceador de carga, que recibe las solicitudes de los consumidores y las enruta al servicio. Por defecto el servicio no está disponible: el proveedor debe añadir permisos para que entidades de AWS concretas se conecten. El **consumidor** crea un punto de enlace de VPC para conectar su VPC con ese servicio, e identifica el servicio por su nombre.
+
+### Tipos de puntos de enlace de VPC
+
+Debes crear el tipo que necesites:
+
+- **Interfaz**: envía tráfico TCP o UDP a un servicio de punto de enlace. El tráfico se resuelve mediante DNS. Por cada subred que indicas, se crea una interfaz de red del punto de enlace con direcciones IP privadas en tu VPC.
+- **Gateway Load Balancer**: envía tráfico a una flota de dispositivos virtuales con direcciones IP privadas, enrutando desde tu VPC mediante tablas de rutas.
+- **Recurso**: accede de forma privada y segura a un recurso compartido contigo, como una base de datos o una instancia de EC2, que está en otra VPC o en un entorno local.
+- **Túnel** y **red de servicios**: dan acceso a un segmento de red compartido o a varios servicios y recursos mediante un único punto de enlace.
+- **Puerta de enlace (gateway)**: envía tráfico a Amazon S3 o Amazon DynamoDB. A diferencia de los demás, no usa AWS PrivateLink.
+
+### Puntos de enlace de puerta de enlace para S3 y DynamoDB
+
+Ofrecen conectividad fiable con S3 y DynamoDB sin necesitar una puerta de enlace de internet ni un NAT, y no tienen costo adicional. Al crearlos eliges las tablas de rutas de las subredes que habilitas, y se añade automáticamente una ruta cuyo destino es la lista de prefijos del servicio y cuyo destino de salida es el punto de enlace. Todas las instancias de las subredes asociadas a esa tabla lo usan de forma automática; las de subredes no asociadas usan el punto de enlace público del servicio. S3 y DynamoDB admiten tanto puntos de enlace de puerta de enlace como de interfaz.
+
+### Políticas de punto de enlace
+
+Una política de punto de enlace es una política basada en recursos que se asocia a un punto de enlace y controla qué entidades pueden usarlo para acceder al servicio. No reemplaza a las políticas de identidad ni a las de recursos: por ejemplo, con un punto de enlace de interfaz hacia S3 también puedes usar políticas de bucket para controlar el acceso desde puntos de enlace o VPC concretos.
+
+- Si no asocias ninguna, se aplica la política predeterminada, que concede acceso completo.
+- No todos los servicios admiten políticas de punto de enlace; si no la admite, se permite el acceso total a cualquier punto de enlace del servicio.
+- En los puntos de enlace de puerta de enlace, el elemento `Principal` debe ser `*`, y para indicar una entidad concreta se usa la clave de condición `aws:PrincipalArn`.
+
+### Acceso seguro a los puntos de ingesta
+
+Los servicios de ingesta de datos también pueden alcanzarse de forma privada. Por ejemplo, un punto de enlace de VPC de interfaz evita que el tráfico entre tu VPC y Amazon Kinesis Data Streams salga de la red de Amazon, y no requiere puerta de enlace de internet, NAT, VPN ni Direct Connect. Para empezar no tienes que cambiar la configuración de tus flujos, productores ni consumidores: basta crear el punto de enlace de interfaz. Además, las políticas de punto de enlace permiten restringir el acceso para que ocurra solo a través del punto de enlace indicado.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Evita el NAT hacia"
+    service="Amazon S3 y Amazon DynamoDB"
+    description="Un punto de enlace de puerta de enlace los hace accesibles desde subredes privadas sin puerta de enlace de internet ni NAT, y sin costo adicional."
+  />
+  <ConnectionCard
+    relation="Ingesta de forma privada en"
+    service="Amazon Kinesis Data Streams"
+    description="Un punto de enlace de interfaz mantiene el tráfico entre tu VPC y el servicio dentro de la red de Amazon."
+  />
+  <ConnectionCard
+    relation="Se enruta con"
+    service="Tablas de rutas"
+    description="Los puntos de enlace de puerta de enlace añaden a la tabla una ruta con la lista de prefijos del servicio."
+  />
+  <ConnectionCard
+    relation="Comparte recursos con"
+    service="AWS RAM"
+    description="Para compartir un recurso con otra cuenta mediante un punto de enlace de recurso, el proveedor usa un recurso compartido de AWS RAM."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Punto de enlace de puerta de enlace cuando"
+    items={[
+      'El destino es Amazon S3 o Amazon DynamoDB.',
+      'Quieres evitar el NAT y no pagar un costo adicional.',
+      'Basta con una ruta en las tablas de rutas de tus subredes.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Punto de enlace de interfaz cuando"
+    items={[
+      'Te conectas a otros servicios de AWS, como Kinesis Data Streams, o a servicios de socios y de otras cuentas.',
+      'Quieres una interfaz de red con IP privada en tu subred.',
+      'Quieres limitar quién usa el punto de enlace con una política de punto de enlace.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS PrivateLink"
+  url="https://docs.aws.amazon.com/vpc/latest/privatelink/what-is-privatelink.html"
+/>
+<OfficialSource
+  title="Conceptos de AWS PrivateLink"
+  url="https://docs.aws.amazon.com/vpc/latest/privatelink/concepts.html"
+/>
+<OfficialSource
+  title="Puntos de enlace de puerta de enlace"
+  url="https://docs.aws.amazon.com/vpc/latest/privatelink/gateway-endpoints.html"
+/>
+<OfficialSource
+  title="Controlar el acceso a los puntos de enlace de VPC con políticas de punto de enlace"
+  url="https://docs.aws.amazon.com/vpc/latest/privatelink/vpc-endpoints-access.html"
+/>
+<OfficialSource
+  title="Usar Amazon Kinesis Data Streams con puntos de enlace de VPC de interfaz"
+  url="https://docs.aws.amazon.com/streams/latest/dev/vpc.html"
+/>
