@@ -7,4 +7,92 @@ export const meta = {
   covers: ['3.5-k3'],
 };
 
-Contenido pendiente.
+AWS Storage Gateway conecta un dispositivo de software instalado en tu entorno local con el almacenamiento en la nube de AWS. Las aplicaciones locales siguen usando protocolos conocidos, como archivos, volúmenes iSCSI o cintas, mientras los datos se guardan de forma escalable y rentable en AWS.
+
+## Qué problema resuelve
+
+Ampliar el almacenamiento local o mantener una infraestructura de cintas exige comprar, escalar y operar hardware. Mover las aplicaciones a la nube no siempre es posible de inmediato. Storage Gateway permite que esas aplicaciones locales usen almacenamiento de AWS sin cambiar la forma en que acceden a los datos, con una caché local que mantiene baja la latencia para los datos frecuentes. Las opciones de almacenamiento híbrido en conjunto se tratan en el tema «Almacenamiento híbrido», y la comparación con otros servicios de transferencia, en «Transferencia y migración de datos».
+
+## Conceptos clave
+
+### Despliegue
+
+El gateway se despliega en local como máquina virtual (VMware ESXi, KVM, Microsoft Hyper-V o Nutanix AHV) o como dispositivo de hardware. También puede ejecutarse en AWS como instancia de Amazon EC2, por ejemplo para recuperación ante desastres, réplica de datos o para dar almacenamiento a aplicaciones en EC2.
+
+### Tipos de gateway
+
+- **Amazon S3 File Gateway**: presenta un bucket de S3 como recurso compartido de archivos con NFS o SMB. Cada archivo queda como objeto en S3, accesible para cualquier aplicación o servicio de AWS y gestionable con ciclo de vida, replicación entre regiones y versionado. Administra la transferencia, protege a las aplicaciones de la congestión de red y controla el uso del ancho de banda.
+- **Volume Gateway**: volúmenes respaldados en la nube que los servidores locales montan como dispositivos iSCSI. Con **volúmenes en caché**, S3 es el almacenamiento principal y se conservan localmente los datos más usados; con **volúmenes almacenados**, todos los datos están en local y se copian de forma asíncrona a S3 como instantáneas, que puedes recuperar en tu centro de datos o en EC2.
+- **Tape Gateway**: una infraestructura de cintas virtuales que archiva las copias de seguridad en S3 Glacier Flexible Retrieval o S3 Glacier Deep Archive, sin mantener cintas físicas.
+- **Amazon FSx File Gateway**: acceso local de baja latencia a recursos compartidos de FSx for Windows File Server. Ya no está disponible para clientes nuevos.
+
+### Storage Gateway frente a DataSync
+
+Storage Gateway sirve para que las aplicaciones locales **sigan accediendo** a datos guardados en AWS. Si lo que necesitas es **mover o sincronizar** datos entre sistemas de almacenamiento, el servicio indicado es AWS DataSync.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Guarda los datos en"
+    service="Amazon S3"
+    description="S3 File Gateway guarda cada archivo como objeto, y Volume Gateway usa S3 para los volúmenes en caché y las instantáneas."
+  />
+  <ConnectionCard
+    relation="Archiva cintas en"
+    service="Amazon S3 Glacier"
+    description="Tape Gateway archiva las cintas virtuales en S3 Glacier Flexible Retrieval o S3 Glacier Deep Archive."
+  />
+  <ConnectionCard
+    relation="Cifra y controla el acceso con"
+    service="AWS KMS"
+    description="S3 File Gateway usa KMS para el cifrado e IAM para la administración del acceso."
+  />
+  <ConnectionCard
+    relation="Se supervisa con"
+    service="Amazon CloudWatch"
+    description="S3 File Gateway se supervisa con CloudWatch y se audita con AWS CloudTrail."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Storage Gateway cuando"
+    items={[
+      'Las aplicaciones locales necesitan acceso con NFS o SMB a datos guardados en S3: S3 File Gateway.',
+      'Los servidores locales usan volúmenes iSCSI y quieres respaldarlos o ampliarlos en la nube: Volume Gateway.',
+      'Quieres reemplazar las cintas físicas de copia de seguridad: Tape Gateway.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Necesitas migrar o sincronizar grandes volúmenes de datos por la red: AWS DataSync.',
+      'Socios o clientes intercambian archivos por SFTP, FTPS, FTP o AS2: AWS Transfer Family.',
+      'Los servidores Linux locales pueden montar el sistema de archivos directamente por Direct Connect o VPN: Amazon EFS.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon S3 File Gateway"
+  url="https://docs.aws.amazon.com/filegateway/latest/files3/what-is-file-s3.html"
+/>
+<OfficialSource
+  title="Qué es Volume Gateway"
+  url="https://docs.aws.amazon.com/storagegateway/latest/vgw/WhatIsStorageGateway.html"
+/>
+<OfficialSource
+  title="Qué es Tape Gateway"
+  url="https://docs.aws.amazon.com/storagegateway/latest/tgw/WhatIsStorageGateway.html"
+/>
+<OfficialSource
+  title="Qué es Amazon FSx File Gateway"
+  url="https://docs.aws.amazon.com/filegateway/latest/filefsxw/what-is-file-fsxw.html"
+/>
