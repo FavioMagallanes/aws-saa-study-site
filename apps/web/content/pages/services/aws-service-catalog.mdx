@@ -7,4 +7,80 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+AWS Service Catalog permite a una organización crear y administrar catálogos de servicios de TI aprobados para usar en AWS. Esos servicios pueden ir desde imágenes de máquinas virtuales, servidores, software o bases de datos hasta arquitecturas completas de aplicaciones de varios niveles.
+
+## Qué problema resuelve
+
+Si cada equipo crea sus propios recursos con acceso directo a los servicios, es difícil lograr un gobierno consistente y cumplir los requisitos de la empresa, por ejemplo dónde se lanza cada recurso o qué tipo de instancia usa. Service Catalog centraliza los servicios de TI que se despliegan con frecuencia: los administradores definen productos aprobados, con sus restricciones y etiquetas, y los usuarios finales los despliegan por su cuenta, en autoservicio, sin acceso directo a los servicios subyacentes.
+
+## Conceptos clave
+
+- **Producto**: un servicio de TI que quieres ofrecer para desplegar en AWS. Se crea a partir de una plantilla de AWS CloudFormation que define los recursos, sus relaciones y los parámetros que el usuario puede ajustar. También admite configuraciones de Terraform.
+- **Producto aprovisionado**: cada vez que un usuario lanza un producto se crea una pila de CloudFormation, que se aprovisiona, actualiza y termina como una sola unidad.
+- **Portafolio**: una colección de productos con información de configuración. Creas portafolios para cada tipo de usuario y das acceso a cada uno mediante usuarios, grupos y roles de IAM. Puedes compartirlos con otras cuentas de AWS.
+- **Restricciones**: limitan cómo se lanza un producto, por ejemplo dónde se puede lanzar o qué tipo de instancia se puede usar.
+- **Restricción de lanzamiento**: indica el rol de IAM que Service Catalog asume al lanzar, actualizar o terminar un producto. Así el usuario final solo necesita los permisos mínimos para ese producto, y no permisos sobre CloudFormation y todos los servicios que el producto usa.
+- **Versiones**: al publicar una versión nueva de un producto, queda disponible para todos los usuarios que tienen acceso a él, que pueden actualizar sus productos ya lanzados.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Define los productos con"
+    service="AWS CloudFormation"
+    description="Cada producto es una plantilla, y cada producto lanzado es una pila de CloudFormation."
+  />
+  <ConnectionCard
+    relation="Controla el acceso con"
+    service="AWS IAM"
+    description="Concede acceso a los portafolios y asume un rol de lanzamiento con los permisos que necesita el producto."
+  />
+  <ConnectionCard
+    relation="Comparte el catálogo con"
+    service="AWS Organizations"
+    description="Permite compartir un catálogo de servicios de TI y productos propios entre las cuentas de la organización."
+  />
+  <ConnectionCard
+    relation="Es orquestado por"
+    service="AWS Control Tower"
+    description="Control Tower usa Service Catalog, junto con Organizations e IAM Identity Center, para montar la zona de aterrizaje."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Service Catalog cuando"
+    items={[
+      'Los equipos deben desplegar por su cuenta solo recursos aprobados por la empresa.',
+      'Necesitas limitar el tipo de instancia o el lugar donde se lanza un producto.',
+      'Quieres que los usuarios lancen productos sin darles permisos amplios sobre los servicios.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Solo quieres desplegar tu propia infraestructura como código: AWS CloudFormation.',
+      'Necesitas limitar los permisos máximos de cuentas enteras: SCP de AWS Organizations.',
+      'Buscas montar y gobernar un entorno de varias cuentas: AWS Control Tower.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Service Catalog"
+  url="https://docs.aws.amazon.com/servicecatalog/latest/adminguide/introduction.html"
+/>
+<OfficialSource
+  title="Descripción general de Service Catalog"
+  url="https://docs.aws.amazon.com/servicecatalog/latest/adminguide/what-is_concepts.html"
+/>
+<OfficialSource
+  title="Restricciones de lanzamiento"
+  url="https://docs.aws.amazon.com/servicecatalog/latest/adminguide/constraints-launch.html"
+/>
