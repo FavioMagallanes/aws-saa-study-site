@@ -7,4 +7,128 @@ export const meta = {
   covers: ['3.1-k1', '4.1-k8'],
 };
 
-Contenido pendiente.
+Muchas empresas no pueden, o no quieren, mover todo a la nube de una vez. Las aplicaciones siguen en el centro de datos, pero el almacenamiento local se queda corto, las copias de seguridad en cinta son costosas o hay que intercambiar archivos con socios. El almacenamiento híbrido combina la infraestructura local con los servicios de almacenamiento de AWS y permite mover los datos entre ambos entornos según el rendimiento, el costo o el cumplimiento normativo que se necesite.
+
+## Qué problema resuelve
+
+Ampliar el almacenamiento local exige comprar y mantener hardware que puede quedar infrautilizado. Al mismo tiempo, las aplicaciones locales esperan protocolos conocidos, como NFS, SMB o iSCSI, y una latencia baja que no siempre se logra si cada lectura viaja a la nube. Las soluciones híbridas resuelven las dos cosas: guardan los datos de forma duradera y escalable en AWS, y ofrecen a las aplicaciones locales acceso de baja latencia, normalmente con una caché local. También automatizan la transferencia de datos y permiten mantener los flujos de intercambio de archivos existentes.
+
+## Conceptos clave
+
+### AWS Storage Gateway
+
+Storage Gateway conecta un dispositivo de software local con el almacenamiento en la nube. Se despliega en el centro de datos como máquina virtual (VMware ESXi, Microsoft Hyper-V, KVM o Nutanix AHV), como dispositivo de hardware o en AWS como instancia EC2. Ofrece varios tipos de gateway:
+
+- **Amazon S3 File Gateway**: presenta un bucket de S3 como un recurso compartido de archivos accesible con NFS o SMB. Cada archivo se guarda como un objeto en S3, así que los datos también quedan disponibles para cualquier aplicación o servicio de AWS y se pueden gestionar con políticas de ciclo de vida, replicación entre regiones y versionado. Ofrece acceso de baja latencia mediante una caché local transparente y es una alternativa rentable al almacenamiento local.
+- **Volume Gateway**: ofrece volúmenes respaldados en la nube que los servidores locales montan como dispositivos iSCSI. Tiene dos configuraciones:
+  - **Volúmenes en caché (cached)**: los datos se guardan en S3 y se conserva localmente una copia de los subconjuntos de datos más usados. Ahorra en almacenamiento primario y reduce la necesidad de ampliar el almacenamiento local, sin perder la baja latencia para los datos frecuentes.
+  - **Volúmenes almacenados (stored)**: todos los datos se guardan localmente para tener baja latencia sobre el conjunto completo, y se hacen copias asíncronas en S3 mediante instantáneas de un momento dado. Sirven como copia externa duradera que puedes recuperar en tu centro de datos o en Amazon EC2, por ejemplo para recuperación ante desastres.
+- **Tape Gateway**: ofrece una infraestructura de cintas virtuales para archivar copias de seguridad de forma duradera y rentable en S3 Glacier Flexible Retrieval o S3 Glacier Deep Archive, sin la carga de mantener cintas físicas.
+- **Amazon FSx File Gateway**: da acceso local de baja latencia a recursos compartidos de FSx for Windows File Server. Ya no está disponible para clientes nuevos.
+
+### AWS DataSync
+
+DataSync es un servicio de transferencia en línea, seguro y de alta velocidad, para mover datos de archivos u objetos hacia, desde y entre servicios de almacenamiento de AWS. Lee de sistemas locales NFS, SMB, HDFS y de almacenamiento de objetos, y escribe en Amazon S3, Amazon EFS y los sistemas Amazon FSx (también admite otras nubes).
+
+- **Casos de uso**: migrar conjuntos de datos activos, archivar datos fríos directamente en clases como S3 Glacier Flexible Retrieval o S3 Glacier Deep Archive para liberar almacenamiento local, replicar datos a un sistema de archivos en espera y mover datos para procesarlos en la nube.
+- **Por qué es rápido**: usa un protocolo de red propio y una arquitectura paralela con varios hilos.
+- **Seguridad**: cifra los datos y valida su integridad de extremo a extremo; accede al almacenamiento de AWS con roles de IAM y admite puntos de enlace de VPC para no pasar por la Internet pública.
+
+### AWS Transfer Family
+
+Transfer Family ofrece servidores administrados para transferir archivos con SFTP, FTPS, FTP y AS2, además de transferencias desde el navegador, directamente hacia y desde Amazon S3 o Amazon EFS. Permite trasladar a AWS los flujos de intercambio de archivos manteniendo la configuración de autenticación, acceso y firewall de los clientes, de modo que nada cambia para clientes, socios ni equipos internos. No tienes que operar ninguna infraestructura de servidores. Casos típicos: cargas de proveedores y socios a un lago de datos, distribución de datos a clientes y transacciones entre empresas.
+
+### Otros servicios con acceso híbrido
+
+- **Amazon EFS**: los servidores locales pueden montar un sistema de archivos EFS mediante AWS Direct Connect o AWS Site-to-Site VPN.
+- **Amazon FSx for Lustre**: permite llevar a AWS los picos de cargas de cómputo intensivo desde el entorno local, accediendo al sistema de archivos por Direct Connect o VPN.
+
+### En línea o sin conexión
+
+Para mover datos, la guía de decisión de AWS distingue dos caminos:
+
+- **En línea**: conviene cuando la velocidad importa y los datos cambian a menudo o son críticos en el tiempo. Herramientas: DataSync, Transfer Family, Storage Gateway y la replicación SnapMirror de FSx for NetApp ONTAP. Consume ancho de banda de la red del día a día, así que puedes programar las transferencias fuera del horario laboral.
+- **Sin conexión**: conviene para traslados únicos o periódicos que no son urgentes, cuando el ancho de banda es limitado. Se hace con AWS Data Transfer Terminal o soluciones de socios. La familia Snow ya no está disponible para clientes nuevos.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Guarda los datos en"
+    service="Amazon S3"
+    description="S3 File Gateway, Volume Gateway y Tape Gateway usan S3 y las clases S3 Glacier como almacenamiento duradero en la nube."
+  />
+  <ConnectionCard
+    relation="Se conecta por"
+    service="AWS Direct Connect y Site-to-Site VPN"
+    description="Dan conectividad privada entre el centro de datos y AWS para montar EFS o FSx desde servidores locales."
+  />
+  <ConnectionCard
+    relation="Controla y cifra con"
+    service="AWS IAM y AWS KMS"
+    description="S3 File Gateway se integra con IAM para el acceso y con KMS para el cifrado; DataSync usa roles de IAM."
+  />
+  <ConnectionCard
+    relation="Se vigila con"
+    service="Amazon CloudWatch y AWS CloudTrail"
+    description="S3 File Gateway se supervisa con CloudWatch y se audita con CloudTrail."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Storage Gateway cuando"
+    items={[
+      'Las aplicaciones locales necesitan acceso continuo con NFS o SMB a datos guardados en S3: S3 File Gateway.',
+      'Los servidores locales usan volúmenes iSCSI y quieres respaldarlos en la nube: Volume Gateway.',
+      'Quieres reemplazar las cintas físicas de copia de seguridad: Tape Gateway.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Necesitas mover o sincronizar grandes volúmenes de datos por la red: AWS DataSync.',
+      'Socios o clientes intercambian archivos con SFTP, FTPS, FTP o AS2: AWS Transfer Family.',
+      'El ancho de banda es limitado y el traslado no es urgente: transferencia sin conexión.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon S3 File Gateway"
+  url="https://docs.aws.amazon.com/filegateway/latest/files3/what-is-file-s3.html"
+/>
+<OfficialSource
+  title="Qué es Volume Gateway"
+  url="https://docs.aws.amazon.com/storagegateway/latest/vgw/WhatIsStorageGateway.html"
+/>
+<OfficialSource
+  title="Qué es Tape Gateway"
+  url="https://docs.aws.amazon.com/storagegateway/latest/tgw/WhatIsStorageGateway.html"
+/>
+<OfficialSource
+  title="Qué es Amazon FSx File Gateway"
+  url="https://docs.aws.amazon.com/filegateway/latest/filefsxw/what-is-file-fsxw.html"
+/>
+<OfficialSource
+  title="Qué es AWS DataSync"
+  url="https://docs.aws.amazon.com/datasync/latest/userguide/what-is-datasync.html"
+/>
+<OfficialSource
+  title="Qué es AWS Transfer Family"
+  url="https://docs.aws.amazon.com/transfer/latest/userguide/what-is-aws-transfer-family.html"
+/>
+<OfficialSource
+  title="Elegir un servicio de almacenamiento de AWS"
+  url="https://docs.aws.amazon.com/decision-guides/latest/storage-on-aws-how-to-choose/choosing-aws-storage-service.html"
+/>
+<OfficialSource
+  title="Servicios de almacenamiento de AWS"
+  url="https://docs.aws.amazon.com/whitepapers/latest/aws-overview/storage-services.html"
+/>
