@@ -7,4 +7,127 @@ export const meta = {
   covers: ['2.2-k5', '2.2-k6', '2.2-s4'],
 };
 
-Contenido pendiente.
+En un sistema distribuido, los componentes se comunican a través de la red y cualquiera de ellos puede fallar o responder tarde. Una arquitectura fiable da por hecho que habrá fallos y se diseña para que la carga de trabajo siga funcionando: elimina los puntos únicos de error, prepara a dónde enviar el tráfico cuando algo cae y aplica patrones que evitan que un fallo local se propague.
+
+## Qué problema resuelve
+
+Si toda la carga de trabajo vive en una sola zona de disponibilidad, o si un componente no tiene reemplazo, basta con que ese elemento falle para que el sistema entero deje de responder. Además, en arquitecturas de microservicios una caída o una latencia alta en un servicio puede hacer fallar a toda la aplicación, y los reintentos sin control pueden saturar la red y los recursos del servicio que ya tiene problemas. Las estrategias de conmutación por error y los patrones distribuidos reducen ese alcance: detectan el componente con problemas, desvían el tráfico a uno sano y hacen que el resto del sistema degrade su servicio de forma ordenada en vez de caer por completo.
+
+## Conceptos clave
+
+### Mitigar los puntos únicos de error
+
+Un principio fundamental de diseño en AWS es evitar los puntos únicos de error, incluida la infraestructura física. Cada región es independiente y tiene tres o más zonas de disponibilidad, separadas físicamente y con energía, red e instalaciones propias, de modo que un incidente en una no afecta a las demás.
+
+- **Despliega en al menos dos zonas de disponibilidad**: AWS recomienda operar todas las cargas de producción en dos o más zonas de disponibilidad de una región, y usar varias regiones solo cuando el negocio lo requiera, porque una arquitectura multirregión innecesaria es un antipatrón.
+- **Reparte el cómputo**: instancias de EC2, tareas de AWS Fargate y funciones de Lambda conectadas a una VPC deben distribuirse entre zonas. EC2 Auto Scaling, Amazon ECS y Amazon EKS pueden reemplazar el cómputo en otra zona, y un balanceador de carga delante del cómputo redirige el tráfico a las instancias disponibles.
+- **Replica los datos**: Amazon S3, Amazon EFS, Amazon Aurora, Amazon DynamoDB, Amazon SQS y Amazon Kinesis Data Streams replican datos en varias zonas de forma predeterminada. En Amazon RDS, Amazon Redshift y Amazon ElastiCache tienes que habilitar la replicación multi-AZ.
+- **Estabilidad estática**: en lugar de lanzar instancias nuevas en otra zona cuando una falla, aprovisiona de antemano suficiente capacidad en cada zona para absorber la carga si una desaparece. Así la carga de trabajo funciona en un solo modo, sin comportamiento distinto durante el fallo, y no depende de poder obtener recursos justo en el peor momento. Es más caro, así que hay que ponerlo en la balanza con el valor de negocio de la carga de trabajo.
+
+### Estrategias de conmutación por error
+
+Conmutar por error significa detectar que un recurso no está sano y enviar las solicitudes a otro que sí lo está. Amazon Route 53 lo hace a nivel de DNS con comprobaciones de estado y admite dos configuraciones:
+
+- **Activo-activo**: todos los recursos están disponibles la mayor parte del tiempo. Se configura con cualquier política de enrutamiento que no sea la de conmutación por error, por ejemplo ponderada o por latencia. Route 53 responde con cualquier registro sano y deja de incluir los que considera no sanos.
+- **Activo-pasivo**: un recurso o grupo principal atiende la mayor parte del tiempo y otro secundario queda en espera. Se configura con la política de enrutamiento de conmutación por error: mientras el principal está sano, Route 53 responde con él; si todos los recursos principales dejan de estar sanos, responde con los secundarios. Un caso habitual es usar como secundario un bucket de S3 configurado como sitio web con un mensaje de "no disponible temporalmente".
+- **Comprobaciones de estado**: creas una comprobación de estado para cada recurso, como una instancia de EC2 o un servidor de tu centro de datos. Para los recursos de AWS a los que apuntas con un registro de alias no creas comprobaciones: activas **Evaluate Target Health** en el registro.
+
+Dentro de una región, otros servicios también conmutan por error:
+
+- **Amazon RDS Multi-AZ**: RDS aprovisiona y mantiene una réplica en espera sincronizada en otra zona de disponibilidad, lo que protege ante el fallo de la instancia o de la zona. La réplica en espera no atiende lecturas; para eso existen las réplicas de lectura o un clúster de base de datos Multi-AZ. La replicación síncrona puede aumentar la latencia de escritura frente a una implementación de una sola zona.
+- **Balanceadores de carga**: Elastic Load Balancing y las comprobaciones de estado alejan el tráfico de las instancias con problemas, y AWS Auto Scaling reemplaza después las instancias perdidas en las zonas sanas.
+
+### Patrones de diseño distribuidos
+
+- **Reintento con espera exponencial (retry with backoff)**: reintenta de forma transparente las operaciones que fallan por errores transitorios, como una limitación del servicio (un error 429), una pérdida momentánea de red o una indisponibilidad temporal. Los reintentos demasiado frecuentes saturan la red, por eso se espacian cada vez más y se limita su número. AWS Step Functions permite configurar este comportamiento sin código propio.
+- **Idempotencia**: una operación es idempotente si repetirla tiene el mismo efecto que hacerla una vez. Es un requisito para reintentar sin riesgo de corromper el estado o crear registros duplicados. Los clientes envían un token de idempotencia con cada solicitud, y el servicio devuelve la respuesta guardada si ya lo procesó. También importa en arquitecturas con colas como Amazon SQS, donde un mensaje publicado una vez puede entregarse más de una vez.
+- **Disyuntor (circuit breaker)**: se coloca entre el servicio que llama y el llamado. Si las llamadas superan un umbral de errores o de tiempos de espera, el circuito se abre y devuelve un fallo inmediato sin llamar al servicio con problemas; de forma periódica prueba si vuelve a responder y, cuando lo hace, cierra el circuito. Para errores que no son transitorios, fallar rápido con un disyuntor es más eficiente que reintentar.
+- **Saga**: en una transacción que abarca varios servicios con bases de datos distintas no se puede usar la confirmación en dos fases. La saga ejecuta transacciones locales en orden y, si un paso falla, ejecuta transacciones compensatorias que deshacen los pasos anteriores. Con orquestación, un coordinador central, que puede implementarse con AWS Step Functions, dirige los pasos; ese orquestador puede convertirse en un punto único de error. Los participantes deben ser idempotentes y el resultado es de consistencia eventual.
+- **Degradación elegante**: un componente debe seguir cumpliendo su función principal aunque falle una dependencia, quizá con datos algo desactualizados, alternativos o sin ellos. Por ejemplo, una tienda en línea puede seguir mostrando el resto de la página si falla el sistema de recomendaciones, o una aplicación puede usar parámetros predeterminados si el almacén de parámetros no responde.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Conmuta por error el DNS con"
+    service="Amazon Route 53"
+    description="Las comprobaciones de estado y las políticas de enrutamiento permiten configuraciones activo-activo y activo-pasivo."
+  />
+  <ConnectionCard
+    relation="Mantiene una réplica en espera con"
+    service="Amazon RDS Multi-AZ"
+    description="RDS replica la base de datos de forma síncrona a una instancia en espera en otra zona de disponibilidad."
+  />
+  <ConnectionCard
+    relation="Reparte y reemplaza el cómputo con"
+    service="Elastic Load Balancing y EC2 Auto Scaling"
+    description="El balanceador aleja el tráfico de las instancias con problemas y Auto Scaling las reemplaza en zonas sanas."
+  />
+  <ConnectionCard
+    relation="Implementa reintentos y sagas con"
+    service="AWS Step Functions"
+    description="Permite configurar reintentos con espera exponencial y coordinar transacciones compensatorias entre servicios."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Activo-pasivo cuando"
+    items={[
+      'Quieres un recurso principal y otro en espera solo para el caso de fallo.',
+      'Basta con mostrar una página estática de mantenimiento si cae el sitio principal.',
+      'Los recursos secundarios solo deben recibir tráfico si fallan todos los principales.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Todos los recursos deben atender tráfico a la vez: activo-activo con enrutamiento ponderado o por latencia.',
+      'El fallo es transitorio: reintento con espera exponencial sobre operaciones idempotentes.',
+      'Una dependencia falla de forma persistente: disyuntor y degradación elegante.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Implementar la carga de trabajo en varias ubicaciones (REL10-BP01)"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/reliability-pillar/rel_fault_isolation_multiaz_region_system.html"
+/>
+<OfficialSource
+  title="Estabilidad estática para evitar el comportamiento bimodal (REL11-BP05)"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/reliability-pillar/rel_withstand_component_failures_static_stability.html"
+/>
+<OfficialSource
+  title="Conmutación por error activo-activo y activo-pasivo en Route 53"
+  url="https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/dns-failover-types.html"
+/>
+<OfficialSource
+  title="Implementaciones Multi-AZ de instancias de base de datos en Amazon RDS"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.MultiAZSingleStandby.html"
+/>
+<OfficialSource
+  title="Patrón de reintento con espera exponencial"
+  url="https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/retry-backoff.html"
+/>
+<OfficialSource
+  title="Patrón de disyuntor"
+  url="https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/circuit-breaker.html"
+/>
+<OfficialSource
+  title="Patrón de orquestación de sagas"
+  url="https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/saga-orchestration.html"
+/>
+<OfficialSource
+  title="Operaciones idempotentes (REL04-BP04)"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/reliability-pillar/rel_prevent_interaction_failure_idempotent.html"
+/>
+<OfficialSource
+  title="Degradación elegante (REL05-BP01)"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/reliability-pillar/rel_mitigate_interaction_failure_graceful_degradation.html"
+/>
