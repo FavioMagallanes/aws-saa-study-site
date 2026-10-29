@@ -7,4 +7,138 @@ export const meta = {
   covers: ['2.1-k6', '2.1-s2', '4.2-s2'],
 };
 
-Contenido pendiente.
+Cuando una aplicación necesita más capacidad tienes dos caminos: darle más potencia al mismo recurso (escalado vertical) o añadir más recursos que repartan el trabajo (escalado horizontal). Saber cuál aplicar a cada componente del diseño, y cómo hacerlo de forma elástica, es una decisión central de cualquier arquitectura en AWS.
+
+## Qué problema resuelve
+
+Una causa habitual de fallo en las cargas de trabajo locales es la saturación de recursos: la demanda supera la capacidad disponible. En la nube puedes supervisar la demanda y la utilización, y añadir o quitar recursos de forma automática para mantener el nivel adecuado, sin aprovisionar de más ni de menos. Elegir bien la estrategia de escalado evita tanto la saturación como el gasto en capacidad ociosa.
+
+## Conceptos clave
+
+### Escalado vertical
+
+Escalar verticalmente es cambiar un recurso por otro más grande (o más pequeño). En Amazon EC2 se hace cambiando el tipo de instancia: por ejemplo, de `t2.micro` a `t2.large`, o a otro tipo como `m5.large`. AWS Compute Optimizer puede recomendarte el tipo que mejor se ajusta a tu carga.
+
+- **Requiere detener la instancia**: para cambiar el tipo de una instancia respaldada por EBS primero debes detenerla, así que hay que planificar un tiempo de inactividad. Al detenerla y arrancarla, la instancia pasa a otro hardware y, si tenía una IPv4 pública que no es una Elastic IP, recibe una nueva.
+- **Limitaciones**: no puedes cambiar el tipo de una instancia Spot, y el nuevo tipo debe ser compatible con la configuración actual de la instancia; si no lo es, hay que migrar a una nueva instancia.
+- **Bases de datos**: en Amazon RDS puedes modificar la clase de instancia de base de datos. Algunas modificaciones provocan tiempo de inactividad porque RDS debe reiniciar la instancia.
+- Cuando cambias el tipo, pasas a pagar la tarifa del nuevo tipo.
+
+### Escalado horizontal
+
+Escalar horizontalmente es añadir o quitar recursos del mismo tipo y repartir el trabajo entre ellos. El pilar de fiabilidad de AWS Well-Architected lo recomienda como principio de diseño: sustituir un recurso grande por varios pequeños reduce el impacto de un fallo individual, y repartir las solicitudes entre ellos evita que compartan un punto de fallo común.
+
+- **Amazon EC2 Auto Scaling**: agrupa instancias en grupos de Auto Scaling con una capacidad mínima, máxima y deseada. Con políticas de escalado lanza o termina instancias según aumenta o disminuye la demanda, reemplaza las instancias en mal estado y reparte las instancias de forma equilibrada entre varias zonas de disponibilidad.
+- **Con un balanceador de carga**: Elastic Load Balancing reparte el tráfico entre las instancias en buen estado, y Auto Scaling registra y elimina del balanceador las instancias que lanza o termina.
+- **Más allá de EC2**: Application Auto Scaling escala otros recursos, como servicios de Amazon ECS, tablas e índices secundarios globales de DynamoDB, réplicas de Aurora, grupos de replicación de ElastiCache o la simultaneidad aprovisionada de Lambda.
+- **Réplicas de lectura**: una réplica de lectura de RDS es una copia de solo lectura de la instancia principal. Enviar las consultas a las réplicas permite escalar más allá de la capacidad de una sola instancia en cargas con muchas lecturas.
+
+### Métodos de escalado
+
+Tanto EC2 Auto Scaling como Application Auto Scaling ofrecen varias formas de ajustar la capacidad. Las políticas se tratan en detalle en la página de escalado automático; aquí basta con conocerlas:
+
+- **Seguimiento de destino**: mantiene una métrica de CloudWatch cerca de un valor objetivo.
+- **Por pasos**: aplica ajustes distintos según cuánto se supere el umbral de una alarma.
+- **Programado**: cambia la capacidad una sola vez o de forma periódica en momentos conocidos.
+- **Predictivo**: escala de forma anticipada según la carga prevista a partir de datos históricos.
+- **Manual**: también puedes ajustar el tamaño del grupo a mano cuando lo necesites.
+
+### Arranques lentos: hibernación y grupos en caliente
+
+Si una instancia tarda mucho en arrancar y en llenar su memoria hasta ser productiva, escalar en el momento puede llegar tarde.
+
+- **Hibernación de EC2**: guarda el contenido de la memoria (RAM) en el volumen raíz de EBS. Al volver a iniciarla se recarga la RAM, se reanudan los procesos y la instancia conserva su ID. Sirve para precalentar una instancia: la lanzas con la hibernación habilitada, la llevas al estado deseado y la hibernas hasta que haga falta. Mientras está hibernada no pagas el uso de la instancia, solo el almacenamiento de los volúmenes de EBS, incluido el de la RAM.
+- **Grupos en caliente (warm pools)**: un conjunto de instancias ya inicializadas junto a un grupo de Auto Scaling, del que el grupo toma instancias al escalar hacia fuera. Pueden quedarse en estado detenido, en hibernación o en ejecución (esta última opción se desaconseja por su costo). Así no necesitas sobredimensionar el grupo para reducir la latencia; si el primer arranque no causa problemas de latencia, probablemente no necesites un grupo en caliente.
+
+### Cómo decidir en un diseño
+
+- Para componentes sin estado, como servidores web o de aplicaciones detrás de un balanceador, el escalado horizontal con Auto Scaling da elasticidad y alta disponibilidad a la vez.
+- Para un componente que no puede repartirse fácilmente, como una base de datos de escritura única, el escalado vertical es una opción directa, asumiendo el tiempo de inactividad del cambio. Las lecturas pueden escalar en horizontal con réplicas.
+- Si la demanda es predecible, combina el escalado programado o predictivo con el dinámico; si las instancias tardan en estar listas, considera la hibernación o un grupo en caliente.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Reparte el tráfico con"
+    service="Elastic Load Balancing"
+    description="Distribuye las solicitudes entre las instancias en buen estado; Auto Scaling registra y elimina las instancias del balanceador."
+  />
+  <ConnectionCard
+    relation="Decide cuándo escalar con"
+    service="Amazon CloudWatch"
+    description="Las políticas de escalado usan métricas y alarmas de CloudWatch para lanzar o terminar capacidad."
+  />
+  <ConnectionCard
+    relation="Escala otros servicios con"
+    service="Application Auto Scaling"
+    description="Aplica escalado automático a servicios de ECS, tablas de DynamoDB, réplicas de Aurora y otros recursos fuera de EC2."
+  />
+  <ConnectionCard
+    relation="Recomienda tamaños con"
+    service="AWS Compute Optimizer"
+    description="Sugiere el tipo de instancia que mejor se ajusta a la carga antes de un escalado vertical."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Escalado horizontal cuando"
+    items={[
+      'El componente no guarda estado y puede repartir el trabajo entre varias copias.',
+      'La demanda varía y quieres añadir y quitar capacidad de forma automática.',
+      'Quieres evitar un punto único de fallo repartiendo instancias entre zonas de disponibilidad.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'El componente no se puede repartir y aceptas un tiempo de inactividad: escalado vertical cambiando el tipo o la clase de instancia.',
+      'Una base de datos relacional tiene muchas lecturas: réplicas de lectura.',
+      'Las instancias tardan mucho en arrancar: hibernación de EC2 o grupos en caliente de Auto Scaling.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon EC2 Auto Scaling"
+  url="https://docs.aws.amazon.com/autoscaling/ec2/userguide/what-is-amazon-ec2-auto-scaling.html"
+/>
+<OfficialSource
+  title="Cambiar el tipo de instancia de Amazon EC2"
+  url="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-resize.html"
+/>
+<OfficialSource
+  title="Cambiar el tipo de una instancia respaldada por EBS"
+  url="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/change-instance-type-of-ebs-backed-instance.html"
+/>
+<OfficialSource
+  title="Hibernar una instancia de Amazon EC2"
+  url="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Hibernate.html"
+/>
+<OfficialSource
+  title="Grupos en caliente de Amazon EC2 Auto Scaling"
+  url="https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-warm-pools.html"
+/>
+<OfficialSource
+  title="Qué es Application Auto Scaling"
+  url="https://docs.aws.amazon.com/autoscaling/application/userguide/what-is-application-auto-scaling.html"
+/>
+<OfficialSource
+  title="Réplicas de lectura de Amazon RDS"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ReadRepl.html"
+/>
+<OfficialSource
+  title="Modificar una instancia de base de datos de Amazon RDS"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Overview.DBInstance.Modifying.html"
+/>
+<OfficialSource
+  title="Principios de diseño del pilar de fiabilidad"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/reliability-pillar/design-principles.html"
+/>
