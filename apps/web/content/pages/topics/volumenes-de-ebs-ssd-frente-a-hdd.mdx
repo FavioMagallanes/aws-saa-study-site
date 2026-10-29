@@ -7,4 +7,122 @@ export const meta = {
   covers: ['4.1-s10', '4.1-k6', '4.1-s2'],
 };
 
-Contenido pendiente.
+En Amazon EBS se te cobra según la configuración del volumen que aprovisionas. Por eso el costo depende sobre todo de dos decisiones: el tipo de volumen (SSD o HDD) y su tamaño. Elegir un tipo más caro del necesario, o reservar mucho más espacio del que la carga ocupa, se paga cada mes.
+
+## Qué problema resuelve
+
+Cada tipo de volumen de EBS tiene características de rendimiento y precio distintas, para que ajustes el costo a lo que la aplicación necesita. Un error común es usar SSD de alto rendimiento para datos que se leen en grandes bloques secuenciales, o sobredimensionar un volumen "por si acaso". Esta página se centra en el ángulo de costo; las características de rendimiento de cada tipo y la comparación con otros servicios de almacenamiento están en la página sobre almacenamiento por rendimiento y escala.
+
+## Conceptos clave
+
+### Volúmenes SSD
+
+Están optimizados para cargas transaccionales con lecturas y escrituras frecuentes de tamaño pequeño, donde lo que importa es el IOPS.
+
+- **General Purpose SSD `gp3`**: la última generación de propósito general y el volumen SSD de menor costo de EBS. AWS recomienda los de propósito general para la mayoría de las cargas: escritorios virtuales, bases de datos medianas de una sola instancia, aplicaciones interactivas, entornos de desarrollo y pruebas, y volúmenes de arranque. Incluye en el precio del almacenamiento un rendimiento base de 3000 IOPS y 125 MiB/s, y puedes aprovisionar más IOPS y throughput con un costo adicional sin tener que aumentar el tamaño del volumen.
+- **General Purpose SSD `gp2`**: el rendimiento crece con el tamaño del volumen, así que a veces hay que comprar más capacidad solo para obtener más IOPS. AWS indica que `gp3` tiene un precio por GiB hasta un 20 % menor que `gp2`, y puedes migrar de `gp2` a `gp3` con Elastic Volumes sin interrumpir la instancia.
+- **Provisioned IOPS SSD `io2 Block Express` e `io1`**: para cargas que necesitan IOPS sostenido, muy alto rendimiento o latencia muy baja y constante, como las bases de datos con mucha E/S. Son la opción cuando `gp3` no alcanza, no la opción por defecto.
+
+### Volúmenes HDD
+
+Están optimizados para cargas grandes de streaming, donde lo que importa es el throughput y no el IOPS.
+
+- **Throughput Optimized HDD `st1`**: almacenamiento magnético de bajo costo para datos de acceso frecuente con E/S grande y secuencial, como Amazon EMR, ETL, almacenes de datos y procesamiento de registros.
+- **Cold HDD `sc1`**: el HDD de menor costo, para datos de acceso poco frecuente orientados a throughput y escenarios en los que lo más importante es el costo de almacenamiento más bajo.
+- **Limitaciones**: no pueden ser volúmenes de arranque, tienen un tamaño mínimo de 125 GiB y no rinden bien con E/S pequeña y aleatoria; para ese patrón AWS recomienda volúmenes SSD.
+
+### Tamaño correcto
+
+- **Pagas la configuración**: el costo se basa en la configuración del volumen, y Elastic Volumes te cobra la nueva configuración en cuanto la cambias. Con `gp3` dimensiona el tamaño según los datos y el rendimiento según la carga, por separado.
+- **Elastic Volumes**: puedes aumentar el tamaño, cambiar el tipo o ajustar el rendimiento, normalmente sin desconectar el volumen ni reiniciar la instancia. Modificarlo no tiene cargo propio. No puedes reducir el tamaño: para achicarlo hay que crear un volumen más pequeño y migrar los datos. Conviene empezar ajustado y crecer cuando haga falta.
+- **Recomendaciones**: AWS Compute Optimizer analiza la configuración y las métricas de uso de los volúmenes de EBS y recomienda el tamaño adecuado o señala los que están inactivos.
+
+### Recursos olvidados e instantáneas
+
+- **Volúmenes sin usar**: una instancia puede configurarse para conservar su volumen al terminarse. Revisa los volúmenes que ya no necesitas y elimínalos.
+- **Instantáneas (snapshots)**: son incrementales y se cobran por la cantidad de datos guardados. Borrar un volumen no borra sus instantáneas, y borrar una instantánea puede no reducir el costo si otras hacen referencia a sus datos.
+- **EBS Snapshots Archive**: un nivel de bajo costo para instantáneas que vas a conservar 90 días o más y que rara vez necesitas, por ejemplo la última instantánea de un proyecto o las mensuales por cumplimiento. Al archivarla, la instantánea incremental se convierte en completa, y para usarla hay que restaurarla al nivel estándar.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Se adjunta a"
+    service="Amazon EC2"
+    description="El rendimiento final depende también de la instancia; AWS recomienda instancias optimizadas para EBS para aprovechar el rendimiento aprovisionado."
+  />
+  <ConnectionCard
+    relation="Recibe recomendaciones de"
+    service="AWS Compute Optimizer"
+    description="Analiza el uso de los volúmenes de EBS y recomienda configuraciones más adecuadas o detecta volúmenes inactivos."
+  />
+  <ConnectionCard
+    relation="Automatiza instantáneas con"
+    service="Amazon Data Lifecycle Manager"
+    description="Crea instantáneas de forma automática; AWS Backup es la alternativa para centralizar copias de varios servicios."
+  />
+  <ConnectionCard
+    relation="Guarda instantáneas en"
+    service="Amazon S3"
+    description="Las instantáneas se almacenan en S3, en buckets a los que no accedes directamente, y se replican en todas las zonas de disponibilidad de la región."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Elige cada tipo cuando"
+    items={[
+      'Es una carga general, un volumen de arranque o una base de datos mediana: gp3.',
+      'Necesitas IOPS sostenido o latencia muy baja que gp3 no alcanza: io2 Block Express.',
+      'Procesas grandes datos secuenciales con acceso frecuente: st1.',
+      'Son datos fríos orientados a throughput y el costo es lo más importante: sc1.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Varias instancias deben compartir los mismos archivos: Amazon EFS en lugar de EBS.',
+      'Los datos son objetos de larga duración y no requieren almacenamiento en bloque: Amazon S3 con su ciclo de vida.',
+      'Solo necesitas conservar copias antiguas de un volumen: instantáneas, archivadas si se conservan mucho tiempo.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Tipos de volúmenes de Amazon EBS"
+  url="https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html"
+/>
+<OfficialSource
+  title="Volúmenes General Purpose SSD"
+  url="https://docs.aws.amazon.com/ebs/latest/userguide/general-purpose.html"
+/>
+<OfficialSource
+  title="Volúmenes Throughput Optimized HDD y Cold HDD"
+  url="https://docs.aws.amazon.com/ebs/latest/userguide/hdd-vols.html"
+/>
+<OfficialSource
+  title="Modificar un volumen de EBS con Elastic Volumes"
+  url="https://docs.aws.amazon.com/ebs/latest/userguide/ebs-modify-volume.html"
+/>
+<OfficialSource
+  title="Instantáneas de Amazon EBS"
+  url="https://docs.aws.amazon.com/ebs/latest/userguide/ebs-snapshots.html"
+/>
+<OfficialSource
+  title="Archivar instantáneas de Amazon EBS"
+  url="https://docs.aws.amazon.com/ebs/latest/userguide/snapshot-archive.html"
+/>
+<OfficialSource
+  title="Cargos inesperados en la factura"
+  url="https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/checklistforunwantedcharges.html"
+/>
+<OfficialSource
+  title="Qué es AWS Compute Optimizer"
+  url="https://docs.aws.amazon.com/compute-optimizer/latest/ug/what-is-compute-optimizer.html"
+/>
