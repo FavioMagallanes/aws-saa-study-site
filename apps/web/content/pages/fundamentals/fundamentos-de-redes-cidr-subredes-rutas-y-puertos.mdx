@@ -6,4 +6,133 @@ export const meta = {
   covers: ['1.2-k3', '2.2-k3'],
 };
 
-Contenido pendiente.
+Casi todo en AWS se comunica por una red, y esa red se diseña con unas pocas piezas: un rango de direcciones, subredes, reglas de enrutamiento y reglas que permiten o bloquean tráfico por protocolo y puerto. Entenderlas te sirve para razonar sobre seguridad, resiliencia y conectividad en casi cualquier pregunta del examen.
+
+## Qué problema resuelve
+
+Sin una red propia y aislada, tus recursos quedarían expuestos o mezclados con los de otros clientes. Amazon VPC te da una red virtual que se parece a la de un centro de datos tradicional, con la infraestructura escalable de AWS, y tú decides cómo se numera, cómo se divide, hacia dónde viaja el tráfico y qué tráfico se admite.
+
+## Conceptos clave
+
+### VPC y bloques CIDR
+
+Una nube privada virtual (VPC) es una red virtual dedicada a tu cuenta y aislada lógicamente de las demás redes virtuales de AWS. Al crearla indicas su rango de direcciones IP, y luego añades subredes y puertas de enlace y asocias grupos de seguridad.
+
+Ese rango se expresa en notación CIDR, por ejemplo `10.0.0.0/16`: la dirección base y un prefijo que indica cuántas direcciones incluye. Toda VPC debe tener un bloque CIDR IPv4, cuyo tamaño va de `/16` (65 536 direcciones) a `/28` (16 direcciones); después puedes asociar más bloques, y también bloques IPv6. Se recomienda elegir un bloque de los rangos privados definidos en la RFC 1918 (`10.0.0.0/8`, `172.16.0.0/12` y `192.168.0.0/16`). No puedes usar rangos como `0.0.0.0/8`, `127.0.0.0/8`, `169.254.0.0/16` ni `224.0.0.0/4`.
+
+### Subredes
+
+Una subred es un rango de direcciones IP dentro de tu VPC, y en ella lanzas recursos como instancias de EC2. Cada subred debe estar por completo dentro de una zona de disponibilidad y no puede abarcar varias. Por eso, para proteger una aplicación del fallo de una zona, creas subredes en zonas distintas.
+
+El tipo de subred depende de cómo configuras su enrutamiento:
+
+- **Pública**: tiene una ruta directa a una puerta de enlace de internet, y sus recursos pueden acceder a internet.
+- **Privada**: no tiene una ruta directa a esa puerta de enlace, y necesita un dispositivo NAT para llegar a internet.
+- **Solo VPN**: tiene una ruta a una conexión Site-to-Site VPN a través de una puerta de enlace privada virtual, pero no a internet.
+- **Aislada**: no tiene rutas a destinos fuera de su VPC, de modo que solo se comunica con otros recursos de la misma VPC.
+
+### Tablas de rutas
+
+Una tabla de rutas es el controlador del tráfico de la VPC: un conjunto de reglas, llamadas rutas, que determinan hacia dónde se dirige el tráfico de una subred. Cada ruta indica un destino (un bloque CIDR o una lista de prefijos) y un destino de salida, como una puerta de enlace de internet, una puerta de enlace NAT, una conexión de emparejamiento de VPC o una conexión VPN. El tráfico se encamina según su dirección IP de destino.
+
+Al crear una VPC se crea también la tabla de rutas principal. Una subred puede asociarse de forma explícita a una tabla concreta; si no, queda asociada de forma implícita a la principal. La ruta `local` cubre el rango de la propia VPC, así que el tráfico entre sus recursos se resuelve dentro de ella.
+
+Cuando varias rutas coinciden, AWS usa la más específica, lo que se llama coincidencia del prefijo más largo. Por ejemplo, `10.10.2.15/32` tiene prioridad sobre `10.10.2.0/24`. Si una tabla tiene una ruta `172.31.0.0/16` hacia una conexión de emparejamiento y otra `0.0.0.0/0` hacia internet, el tráfico a `172.31.0.0/16` usa el emparejamiento y el resto sale por la puerta de enlace de internet.
+
+### Acceso a internet
+
+Para que un recurso salga a internet necesita una ruta hacia una puerta de enlace de internet. Si quieres que una instancia inicie conexiones salientes pero no reciba conexiones entrantes no solicitadas, usa un dispositivo NAT: asigna varias direcciones privadas a una sola dirección pública y encamina las respuestas de vuelta a la instancia.
+
+### Puertos, protocolos y control del tráfico
+
+El tráfico se describe por su protocolo y su puerto. Los protocolos más comunes son TCP, UDP e ICMP. En TCP y UDP, el puerto identifica el servicio: puedes indicar uno solo, como el 22, o un rango, como 7000-8000.
+
+Hay dos herramientas para decidir qué tráfico se admite:
+
+- **Grupos de seguridad**: se asocian a los recursos y sus reglas controlan el tráfico entrante y saliente permitido. Cada regla indica el protocolo, el rango de puertos y el origen o destino: una dirección o un bloque CIDR, una lista de prefijos u otro grupo de seguridad. Solo admiten reglas de permitir; no hay reglas de denegar. Un grupo nuevo no tiene reglas de entrada, así que no admite tráfico entrante hasta que añades alguna, y por defecto permite todo el tráfico saliente. Son con estado, de modo que reconocen las conexiones que ya autorizaste.
+- **ACL de red**: actúan en el nivel de subred y pueden permitir o denegar tráfico. Cada regla tiene un número del 1 al 32766 y se evalúan en orden desde el menor; en cuanto una regla coincide, se aplica y no se evalúan las demás. Son sin estado, es decir, no guardan información del tráfico enviado o recibido, y se evalúan cuando el tráfico entra o sale de la subred, no cuando circula dentro de ella. Cada subred está asociada a una sola ACL, la predeterminada si no eliges otra.
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Grupo de seguridad"
+    items={[
+      'Es el mecanismo principal para controlar el acceso a tus recursos.',
+      'Filtra con estado y permite reglas que hacen referencia a otros grupos de seguridad.',
+      'Solo permite; lo que no está permitido queda bloqueado.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="ACL de red"
+    items={[
+      'Sirve como control secundario y de grano grueso, sin estado.',
+      'Permite denegar un subconjunto de tráfico concreto.',
+      'Actúa como barrera a nivel de subred por si una instancia se lanza sin el grupo de seguridad correcto.',
+    ]}
+  />
+</CardGrid>
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Da salida a internet con"
+    service="Puerta de enlace de internet"
+    description="Es el destino de una ruta que convierte una subred en pública, para que sus recursos con dirección pública se comuniquen con internet."
+  />
+  <ConnectionCard
+    relation="Permite salir sin exponerte con"
+    service="NAT"
+    description="Los recursos de una subred privada inician conexiones salientes; el tráfico sale por la puerta de enlace de internet y las respuestas vuelven a la instancia."
+  />
+  <ConnectionCard
+    relation="Conecta tu red con"
+    service="AWS Site-to-Site VPN"
+    description="Une la VPC con tu centro de datos mediante una conexión IPsec, a través de una puerta de enlace privada virtual o una de tránsito."
+  />
+  <ConnectionCard
+    relation="Observa el tráfico con"
+    service="VPC Flow Logs"
+    description="Registra el tráfico que llega a tus instancias para vigilar y entender lo que circula por la red."
+  />
+</CardGrid>
+
+## Buenas prácticas de diseño
+
+Usa subredes privadas para las instancias a las que no se deba llegar directamente desde internet, y un host bastión o una puerta de enlace NAT para su acceso saliente. Aísla los niveles de la aplicación, por ejemplo web, aplicación y base de datos, en subredes distintas. Configura las tablas de rutas con las rutas mínimas necesarias para tu conectividad. Para conectar tu red remota con la VPC de forma privada, considera AWS VPN o Direct Connect.
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Cómo funciona Amazon VPC"
+  url="https://docs.aws.amazon.com/vpc/latest/userguide/how-it-works.html"
+/>
+<OfficialSource
+  title="Bloques CIDR de una VPC"
+  url="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-cidr-blocks.html"
+/>
+<OfficialSource
+  title="Subredes de tu VPC"
+  url="https://docs.aws.amazon.com/vpc/latest/userguide/configure-subnets.html"
+/>
+<OfficialSource
+  title="Configurar tablas de rutas"
+  url="https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html"
+/>
+<OfficialSource
+  title="Cómo funciona la prioridad de las rutas"
+  url="https://docs.aws.amazon.com/vpc/latest/userguide/route-tables-priority.html"
+/>
+<OfficialSource
+  title="Reglas de los grupos de seguridad"
+  url="https://docs.aws.amazon.com/vpc/latest/userguide/security-group-rules.html"
+/>
+<OfficialSource
+  title="Controlar el tráfico de la subred con ACL de red"
+  url="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html"
+/>
+<OfficialSource
+  title="Seguridad de la infraestructura en Amazon VPC"
+  url="https://docs.aws.amazon.com/vpc/latest/userguide/infrastructure-security.html"
+/>
