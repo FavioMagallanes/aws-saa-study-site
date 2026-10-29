@@ -7,4 +7,104 @@ export const meta = {
   covers: ['3.2-k4'],
 };
 
-Contenido pendiente.
+Amazon EC2 Auto Scaling te ayuda a tener siempre el número correcto de instancias EC2 para atender la carga de tu aplicación. Organiza las instancias en grupos de Auto Scaling que se tratan como una unidad lógica: revisa su estado, reemplaza las que fallan y lanza o termina instancias según la demanda. No tiene cargo adicional; pagas solo los recursos que usas, como las instancias, los volúmenes de EBS y las alarmas de CloudWatch.
+
+## Qué problema resuelve
+
+Una flota de tamaño fijo se queda corta en los picos y desperdicia dinero en las horas tranquilas. Además, si una instancia falla, alguien tiene que detectarlo y reemplazarla. EC2 Auto Scaling añade capacidad para los picos, la retira cuando la demanda baja y mantiene la flota sana sin intervención manual, lo que mejora a la vez la disponibilidad y el costo. Las métricas y políticas de escalado se explican a fondo en el tema "Escalado automático: métricas y políticas".
+
+## Conceptos clave
+
+### Grupo de Auto Scaling y capacidad
+
+- **Mínimo**: el grupo nunca baja de este número de instancias.
+- **Máximo**: el grupo nunca lo supera.
+- **Capacidad deseada**: el número que el grupo mantiene en cada momento. Las políticas de escalado la ajustan siempre dentro del mínimo y el máximo.
+
+Sin políticas, el grupo mantiene un tamaño fijo y sigue reemplazando las instancias que dejan de estar sanas.
+
+### Plantilla de lanzamiento
+
+El grupo lanza instancias a partir de una plantilla de lanzamiento (launch template), que incluye la AMI, el tipo de instancia, el par de claves y los grupos de seguridad. Admite versiones. AWS recomienda las plantillas frente a las antiguas configuraciones de lanzamiento, que no permiten, por ejemplo, combinar instancias Spot y bajo demanda ni varios tipos de instancia en un grupo.
+
+### Disponibilidad
+
+- **Comprobaciones de estado**: usa las de EC2 y, opcionalmente, las de Elastic Load Balancing o comprobaciones personalizadas; reemplaza las instancias que no las superan.
+- **Varias zonas de disponibilidad**: reparte las instancias de forma equilibrada entre las zonas que indiques, para protegerte del fallo de una ubicación.
+- **Balanceador de carga**: registra y quita del balanceador cada instancia que se lanza o se termina.
+
+### Formas de escalar
+
+- **Manual**: cambias la capacidad deseada.
+- **Programado**: acciones por fecha y hora, para cambios de demanda predecibles.
+- **Dinámico**: políticas que responden a métricas, por ejemplo mantener la CPU del grupo cerca del 50 %.
+- **Predictivo**: aumenta la capacidad antes de los patrones diarios y semanales de tráfico; se combina con el dinámico.
+
+### Costo y ciclo de vida
+
+- Un grupo puede mezclar tipos de instancia y opciones de compra (Spot y bajo demanda), y aprovechar descuentos de instancias reservadas y Savings Plans. Si se interrumpen instancias Spot, solicita capacidad de reemplazo.
+- **Actualización de instancias (instance refresh)**: reemplaza las instancias de forma gradual cuando cambias la AMI o la plantilla, con opción de probar primero en unas pocas (canary).
+- **Enlaces de ciclo de vida (lifecycle hooks)**: ejecutan acciones propias al lanzar una instancia o antes de terminarla.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Escala instancias de"
+    service="Amazon EC2"
+    description="Lanza y termina instancias a partir de una plantilla de lanzamiento."
+  />
+  <ConnectionCard
+    relation="Reparte el tráfico con"
+    service="Elastic Load Balancing"
+    description="Registra las instancias nuevas en el balanceador y puede usar sus comprobaciones de estado."
+  />
+  <ConnectionCard
+    relation="Decide cuándo escalar con"
+    service="Amazon CloudWatch"
+    description="Las políticas de escalado dinámico se basan en métricas y alarmas de CloudWatch."
+  />
+  <ConnectionCard
+    relation="Se coordina con"
+    service="AWS Auto Scaling"
+    description="Un plan de escalado puede ajustar el grupo junto con otros recursos de la aplicación."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="EC2 Auto Scaling cuando"
+    items={[
+      'Tu aplicación corre en una flota de instancias EC2 cuya demanda cambia.',
+      'Necesitas reemplazar automáticamente las instancias que fallan.',
+      'Quieres repartir la flota entre varias zonas de disponibilidad.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Escalas varios recursos de una aplicación desde un solo plan: AWS Auto Scaling.',
+      'Escalas recursos de otros servicios, como tareas de ECS o tablas de DynamoDB: Application Auto Scaling.',
+      'No quieres administrar instancias: AWS Lambda o AWS Fargate.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon EC2 Auto Scaling"
+  url="https://docs.aws.amazon.com/autoscaling/ec2/userguide/what-is-amazon-ec2-auto-scaling.html"
+/>
+<OfficialSource
+  title="Elegir el método de escalado"
+  url="https://docs.aws.amazon.com/autoscaling/ec2/userguide/scaling-overview.html"
+/>
+<OfficialSource
+  title="Plantillas de lanzamiento de Auto Scaling"
+  url="https://docs.aws.amazon.com/autoscaling/ec2/userguide/launch-templates.html"
+/>
