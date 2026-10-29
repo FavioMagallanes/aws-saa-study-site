@@ -7,4 +7,100 @@ export const meta = {
   covers: ['1.1-k2', '1.1-s6'],
 };
 
-Contenido pendiente.
+Federar significa que las identidades de tus usuarios viven fuera de AWS, en un proveedor de identidades o en un directorio, y que esos usuarios obtienen acceso a AWS sin que tengas que crearles un usuario de IAM a cada uno. Saber cuándo federar y con qué servicio es una decisión de diseño clave en cualquier organización que ya tiene su propio directorio.
+
+## Qué problema resuelve
+
+Muchas organizaciones ya administran a sus personas en un directorio corporativo. Crear una segunda identidad para cada una dentro de AWS duplica el trabajo y multiplica las credenciales de largo plazo. Con un proveedor de identidades (IdP) administras las identidades fuera de AWS y les das permisos para usar recursos de tu cuenta. No necesitas escribir código de inicio de sesión ni administrar tus propias identidades, porque el proveedor lo hace, y no tienes que distribuir ni incrustar claves de acceso de largo plazo.
+
+## Conceptos clave
+
+### Federación con un proveedor de identidades
+
+Como práctica recomendada, AWS aconseja que las personas accedan mediante federación con un proveedor de identidades en lugar de crear usuarios de IAM individuales. Los usuarios externos inician sesión en el proveedor y reciben credenciales temporales mediante roles de IAM. Hay dos estándares compatibles:
+
+- **SAML 2.0**: lo usan proveedores como Shibboleth o Active Directory Federation Services.
+- **OpenID Connect (OIDC)**: conecta con AWS aplicaciones que no se ejecutan en AWS, como GitHub Actions.
+
+Para vincular un proveedor directamente con IAM creas una entidad de proveedor de identidades, que establece una relación de confianza entre tu cuenta y el proveedor.
+
+### Tres formas de federar
+
+- **AWS IAM Identity Center**: es la opción recomendada para administrar de forma centralizada el acceso de las personas de tu fuerza laboral a varias cuentas administradas con AWS Organizations. Admite como origen de identidades SAML 2.0, Active Directory administrado o su propio directorio. Las personas reciben credenciales de corto plazo y pueden usar inicio de sesión único en la consola y en aplicaciones de terceros compatibles con SAML, como Microsoft 365, SAP Concur y Salesforce. Federas una sola vez y administras un solo certificado, y puedes crear permisos para funciones comunes, como administrador, y asignarlos a usuarios y grupos en distintas cuentas.
+- **Federación con IAM**: para una sola cuenta independiente, con personas en implementaciones pequeñas y de corto plazo, y también para usuarios máquina. Admite SAML 2.0 y OIDC, y permite pasar atributos del proveedor, como el centro de costos o el cargo, para aplicar permisos detallados según ellos.
+- **Grupos de identidades de Amazon Cognito**: para los usuarios de aplicaciones que necesitan autorización de IAM para acceder a recursos, en cualquier tipo de cuenta. Admite SAML 2.0, OIDC y algunos proveedores sociales de OAuth 2.0.
+
+Para máquinas que funcionan fuera de AWS puedes usar IAM Roles Anywhere.
+
+### Servicios de directorio
+
+AWS Directory Service ofrece varias formas de usar Microsoft Active Directory con otros servicios de AWS. Un directorio guarda información sobre usuarios, grupos y dispositivos, y los administradores lo usan para administrar el acceso. Hay tres opciones:
+
+- **AWS Managed Microsoft AD**: un Active Directory de Microsoft Windows Server real, administrado por AWS en la nube. Permite migrar aplicaciones compatibles con Active Directory y puedes conectarlo con tu Active Directory local mediante una relación de confianza. Admite casos de federación con credenciales de Active Directory, y junto con IAM Identity Center permite obtener credenciales de corto plazo para el SDK y la CLI.
+- **AD Connector**: un servicio proxy que conecta aplicaciones de AWS compatibles con tu Active Directory local existente. No necesita sincronizar directorios ni alojar una infraestructura de federación, y permite que los usuarios accedan a la consola de administración con sus credenciales actuales de Active Directory. Es la mejor opción cuando quieres seguir usando tu directorio local con servicios compatibles.
+- **Simple AD**: un directorio compatible con Microsoft Active Directory, con tecnología de Samba 4, independiente y en la nube, donde creas y administras tú las identidades. Admite funciones básicas, como cuentas de usuario, pertenencia a grupos y SSO basado en Kerberos.
+
+### Cuándo federar un servicio de directorio con roles de IAM
+
+Federa cuando tu organización ya tiene un sistema de identidades propio, como un directorio corporativo, o cuando creas una aplicación móvil o web que necesita acceso a recursos de AWS. Si tus usuarios están en un Active Directory y administras varias cuentas, lo habitual es conectar ese directorio como origen de identidades de IAM Identity Center. Si tienes una sola cuenta, puedes federar con IAM mediante SAML u OIDC. En cualquiera de los dos casos, la persona termina asumiendo un rol con credenciales temporales.
+
+<CardGrid>
+  <ConnectionCard
+    relation="Centraliza el acceso con"
+    service="AWS IAM Identity Center"
+    description="Conecta tu proveedor de identidades o tu Active Directory y asigna a usuarios y grupos el acceso a varias cuentas de AWS y aplicaciones."
+  />
+  <ConnectionCard
+    relation="Conecta tu directorio con"
+    service="AWS Directory Service"
+    description="Managed Microsoft AD, AD Connector y Simple AD ofrecen distintas formas de usar Active Directory con servicios de AWS."
+  />
+  <ConnectionCard
+    relation="Federa a usuarios de aplicaciones con"
+    service="Amazon Cognito"
+    description="Los grupos de identidades dan acceso con autorización de IAM a los usuarios de aplicaciones, incluso con proveedores sociales."
+  />
+  <ConnectionCard
+    relation="Entrega credenciales mediante"
+    service="AWS STS"
+    description="Tras la federación, el usuario asume un rol y recibe credenciales temporales para usar los recursos."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="IAM Identity Center cuando"
+    items={[
+      'Administras varias cuentas con AWS Organizations.',
+      'Quieres un solo punto de federación para tu fuerza laboral.',
+      'Tu origen de identidades es SAML 2.0, Active Directory administrado o el directorio propio del servicio.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Tienes una sola cuenta independiente y un despliegue pequeño: federación con IAM.',
+      'Son usuarios de una aplicación que necesitan autorización de IAM: grupos de identidades de Cognito.',
+      'Necesitas usar tu Active Directory local sin sincronizarlo: AD Connector.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Proveedores de identidades y federación en AWS"
+  url="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers.html"
+/>
+<OfficialSource
+  title="Qué es AWS IAM Identity Center"
+  url="https://docs.aws.amazon.com/singlesignon/latest/userguide/what-is.html"
+/>
+<OfficialSource
+  title="Qué es AWS Directory Service"
+  url="https://docs.aws.amazon.com/directoryservice/latest/admin-guide/what_is.html"
+/>
