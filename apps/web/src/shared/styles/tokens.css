@@ -2,7 +2,7 @@
 
 :root {
   --font-serif: 'Literata Variable', Georgia, serif;
-  --font-sans: 'Inter Variable', system-ui, sans-serif;
+  --font-sans: 'Inter Tight Variable', system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
 
   --text-body-size: 19px;
