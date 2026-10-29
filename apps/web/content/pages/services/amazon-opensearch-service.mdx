@@ -7,4 +7,82 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Amazon OpenSearch Service es un servicio administrado para desplegar, operar y escalar clústeres de OpenSearch en AWS. OpenSearch es un motor de búsqueda y análisis de código abierto pensado para casos como el análisis de registros, la supervisión de aplicaciones en tiempo real y el análisis de flujos de clics. El servicio admite OpenSearch y también versiones heredadas de Elasticsearch OSS.
+
+## Qué problema resuelve
+
+Mantener por tu cuenta un clúster de búsqueda exige aprovisionar servidores, vigilar los nodos, reemplazar los que fallan y escalar cuando crecen los datos. OpenSearch Service aprovisiona todos los recursos del clúster, detecta y reemplaza automáticamente los nodos que fallan y permite escalar con una sola llamada a la API o unos clics. Así puedes buscar texto, analizar registros y construir paneles sin administrar la infraestructura.
+
+## Conceptos clave
+
+- **Dominio**: un dominio es un clúster de OpenSearch con la configuración, los tipos y el número de instancias y el almacenamiento que indicas. Cada instancia de EC2 del clúster es un nodo.
+- **Alta disponibilidad Multi-AZ**: puedes repartir los nodos en dos o tres zonas de disponibilidad de la misma región. Para producción, AWS recomienda Multi-AZ with Standby: el dominio usa tres zonas, cada una con una copia completa de los datos, y reserva nodos de una zona como espera, que se activan automáticamente si falla la infraestructura.
+- **Nodos maestros dedicados**: descargan las tareas de administración del clúster de los nodos de datos.
+- **Almacenamiento por niveles**: UltraWarm y el almacenamiento en frío guardan de forma rentable datos de solo lectura.
+- **Seguridad**: control de acceso con IAM, integración con Amazon VPC y grupos de seguridad, cifrado en reposo y entre nodos, y seguridad a nivel de índice, documento y campo. OpenSearch Dashboards admite autenticación con Amazon Cognito, HTTP básica o SAML.
+- **Instantáneas automáticas**: sirven para hacer copias de seguridad de los dominios y restaurarlos.
+- **OpenSearch Serverless**: opción bajo demanda y sin servidor que elimina el aprovisionamiento y el ajuste de clústeres. Trabajas con colecciones, orientadas al análisis de registros o a la búsqueda de texto completo, y la capacidad de indexación y de búsqueda escala por separado.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Recibe datos de"
+    service="Amazon Data Firehose"
+    description="Firehose entrega flujos de datos en un dominio de OpenSearch Service y puede respaldarlos a la vez en S3."
+  />
+  <ConnectionCard
+    relation="Carga datos desde"
+    service="Amazon Kinesis"
+    description="OpenSearch Service se integra con Kinesis, Amazon S3 y DynamoDB para cargar datos de streaming."
+  />
+  <ConnectionCard
+    relation="Autentica usuarios con"
+    service="Amazon Cognito"
+    description="Cognito puede autenticar a los usuarios de OpenSearch Dashboards."
+  />
+  <ConnectionCard
+    relation="Se supervisa con"
+    service="Amazon CloudWatch"
+    description="Publica las métricas del dominio en CloudWatch, donde configuras alarmas."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="OpenSearch Service cuando"
+    items={[
+      'Necesitas búsqueda de texto completo en una aplicación o un sitio web.',
+      'Analizas registros o supervisas aplicaciones en tiempo real.',
+      'Quieres paneles con OpenSearch Dashboards.',
+      'Quieres OpenSearch sin administrar clústeres: OpenSearch Serverless.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Haces consultas SQL ad hoc sobre datos en S3: Amazon Athena.',
+      'Necesitas informes complejos sobre datos históricos con muchas uniones: Amazon Redshift.',
+      'Quieres paneles de inteligencia de negocio sobre varios orígenes: Amazon Quick.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon OpenSearch Service"
+  url="https://docs.aws.amazon.com/opensearch-service/latest/developerguide/what-is.html"
+/>
+<OfficialSource
+  title="Qué es Amazon OpenSearch Serverless"
+  url="https://docs.aws.amazon.com/opensearch-service/latest/developerguide/serverless-overview.html"
+/>
+<OfficialSource
+  title="Configurar un dominio Multi-AZ en OpenSearch Service"
+  url="https://docs.aws.amazon.com/opensearch-service/latest/developerguide/managedomains-multiaz.html"
+/>
