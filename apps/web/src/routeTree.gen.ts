@@ -11,7 +11,6 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ArquitecturasRouteImport } from './routes/arquitecturas'
-import { Route as BuscarRouteImport } from './routes/buscar'
 import { Route as GlosarioRouteImport } from './routes/glosario'
 import { Route as MapaDelExamenRouteImport } from './routes/mapa-del-examen'
 import { Route as ServiciosRouteImport } from './routes/servicios'
@@ -25,11 +24,6 @@ const IndexRoute = IndexRouteImport.update({
 const ArquitecturasRoute = ArquitecturasRouteImport.update({
   id: '/arquitecturas',
   path: '/arquitecturas',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BuscarRoute = BuscarRouteImport.update({
-  id: '/buscar',
-  path: '/buscar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GlosarioRoute = GlosarioRouteImport.update({
@@ -56,7 +50,6 @@ const LecturaPageIdRoute = LecturaPageIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/arquitecturas': typeof ArquitecturasRoute
-  '/buscar': typeof BuscarRoute
   '/glosario': typeof GlosarioRoute
   '/mapa-del-examen': typeof MapaDelExamenRoute
   '/servicios': typeof ServiciosRoute
@@ -65,7 +58,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/arquitecturas': typeof ArquitecturasRoute
-  '/buscar': typeof BuscarRoute
   '/glosario': typeof GlosarioRoute
   '/mapa-del-examen': typeof MapaDelExamenRoute
   '/servicios': typeof ServiciosRoute
@@ -75,7 +67,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/arquitecturas': typeof ArquitecturasRoute
-  '/buscar': typeof BuscarRoute
   '/glosario': typeof GlosarioRoute
   '/mapa-del-examen': typeof MapaDelExamenRoute
   '/servicios': typeof ServiciosRoute
@@ -86,7 +77,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/arquitecturas'
-    | '/buscar'
     | '/glosario'
     | '/mapa-del-examen'
     | '/servicios'
@@ -95,7 +85,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/arquitecturas'
-    | '/buscar'
     | '/glosario'
     | '/mapa-del-examen'
     | '/servicios'
@@ -104,7 +93,6 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/arquitecturas'
-    | '/buscar'
     | '/glosario'
     | '/mapa-del-examen'
     | '/servicios'
@@ -114,7 +102,6 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ArquitecturasRoute: typeof ArquitecturasRoute
-  BuscarRoute: typeof BuscarRoute
   GlosarioRoute: typeof GlosarioRoute
   MapaDelExamenRoute: typeof MapaDelExamenRoute
   ServiciosRoute: typeof ServiciosRoute
@@ -135,13 +122,6 @@ declare module '@tanstack/react-router' {
       path: '/arquitecturas'
       fullPath: '/arquitecturas'
       preLoaderRoute: typeof ArquitecturasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/buscar': {
-      id: '/buscar'
-      path: '/buscar'
-      fullPath: '/buscar'
-      preLoaderRoute: typeof BuscarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/glosario': {
@@ -178,7 +158,6 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ArquitecturasRoute: ArquitecturasRoute,
-  BuscarRoute: BuscarRoute,
   GlosarioRoute: GlosarioRoute,
   MapaDelExamenRoute: MapaDelExamenRoute,
   ServiciosRoute: ServiciosRoute,
