@@ -1,6 +1,6 @@
 /// <reference types="node" />
-// Regenerates data/page-search-text.json from the MDX pages:
-//   pnpm --filter @arquitecto/web search:index
+// Regenerates data/page-search-text.json from the MDX pages (runs automatically before dev, build
+// and test; manually: pnpm --filter @arquitecto/web search:index).
 // The MDX plugin compiles every `.mdx` import (even `?raw`), so the text is extracted ahead of time.
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, join } from 'node:path';

@@ -3,12 +3,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "generate": "pnpm run search:index && pnpm run content:index",
+    "dev": "pnpm run generate && vite",
+    "build": "pnpm run generate && tsc --noEmit && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "search:index": "node src/features/search/scripts/generate-page-search-text.ts"
+    "test": "pnpm run generate && vitest run",
+    "search:index": "node src/features/search/scripts/generate-page-search-text.ts",
+    "content:index": "node src/features/content/scripts/generate-page-meta-index.ts"
   },
   "dependencies": {
     "@arquitecto/contracts": "workspace:*",

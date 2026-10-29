@@ -1,0 +1,1492 @@
+{
+  "fundamentals/fundamentos-de-redes-cidr-subredes-rutas-y-puertos.mdx": {
+    "id": "fundamentos-de-redes-cidr-subredes-rutas-y-puertos",
+    "order": 4,
+    "title": "Fundamentos de redes: CIDR, subredes, rutas y puertos",
+    "kind": "fundamental",
+    "covers": ["1.2-k3", "2.2-k3"]
+  },
+  "fundamentals/infraestructura-global-de-aws.mdx": {
+    "id": "infraestructura-global-de-aws",
+    "order": 1,
+    "title": "Infraestructura global de AWS",
+    "kind": "fundamental",
+    "covers": ["1.1-k3", "2.2-k1", "3.3-k1", "3.4-s3", "4.2-k3"]
+  },
+  "fundamentals/marco-aws-well-architected.mdx": {
+    "id": "marco-aws-well-architected",
+    "order": 3,
+    "title": "Marco AWS Well-Architected",
+    "kind": "fundamental",
+    "covers": []
+  },
+  "fundamentals/modelo-de-responsabilidad-compartida.mdx": {
+    "id": "modelo-de-responsabilidad-compartida",
+    "order": 2,
+    "title": "Modelo de responsabilidad compartida",
+    "kind": "fundamental",
+    "covers": ["1.1-k5"]
+  },
+  "fundamentals/modelos-de-computo-instancias-contenedores-y-sin-servidor.mdx": {
+    "id": "modelos-de-computo-instancias-contenedores-y-sin-servidor",
+    "order": 7,
+    "title": "Modelos de cómputo: instancias, contenedores y sin servidor",
+    "kind": "fundamental",
+    "covers": ["3.2-k1"]
+  },
+  "fundamentals/tipos-de-almacenamiento-objeto-archivo-y-bloque.mdx": {
+    "id": "tipos-de-almacenamiento-objeto-archivo-y-bloque",
+    "order": 5,
+    "title": "Tipos de almacenamiento: objeto, archivo y bloque",
+    "kind": "fundamental",
+    "covers": ["2.1-k13", "3.1-k3", "4.1-k11"]
+  },
+  "fundamentals/tipos-de-bases-de-datos.mdx": {
+    "id": "tipos-de-bases-de-datos",
+    "order": 6,
+    "title": "Tipos de bases de datos",
+    "kind": "fundamental",
+    "covers": ["3.3-k8", "4.3-k9", "4.3-s4"]
+  },
+  "services/amazon-api-gateway.mdx": {
+    "id": "amazon-api-gateway",
+    "order": 110,
+    "title": "Amazon API Gateway",
+    "kind": "service",
+    "category": "Frontend web y móvil",
+    "covers": ["2.1-k1"]
+  },
+  "services/amazon-appflow.mdx": {
+    "id": "amazon-appflow",
+    "order": 76,
+    "title": "Amazon AppFlow",
+    "kind": "service",
+    "category": "Integración de aplicaciones",
+    "covers": []
+  },
+  "services/amazon-athena.mdx": {
+    "id": "amazon-athena",
+    "order": 65,
+    "title": "Amazon Athena",
+    "kind": "service",
+    "category": "Análisis",
+    "covers": ["3.5-k1"]
+  },
+  "services/amazon-aurora-sin-servidor.mdx": {
+    "id": "amazon-aurora-sin-servidor",
+    "order": 101,
+    "title": "Amazon Aurora sin servidor",
+    "kind": "service",
+    "category": "Base de datos",
+    "covers": []
+  },
+  "services/amazon-aurora.mdx": {
+    "id": "amazon-aurora",
+    "order": 100,
+    "title": "Amazon Aurora",
+    "kind": "service",
+    "category": "Base de datos",
+    "covers": ["3.3-s4"]
+  },
+  "services/amazon-cloudfront.mdx": {
+    "id": "amazon-cloudfront",
+    "order": 146,
+    "title": "Amazon CloudFront",
+    "kind": "service",
+    "category": "Redes y entrega de contenido",
+    "covers": ["2.1-k7"]
+  },
+  "services/amazon-cloudwatch.mdx": {
+    "id": "amazon-cloudwatch",
+    "order": 124,
+    "title": "Amazon CloudWatch",
+    "kind": "service",
+    "category": "Administración y gobernanza",
+    "covers": []
+  },
+  "services/amazon-cognito.mdx": {
+    "id": "amazon-cognito",
+    "order": 158,
+    "title": "Amazon Cognito",
+    "kind": "service",
+    "category": "Seguridad, identidad y cumplimiento",
+    "covers": ["1.2-k4", "1.2-k5"]
+  },
+  "services/amazon-comprehend.mdx": {
+    "id": "amazon-comprehend",
+    "order": 112,
+    "title": "Amazon Comprehend",
+    "kind": "service",
+    "category": "Machine learning",
+    "covers": []
+  },
+  "services/amazon-data-firehose.mdx": {
+    "id": "amazon-data-firehose",
+    "order": 67,
+    "title": "Amazon Data Firehose",
+    "kind": "service",
+    "category": "Análisis",
+    "covers": []
+  },
+  "services/amazon-detective.mdx": {
+    "id": "amazon-detective",
+    "order": 159,
+    "title": "Amazon Detective",
+    "kind": "service",
+    "category": "Seguridad, identidad y cumplimiento",
+    "covers": []
+  },
+  "services/amazon-documentdb.mdx": {
+    "id": "amazon-documentdb",
+    "order": 102,
+    "title": "Amazon DocumentDB",
+    "kind": "service",
+    "category": "Base de datos",
+    "covers": []
+  },
+  "services/amazon-dynamodb.mdx": {
+    "id": "amazon-dynamodb",
+    "order": 103,
+    "title": "Amazon DynamoDB",
+    "kind": "service",
+    "category": "Base de datos",
+    "covers": ["3.3-s4"]
+  },
+  "services/amazon-ebs.mdx": {
+    "id": "amazon-ebs",
+    "order": 177,
+    "title": "Amazon EBS",
+    "kind": "service",
+    "category": "Almacenamiento",
+    "covers": ["3.1-k2"]
+  },
+  "services/amazon-ec2-auto-scaling.mdx": {
+    "id": "amazon-ec2-auto-scaling",
+    "order": 88,
+    "title": "Amazon EC2 Auto Scaling",
+    "kind": "service",
+    "category": "Computación",
+    "covers": ["3.2-k4"]
+  },
+  "services/amazon-ec2.mdx": {
+    "id": "amazon-ec2",
+    "order": 87,
+    "title": "Amazon EC2",
+    "kind": "service",
+    "category": "Computación",
+    "covers": []
+  },
+  "services/amazon-ecr.mdx": {
+    "id": "amazon-ecr",
+    "order": 94,
+    "title": "Amazon ECR",
+    "kind": "service",
+    "category": "Contenedores",
+    "covers": []
+  },
+  "services/amazon-ecs-anywhere.mdx": {
+    "id": "amazon-ecs-anywhere",
+    "order": 96,
+    "title": "Amazon ECS Anywhere",
+    "kind": "service",
+    "category": "Contenedores",
+    "covers": []
+  },
+  "services/amazon-ecs.mdx": {
+    "id": "amazon-ecs",
+    "order": 95,
+    "title": "Amazon ECS",
+    "kind": "service",
+    "category": "Contenedores",
+    "covers": ["2.1-k14"]
+  },
+  "services/amazon-efs.mdx": {
+    "id": "amazon-efs",
+    "order": 178,
+    "title": "Amazon EFS",
+    "kind": "service",
+    "category": "Almacenamiento",
+    "covers": ["3.1-k2"]
+  },
+  "services/amazon-eks-anywhere.mdx": {
+    "id": "amazon-eks-anywhere",
+    "order": 98,
+    "title": "Amazon EKS Anywhere",
+    "kind": "service",
+    "category": "Contenedores",
+    "covers": []
+  },
+  "services/amazon-eks-distro.mdx": {
+    "id": "amazon-eks-distro",
+    "order": 99,
+    "title": "Amazon EKS Distro",
+    "kind": "service",
+    "category": "Contenedores",
+    "covers": []
+  },
+  "services/amazon-eks.mdx": {
+    "id": "amazon-eks",
+    "order": 97,
+    "title": "Amazon EKS",
+    "kind": "service",
+    "category": "Contenedores",
+    "covers": ["2.1-k14"]
+  },
+  "services/amazon-elastic-transcoder.mdx": {
+    "id": "amazon-elastic-transcoder",
+    "order": 138,
+    "title": "Amazon Elastic Transcoder",
+    "kind": "service",
+    "category": "Servicios multimedia",
+    "covers": []
+  },
+  "services/amazon-elasticache.mdx": {
+    "id": "amazon-elasticache",
+    "order": 104,
+    "title": "Amazon ElastiCache",
+    "kind": "service",
+    "category": "Base de datos",
+    "covers": ["3.3-k2"]
+  },
+  "services/amazon-emr.mdx": {
+    "id": "amazon-emr",
+    "order": 68,
+    "title": "Amazon EMR",
+    "kind": "service",
+    "category": "Análisis",
+    "covers": ["3.2-k1", "3.5-s5"]
+  },
+  "services/amazon-eventbridge.mdx": {
+    "id": "amazon-eventbridge",
+    "order": 77,
+    "title": "Amazon EventBridge",
+    "kind": "service",
+    "category": "Integración de aplicaciones",
+    "covers": []
+  },
+  "services/amazon-fsx-para-todos-los-tipos.mdx": {
+    "id": "amazon-fsx-para-todos-los-tipos",
+    "order": 179,
+    "title": "Amazon FSx (para todos los tipos)",
+    "kind": "service",
+    "category": "Almacenamiento",
+    "covers": ["4.1-k4"]
+  },
+  "services/amazon-guardduty.mdx": {
+    "id": "amazon-guardduty",
+    "order": 162,
+    "title": "Amazon GuardDuty",
+    "kind": "service",
+    "category": "Seguridad, identidad y cumplimiento",
+    "covers": ["1.2-k5"]
+  },
+  "services/amazon-inspector.mdx": {
+    "id": "amazon-inspector",
+    "order": 164,
+    "title": "Amazon Inspector",
+    "kind": "service",
+    "category": "Seguridad, identidad y cumplimiento",
+    "covers": []
+  },
+  "services/amazon-keyspaces.mdx": {
+    "id": "amazon-keyspaces",
+    "order": 105,
+    "title": "Amazon Keyspaces",
+    "kind": "service",
+    "category": "Base de datos",
+    "covers": []
+  },
+  "services/amazon-kinesis-video-streams.mdx": {
+    "id": "amazon-kinesis-video-streams",
+    "order": 139,
+    "title": "Amazon Kinesis Video Streams",
+    "kind": "service",
+    "category": "Servicios multimedia",
+    "covers": []
+  },
+  "services/amazon-kinesis.mdx": {
+    "id": "amazon-kinesis",
+    "order": 70,
+    "title": "Amazon Kinesis",
+    "kind": "service",
+    "category": "Análisis",
+    "covers": ["3.5-k7"]
+  },
+  "services/amazon-lex.mdx": {
+    "id": "amazon-lex",
+    "order": 113,
+    "title": "Amazon Lex",
+    "kind": "service",
+    "category": "Machine learning",
+    "covers": []
+  },
+  "services/amazon-macie.mdx": {
+    "id": "amazon-macie",
+    "order": 166,
+    "title": "Amazon Macie",
+    "kind": "service",
+    "category": "Seguridad, identidad y cumplimiento",
+    "covers": ["1.2-k5"]
+  },
+  "services/amazon-managed-grafana.mdx": {
+    "id": "amazon-managed-grafana",
+    "order": 130,
+    "title": "Amazon Managed Grafana",
+    "kind": "service",
+    "category": "Administración y gobernanza",
+    "covers": []
+  },
+  "services/amazon-managed-service-para-prometheus.mdx": {
+    "id": "amazon-managed-service-para-prometheus",
+    "order": 131,
+    "title": "Amazon Managed Service para Prometheus",
+    "kind": "service",
+    "category": "Administración y gobernanza",
+    "covers": []
+  },
+  "services/amazon-managed-streaming-para-apache-kafka-amazon-msk.mdx": {
+    "id": "amazon-managed-streaming-para-apache-kafka-amazon-msk",
+    "order": 72,
+    "title": "Amazon Managed Streaming para Apache Kafka (Amazon MSK)",
+    "kind": "service",
+    "category": "Análisis",
+    "covers": []
+  },
+  "services/amazon-mq.mdx": {
+    "id": "amazon-mq",
+    "order": 78,
+    "title": "Amazon MQ",
+    "kind": "service",
+    "category": "Integración de aplicaciones",
+    "covers": []
+  },
+  "services/amazon-neptune.mdx": {
+    "id": "amazon-neptune",
+    "order": 106,
+    "title": "Amazon Neptune",
+    "kind": "service",
+    "category": "Base de datos",
+    "covers": []
+  },
+  "services/amazon-opensearch-service.mdx": {
+    "id": "amazon-opensearch-service",
+    "order": 73,
+    "title": "Amazon OpenSearch Service",
+    "kind": "service",
+    "category": "Análisis",
+    "covers": []
+  },
+  "services/amazon-polly.mdx": {
+    "id": "amazon-polly",
+    "order": 114,
+    "title": "Amazon Polly",
+    "kind": "service",
+    "category": "Machine learning",
+    "covers": []
+  },
+  "services/amazon-quick.mdx": {
+    "id": "amazon-quick",
+    "order": 74,
+    "title": "Amazon Quick",
+    "kind": "service",
+    "category": "Análisis",
+    "covers": ["3.5-k1"]
+  },
+  "services/amazon-rds.mdx": {
+    "id": "amazon-rds",
+    "order": 107,
+    "title": "Amazon RDS",
+    "kind": "service",
+    "category": "Base de datos",
+    "covers": ["2.2-k9"]
+  },
+  "services/amazon-redshift.mdx": {
+    "id": "amazon-redshift",
+    "order": 75,
+    "title": "Amazon Redshift",
+    "kind": "service",
+    "category": "Análisis",
+    "covers": []
+  },
+  "services/amazon-rekognition.mdx": {
+    "id": "amazon-rekognition",
+    "order": 115,
+    "title": "Amazon Rekognition",
+    "kind": "service",
+    "category": "Machine learning",
+    "covers": []
+  },
+  "services/amazon-route-53.mdx": {
+    "id": "amazon-route-53",
+    "order": 151,
+    "title": "Amazon Route 53",
+    "kind": "service",
+    "category": "Redes y entrega de contenido",
+    "covers": ["2.2-k1", "4.4-k7"]
+  },
+  "services/amazon-s3-glacier.mdx": {
+    "id": "amazon-s3-glacier",
+    "order": 181,
+    "title": "Amazon S3 Glacier",
+    "kind": "service",
+    "category": "Almacenamiento",
+    "covers": []
+  },
+  "services/amazon-s3.mdx": {
+    "id": "amazon-s3",
+    "order": 180,
+    "title": "Amazon S3",
+    "kind": "service",
+    "category": "Almacenamiento",
+    "covers": ["3.1-k2", "4.1-k1"]
+  },
+  "services/amazon-sagemaker-ai.mdx": {
+    "id": "amazon-sagemaker-ai",
+    "order": 116,
+    "title": "Amazon SageMaker AI",
+    "kind": "service",
+    "category": "Machine learning",
+    "covers": []
+  },
+  "services/amazon-sns.mdx": {
+    "id": "amazon-sns",
+    "order": 79,
+    "title": "Amazon SNS",
+    "kind": "service",
+    "category": "Integración de aplicaciones",
+    "covers": []
+  },
+  "services/amazon-sqs.mdx": {
+    "id": "amazon-sqs",
+    "order": 80,
+    "title": "Amazon SQS",
+    "kind": "service",
+    "category": "Integración de aplicaciones",
+    "covers": ["2.1-k2"]
+  },
+  "services/amazon-textract.mdx": {
+    "id": "amazon-textract",
+    "order": 117,
+    "title": "Amazon Textract",
+    "kind": "service",
+    "category": "Machine learning",
+    "covers": []
+  },
+  "services/amazon-transcribe.mdx": {
+    "id": "amazon-transcribe",
+    "order": 118,
+    "title": "Amazon Transcribe",
+    "kind": "service",
+    "category": "Machine learning",
+    "covers": []
+  },
+  "services/amazon-translate.mdx": {
+    "id": "amazon-translate",
+    "order": 119,
+    "title": "Amazon Translate",
+    "kind": "service",
+    "category": "Machine learning",
+    "covers": []
+  },
+  "services/amazon-vpc.mdx": {
+    "id": "amazon-vpc",
+    "order": 154,
+    "title": "Amazon VPC",
+    "kind": "service",
+    "category": "Redes y entrega de contenido",
+    "covers": []
+  },
+  "services/aws-amplify.mdx": {
+    "id": "aws-amplify",
+    "order": 109,
+    "title": "AWS Amplify",
+    "kind": "service",
+    "category": "Frontend web y móvil",
+    "covers": []
+  },
+  "services/aws-application-migration-service.mdx": {
+    "id": "aws-application-migration-service",
+    "order": 140,
+    "title": "AWS Application Migration Service",
+    "kind": "service",
+    "category": "Migración y transferencia",
+    "covers": []
+  },
+  "services/aws-artifact.mdx": {
+    "id": "aws-artifact",
+    "order": 155,
+    "title": "AWS Artifact",
+    "kind": "service",
+    "category": "Seguridad, identidad y cumplimiento",
+    "covers": ["1.3-s1"]
+  },
+  "services/aws-auto-scaling.mdx": {
+    "id": "aws-auto-scaling",
+    "order": 120,
+    "title": "AWS Auto Scaling",
+    "kind": "service",
+    "category": "Administración y gobernanza",
+    "covers": ["3.2-k4"]
+  },
+  "services/aws-backup.mdx": {
+    "id": "aws-backup",
+    "order": 176,
+    "title": "AWS Backup",
+    "kind": "service",
+    "category": "Almacenamiento",
+    "covers": ["1.3-s5"]
+  },
+  "services/aws-batch.mdx": {
+    "id": "aws-batch",
+    "order": 86,
+    "title": "AWS Batch",
+    "kind": "service",
+    "category": "Computación",
+    "covers": ["3.2-k1"]
+  },
+  "services/aws-budgets.mdx": {
+    "id": "aws-budgets",
+    "order": 82,
+    "title": "AWS Budgets",
+    "kind": "service",
+    "category": "Administración de costos de AWS",
+    "covers": []
+  },
+  "services/aws-certificate-manager-acm.mdx": {
+    "id": "aws-certificate-manager-acm",
+    "order": 156,
+    "title": "AWS Certificate Manager (ACM)",
+    "kind": "service",
+    "category": "Seguridad, identidad y cumplimiento",
+    "covers": ["1.3-s3"]
+  },
+  "services/aws-cli.mdx": {
+    "id": "aws-cli",
+    "order": 121,
+    "title": "AWS CLI",
+    "kind": "service",
+    "category": "Administración y gobernanza",
+    "covers": []
+  },
+  "services/aws-client-vpn.mdx": {
+    "id": "aws-client-vpn",
+    "order": 145,
+    "title": "AWS Client VPN",
+    "kind": "service",
+    "category": "Redes y entrega de contenido",
+    "covers": []
+  },
+  "services/aws-cloudformation.mdx": {
+    "id": "aws-cloudformation",
+    "order": 122,
+    "title": "AWS CloudFormation",
+    "kind": "service",
+    "category": "Administración y gobernanza",
+    "covers": ["2.2-s1"]
+  },
+  "services/aws-cloudhsm.mdx": {
+    "id": "aws-cloudhsm",
+    "order": 157,
+    "title": "AWS CloudHSM",
+    "kind": "service",
+    "category": "Seguridad, identidad y cumplimiento",
+    "covers": []
+  },
+  "services/aws-cloudtrail.mdx": {
+    "id": "aws-cloudtrail",
+    "order": 123,
+    "title": "AWS CloudTrail",
+    "kind": "service",
+    "category": "Administración y gobernanza",
+    "covers": []
+  },
+  "services/aws-compute-optimizer.mdx": {
+    "id": "aws-compute-optimizer",
+    "order": 125,
+    "title": "AWS Compute Optimizer",
+    "kind": "service",
+    "category": "Administración y gobernanza",
+    "covers": []
+  },
+  "services/aws-config.mdx": {
+    "id": "aws-config",
+    "order": 126,
+    "title": "AWS Config",
+    "kind": "service",
+    "category": "Administración y gobernanza",
+    "covers": []
+  },
+  "services/aws-control-tower.mdx": {
+    "id": "aws-control-tower",
+    "order": 127,
+    "title": "AWS Control Tower",
+    "kind": "service",
+    "category": "Administración y gobernanza",
+    "covers": ["1.1-s4"]
+  },
+  "services/aws-data-exchange.mdx": {
+    "id": "aws-data-exchange",
+    "order": 66,
+    "title": "AWS Data Exchange",
+    "kind": "service",
+    "category": "Análisis",
+    "covers": []
+  },
+  "services/aws-datasync.mdx": {
+    "id": "aws-datasync",
+    "order": 141,
+    "title": "AWS DataSync",
+    "kind": "service",
+    "category": "Migración y transferencia",
+    "covers": ["3.5-k3"]
+  },
+  "services/aws-device-farm.mdx": {
+    "id": "aws-device-farm",
+    "order": 111,
+    "title": "AWS Device Farm",
+    "kind": "service",
+    "category": "Frontend web y móvil",
+    "covers": []
+  },
+  "services/aws-direct-connect.mdx": {
+    "id": "aws-direct-connect",
+    "order": 147,
+    "title": "AWS Direct Connect",
+    "kind": "service",
+    "category": "Redes y entrega de contenido",
+    "covers": []
+  },
+  "services/aws-directory-service.mdx": {
+    "id": "aws-directory-service",
+    "order": 160,
+    "title": "AWS Directory Service",
+    "kind": "service",
+    "category": "Seguridad, identidad y cumplimiento",
+    "covers": ["1.1-s6"]
+  },
+  "services/aws-dms.mdx": {
+    "id": "aws-dms",
+    "order": 142,
+    "title": "AWS DMS",
+    "kind": "service",
+    "category": "Migración y transferencia",
+    "covers": ["4.3-s5"]
+  },
+  "services/aws-elastic-beanstalk.mdx": {
+    "id": "aws-elastic-beanstalk",
+    "order": 89,
+    "title": "AWS Elastic Beanstalk",
+    "kind": "service",
+    "category": "Computación",
+    "covers": []
+  },
+  "services/aws-fargate.mdx": {
+    "id": "aws-fargate",
+    "order": 174,
+    "title": "AWS Fargate",
+    "kind": "service",
+    "category": "Sin servidor",
+    "covers": ["3.2-k1"]
+  },
+  "services/aws-firewall-manager.mdx": {
+    "id": "aws-firewall-manager",
+    "order": 161,
+    "title": "AWS Firewall Manager",
+    "kind": "service",
+    "category": "Seguridad, identidad y cumplimiento",
+    "covers": []
+  },
+  "services/aws-global-accelerator.mdx": {
+    "id": "aws-global-accelerator",
+    "order": 149,
+    "title": "AWS Global Accelerator",
+    "kind": "service",
+    "category": "Redes y entrega de contenido",
+    "covers": []
+  },
+  "services/aws-glue.mdx": {
+    "id": "aws-glue",
+    "order": 69,
+    "title": "AWS Glue",
+    "kind": "service",
+    "category": "Análisis",
+    "covers": ["3.5-k4"]
+  },
+  "services/aws-iam-identity-center.mdx": {
+    "id": "aws-iam-identity-center",
+    "order": 163,
+    "title": "AWS IAM Identity Center",
+    "kind": "service",
+    "category": "Seguridad, identidad y cumplimiento",
+    "covers": ["1.1-k2"]
+  },
+  "services/aws-kms.mdx": {
+    "id": "aws-kms",
+    "order": 165,
+    "title": "AWS KMS",
+    "kind": "service",
+    "category": "Seguridad, identidad y cumplimiento",
+    "covers": ["1.3-k4", "1.3-s2", "1.3-s4"]
+  },
+  "services/aws-lake-formation.mdx": {
+    "id": "aws-lake-formation",
+    "order": 71,
+    "title": "AWS Lake Formation",
+    "kind": "service",
+    "category": "Análisis",
+    "covers": ["3.5-k1"]
+  },
+  "services/aws-lambda.mdx": {
+    "id": "aws-lambda",
+    "order": 175,
+    "title": "AWS Lambda",
+    "kind": "service",
+    "category": "Sin servidor",
+    "covers": ["3.2-s4"]
+  },
+  "services/aws-license-manager.mdx": {
+    "id": "aws-license-manager",
+    "order": 129,
+    "title": "AWS License Manager",
+    "kind": "service",
+    "category": "Administración y gobernanza",
+    "covers": []
+  },
+  "services/aws-network-firewall.mdx": {
+    "id": "aws-network-firewall",
+    "order": 167,
+    "title": "AWS Network Firewall",
+    "kind": "service",
+    "category": "Seguridad, identidad y cumplimiento",
+    "covers": []
+  },
+  "services/aws-organizations.mdx": {
+    "id": "aws-organizations",
+    "order": 133,
+    "title": "AWS Organizations",
+    "kind": "service",
+    "category": "Administración y gobernanza",
+    "covers": ["1.1-s4"]
+  },
+  "services/aws-outposts.mdx": {
+    "id": "aws-outposts",
+    "order": 90,
+    "title": "AWS Outposts",
+    "kind": "service",
+    "category": "Computación",
+    "covers": ["4.2-k6"]
+  },
+  "services/aws-privatelink.mdx": {
+    "id": "aws-privatelink",
+    "order": 150,
+    "title": "AWS PrivateLink",
+    "kind": "service",
+    "category": "Redes y entrega de contenido",
+    "covers": []
+  },
+  "services/aws-resource-access-manager-aws-ram.mdx": {
+    "id": "aws-resource-access-manager-aws-ram",
+    "order": 168,
+    "title": "AWS Resource Access Manager (AWS RAM)",
+    "kind": "service",
+    "category": "Seguridad, identidad y cumplimiento",
+    "covers": []
+  },
+  "services/aws-secrets-manager.mdx": {
+    "id": "aws-secrets-manager",
+    "order": 169,
+    "title": "AWS Secrets Manager",
+    "kind": "service",
+    "category": "Seguridad, identidad y cumplimiento",
+    "covers": ["1.2-k1"]
+  },
+  "services/aws-security-hub.mdx": {
+    "id": "aws-security-hub",
+    "order": 170,
+    "title": "AWS Security Hub",
+    "kind": "service",
+    "category": "Seguridad, identidad y cumplimiento",
+    "covers": []
+  },
+  "services/aws-service-catalog.mdx": {
+    "id": "aws-service-catalog",
+    "order": 134,
+    "title": "AWS Service Catalog",
+    "kind": "service",
+    "category": "Administración y gobernanza",
+    "covers": []
+  },
+  "services/aws-shield.mdx": {
+    "id": "aws-shield",
+    "order": 171,
+    "title": "AWS Shield",
+    "kind": "service",
+    "category": "Seguridad, identidad y cumplimiento",
+    "covers": ["1.2-s3"]
+  },
+  "services/aws-site-to-site-vpn.mdx": {
+    "id": "aws-site-to-site-vpn",
+    "order": 152,
+    "title": "AWS Site-to-Site VPN",
+    "kind": "service",
+    "category": "Redes y entrega de contenido",
+    "covers": []
+  },
+  "services/aws-snow-family.mdx": {
+    "id": "aws-snow-family",
+    "order": 143,
+    "title": "AWS Snow Family",
+    "kind": "service",
+    "category": "Migración y transferencia",
+    "covers": []
+  },
+  "services/aws-step-functions.mdx": {
+    "id": "aws-step-functions",
+    "order": 81,
+    "title": "AWS Step Functions",
+    "kind": "service",
+    "category": "Integración de aplicaciones",
+    "covers": ["2.1-k16"]
+  },
+  "services/aws-storage-gateway.mdx": {
+    "id": "aws-storage-gateway",
+    "order": 182,
+    "title": "AWS Storage Gateway",
+    "kind": "service",
+    "category": "Almacenamiento",
+    "covers": ["3.5-k3"]
+  },
+  "services/aws-systems-manager.mdx": {
+    "id": "aws-systems-manager",
+    "order": 135,
+    "title": "AWS Systems Manager",
+    "kind": "service",
+    "category": "Administración y gobernanza",
+    "covers": []
+  },
+  "services/aws-transfer-family.mdx": {
+    "id": "aws-transfer-family",
+    "order": 144,
+    "title": "AWS Transfer Family",
+    "kind": "service",
+    "category": "Migración y transferencia",
+    "covers": ["2.1-k2"]
+  },
+  "services/aws-transit-gateway.mdx": {
+    "id": "aws-transit-gateway",
+    "order": 153,
+    "title": "AWS Transit Gateway",
+    "kind": "service",
+    "category": "Redes y entrega de contenido",
+    "covers": []
+  },
+  "services/aws-trusted-advisor.mdx": {
+    "id": "aws-trusted-advisor",
+    "order": 136,
+    "title": "AWS Trusted Advisor",
+    "kind": "service",
+    "category": "Administración y gobernanza",
+    "covers": []
+  },
+  "services/aws-waf.mdx": {
+    "id": "aws-waf",
+    "order": 172,
+    "title": "AWS WAF",
+    "kind": "service",
+    "category": "Seguridad, identidad y cumplimiento",
+    "covers": ["1.2-s3"]
+  },
+  "services/aws-wavelength.mdx": {
+    "id": "aws-wavelength",
+    "order": 93,
+    "title": "AWS Wavelength",
+    "kind": "service",
+    "category": "Computación",
+    "covers": []
+  },
+  "services/aws-x-ray.mdx": {
+    "id": "aws-x-ray",
+    "order": 108,
+    "title": "AWS X-Ray",
+    "kind": "service",
+    "category": "Herramientas para desarrolladores",
+    "covers": ["2.2-k12"]
+  },
+  "services/consola-de-administracion-de-aws.mdx": {
+    "id": "consola-de-administracion-de-aws",
+    "order": 132,
+    "title": "Consola de administración de AWS",
+    "kind": "service",
+    "category": "Administración y gobernanza",
+    "covers": []
+  },
+  "services/elastic-load-balancing-elb.mdx": {
+    "id": "elastic-load-balancing-elb",
+    "order": 148,
+    "title": "Elastic Load Balancing (ELB)",
+    "kind": "service",
+    "category": "Redes y entrega de contenido",
+    "covers": []
+  },
+  "services/explorador-de-costos-de-aws.mdx": {
+    "id": "explorador-de-costos-de-aws",
+    "order": 84,
+    "title": "Explorador de costos de AWS",
+    "kind": "service",
+    "category": "Administración de costos de AWS",
+    "covers": []
+  },
+  "services/herramienta-de-aws-well-architected.mdx": {
+    "id": "herramienta-de-aws-well-architected",
+    "order": 137,
+    "title": "Herramienta de AWS Well-Architected",
+    "kind": "service",
+    "category": "Administración y gobernanza",
+    "covers": []
+  },
+  "services/iam.mdx": {
+    "id": "iam",
+    "order": 173,
+    "title": "IAM",
+    "kind": "service",
+    "category": "Seguridad, identidad y cumplimiento",
+    "covers": []
+  },
+  "services/informe-de-costo-y-uso-de-aws.mdx": {
+    "id": "informe-de-costo-y-uso-de-aws",
+    "order": 83,
+    "title": "Informe de costo y uso de AWS",
+    "kind": "service",
+    "category": "Administración de costos de AWS",
+    "covers": []
+  },
+  "services/panel-de-aws-health.mdx": {
+    "id": "panel-de-aws-health",
+    "order": 128,
+    "title": "Panel de AWS Health",
+    "kind": "service",
+    "category": "Administración y gobernanza",
+    "covers": []
+  },
+  "services/repositorio-de-aplicaciones-sin-servidor-de-aws.mdx": {
+    "id": "repositorio-de-aplicaciones-sin-servidor-de-aws",
+    "order": 91,
+    "title": "Repositorio de aplicaciones sin servidor de AWS",
+    "kind": "service",
+    "category": "Computación",
+    "covers": []
+  },
+  "services/savings-plans.mdx": {
+    "id": "savings-plans",
+    "order": 85,
+    "title": "Savings Plans",
+    "kind": "service",
+    "category": "Administración de costos de AWS",
+    "covers": []
+  },
+  "services/vmware-cloud-en-aws.mdx": {
+    "id": "vmware-cloud-en-aws",
+    "order": 92,
+    "title": "VMware Cloud en AWS",
+    "kind": "service",
+    "category": "Computación",
+    "covers": []
+  },
+  "topics/almacenamiento-hibrido.mdx": {
+    "id": "almacenamiento-hibrido",
+    "order": 39,
+    "title": "Almacenamiento híbrido",
+    "kind": "topic",
+    "category": "Rendimiento",
+    "covers": ["3.1-k1", "4.1-k8"]
+  },
+  "topics/alta-disponibilidad-multi-az-y-multirregion.mdx": {
+    "id": "alta-disponibilidad-multi-az-y-multirregion",
+    "order": 30,
+    "title": "Alta disponibilidad multi-AZ y multirregión",
+    "kind": "topic",
+    "category": "Resiliencia",
+    "covers": ["2.2-k1", "2.2-s2", "2.2-s4"]
+  },
+  "topics/amenazas-externas-ddos-e-inyeccion-de-codigo.mdx": {
+    "id": "amenazas-externas-ddos-e-inyeccion-de-codigo",
+    "order": 15,
+    "title": "Amenazas externas: DDoS e inyección de código",
+    "kind": "topic",
+    "category": "Seguridad",
+    "covers": ["1.2-k4", "1.2-k6", "1.2-s3"]
+  },
+  "topics/analisis-y-visualizacion.mdx": {
+    "id": "analisis-y-visualizacion",
+    "order": 53,
+    "title": "Análisis y visualización",
+    "kind": "topic",
+    "category": "Rendimiento",
+    "covers": ["3.5-k1", "3.5-s4"]
+  },
+  "topics/arquitecturas-basadas-en-eventos.mdx": {
+    "id": "arquitecturas-basadas-en-eventos",
+    "order": 22,
+    "title": "Arquitecturas basadas en eventos",
+    "kind": "topic",
+    "category": "Resiliencia",
+    "covers": ["2.1-k5", "2.1-s1", "2.1-s3", "3.2-s1"]
+  },
+  "topics/arquitecturas-de-varios-niveles.mdx": {
+    "id": "arquitecturas-de-varios-niveles",
+    "order": 20,
+    "title": "Arquitecturas de varios niveles",
+    "kind": "topic",
+    "category": "Resiliencia",
+    "covers": ["2.1-k10", "2.1-s1"]
+  },
+  "topics/balanceo-de-carga-alb-nlb-y-gwlb.mdx": {
+    "id": "balanceo-de-carga-alb-nlb-y-gwlb",
+    "order": 29,
+    "title": "Balanceo de carga: ALB, NLB y GWLB",
+    "kind": "topic",
+    "category": "Resiliencia",
+    "covers": ["2.1-k9", "2.2-k8", "3.4-k3", "3.4-s4", "4.2-s1", "4.4-k3"]
+  },
+  "topics/bases-de-datos-rentables.mdx": {
+    "id": "bases-de-datos-rentables",
+    "order": 62,
+    "title": "Bases de datos rentables",
+    "kind": "topic",
+    "category": "Costos",
+    "covers": ["4.3-k4", "4.3-k9", "4.3-s1", "4.3-s3", "4.3-s4"]
+  },
+  "topics/capacidad-de-bases-de-datos.mdx": {
+    "id": "capacidad-de-bases-de-datos",
+    "order": 45,
+    "title": "Capacidad de bases de datos",
+    "kind": "topic",
+    "category": "Rendimiento",
+    "covers": ["3.3-k4", "4.3-k5"]
+  },
+  "topics/cifrado-en-reposo-y-en-transito-claves-y-certificados.mdx": {
+    "id": "cifrado-en-reposo-y-en-transito-claves-y-certificados",
+    "order": 17,
+    "title": "Cifrado en reposo y en tránsito, claves y certificados",
+    "kind": "topic",
+    "category": "Seguridad",
+    "covers": ["1.3-k4", "1.3-s2", "1.3-s3", "1.3-s4", "1.3-s7"]
+  },
+  "topics/clases-de-almacenamiento-y-ciclo-de-vida-de-s3.mdx": {
+    "id": "clases-de-almacenamiento-y-ciclo-de-vida-de-s3",
+    "order": 57,
+    "title": "Clases de almacenamiento y ciclo de vida de S3",
+    "kind": "topic",
+    "category": "Costos",
+    "covers": [
+      "1.3-s6",
+      "4.1-k10",
+      "4.1-s10",
+      "4.1-k1",
+      "4.1-k7",
+      "4.1-k9",
+      "4.1-s1",
+      "4.1-s5",
+      "4.1-s8",
+      "4.1-s9"
+    ]
+  },
+  "topics/colas-mensajeria-y-publicacion-suscripcion.mdx": {
+    "id": "colas-mensajeria-y-publicacion-suscripcion",
+    "order": 23,
+    "title": "Colas, mensajería y publicación/suscripción",
+    "kind": "topic",
+    "category": "Resiliencia",
+    "covers": ["2.1-k11", "2.1-s3", "3.2-k3", "3.2-s1"]
+  },
+  "topics/computo-distribuido-y-en-la-periferia.mdx": {
+    "id": "computo-distribuido-y-en-la-periferia",
+    "order": 42,
+    "title": "Cómputo distribuido y en la periferia",
+    "kind": "topic",
+    "category": "Rendimiento",
+    "covers": ["3.2-k2", "4.2-k5", "4.2-k6"]
+  },
+  "topics/computo-rentable-segun-la-carga-de-trabajo.mdx": {
+    "id": "computo-rentable-segun-la-carga-de-trabajo",
+    "order": 63,
+    "title": "Cómputo rentable según la carga de trabajo",
+    "kind": "topic",
+    "category": "Costos",
+    "covers": ["4.2-k8", "4.2-k9", "4.2-s2", "4.2-s3", "4.2-s4"]
+  },
+  "topics/conectividad-hibrida-vpn-direct-connect-y-privatelink.mdx": {
+    "id": "conectividad-hibrida-vpn-direct-connect-y-privatelink",
+    "order": 49,
+    "title": "Conectividad híbrida: VPN, Direct Connect y PrivateLink",
+    "kind": "topic",
+    "category": "Rendimiento",
+    "covers": ["1.2-s4", "3.4-k4", "4.4-k5", "4.4-s2", "4.4-s7"]
+  },
+  "topics/conmutacion-por-error-y-patrones-distribuidos.mdx": {
+    "id": "conmutacion-por-error-y-patrones-distribuidos",
+    "order": 32,
+    "title": "Conmutación por error y patrones distribuidos",
+    "kind": "topic",
+    "category": "Resiliencia",
+    "covers": ["2.2-k5", "2.2-k6", "2.2-s4"]
+  },
+  "topics/contenedores-cuando-usarlos-y-como-migrar.mdx": {
+    "id": "contenedores-cuando-usarlos-y-como-migrar",
+    "order": 27,
+    "title": "Contenedores: cuándo usarlos y cómo migrar",
+    "kind": "topic",
+    "category": "Resiliencia",
+    "covers": ["2.1-k14", "2.1-k8", "2.1-s4", "3.2-k6"]
+  },
+  "topics/copias-de-seguridad-y-archivado-rentables.mdx": {
+    "id": "copias-de-seguridad-y-archivado-rentables",
+    "order": 64,
+    "title": "Copias de seguridad y archivado rentables",
+    "kind": "topic",
+    "category": "Costos",
+    "covers": ["4.1-k5", "4.1-s6"]
+  },
+  "topics/copias-de-seguridad-y-replicacion-de-datos.mdx": {
+    "id": "copias-de-seguridad-y-replicacion-de-datos",
+    "order": 19,
+    "title": "Copias de seguridad y replicación de datos",
+    "kind": "topic",
+    "category": "Seguridad",
+    "covers": ["1.3-k2", "1.3-s5", "2.2-k11", "2.2-s5", "4.3-s1"]
+  },
+  "topics/costos-de-transferencia-de-datos.mdx": {
+    "id": "costos-de-transferencia-de-datos",
+    "order": 59,
+    "title": "Costos de transferencia de datos",
+    "kind": "topic",
+    "category": "Costos",
+    "covers": ["4.1-s1", "4.1-s3", "4.4-s3", "4.4-s5"]
+  },
+  "topics/diseno-de-red-subredes-enrutamiento-y-direccionamiento-ip.mdx": {
+    "id": "diseno-de-red-subredes-enrutamiento-y-direccionamiento-ip",
+    "order": 46,
+    "title": "Diseño de red: subredes, enrutamiento y direccionamiento IP",
+    "kind": "topic",
+    "category": "Rendimiento",
+    "covers": ["1.2-s2", "2.1-s6", "3.4-k2", "3.4-s2"]
+  },
+  "topics/elegir-almacenamiento-por-rendimiento-y-escala.mdx": {
+    "id": "elegir-almacenamiento-por-rendimiento-y-escala",
+    "order": 38,
+    "title": "Elegir almacenamiento por rendimiento y escala",
+    "kind": "topic",
+    "category": "Rendimiento",
+    "covers": [
+      "2.1-s6",
+      "2.2-k11",
+      "3.1-k2",
+      "3.1-s1",
+      "3.1-s2",
+      "4.1-s10",
+      "4.1-k4",
+      "4.1-s2",
+      "4.1-s4"
+    ]
+  },
+  "topics/elegir-base-de-datos-tipo-y-motor.mdx": {
+    "id": "elegir-base-de-datos-tipo-y-motor",
+    "order": 43,
+    "title": "Elegir base de datos: tipo y motor",
+    "kind": "topic",
+    "category": "Rendimiento",
+    "covers": [
+      "2.1-s6",
+      "3.3-k3",
+      "3.3-k6",
+      "3.3-k8",
+      "3.3-s2",
+      "3.3-s3",
+      "3.3-s4",
+      "4.3-k7",
+      "4.3-s2"
+    ]
+  },
+  "topics/elegir-instancias-familias-tipos-y-tamanos.mdx": {
+    "id": "elegir-instancias-familias-tipos-y-tamanos",
+    "order": 40,
+    "title": "Elegir instancias: familias, tipos y tamaños",
+    "kind": "topic",
+    "category": "Rendimiento",
+    "covers": ["2.1-s6", "3.2-s3", "3.2-s4", "4.2-k7", "4.2-s5", "4.2-s6"]
+  },
+  "topics/escalado-automatico-metricas-y-politicas.mdx": {
+    "id": "escalado-automatico-metricas-y-politicas",
+    "order": 41,
+    "title": "Escalado automático: métricas y políticas",
+    "kind": "topic",
+    "category": "Rendimiento",
+    "covers": ["2.1-s2", "3.2-k4", "3.2-s2", "4.2-k9"]
+  },
+  "topics/escalado-horizontal-y-vertical.mdx": {
+    "id": "escalado-horizontal-y-vertical",
+    "order": 26,
+    "title": "Escalado horizontal y vertical",
+    "kind": "topic",
+    "category": "Resiliencia",
+    "covers": ["2.1-k6", "2.1-s2", "4.2-s2"]
+  },
+  "topics/estrategia-de-varias-cuentas-organizations-scp-y-control-tower.mdx": {
+    "id": "estrategia-de-varias-cuentas-organizations-scp-y-control-tower",
+    "order": 11,
+    "title": "Estrategia de varias cuentas: Organizations, SCP y Control Tower",
+    "kind": "topic",
+    "category": "Seguridad",
+    "covers": ["1.1-k1", "1.1-s4"]
+  },
+  "topics/estrategias-de-cache.mdx": {
+    "id": "estrategias-de-cache",
+    "order": 25,
+    "title": "Estrategias de caché",
+    "kind": "topic",
+    "category": "Resiliencia",
+    "covers": ["2.1-k3", "3.3-k2", "3.3-s5", "4.3-k3"]
+  },
+  "topics/federacion-de-identidades-y-servicios-de-directorio.mdx": {
+    "id": "federacion-de-identidades-y-servicios-de-directorio",
+    "order": 10,
+    "title": "Federación de identidades y servicios de directorio",
+    "kind": "topic",
+    "category": "Seguridad",
+    "covers": ["1.1-k2", "1.1-s6"]
+  },
+  "topics/fiabilidad-para-aplicaciones-heredadas.mdx": {
+    "id": "fiabilidad-para-aplicaciones-heredadas",
+    "order": 36,
+    "title": "Fiabilidad para aplicaciones heredadas",
+    "kind": "topic",
+    "category": "Resiliencia",
+    "covers": ["2.2-s7"]
+  },
+  "topics/gobernanza-clasificacion-retencion-y-cumplimiento-de-datos.mdx": {
+    "id": "gobernanza-clasificacion-retencion-y-cumplimiento-de-datos",
+    "order": 18,
+    "title": "Gobernanza, clasificación, retención y cumplimiento de datos",
+    "kind": "topic",
+    "category": "Seguridad",
+    "covers": ["1.3-k1", "1.3-k3", "1.3-s1", "1.3-s6", "4.3-k4"]
+  },
+  "topics/herramientas-de-costos-y-etiquetas.mdx": {
+    "id": "herramientas-de-costos-y-etiquetas",
+    "order": 55,
+    "title": "Herramientas de costos y etiquetas",
+    "kind": "topic",
+    "category": "Costos",
+    "covers": ["4.1-k2", "4.1-k3", "4.2-k1", "4.2-k2", "4.3-k1", "4.3-k2", "4.4-k1", "4.4-k2"]
+  },
+  "topics/iam-usuarios-grupos-roles-politicas-y-mfa.mdx": {
+    "id": "iam-usuarios-grupos-roles-politicas-y-mfa",
+    "order": 8,
+    "title": "IAM: usuarios, grupos, roles, políticas y MFA",
+    "kind": "topic",
+    "category": "Seguridad",
+    "covers": ["1.1-k2", "1.1-k4", "1.1-s1", "1.1-s2"]
+  },
+  "topics/infraestructura-inmutable-y-automatizacion.mdx": {
+    "id": "infraestructura-inmutable-y-automatizacion",
+    "order": 33,
+    "title": "Infraestructura inmutable y automatización",
+    "kind": "topic",
+    "category": "Resiliencia",
+    "covers": ["2.2-k7", "2.2-s1"]
+  },
+  "topics/ingesta-y-streaming-de-datos.mdx": {
+    "id": "ingesta-y-streaming-de-datos",
+    "order": 51,
+    "title": "Ingesta y streaming de datos",
+    "kind": "topic",
+    "category": "Rendimiento",
+    "covers": ["3.5-k2", "3.5-k5", "3.5-k6", "3.5-k7", "3.5-s2", "3.5-s6"]
+  },
+  "topics/lagos-de-datos.mdx": {
+    "id": "lagos-de-datos",
+    "order": 50,
+    "title": "Lagos de datos",
+    "kind": "topic",
+    "category": "Rendimiento",
+    "covers": ["3.5-s1"]
+  },
+  "topics/microservicios-y-cargas-sin-estado.mdx": {
+    "id": "microservicios-y-cargas-sin-estado",
+    "order": 21,
+    "title": "Microservicios y cargas sin estado",
+    "kind": "topic",
+    "category": "Resiliencia",
+    "covers": ["2.1-k4", "2.1-s1"]
+  },
+  "topics/nat-gateway-frente-a-instancia-nat.mdx": {
+    "id": "nat-gateway-frente-a-instancia-nat",
+    "order": 60,
+    "title": "NAT Gateway frente a instancia NAT",
+    "kind": "topic",
+    "category": "Costos",
+    "covers": ["4.4-k4", "4.4-s1"]
+  },
+  "topics/observabilidad-y-metricas-de-disponibilidad.mdx": {
+    "id": "observabilidad-y-metricas-de-disponibilidad",
+    "order": 35,
+    "title": "Observabilidad y métricas de disponibilidad",
+    "kind": "topic",
+    "category": "Resiliencia",
+    "covers": ["2.2-k12", "2.2-s3"]
+  },
+  "topics/opciones-de-compra-bajo-demanda-spot-reservadas-y-savings-plans.mdx": {
+    "id": "opciones-de-compra-bajo-demanda-spot-reservadas-y-savings-plans",
+    "order": 56,
+    "title": "Opciones de compra: bajo demanda, spot, reservadas y Savings Plans",
+    "kind": "topic",
+    "category": "Costos",
+    "covers": ["4.2-k4"]
+  },
+  "topics/orquestacion-de-flujos-de-trabajo.mdx": {
+    "id": "orquestacion-de-flujos-de-trabajo",
+    "order": 24,
+    "title": "Orquestación de flujos de trabajo",
+    "kind": "topic",
+    "category": "Resiliencia",
+    "covers": ["2.1-k16"]
+  },
+  "topics/patrones-sin-servidor.mdx": {
+    "id": "patrones-sin-servidor",
+    "order": 28,
+    "title": "Patrones sin servidor",
+    "kind": "topic",
+    "category": "Resiliencia",
+    "covers": ["2.1-k12", "2.1-s5", "3.2-k5"]
+  },
+  "topics/periferia-cloudfront-frente-a-global-accelerator.mdx": {
+    "id": "periferia-cloudfront-frente-a-global-accelerator",
+    "order": 48,
+    "title": "Periferia: CloudFront frente a Global Accelerator",
+    "kind": "topic",
+    "category": "Rendimiento",
+    "covers": ["2.1-k7", "3.4-k1", "4.4-s4"]
+  },
+  "topics/politicas-basadas-en-recursos.mdx": {
+    "id": "politicas-basadas-en-recursos",
+    "order": 12,
+    "title": "Políticas basadas en recursos",
+    "kind": "topic",
+    "category": "Seguridad",
+    "covers": ["1.1-s5"]
+  },
+  "topics/puntos-de-enlace-de-vpc-y-privatelink.mdx": {
+    "id": "puntos-de-enlace-de-vpc-y-privatelink",
+    "order": 14,
+    "title": "Puntos de enlace de VPC y PrivateLink",
+    "kind": "topic",
+    "category": "Seguridad",
+    "covers": ["1.2-k2", "3.5-k5"]
+  },
+  "topics/recuperacion-ante-desastres.mdx": {
+    "id": "recuperacion-ante-desastres",
+    "order": 31,
+    "title": "Recuperación ante desastres",
+    "kind": "topic",
+    "category": "Resiliencia",
+    "covers": ["1.3-k2", "2.2-k4", "2.2-s6"]
+  },
+  "topics/replicas-de-lectura-proxies-y-conexiones.mdx": {
+    "id": "replicas-de-lectura-proxies-y-conexiones",
+    "order": 44,
+    "title": "Réplicas de lectura, proxies y conexiones",
+    "kind": "topic",
+    "category": "Rendimiento",
+    "covers": ["2.1-k15", "2.2-k9", "3.3-k5", "3.3-k7", "3.3-s1", "4.3-k6", "4.3-k8"]
+  },
+  "topics/roles-aws-sts-y-acceso-entre-cuentas.mdx": {
+    "id": "roles-aws-sts-y-acceso-entre-cuentas",
+    "order": 9,
+    "title": "Roles, AWS STS y acceso entre cuentas",
+    "kind": "topic",
+    "category": "Seguridad",
+    "covers": ["1.1-k1", "1.1-s3"]
+  },
+  "topics/secretos-y-credenciales-de-aplicaciones.mdx": {
+    "id": "secretos-y-credenciales-de-aplicaciones",
+    "order": 16,
+    "title": "Secretos y credenciales de aplicaciones",
+    "kind": "topic",
+    "category": "Seguridad",
+    "covers": ["1.2-k1"]
+  },
+  "topics/seguridad-de-la-vpc-grupos-de-seguridad-acl-de-red-y-segmentacion.mdx": {
+    "id": "seguridad-de-la-vpc-grupos-de-seguridad-acl-de-red-y-segmentacion",
+    "order": 13,
+    "title": "Seguridad de la VPC: grupos de seguridad, ACL de red y segmentación",
+    "kind": "topic",
+    "category": "Seguridad",
+    "covers": ["1.2-k3", "1.2-s1", "1.2-s2"]
+  },
+  "topics/service-quotas-y-limitacion.mdx": {
+    "id": "service-quotas-y-limitacion",
+    "order": 34,
+    "title": "Service Quotas y limitación",
+    "kind": "topic",
+    "category": "Resiliencia",
+    "covers": ["2.2-k10", "4.4-s6"]
+  },
+  "topics/servicios-administrados-para-cada-carga-de-trabajo.mdx": {
+    "id": "servicios-administrados-para-cada-carga-de-trabajo",
+    "order": 37,
+    "title": "Servicios administrados para cada carga de trabajo",
+    "kind": "topic",
+    "category": "Resiliencia",
+    "covers": ["2.1-k2", "2.1-s7", "2.2-k2", "2.2-s8"]
+  },
+  "topics/topologias-de-red-global-hibrida-y-de-varios-niveles.mdx": {
+    "id": "topologias-de-red-global-hibrida-y-de-varios-niveles",
+    "order": 47,
+    "title": "Topologías de red: global, híbrida y de varios niveles",
+    "kind": "topic",
+    "category": "Rendimiento",
+    "covers": ["3.4-s1", "3.4-s2", "3.4-s3"]
+  },
+  "topics/transferencia-y-migracion-de-datos.mdx": {
+    "id": "transferencia-y-migracion-de-datos",
+    "order": 54,
+    "title": "Transferencia y migración de datos",
+    "kind": "topic",
+    "category": "Rendimiento",
+    "covers": [
+      "3.3-k6",
+      "3.5-k3",
+      "3.5-k6",
+      "3.5-s3",
+      "4.1-k8",
+      "4.1-s3",
+      "4.1-s7",
+      "4.3-k7",
+      "4.3-s5"
+    ]
+  },
+  "topics/transformacion-y-formatos-de-datos.mdx": {
+    "id": "transformacion-y-formatos-de-datos",
+    "order": 52,
+    "title": "Transformación y formatos de datos",
+    "kind": "topic",
+    "category": "Rendimiento",
+    "covers": ["3.5-k4", "3.5-s5", "3.5-s7"]
+  },
+  "topics/transit-gateway-frente-a-interconexion-de-vpc.mdx": {
+    "id": "transit-gateway-frente-a-interconexion-de-vpc",
+    "order": 61,
+    "title": "Transit Gateway frente a interconexión de VPC",
+    "kind": "topic",
+    "category": "Costos",
+    "covers": ["4.4-k6"]
+  },
+  "topics/volumenes-de-ebs-ssd-frente-a-hdd.mdx": {
+    "id": "volumenes-de-ebs-ssd-frente-a-hdd",
+    "order": 58,
+    "title": "Volúmenes de EBS: SSD frente a HDD",
+    "kind": "topic",
+    "category": "Costos",
+    "covers": ["4.1-s10", "4.1-k6", "4.1-s2"]
+  }
+}
