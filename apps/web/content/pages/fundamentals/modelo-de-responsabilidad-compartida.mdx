@@ -6,4 +6,91 @@ export const meta = {
   covers: ['1.1-k5'],
 };
 
-Contenido pendiente.
+La seguridad y el cumplimiento de una carga de trabajo en AWS no son solo cosa de AWS ni solo tuyas: se reparten. Saber dónde pasa la línea te dice qué debes configurar, qué puedes dar por hecho y cuánto trabajo de seguridad te quitas de encima según el servicio que elijas.
+
+## Qué problema resuelve
+
+Antes de usar la nube, cada organización operaba por su cuenta los controles de su infraestructura física. En AWS esa carga se reparte, y asumir que todo lo hace AWS, o que todo lo haces tú, lleva a errores: dejar sin proteger lo que te corresponde o gastar esfuerzo en lo que AWS ya administra. El modelo de responsabilidad compartida pone nombre a esa división.
+
+## Conceptos clave
+
+### Seguridad de la nube y seguridad en la nube
+
+AWS es responsable de la **seguridad de la nube**: proteger la infraestructura que ejecuta todos los servicios, es decir, el hardware, el software, la red y las instalaciones. Dicho de otro modo, AWS opera, administra y controla los componentes desde el sistema operativo del host y la capa de virtualización hasta la seguridad física de las instalaciones donde funciona el servicio.
+
+Tú eres responsable de la **seguridad en la nube**: lo que colocas y configuras sobre esa infraestructura. Cuánto te toca depende de los servicios que elijas.
+
+### La división cambia según el servicio
+
+Un servicio como Amazon EC2 es de tipo infraestructura como servicio (IaaS), así que tú haces todas las tareas de configuración y administración de seguridad. Si lanzas una instancia, te encargas del sistema operativo invitado, incluidas las actualizaciones y los parches de seguridad, del software que instales y de configurar el firewall que AWS te ofrece, el grupo de seguridad.
+
+En los servicios abstractos, como Amazon S3 y Amazon DynamoDB, AWS opera además la capa de infraestructura, el sistema operativo y las plataformas; tú solo accedes a los puntos de enlace para guardar y recuperar datos. Aun así sigues siendo responsable de tus datos, incluidas las opciones de cifrado, de clasificar tus activos y de usar las herramientas de IAM para aplicar los permisos adecuados.
+
+La regla práctica: cuanto más administrado es el servicio, menos tienes que gestionar, pero nunca desaparece la responsabilidad sobre tus datos y tus accesos.
+
+### Los controles de TI también se comparten
+
+El reparto no solo cubre la operación, sino también la administración, operación y verificación de los controles de TI. AWS puede quitarte carga al encargarse de los controles de la infraestructura física, y tú puedes apoyarte en su documentación de controles y cumplimiento para evaluar y verificar los tuyos. Como cada cliente se despliega de forma distinta, el resultado es un entorno de controles distribuido entre ambos.
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="AWS se encarga de"
+    items={[
+      'El hardware, el software, la red y las instalaciones que ejecutan los servicios.',
+      'La virtualización y el sistema operativo del host.',
+      'En los servicios abstractos, también la infraestructura, el sistema operativo y las plataformas.',
+      'Los controles asociados a la infraestructura física.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Tú te encargas de"
+    items={[
+      'Tus datos, incluidas las opciones de cifrado, y la clasificación de tus activos.',
+      'Los permisos, aplicados con las herramientas de IAM.',
+      'En EC2, el sistema operativo invitado con sus parches y el software que instales.',
+      'La configuración del grupo de seguridad de cada instancia.',
+    ]}
+  />
+</CardGrid>
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Es tu responsabilidad en"
+    service="Amazon EC2"
+    description="Es un servicio de infraestructura: administras el sistema operativo invitado, los parches, tu software y el grupo de seguridad de cada instancia."
+  />
+  <ConnectionCard
+    relation="AWS administra más en"
+    service="Amazon S3 y Amazon DynamoDB"
+    description="AWS opera la infraestructura, el sistema operativo y las plataformas. A ti te quedan los datos, el cifrado, la clasificación y los permisos."
+  />
+  <ConnectionCard
+    relation="Aplicas los permisos con"
+    service="AWS IAM"
+    description="Es la herramienta con la que decides quién puede hacer qué sobre tus recursos, una parte que siempre queda de tu lado."
+  />
+  <ConnectionCard
+    relation="Configuras el firewall con"
+    service="Grupos de seguridad"
+    description="AWS te da el firewall, pero la configuración de sus reglas en cada instancia es cosa tuya."
+  />
+</CardGrid>
+
+## Cómo usarlo al diseñar
+
+Antes de elegir un servicio, pregunta qué parte de la pila administrarás tú. Si necesitas control sobre el sistema operativo, aceptas también la carga de parchearlo; si prefieres reducir el trabajo de seguridad operativa, un servicio más administrado traslada a AWS más capas. En cualquiera de los dos casos, protege tus datos y tus accesos, porque esa responsabilidad es tuya siempre.
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Responsabilidad compartida · Pilar de seguridad de AWS Well-Architected"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/shared-responsibility.html"
+/>
+<OfficialSource
+  title="Modelo de responsabilidad compartida · AWS: riesgo y cumplimiento"
+  url="https://docs.aws.amazon.com/whitepapers/latest/aws-risk-and-compliance/shared-responsibility-model.html"
+/>
