@@ -23,3 +23,8 @@ vi.stubGlobal('matchMedia', (query: string) => ({
   addEventListener: () => undefined,
   removeEventListener: () => undefined,
 }));
+
+// jsdom does not implement scrolling; keeping an element in view is a no-op in tests.
+if (typeof Element.prototype.scrollIntoView !== 'function') {
+  Element.prototype.scrollIntoView = () => undefined;
+}

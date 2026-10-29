@@ -1,0 +1,2278 @@
+{
+  "fundamentos-de-redes-cidr-subredes-rutas-y-puertos": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "VPC y bloques CIDR",
+      "Subredes",
+      "Tablas de rutas",
+      "Acceso a internet",
+      "Puertos, protocolos y control del tráfico",
+      "Cómo se conecta con otros servicios",
+      "Buenas prácticas de diseño"
+    ],
+    "summary": "Casi todo en AWS se comunica por una red, y esa red se diseña con unas pocas piezas: un rango de direcciones, subredes, reglas de enrutamiento y reglas que permiten o bloquean tráfico por protocolo y puerto. Entenderlas te sirve para razonar sobre seguridad, resiliencia y conectividad en casi cualquier pregunta del examen."
+  },
+  "infraestructura-global-de-aws": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Regiones",
+      "Zonas de disponibilidad",
+      "Ubicaciones más cercanas a tus usuarios o a tu centro de datos",
+      "Ubicaciones de borde y servicios globales",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir dónde colocar los recursos"
+    ],
+    "summary": "AWS no es un único lugar en internet: es una red de centros de datos repartidos por el mundo, organizada en niveles. Entender esos niveles te permite decidir dónde ejecutar una carga de trabajo para que sea rápida para tus usuarios, cumpla las reglas que le apliquen y siga funcionando cuando algo falla."
+  },
+  "marco-aws-well-architected": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Los seis pilares",
+      "Principios generales de diseño",
+      "Cómo se conecta con el examen",
+      "Cómo usar el marco"
+    ],
+    "summary": "El AWS Well-Architected Framework es un conjunto de buenas prácticas para diseñar y operar sistemas en AWS. Te ayuda a entender las ventajas y desventajas de cada decisión que tomas y te da un lenguaje común, los seis pilares, para evaluar si una arquitectura es sólida."
+  },
+  "modelo-de-responsabilidad-compartida": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Seguridad de la nube y seguridad en la nube",
+      "La división cambia según el servicio",
+      "Los controles de TI también se comparten",
+      "Cómo se conecta con otros servicios",
+      "Cómo usarlo al diseñar"
+    ],
+    "summary": "La seguridad y el cumplimiento de una carga de trabajo en AWS no son solo cosa de AWS ni solo tuyas: se reparten. Saber dónde pasa la línea te dice qué debes configurar, qué puedes dar por hecho y cuánto trabajo de seguridad te quitas de encima según el servicio que elijas."
+  },
+  "modelos-de-computo-instancias-contenedores-y-sin-servidor": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Instancias: servidores virtuales",
+      "Contenedores",
+      "Sin servidor",
+      "Procesamiento de macrodatos",
+      "Híbrido y de borde",
+      "Reducir el costo del cómputo",
+      "Cómo se conecta con otros servicios",
+      "Cuándo elegir cada modelo"
+    ],
+    "summary": "Los servicios de cómputo de AWS cubren desde un servidor virtual hasta código que se ejecuta sin que administres nada. La diferencia clave entre los tres modelos principales, instancias, contenedores y sin servidor, es cuánto de la infraestructura administras tú y cuánto asume AWS. Una misma carga de trabajo puede combinar varios."
+  },
+  "tipos-de-almacenamiento-objeto-archivo-y-bloque": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Almacenamiento en bloques",
+      "Almacenamiento de archivos",
+      "Almacenamiento de objetos",
+      "Otros tipos que conviene reconocer",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir según el acceso y el costo"
+    ],
+    "summary": "AWS ofrece servicios de almacenamiento de tres tipos principales: bloque, archivo y objeto. Cada tipo organiza los datos de una forma distinta, y de esa forma dependen el rendimiento, el costo y los casos de uso. Elegir bien empieza por entender qué es cada uno."
+  },
+  "tipos-de-bases-de-datos": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Relacionales y no relacionales",
+      "En memoria",
+      "Sin servidor",
+      "Analíticas: almacenamiento en columnas",
+      "Autoadministrada o totalmente administrada",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir según el costo y el patrón de uso"
+    ],
+    "summary": "AWS ofrece más de quince servicios de bases de datos, con modelos de datos distintos: relacional, clave-valor, documento, en memoria, grafo, serie temporal, vectorial y de columnas anchas. Elegir bien significa entender qué tipo de datos tienes, cómo los consultas y cuánto quieres administrar tú mismo."
+  },
+  "amazon-api-gateway": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Tipos de API",
+      "Tipos de endpoint (API REST)",
+      "Crear y administrar la API",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon API Gateway es un servicio para crear, publicar, mantener, supervisar y proteger API REST, HTTP y WebSocket a cualquier escala. Funciona como la \"puerta de entrada\" por la que las aplicaciones acceden a datos, lógica de negocio o funciones de los servicios de backend, como cargas en Amazon EC2, código en AWS Lambda o cualquier aplicación web."
+  },
+  "amazon-appflow": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Flujos y desencadenadores",
+      "Seguridad y transferencia privada",
+      "Preparar los datos para el análisis",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon AppFlow es un servicio de integración totalmente administrado para intercambiar datos de forma segura entre aplicaciones de software como servicio (SaaS), como Salesforce, Slack o Zendesk, y servicios de AWS como Amazon S3 o Amazon Redshift. Defines un flujo con un origen y un destino, y AppFlow mueve los datos sin que escribas código."
+  },
+  "amazon-athena": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon Athena es un servicio de consultas interactivas que analiza datos directamente en Amazon S3 con SQL estándar. Es sin servidor: no hay clústeres ni infraestructura que configurar, pagas solo por las consultas que ejecutas y el servicio escala por su cuenta ejecutando las consultas en paralelo. También permite ejecutar análisis interactivos con Apache Spark sin planificar ni administrar recursos."
+  },
+  "amazon-aurora-sin-servidor": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon Aurora sin servidor (Aurora Serverless) es una configuración de Amazon Aurora que ajusta la capacidad de la base de datos de forma automática según la demanda de la aplicación. En lugar de elegir una clase de instancia con una cantidad fija de memoria y CPU, defines un rango de capacidad mínima y máxima, y solo pagas por los recursos que el clúster consume. El motor sigue siendo Aurora MySQL o Aurora PostgreSQL."
+  },
+  "amazon-aurora": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon Aurora es un motor de base de datos relacional totalmente administrado y compatible con MySQL y PostgreSQL. Forma parte de Amazon RDS, así que se crea y se administra con la misma consola, la misma AWS CLI y la misma API, pero cambia la forma de guardar los datos: en lugar de un disco por instancia, usa un almacenamiento distribuido y compartido por todo el clúster. El código, las herramientas y las aplicaciones que ya usas con MySQL o PostgreSQL funcionan con Aurora."
+  },
+  "amazon-cloudfront": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Distribución y origen",
+      "Seguridad y contenido privado",
+      "Código en el borde",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon CloudFront es la red de entrega de contenido (CDN) de AWS. Acelera la distribución de contenido web estático y dinámico, como archivos HTML, CSS, JavaScript e imágenes, a través de una red mundial de ubicaciones de borde, y guarda copias en caché cerca de los usuarios."
+  },
+  "amazon-cloudwatch": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Métricas",
+      "Alarmas",
+      "Registros",
+      "Agente, paneles y otras capacidades",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon CloudWatch supervisa en tiempo real tus recursos de AWS y las aplicaciones que ejecutas en AWS. Reúne métricas, registros y alarmas en un solo servicio para que veas el rendimiento, el estado operativo y el uso de los recursos, y para que reacciones de forma automática cuando algo se sale de lo normal."
+  },
+  "amazon-cognito": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Grupos de usuarios: quién es el usuario",
+      "Grupos de identidades: a qué recursos de AWS llega",
+      "Juntos",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon Cognito es una plataforma de identidad para aplicaciones web y móviles. Funciona como directorio de usuarios, como servidor de autenticación y como servicio de autorización que entrega tokens de acceso de OAuth 2.0 y credenciales de AWS. Es la respuesta habitual cuando el examen habla de los usuarios finales de una aplicación, no de las personas que administran AWS."
+  },
+  "amazon-comprehend": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Análisis con modelos preentrenados",
+      "Comprehend Custom",
+      "Modos de procesamiento",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon Comprehend es un servicio de procesamiento de lenguaje natural (NLP) que extrae información del contenido de documentos de texto: entidades, frases clave, idioma, sentimiento, datos personales y sintaxis. No necesitas experiencia en aprendizaje automático: usas modelos ya entrenados o le pides al servicio que entrene uno con tus propios datos. El panorama de los servicios de IA está en el tema de servicios administrados para cada carga de trabajo."
+  },
+  "amazon-data-firehose": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon Data Firehose es un servicio totalmente administrado que entrega datos de streaming en tiempo real a destinos como Amazon S3, Amazon Redshift, Amazon OpenSearch Service, Splunk, tablas Apache Iceberg o puntos de enlace HTTP. No escribes aplicaciones ni administras recursos: los productores envían los datos al flujo de Firehose y el servicio los entrega en el destino que configuraste, con la opción de transformarlos antes."
+  },
+  "amazon-detective": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Grafo de comportamiento",
+      "Grupos de hallazgos e investigaciones",
+      "Varias cuentas",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon Detective te ayuda a analizar e investigar hallazgos de seguridad o actividad sospechosa, y a identificar rápido su causa raíz. Recopila de forma automática datos de registro de tus recursos de AWS y, con aprendizaje automático, análisis estadístico y teoría de grafos, genera visualizaciones para que la investigación sea más rápida y eficiente."
+  },
+  "amazon-documentdb": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon DocumentDB (compatible con MongoDB) es un servicio de base de datos de documentos totalmente administrado. Facilita configurar, operar y escalar bases de datos compatibles con MongoDB en la nube, y te permite usar el mismo código de aplicación, los mismos controladores y las mismas herramientas que usas con MongoDB."
+  },
+  "amazon-dynamodb": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon DynamoDB es una base de datos NoSQL distribuida, sin servidor y totalmente administrada, con rendimiento de milisegundos de un solo dígito a cualquier escala. Admite los modelos de datos clave-valor y de documentos, y está pensada para cargas operativas que necesitan un rendimiento constante tanto con pocos usuarios como con millones."
+  },
+  "amazon-ebs": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Volúmenes y zona de disponibilidad",
+      "Tipos de volumen",
+      "Elastic Volumes y Multi-Attach",
+      "Instantáneas",
+      "Cifrado",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon EBS (Elastic Block Store) ofrece almacenamiento de bloques escalable y de alto rendimiento para instancias de Amazon EC2. Un volumen de EBS se conecta a una instancia y se usa como un disco duro: puedes guardar archivos, instalar aplicaciones o alojar una base de datos."
+  },
+  "amazon-ec2-auto-scaling": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Grupo de Auto Scaling y capacidad",
+      "Plantilla de lanzamiento",
+      "Disponibilidad",
+      "Formas de escalar",
+      "Costo y ciclo de vida",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon EC2 Auto Scaling te ayuda a tener siempre el número correcto de instancias EC2 para atender la carga de tu aplicación. Organiza las instancias en grupos de Auto Scaling que se tratan como una unidad lógica: revisa su estado, reemplaza las que fallan y lanza o termina instancias según la demanda. No tiene cargo adicional; pagas solo los recursos que usas, como las instancias, los volúmenes de EBS y las alarmas de CloudWatch."
+  },
+  "amazon-ec2": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Las piezas de una instancia",
+      "Credenciales para las aplicaciones",
+      "Estados y facturación",
+      "Grupos de colocación",
+      "Opciones de compra",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon Elastic Compute Cloud (Amazon EC2) ofrece capacidad de cómputo escalable y bajo demanda en la nube de AWS. Una instancia EC2 es un servidor virtual: lanzas tantas como necesites, configuras su red y su seguridad, administras su almacenamiento y aumentas o reduces la capacidad según la demanda."
+  },
+  "amazon-ecr": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Repositorios y permisos",
+      "Análisis de vulnerabilidades",
+      "Replicación entre regiones y cuentas",
+      "Políticas de ciclo de vida y otras funciones",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon ECR (Elastic Container Registry) es un registro de imágenes de contenedor administrado por AWS, seguro, escalable y fiable. Guarda imágenes de Docker, imágenes OCI (Open Container Initiative) y artefactos compatibles con OCI, que subes y descargas con tu CLI habitual."
+  },
+  "amazon-ecs-anywhere": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Instancias externas y tipo de lanzamiento EXTERNAL",
+      "Para qué cargas sirve",
+      "Limitaciones a recordar",
+      "Costo",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon ECS Anywhere es la función de Amazon ECS que permite registrar en un clúster de ECS una instancia externa, como un servidor local o una máquina virtual, y ejecutar en ella tareas y servicios. Así administras con Amazon ECS tanto los contenedores que se ejecutan en AWS como los de tus propias instalaciones."
+  },
+  "amazon-ecs": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Piezas de ECS",
+      "Opciones de capacidad",
+      "Escalado y balanceo de carga",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon ECS (Elastic Container Service) es un servicio de orquestación de contenedores totalmente administrado para desplegar, administrar y escalar aplicaciones en contenedores. Trae integradas las buenas prácticas de configuración y operación de AWS, y no tienes que gestionar ningún plano de control."
+  },
+  "amazon-efs": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Quién puede montarlo",
+      "Tipos de sistema de archivos",
+      "Rendimiento",
+      "Clases de almacenamiento y ciclo de vida",
+      "Seguridad",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon EFS (Elastic File System) es almacenamiento de archivos sin servidor y totalmente elástico. Permite compartir archivos entre muchos clientes sin aprovisionar ni administrar la capacidad ni el rendimiento: el sistema de archivos crece y se reduce solo a medida que agregas y eliminas archivos."
+  },
+  "amazon-eks-anywhere": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Quién administra qué",
+      "Infraestructura compatible",
+      "Integración con AWS y soporte",
+      "Frente a otras opciones locales de EKS",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon EKS Anywhere es un producto para crear y operar clústeres de Kubernetes en tus propias instalaciones y en entornos periféricos. Automatiza el trabajo pesado y repetitivo, como preparar la infraestructura y gestionar el ciclo de vida del clúster, pero a diferencia de Amazon EKS lo administras tú: el plano de control y los nodos se ejecutan en tu centro de datos."
+  },
+  "amazon-eks-distro": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Qué incluye",
+      "Qué no incluye",
+      "Dónde encaja en la familia EKS",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon EKS Distro es la distribución de AWS de los componentes de Kubernetes sobre los que funcionan todas las ofertas de Amazon EKS. No es un servicio administrado: es el conjunto de piezas de software que puedes usar para montar y operar por tu cuenta clústeres de Kubernetes con las herramientas que prefieras."
+  },
+  "amazon-eks": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Qué administra AWS",
+      "Opciones de nodos",
+      "Acceso y seguridad",
+      "Fuera de la región",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon EKS (Elastic Kubernetes Service) es un servicio de Kubernetes totalmente administrado para desplegar, administrar y escalar aplicaciones en contenedores con Kubernetes, tanto en la nube de AWS como en tus propios centros de datos. Es una de las dos opciones de orquestación de contenedores que cita la guía del examen, junto con Amazon ECS."
+  },
+  "amazon-elasticache": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Dos formas de usarlo",
+      "Elegir el motor",
+      "Estrategias de caché",
+      "Qué almacenar en caché",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon ElastiCache es un servicio web que facilita configurar, administrar y escalar un almacén de datos en memoria o una caché distribuida en la nube. Funciona con los motores Valkey, Memcached y Redis OSS, y se encarga del aprovisionamiento del hardware, la supervisión, el reemplazo de nodos y los parches de software."
+  },
+  "amazon-emr": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Clúster y nodos",
+      "Ciclo de vida y costo",
+      "Opciones de despliegue",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon EMR, antes llamado Amazon Elastic MapReduce, es una plataforma de clústeres administrada para ejecutar marcos de big data como Apache Hadoop y Apache Spark, y aplicaciones como Hive, con el fin de procesar y analizar grandes volúmenes de datos. También sirve para transformar y mover grandes cantidades de datos hacia y desde almacenes como Amazon S3 y Amazon DynamoDB."
+  },
+  "amazon-eventbridge": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Buses de eventos y reglas",
+      "EventBridge Pipes",
+      "EventBridge Scheduler y archivos",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon EventBridge es un servicio sin servidor que conecta los componentes de una aplicación mediante eventos. Recibe eventos de servicios de AWS, de tus propias aplicaciones y de aplicaciones SaaS de socios, los filtra, los transforma si hace falta y los entrega a los destinos que correspondan. El patrón general se explica en el tema «Arquitecturas basadas en eventos»."
+  },
+  "amazon-fsx-para-todos-los-tipos": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "FSx for Windows File Server",
+      "FSx for Lustre",
+      "FSx for NetApp ONTAP",
+      "FSx for OpenZFS",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon FSx es una familia de servicios de almacenamiento de archivos totalmente administrados, cada uno construido sobre un sistema de archivos conocido: Windows File Server, Lustre, NetApp ONTAP y OpenZFS. AWS se encarga de los servidores, los volúmenes, el software, los fallos de hardware y las copias de seguridad."
+  },
+  "amazon-guardduty": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Fuentes de datos fundamentales",
+      "Planes de protección",
+      "Hallazgos y varias cuentas",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon GuardDuty es un servicio de detección de amenazas que supervisa, analiza y procesa de forma continua fuentes de datos y registros de tu entorno de AWS. Combina fuentes de inteligencia de amenazas, como listas de direcciones IP y dominios maliciosos, con modelos de aprendizaje automático para identificar actividad sospechosa o potencialmente maliciosa."
+  },
+  "amazon-inspector": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Hallazgos",
+      "Puntuación de riesgo",
+      "Análisis de EC2",
+      "Varias cuentas",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon Inspector es un servicio de administración de vulnerabilidades que descubre tus cargas de trabajo de forma automática y las analiza de manera continua en busca de vulnerabilidades de software y de exposición de red no intencionada. Analiza instancias de Amazon EC2, imágenes de contenedor en Amazon ECR y funciones de AWS Lambda."
+  },
+  "amazon-keyspaces": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon Keyspaces (para Apache Cassandra) es un servicio de base de datos administrado, escalable y de alta disponibilidad, compatible con Apache Cassandra, un almacén de datos de código abierto de columnas anchas diseñado para grandes volúmenes de datos. Es sin servidor: no aprovisionas ni parcheas servidores, no instalas software y pagas solo por los recursos que usas."
+  },
+  "amazon-kinesis-video-streams": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon Kinesis Video Streams es un servicio de AWS totalmente administrado para transmitir video en directo desde dispositivos a la nube de AWS y crear aplicaciones que lo procesen en tiempo real o lo analicen por lotes. No es solo un almacén de video: también permite ver las transmisiones en directo a medida que llegan."
+  },
+  "amazon-kinesis": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Otros servicios de la familia",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon Kinesis es la plataforma de AWS para datos de streaming. Está formada por Amazon Kinesis Data Streams, Amazon Data Firehose, Amazon Kinesis Video Streams y Amazon Managed Service for Apache Flink. El servicio central es Kinesis Data Streams, que recoge y procesa en tiempo real grandes flujos de registros de datos con las aplicaciones que tú escribes. Esta página se centra en él; Firehose y Kinesis Video Streams tienen su propia página."
+  },
+  "amazon-lex": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon Lex V2 es un servicio para crear interfaces conversacionales, de voz y de texto, para aplicaciones. Combina reconocimiento automático de voz (ASR) y comprensión del lenguaje natural (NLU) para que puedas crear bots de chat sin experiencia en aprendizaje profundo."
+  },
+  "amazon-macie": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Dos tipos de hallazgo",
+      "Dos formas de descubrir datos sensibles",
+      "Qué detecta",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon Macie es un servicio de seguridad de datos que descubre datos sensibles en Amazon S3 mediante aprendizaje automático y coincidencia de patrones, te da visibilidad sobre los riesgos de seguridad de esos datos y permite automatizar su protección."
+  },
+  "amazon-managed-grafana": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon Managed Grafana es un servicio de visualización de datos totalmente administrado basado en Grafana, una herramienta de código abierto muy extendida. Sirve para consultar, correlacionar y visualizar métricas, registros y trazas operativas que vienen de varias fuentes, sin operar tus propios servidores de Grafana."
+  },
+  "amazon-managed-service-para-prometheus": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon Managed Service para Prometheus es un servicio de supervisión sin servidor y compatible con Prometheus, pensado para las métricas de contenedores. Usas el mismo modelo de datos y el mismo lenguaje de consulta (PromQL) de Prometheus de código abierto, pero sin administrar la infraestructura que lo sostiene."
+  },
+  "amazon-managed-streaming-para-apache-kafka-amazon-msk": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon Managed Streaming for Apache Kafka (Amazon MSK) es un servicio totalmente administrado para crear y ejecutar aplicaciones que procesan datos de streaming con Apache Kafka. MSK se ocupa de las operaciones del plano de control, como crear, actualizar y eliminar clústeres, y tus aplicaciones usan las operaciones normales de Kafka para crear temas (topics), producir y consumir datos."
+  },
+  "amazon-mq": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "El agente",
+      "Opciones de despliegue y alta disponibilidad",
+      "Seguridad y monitorización",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon MQ es un servicio administrado de agentes de mensajes para Apache ActiveMQ Classic y RabbitMQ. Se encarga de configurar, operar y mantener los agentes, y te permite migrar los que ya tienes sin reescribir el código de mensajería."
+  },
+  "amazon-neptune": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon Neptune es un servicio de base de datos de grafos rápido, fiable y totalmente administrado, para aplicaciones que trabajan con conjuntos de datos muy conectados. Su núcleo es un motor de grafos diseñado para guardar miles de millones de relaciones y consultarlas con latencia de milisegundos."
+  },
+  "amazon-opensearch-service": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon OpenSearch Service es un servicio administrado para desplegar, operar y escalar clústeres de OpenSearch en AWS. OpenSearch es un motor de búsqueda y análisis de código abierto pensado para casos como el análisis de registros, la supervisión de aplicaciones en tiempo real y el análisis de flujos de clics. El servicio admite OpenSearch y también versiones heredadas de Elasticsearch OSS."
+  },
+  "amazon-polly": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon Polly es un servicio en la nube que convierte texto en voz realista. Admite varios idiomas y una variedad de voces, y sirve para crear aplicaciones habladas que mejoran la participación y la accesibilidad."
+  },
+  "amazon-quick": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Funciones de Quick",
+      "Quick Sight en detalle",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon Quick es un servicio totalmente administrado y con IA para analizar datos, automatizar tareas, crear aplicaciones web e investigar. Evolucionó a partir de Amazon QuickSight, que continúa como Amazon Quick Sight, la función de visualización interactiva y de inteligencia de negocio (BI) dentro de Quick. Para el examen, lo importante es Quick Sight: conectar orígenes de datos, crear paneles y compartirlos o insertarlos en aplicaciones."
+  },
+  "amazon-rds": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Amazon RDS Proxy",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon RDS (Amazon Relational Database Service) es un servicio web que facilita configurar, operar y escalar una base de datos relacional en la nube de AWS. Ofrece capacidad redimensionable para motores estándar del sector y se encarga de las tareas habituales de administración. Puedes elegir entre IBM Db2, MariaDB, Microsoft SQL Server, MySQL, Oracle Database y PostgreSQL; Amazon Aurora también se administra con RDS, pero tiene su propia página."
+  },
+  "amazon-redshift": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon Redshift es un servicio de almacén de datos (data warehouse) totalmente administrado y a escala de petabytes en la nube. Consultas los datos con SQL y con las herramientas de inteligencia de negocio (BI) que ya usas. Puedes crear clústeres aprovisionados o usar Amazon Redshift Serverless, que aprovisiona los recursos y escala la capacidad automáticamente."
+  },
+  "amazon-rekognition": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Capacidades principales",
+      "Video almacenado: un patrón asíncrono",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon Rekognition es un servicio de análisis de imágenes y video que añade visión artificial a tus aplicaciones sin necesidad de experiencia en aprendizaje automático. Se usa mediante una API que analiza imágenes y videos guardados en Amazon S3."
+  },
+  "amazon-route-53": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Infraestructura global: regiones y zonas de disponibilidad",
+      "Zonas alojadas y registros",
+      "Políticas de enrutamiento",
+      "Comprobaciones de estado y resolución híbrida",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon Route 53 es un servicio web de DNS (sistema de nombres de dominio) de alta disponibilidad y escalable. Cumple tres funciones que puedes combinar: registrar nombres de dominio, enrutar el tráfico de internet hacia los recursos de tu dominio y comprobar el estado de esos recursos."
+  },
+  "amazon-s3-glacier": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Las tres clases S3 Glacier",
+      "Objetos archivados y restauración",
+      "Duración mínima y costos por objeto",
+      "Clases S3 Glacier frente al servicio Amazon Glacier original",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon S3 Glacier es el nombre con el que se conoce el almacenamiento de archivado de AWS. Hoy, AWS recomienda usarlo a través de las clases de almacenamiento S3 Glacier de Amazon S3: S3 Glacier Instant Retrieval, S3 Glacier Flexible Retrieval y S3 Glacier Deep Archive, pensadas para guardar a largo plazo y a bajo costo datos que se consultan poco."
+  },
+  "amazon-s3": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Buckets, objetos y consistencia",
+      "Clases de almacenamiento y ciclo de vida",
+      "Protección de los datos",
+      "Opciones de acceso",
+      "Buckets con pago a cargo del solicitante (Requester Pays)",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon S3 (Simple Storage Service) es un servicio de almacenamiento de objetos con gran escalabilidad, disponibilidad, seguridad y rendimiento. Guarda cualquier cantidad de datos como objetos dentro de buckets, y se usa para lagos de datos, sitios web, aplicaciones móviles, copias de seguridad, archivado y análisis de big data."
+  },
+  "amazon-sagemaker-ai": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Entrenamiento",
+      "Opciones de inferencia",
+      "Costos",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon SageMaker AI es un servicio de aprendizaje automático (ML) totalmente administrado para crear, entrenar y desplegar modelos de ML en un entorno alojado listo para producción. Hasta diciembre de 2024 se llamaba Amazon SageMaker; ese nombre ahora corresponde a una plataforma unificada de datos, análisis e IA de la que SageMaker AI forma parte."
+  },
+  "amazon-sns": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Temas y suscripciones",
+      "Fanout",
+      "Filtrado de mensajes",
+      "Temas FIFO",
+      "Entregas fallidas",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon SNS (Simple Notification Service) es un servicio totalmente administrado que entrega mensajes de publicadores a suscriptores. Los publicadores envían mensajes de forma asíncrona a un tema, y SNS los entrega a todos los suscriptores de ese tema, ya sean otras aplicaciones o personas."
+  },
+  "amazon-sqs": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Casos de uso adecuados",
+      "Colas estándar y FIFO",
+      "Ciclo de vida del mensaje",
+      "Otras funciones útiles",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon SQS (Simple Queue Service) es un servicio administrado de colas de mensajes, seguro, duradero y disponible, para integrar y desacoplar sistemas y componentes distribuidos. No aprovisionas servidores: SQS guarda los mensajes de forma redundante y escala solo ante aumentos o picos de carga."
+  },
+  "amazon-textract": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Operaciones según el tipo de documento",
+      "Síncrono frente a asíncrono",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon Textract añade detección y análisis de texto de documentos a tus aplicaciones. Detecta texto impreso y manuscrito y extrae datos estructurados, como formularios y tablas, de archivos de imagen y PDF, sin necesidad de experiencia en aprendizaje automático."
+  },
+  "amazon-transcribe": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Por lotes o en streaming",
+      "Funciones destacadas",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon Transcribe es un servicio de reconocimiento automático de voz que usa modelos de aprendizaje automático para convertir audio en texto. Puedes usarlo como servicio de transcripción independiente o para añadir voz a texto a cualquier aplicación."
+  },
+  "amazon-translate": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Tiempo real o por lotes",
+      "Personalización",
+      "Detección automática del idioma",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon Translate es un servicio de traducción de texto que usa aprendizaje automático para ofrecer traducciones de alta calidad bajo demanda. Sirve para traducir documentos o para crear aplicaciones que funcionen en varios idiomas."
+  },
+  "amazon-vpc": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "VPC y subredes",
+      "Tipos de subred según su enrutamiento",
+      "Enrutamiento, puertas de enlace y puntos de enlace",
+      "Control del tráfico",
+      "Conectar varias VPC",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon Virtual Private Cloud (Amazon VPC) te permite lanzar recursos de AWS en una red virtual aislada lógicamente que tú defines. Se parece mucho a una red tradicional de tu propio centro de datos, pero con la infraestructura escalable de AWS: eliges los rangos de direcciones IP, creas subredes, configuras tablas de enrutamiento y decides cómo se conecta con internet, con otras VPC y con tu red local."
+  },
+  "aws-amplify": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Qué puedes alojar",
+      "Funciones de Amplify Hosting",
+      "Despliegue sin Git",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Amplify sirve para crear aplicaciones web de pila completa en AWS, con datos, autenticación, almacenamiento y alojamiento del frontend. Su parte de alojamiento, Amplify Hosting, ofrece un flujo de trabajo basado en Git para publicar aplicaciones web sin servidor con despliegue continuo en la red global de entrega de contenido (CDN) de AWS."
+  },
+  "aws-application-migration-service": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Replicación continua",
+      "Plantillas",
+      "Prueba y corte (cutover)",
+      "Migración a escala",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Application Migration Service (MGN), que la documentación actual de AWS llama AWS Transform MGN, automatiza la migración de servidores físicos, virtuales y de otras nubes a AWS con un tiempo de inactividad mínimo. Replica los servidores de origen de forma continua y los convierte para que arranquen en AWS."
+  },
+  "aws-artifact": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Informes",
+      "Acuerdos",
+      "Responsabilidad compartida",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Artifact es el lugar donde descargas, bajo demanda, los documentos de seguridad y cumplimiento de AWS: informes de auditoría, certificaciones y acuerdos. No configura ni protege recursos; te da la evidencia de lo que AWS hace en su parte de la infraestructura."
+  },
+  "aws-auto-scaling": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Plan de escalado",
+      "Estrategia de escalado",
+      "Escalado dinámico y predictivo",
+      "Cuál es cuál",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Auto Scaling es el servicio que permite configurar, desde un solo lugar, el escalado automático de varios recursos relacionados de una aplicación mediante planes de escalado (scaling plans). No sustituye a Amazon EC2 Auto Scaling ni a Application Auto Scaling: se apoya en ellos para ajustar la capacidad de cada recurso."
+  },
+  "aws-backup": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Planes de copia de seguridad",
+      "Almacenes de copias de seguridad (backup vaults)",
+      "AWS Backup Vault Lock",
+      "Ciclo de vida, copias incrementales y copias en otras regiones o cuentas",
+      "Auditoría",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Backup es un servicio totalmente administrado que centraliza y automatiza la protección de datos de los servicios de AWS, en la nube y en entornos locales. Desde un solo lugar defines las políticas de copia de seguridad y supervisas la actividad de copia y restauración de tus recursos."
+  },
+  "aws-batch": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Los cuatro componentes",
+      "Paralelismo y planificación",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Batch es un servicio totalmente administrado para ejecutar cargas de trabajo de cómputo por lotes de cualquier escala. Planifica y ejecuta trabajos en contenedores, como simulaciones, análisis o aprendizaje automático, sobre Amazon ECS o Amazon EKS, y aprovisiona por ti la capacidad en instancias EC2 (bajo demanda o Spot) o en Fargate."
+  },
+  "aws-budgets": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Tipos de presupuesto",
+      "Notificaciones",
+      "Acciones de presupuesto",
+      "Varias cuentas",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Budgets sirve para seguir tus costos y tu uso de AWS y actuar sobre ellos: defines un umbral y recibes un aviso, o lanzas una acción, cuando el gasto real o el pronosticado lo alcanza. También vigila si aprovechas bien tus instancias reservadas (RI) y tus Savings Plans."
+  },
+  "aws-certificate-manager-acm": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Emitir o importar",
+      "Servicios integrados",
+      "Regiones",
+      "Renovación administrada",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Certificate Manager (ACM) crea, guarda y renueva certificados SSL/TLS X.509, públicos y privados, junto con sus claves, para proteger tus sitios web y aplicaciones en AWS. Es la pieza que permite cifrar datos en tránsito con TLS sin administrar certificados a mano."
+  },
+  "aws-cli": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Dónde se ejecuta",
+      "Perfiles y configuración",
+      "Credenciales: mejor temporales",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "La AWS Command Line Interface (AWS CLI) es una herramienta de código abierto para trabajar con los servicios de AWS escribiendo comandos en la terminal, en lugar de hacer clic en la consola. Da acceso directo a las API públicas de los servicios y permite automatizar tareas con scripts."
+  },
+  "aws-client-vpn": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Punto de enlace y red de destino",
+      "Autenticación y autorización",
+      "Túnel completo o dividido",
+      "Registro de conexiones",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Client VPN es un servicio VPN administrado de acceso remoto basado en clientes. Permite que cada persona, desde cualquier lugar y con un cliente VPN basado en OpenVPN, acceda de forma segura a recursos de AWS y de tu red local."
+  },
+  "aws-cloudformation": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Plantillas y pilas",
+      "Cambios controlados",
+      "Detección de desviaciones (drift)",
+      "StackSets",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS CloudFormation es el servicio de infraestructura como código de AWS: describes en una plantilla los recursos que necesitas, como instancias de EC2, balanceadores o bases de datos de RDS, y CloudFormation los aprovisiona y configura por ti, resolviendo el orden en que dependen unos de otros."
+  },
+  "aws-cloudhsm": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Control exclusivo de las claves",
+      "Clústeres y modos",
+      "Casos de uso",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS CloudHSM te da módulos de seguridad de hardware (HSM) en la nube de AWS. Un HSM es un dispositivo que ejecuta operaciones criptográficas y guarda claves de forma segura; con CloudHSM tienes control total sobre esos HSM, mientras AWS automatiza tareas como el aprovisionamiento, las copias de seguridad y el mantenimiento."
+  },
+  "aws-cloudtrail": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Tipos de eventos",
+      "Tres formas de guardar los eventos",
+      "Organización e integridad",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS CloudTrail registra la actividad de tu cuenta de AWS: cada acción que hace un usuario, un rol o un servicio de AWS queda guardada como un evento, ya venga de la consola, de la AWS CLI, de los SDK o de las API. Es la herramienta de auditoría que responde a la pregunta \"quién hizo qué, sobre qué recurso y cuándo\"."
+  },
+  "aws-compute-optimizer": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Qué recursos analiza",
+      "Cómo funciona",
+      "Clasificación de los hallazgos",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Compute Optimizer analiza la configuración y las métricas de uso de tus recursos para recomendar el tamaño adecuado (rightsizing) e identificar recursos inactivos. Indica si cada recurso está bien dimensionado y propone cambios para reducir costos y mejorar el rendimiento."
+  },
+  "aws-config": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Registro de la configuración",
+      "Reglas",
+      "Corrección, paquetes y agregadores",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Config te da una vista detallada de la configuración de los recursos de tu cuenta de AWS: cómo están configurados, cómo se relacionan entre sí y cómo cambió esa configuración con el tiempo. Además, evalúa de forma continua si cumplen las reglas que defines."
+  },
+  "aws-control-tower": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Zona de aterrizaje",
+      "Controles",
+      "Account Factory y panel",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Control Tower es la forma más sencilla de configurar y gobernar un entorno de AWS con varias cuentas siguiendo prácticas recomendadas. Orquesta otros servicios, como AWS Organizations, AWS Service Catalog y AWS IAM Identity Center, para crear una zona de aterrizaje y mantenerla gobernada con controles."
+  },
+  "aws-data-exchange": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Data Exchange es un servicio para compartir datos con otras organizaciones y administrar quién tiene derecho a usarlos, a escala. Quien envía los datos crea concesiones o publica productos de datos; quien los recibe gestiona en un solo lugar todas sus concesiones y suscripciones y analiza los datos con los servicios de análisis y aprendizaje automático que prefiera."
+  },
+  "aws-datasync": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Orígenes y destinos",
+      "Casos de uso",
+      "Cómo funciona",
+      "Velocidad y seguridad",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS DataSync es un servicio de transferencia de archivos y objetos seguro, fiable y de alta velocidad. Mueve datos hacia, desde y entre servicios de almacenamiento de AWS, desde sistemas locales y desde el almacenamiento de otras nubes."
+  },
+  "aws-device-farm": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Dos formas de uso",
+      "Frameworks admitidos",
+      "Organización",
+      "Región y redes",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Device Farm es un servicio de pruebas de aplicaciones que te permite probar e interactuar con tus aplicaciones Android, iOS y web en teléfonos y tabletas físicos y reales, alojados por AWS."
+  },
+  "aws-direct-connect": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Conexiones",
+      "Interfaces virtuales",
+      "Direct Connect gateway",
+      "Cifrado y resiliencia",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Direct Connect enlaza tu red interna con una ubicación de Direct Connect mediante un cable de fibra óptica Ethernet estándar: un extremo va a tu router y el otro a un router de Direct Connect. Sobre esa conexión creas interfaces virtuales hacia tus VPC o hacia servicios públicos de AWS sin pasar por los proveedores de internet."
+  },
+  "aws-directory-service": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Tres tipos de directorio",
+      "Federar el directorio con roles de IAM",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Directory Service ofrece varias formas de usar Microsoft Active Directory (AD) con otros servicios de AWS. Un directorio guarda información de usuarios, grupos y dispositivos, y sirve para administrar el acceso a la información y a los recursos. El servicio sirve tanto a quien ya tiene un Active Directory o aplicaciones compatibles con LDAP como a quien necesita un directorio nuevo en la nube."
+  },
+  "aws-dms": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cómo funciona",
+      "Mismo motor o motor distinto",
+      "Conversión de esquemas",
+      "Carga completa y replicación continua (CDC)",
+      "Destinos posibles",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS DMS (Database Migration Service) es un servicio en la nube para migrar bases de datos relacionales, almacenes de datos, bases de datos NoSQL y otros almacenes de datos. Sirve para llevar los datos a AWS o moverlos entre combinaciones de entornos locales y en la nube, al mismo motor de base de datos o a otro distinto."
+  },
+  "aws-elastic-beanstalk": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Plataformas y modos",
+      "Aplicación, versión y entorno",
+      "Niveles de entorno",
+      "Políticas de despliegue",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Elastic Beanstalk sirve para desplegar aplicaciones web en AWS sin configurar a mano la infraestructura que las ejecuta. Tú subes el código; Elastic Beanstalk aprovisiona las instancias EC2 (o un clúster de EKS), configura el balanceo de carga y el escalado automático, y supervisa el estado de la aplicación. Conservas el control de los recursos subyacentes y no hay cargo adicional: pagas solo los recursos de AWS que consume tu aplicación."
+  },
+  "aws-fargate": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Aislamiento y tamaño",
+      "Plataforma siempre actualizada",
+      "Fargate y Fargate Spot",
+      "Límites que conviene recordar",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Fargate es un motor de cómputo sin servidor para contenedores que se usa con Amazon ECS y Amazon EKS. Con Fargate no aprovisionas, configuras ni escalas clústeres de máquinas virtuales: empaquetas la aplicación en contenedores, indicas la CPU y la memoria, defines la red y los permisos de IAM, y la lanzas."
+  },
+  "aws-firewall-manager": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Requisitos",
+      "Tipos de política",
+      "Cumplimiento y corrección",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Firewall Manager centraliza la administración de protecciones de red y de aplicación en varias cuentas y recursos de una organización. Configuras la protección una sola vez y el servicio la aplica de forma automática en tus cuentas y recursos, incluso cuando agregas cuentas y recursos nuevos."
+  },
+  "aws-global-accelerator": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Direcciones IP estáticas",
+      "Tipos de acelerador",
+      "Agentes de escucha y grupos de puntos de enlace",
+      "Disponibilidad y protección",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Global Accelerator es un servicio global en el que creas aceleradores para mejorar el rendimiento y la disponibilidad de tus aplicaciones para usuarios locales y de todo el mundo. Ofrece direcciones IP estáticas anycast que actúan como puntos de entrada fijos y lleva el tráfico por la red global de AWS hasta tus puntos de enlace en una o varias regiones."
+  },
+  "aws-glue": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Glue es un servicio de integración de datos sin servidor para descubrir, preparar, mover e integrar datos de varios orígenes. Reúne en un solo servicio el descubrimiento de datos, el ETL (extracción, transformación y carga), la limpieza y un catálogo central de metadatos. No hay infraestructura que administrar y pagas por uso."
+  },
+  "aws-iam-identity-center": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Origen de identidades",
+      "Conjuntos de permisos",
+      "Instancias y portal",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS IAM Identity Center es la solución de AWS para conectar a las personas de tu organización (tu fuerza laboral) con cuentas de AWS y con aplicaciones. Puedes conectar tu proveedor de identidades existente y sincronizar sus usuarios y grupos, o crear y administrar los usuarios directamente en el servicio. Antes se llamaba AWS Single Sign-On."
+  },
+  "aws-kms": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cifrado de sobre con claves de datos",
+      "Quién puede usar una clave",
+      "Claves de varias regiones",
+      "Almacenes de claves",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Key Management Service (AWS KMS) es un servicio administrado para crear y controlar las claves con las que cifras y firmas tus datos. Las claves se crean, se usan y se eliminan dentro del servicio, protegidas por módulos de seguridad de hardware (HSM) validados con FIPS 140-3 nivel 3, y nunca salen de AWS KMS sin cifrar."
+  },
+  "aws-lake-formation": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Lake Formation es el servicio para gobernar, proteger y compartir de forma centralizada los datos que usan el análisis y el aprendizaje automático. Administra el control de acceso de grano fino sobre los datos del lago en Amazon S3 y sobre sus metadatos en el AWS Glue Data Catalog, y ayuda a llevar al lago datos de bases de datos existentes. El tema «Lagos de datos» explica cómo se construye y protege un lago completo; aquí ves el servicio en sí."
+  },
+  "aws-lambda": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Memoria: el tamaño de una función",
+      "Otros ajustes de recursos",
+      "Concurrencia",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Lambda es un servicio de cómputo sin servidor: ejecuta tu código sin que aprovisiones ni administres servidores. Lambda se encarga del mantenimiento de los servidores, el aprovisionamiento de capacidad, el escalado y los parches. Conectas una función a un desencadenador, como Amazon API Gateway, Amazon S3, Amazon SQS o Amazon EventBridge, y pagas solo por los recursos que usas, sin compromisos por adelantado."
+  },
+  "aws-license-manager": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS License Manager facilita la administración de las licencias de software de proveedores como Microsoft, SAP, Oracle o IBM en varias regiones y cuentas de una organización. Ofrece una vista consolidada del uso de licencias e informes para comprobar que cumples los términos de tus contratos."
+  },
+  "aws-network-firewall": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cómo se despliega",
+      "Reglas sin estado y con estado",
+      "Para qué se usa",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Network Firewall es un firewall de red administrado y con estado, que además funciona como servicio de detección y prevención de intrusiones para tus VPC de Amazon VPC. Filtra el tráfico en el perímetro de la VPC: el que entra o sale por una gateway de internet, una gateway NAT, una VPN o AWS Direct Connect."
+  },
+  "aws-organizations": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Estructura de la organización",
+      "Conjuntos de funciones",
+      "Políticas de la organización",
+      "Servicios para toda la organización",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Organizations te ayuda a administrar y gobernar de forma central un entorno con varias cuentas de AWS. Con él creas cuentas, las agrupas, aplicas políticas de gobernanza a todas ellas y simplificas la facturación con un único método de pago. Es la base sobre la que se diseña una estrategia de seguridad para varias cuentas."
+  },
+  "aws-outposts": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Formatos",
+      "Una extensión de la región",
+      "Qué puedes ejecutar",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Outposts es un servicio totalmente administrado que lleva la infraestructura, los servicios, las API y las herramientas de AWS a tus propias instalaciones. Un Outpost es capacidad de cómputo y almacenamiento de AWS instalada en tu sitio, que AWS opera, supervisa y administra como parte de una región. El examen la cita como ejemplo de opción de cómputo híbrida."
+  },
+  "aws-privatelink": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Proveedores y consumidores",
+      "Tipos de punto de enlace",
+      "Interfaces de red y políticas",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS PrivateLink es una tecnología de alta disponibilidad y escalable para conectar de forma privada tu VPC con servicios y recursos como si estuvieran dentro de ella. Los clientes de tus subredes privadas llegan a esos destinos con direcciones IP privadas, sin puerta de enlace de internet, dispositivo NAT, dirección IP pública, Direct Connect ni Site-to-Site VPN."
+  },
+  "aws-resource-access-manager-aws-ram": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Recurso compartido",
+      "Dentro y fuera de la organización",
+      "Frente a las políticas basadas en recursos",
+      "Ejemplos que aparecen en arquitecturas",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Resource Access Manager (AWS RAM) te permite compartir recursos de forma segura con otras cuentas de AWS, con toda tu organización o con unidades organizativas (OU) de AWS Organizations y, para algunos tipos de recurso, con roles y usuarios de IAM. Creas el recurso una vez y lo pones a disposición de las demás cuentas."
+  },
+  "aws-secrets-manager": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Rotación automática",
+      "Cifrado con AWS KMS",
+      "Acceso desde otra cuenta",
+      "Replicación entre regiones",
+      "Auditoría y costo",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Secrets Manager es un servicio para administrar, recuperar y rotar durante todo su ciclo de vida las credenciales de bases de datos y de aplicaciones, los tokens de OAuth, las claves de API y otros secretos. Muchos servicios de AWS guardan y usan sus secretos en Secrets Manager."
+  },
+  "aws-security-hub": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Estándares y controles (Security Hub CSPM)",
+      "Hallazgos consolidados",
+      "Automatización",
+      "Lo que añade Security Hub",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Security Hub reúne en un solo lugar las señales de seguridad de tu entorno de AWS para que veas y priorices los problemas más importantes. La documentación actual distingue dos partes: AWS Security Hub CSPM, que evalúa tu entorno frente a estándares y prácticas recomendadas de seguridad, y Security Hub, una solución unificada que correlaciona los hallazgos de CSPM y de otros servicios para priorizar los riesgos activos."
+  },
+  "aws-service-catalog": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Service Catalog permite a una organización crear y administrar catálogos de servicios de TI aprobados para usar en AWS. Esos servicios pueden ir desde imágenes de máquinas virtuales, servidores, software o bases de datos hasta arquitecturas completas de aplicaciones de varios niveles."
+  },
+  "aws-shield": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "El perímetro depende de tu arquitectura",
+      "Shield Standard",
+      "Shield Advanced",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Shield es un servicio administrado de protección contra ataques de denegación de servicio distribuido (DDoS) que protege el perímetro de tus aplicaciones en AWS, en las capas de red y transporte (3 y 4) y en la capa de aplicación (7). Tiene dos niveles: Shield Standard, automático y sin cargo adicional, y Shield Advanced, una suscripción con protecciones ampliadas."
+  },
+  "aws-site-to-site-vpn": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Componentes",
+      "Enrutamiento",
+      "Ancho de banda y aceleración",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Site-to-Site VPN crea conexiones VPN IPsec seguras entre tu red local y tus VPC a través de internet. De forma predeterminada, una instancia de una VPC no puede comunicarse con tu red local; con una conexión Site-to-Site VPN y el enrutamiento adecuado, el tráfico pasa por un enlace cifrado."
+  },
+  "aws-snow-family": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Trabajos de importación y exportación",
+      "Configuraciones del dispositivo",
+      "Seguridad",
+      "Alternativas que recomienda AWS",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Snow Family es la familia de dispositivos físicos de AWS para mover datos sin usar internet y para procesar datos en lugares con poca o ninguna conectividad. Su miembro actual es AWS Snowball Edge, un dispositivo resistente con almacenamiento y capacidad de cómputo propios. Importante: según la documentación de AWS, Snowball Edge, y con él toda la familia Snow, ya no está disponible para clientes nuevos; los clientes existentes pueden seguir usándolo."
+  },
+  "aws-step-functions": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Flujos, estados y ejecuciones",
+      "Standard frente a Express",
+      "Integraciones",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Step Functions es el servicio de orquestación de flujos de trabajo de AWS. Con él creas flujos de trabajo, también llamados máquinas de estado, para construir aplicaciones distribuidas, automatizar procesos, orquestar microservicios y crear canalizaciones de datos y de machine learning."
+  },
+  "aws-storage-gateway": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Despliegue",
+      "Tipos de gateway",
+      "Storage Gateway frente a DataSync",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Storage Gateway conecta un dispositivo de software instalado en tu entorno local con el almacenamiento en la nube de AWS. Las aplicaciones locales siguen usando protocolos conocidos, como archivos, volúmenes iSCSI o cintas, mientras los datos se guardan de forma escalable y rentable en AWS."
+  },
+  "aws-systems-manager": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Systems Manager te ayuda a ver, administrar y operar nodos a escala de forma centralizada, tanto en AWS como en entornos locales y de varias nubes. Reúne varias herramientas para las tareas habituales sobre esos nodos, como aplicar parches, ejecutar comandos o abrir sesiones, en varias cuentas y regiones."
+  },
+  "aws-transfer-family": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Protocolos y destinos",
+      "Cómo funciona un servidor",
+      "Casos de uso típicos",
+      "Flujos de trabajo administrados",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Transfer Family es un servicio seguro y totalmente administrado para transferir archivos hacia y desde los servicios de almacenamiento de AWS. Admite los protocolos SFTP, FTPS, FTP y AS2, además de transferencias desde el navegador, y guarda los datos directamente en Amazon S3 o Amazon EFS."
+  },
+  "aws-transit-gateway": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Adjuntos",
+      "Tablas de enrutamiento y segmentación",
+      "Varias cuentas y regiones",
+      "ECMP",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Transit Gateway es un concentrador de tránsito de red que interconecta tus VPC y tus redes locales. Actúa como un router virtual regional que escala de forma elástica según el volumen de tráfico y enruta en la capa 3, enviando cada paquete al adjunto que corresponde según su dirección IP de destino."
+  },
+  "aws-trusted-advisor": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Trusted Advisor inspecciona tu entorno de AWS y te hace recomendaciones cuando encuentra oportunidades para ahorrar dinero, mejorar la disponibilidad y el rendimiento de los sistemas o cerrar brechas de seguridad. Sus comprobaciones se basan en prácticas recomendadas aprendidas al atender a cientos de miles de clientes de AWS."
+  },
+  "aws-waf": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Qué puede proteger",
+      "Lista de control de acceso web y reglas",
+      "Reglas útiles para el examen",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS WAF es un firewall de aplicaciones web que supervisa las solicitudes HTTP(S) que llegan a tus recursos protegidos y decide, según tus reglas, si se atienden, se bloquean con un código HTTP 403 (Prohibido) o reciben una respuesta personalizada."
+  },
+  "aws-wavelength": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Wavelength Zone",
+      "Red",
+      "Qué puedes ejecutar",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Wavelength despliega servicios estándar de cómputo y almacenamiento de AWS en el borde de las redes de los proveedores de servicios de comunicaciones, como las redes 5G. Sirve para crear aplicaciones que necesitan latencia muy baja hacia dispositivos móviles y usuarios finales, o para aumentar la resiliencia de aplicaciones de borde. Amplías tu VPC a una Wavelength Zone y ejecutas allí instancias EC2 que se comunican con tus servicios en la región principal."
+  },
+  "aws-x-ray": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS X-Ray recopila datos sobre las solicitudes que atiende tu aplicación y te da herramientas para verlos, filtrarlos y analizarlos. Por cada solicitud rastreada ves la solicitud y la respuesta, y también las llamadas que la aplicación hace a recursos de AWS, microservicios, bases de datos y API web. Así da visibilidad de la carga de trabajo de extremo a extremo."
+  },
+  "consola-de-administracion-de-aws": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "La consola de administración de AWS (AWS Management Console) es una aplicación web que reúne y da acceso centralizado a las consolas de cada servicio de AWS. Su página de inicio se llama AWS Console Home y desde ahí administras tus aplicaciones y llegas al resto de las consolas."
+  },
+  "elastic-load-balancing-elb": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Tipos de balanceador",
+      "Agentes de escucha, destinos y comprobaciones de estado",
+      "Zonas de disponibilidad",
+      "Interno o expuesto a internet",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Elastic Load Balancing (ELB) distribuye automáticamente el tráfico entrante entre varios destinos, como instancias EC2, contenedores y direcciones IP, en una o varias zonas de disponibilidad. Supervisa el estado de los destinos registrados, envía tráfico solo a los que están en buen estado y escala su propia capacidad según cambia el tráfico."
+  },
+  "explorador-de-costos-de-aws": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Qué datos muestra",
+      "Formas de explorar",
+      "Pronósticos",
+      "Costo",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "El Explorador de costos de AWS (AWS Cost Explorer) es una herramienta para ver y analizar tus costos y tu uso de AWS con gráficos e informes. Muestra el historial reciente, pronostica el gasto futuro y recomienda compras de instancias reservadas y Savings Plans."
+  },
+  "herramienta-de-aws-well-architected": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "La herramienta de AWS Well-Architected (AWS Well-Architected Tool, o AWS WA Tool) es un servicio en la nube que ofrece un proceso consistente para medir tu arquitectura frente a las prácticas recomendadas de AWS. Te ayuda a documentar tus decisiones, a recibir recomendaciones para mejorar la carga de trabajo y a hacerla más fiable, segura, eficiente y rentable."
+  },
+  "iam": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cómo decide AWS si permite una solicitud",
+      "Prácticas recomendadas que el examen da por supuestas",
+      "IAM Access Analyzer",
+      "Consistencia eventual",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Identity and Access Management (IAM) es el servicio web con el que controlas de forma segura el acceso a los recursos de AWS: quién se autentica (inicia sesión) y quién está autorizado (tiene permisos) para usar cada recurso. Es una función de tu cuenta de AWS sin cargo adicional; solo pagas por los otros servicios que usas con esas identidades."
+  },
+  "informe-de-costo-y-uso-de-aws": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Qué contiene",
+      "Cómo se entrega",
+      "AWS Data Exports y CUR 2.0",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "El informe de costo y uso de AWS (AWS Cost and Usage Report, AWS CUR) contiene el conjunto más completo de datos de costo y uso que ofrece AWS. Se entrega en un bucket de Amazon S3 de tu propiedad para que lo analices con tus propias herramientas. Hoy se crea desde AWS Data Exports, donde la versión recomendada es CUR 2.0."
+  },
+  "panel-de-aws-health": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Eventos de AWS Health",
+      "Categorías",
+      "Dos vistas del estado",
+      "Automatizar y centralizar",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "El Panel de AWS Health (AWS Health Dashboard) es la consola de AWS Health, el servicio que informa sobre el rendimiento de tus recursos y la disponibilidad de los servicios de AWS y de tus cuentas. Te avisa de incidencias en curso y de cambios programados que pueden afectar a tus aplicaciones, con guía para actuar."
+  },
+  "repositorio-de-aplicaciones-sin-servidor-de-aws": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Plantilla de AWS SAM",
+      "Desplegar una aplicación",
+      "Compartir una aplicación",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "AWS Serverless Application Repository es un catálogo donde los desarrolladores y las empresas encuentran, despliegan y publican aplicaciones sin servidor. Contiene ejemplos de código, componentes y aplicaciones completas para casos comunes, como backends web y móviles, procesamiento de eventos y datos, registro, supervisión o IoT. No tiene cargo adicional: pagas solo los recursos de AWS que usan las aplicaciones que despliegas."
+  },
+  "savings-plans": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Tipos de plan",
+      "Lo que no hacen",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Savings Plans es un modelo de precios que te da tarifas más bajas que las de bajo demanda a cambio de comprometerte a usar una cantidad constante de cómputo, medida en dólares por hora, durante uno o tres años. El precio se mantiene durante todo el plazo y puedes pagar todo por adelantado, una parte o nada por adelantado."
+  },
+  "vmware-cloud-en-aws": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Casos de uso",
+      "Relación con la estrategia de migración",
+      "VMware en tus instalaciones",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "VMware Cloud on AWS es una oferta de nube integrada, desarrollada en conjunto por AWS y VMware, que permite migrar y ampliar entornos locales basados en VMware vSphere a la nube de AWS. Se ejecuta sobre infraestructura bare metal de Amazon EC2 y la entregan, venden y respaldan VMware y sus socios."
+  },
+  "almacenamiento-hibrido": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "AWS Storage Gateway",
+      "AWS DataSync",
+      "AWS Transfer Family",
+      "Otros servicios con acceso híbrido",
+      "En línea o sin conexión",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Muchas empresas no pueden, o no quieren, mover todo a la nube de una vez. Las aplicaciones siguen en el centro de datos, pero el almacenamiento local se queda corto, las copias de seguridad en cinta son costosas o hay que intercambiar archivos con socios. El almacenamiento híbrido combina la infraestructura local con los servicios de almacenamiento de AWS y permite mover los datos entre ambos entornos según el rendimiento, el costo o el cumplimiento normativo que se necesite."
+  },
+  "alta-disponibilidad-multi-az-y-multirregion": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Regiones y zonas de disponibilidad",
+      "Alta disponibilidad multi-AZ",
+      "Ejemplo: RDS Multi-AZ",
+      "Alta disponibilidad multirregión",
+      "Amazon Route 53 en la alta disponibilidad",
+      "Mitigar puntos únicos de fallo",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Un principio fundamental del diseño en AWS es evitar los puntos únicos de fallo, incluida la infraestructura física. Para lograrlo, AWS ofrece su infraestructura global en regiones formadas por varias zonas de disponibilidad. Repartir una carga de trabajo entre zonas, y cuando hace falta entre regiones, es la base de una arquitectura de alta disponibilidad y tolerante a errores."
+  },
+  "amenazas-externas-ddos-e-inyeccion-de-codigo": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Ataques DDoS y AWS Shield",
+      "Inyección de código y AWS WAF",
+      "Acceso seguro a las aplicaciones",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Una aplicación expuesta a internet recibe de todo: usuarios legítimos, pero también tráfico diseñado para saturarla o para engañarla. Dos de los vectores de amenaza externa más conocidos son los ataques de denegación de servicio distribuido (DDoS) y la inyección de código. AWS ofrece servicios que se integran para protegerte de ambos."
+  },
+  "analisis-y-visualizacion": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Amazon Athena",
+      "Optimizar el costo y el rendimiento de Athena",
+      "AWS Lake Formation en el análisis",
+      "Amazon Quick",
+      "Estrategia de visualización",
+      "Cuándo usar otros servicios de análisis",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Una vez que los datos están en el lago y en un formato adecuado, falta lo que le interesa al negocio: consultarlos y convertirlos en informes y paneles. En AWS, Amazon Athena consulta los datos directamente en Amazon S3, AWS Lake Formation controla quién puede ver qué datos y Amazon Quick los visualiza. El examen espera que distingas estos servicios de Amazon Redshift, Amazon EMR y Amazon OpenSearch Service, y que sepas diseñar una estrategia de visualización."
+  },
+  "arquitecturas-basadas-en-eventos": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Productores, enrutadores y consumidores",
+      "Amazon EventBridge",
+      "AWS Lambda como consumidor de eventos",
+      "Desacoplar para escalar de forma independiente",
+      "Servicios para el acoplamiento débil",
+      "Inconvenientes que debes considerar",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Una arquitectura basada en eventos es una forma de construir sistemas débilmente acoplados en la que los componentes trabajan juntos emitiendo eventos y respondiendo a ellos. Un evento es algo que ocurre en el sistema, como que un usuario añada un producto al carrito, y suele indicar un cambio en un recurso o en el entorno. Quien produce el evento no sabe quién lo consumirá."
+  },
+  "arquitecturas-de-varios-niveles": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Los tres niveles",
+      "La red como frontera entre niveles",
+      "Versión con servidores en una VPC",
+      "Versión sin servidor",
+      "Varios niveles frente a otras arquitecturas",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "La arquitectura de varios niveles (de tres niveles, de n niveles) es un patrón que se usa desde hace décadas y que sigue siendo muy común en aplicaciones orientadas a usuarios. Divide la aplicación en capas separadas por la red, de modo que cada una se pueda desarrollar, operar y escalar por su cuenta. En el examen aparece tanto en su forma clásica, con servidores, como en su versión sin servidor."
+  },
+  "balanceo-de-carga-alb-nlb-y-gwlb": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Componentes comunes",
+      "Application Load Balancer (capa 7)",
+      "Network Load Balancer (capa 4)",
+      "Gateway Load Balancer (capa 3)",
+      "Alta disponibilidad y rendimiento",
+      "Balanceo y costos",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Un balanceador de carga es el punto de contacto único de los clientes: recibe el tráfico y lo reparte entre varios destinos, como instancias EC2, contenedores, direcciones IP o funciones de Lambda, en una o varias zonas de disponibilidad. Elastic Load Balancing ofrece tres tipos de generación actual, cada uno en una capa distinta del modelo OSI: Application Load Balancer (capa 7), Network Load Balancer (capa 4) y Gateway Load Balancer (capa 3)."
+  },
+  "bases-de-datos-rentables": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Relacional o no relacional: el costo sigue al patrón de uso",
+      "Aurora: sin servidor y configuración de almacenamiento",
+      "DynamoDB: clase de tabla y caducidad de elementos",
+      "Tipos de base de datos según la forma de los datos",
+      "Políticas de retención de datos",
+      "Copias de seguridad: frecuencia y retención",
+      "Detener lo que no se usa",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "En una base de datos pagas por el cómputo que la atiende, por el almacenamiento que ocupan los datos y las copias, y, según el servicio, por las solicitudes o las operaciones de E/S. Una base rentable no es la más barata en abstracto, sino la que encaja con la forma de los datos y el patrón de uso, y que no guarda copias ni datos más tiempo del necesario."
+  },
+  "capacidad-de-bases-de-datos": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Unidades de capacidad en DynamoDB",
+      "Modo bajo demanda frente a modo aprovisionado",
+      "Unidades de capacidad de Aurora Serverless",
+      "Clases de instancia en Amazon RDS",
+      "Almacenamiento e IOPS aprovisionadas en Amazon RDS",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Planificar la capacidad de una base de datos es decidir cuánto cómputo, memoria, almacenamiento y rendimiento de E/S necesita, y cómo pagarlo. En AWS esa decisión se expresa de formas distintas según el servicio: unidades de capacidad en Amazon DynamoDB y en Aurora Serverless, clases de instancia y tipos de almacenamiento en Amazon RDS. Elegir bien evita tanto la saturación como pagar por capacidad que nadie usa."
+  },
+  "cifrado-en-reposo-y-en-transito-claves-y-certificados": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cifrar datos en reposo",
+      "Cifrar datos en tránsito",
+      "AWS KMS y la administración de claves",
+      "Políticas de acceso para las claves",
+      "Rotación de claves",
+      "Certificados con AWS Certificate Manager",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "El cifrado protege los datos aunque alguien consiga acceder a ellos: sin la clave, el contenido es ilegible. En AWS se aplica en dos momentos, cuando los datos están guardados (en reposo) y cuando viajan por la red (en tránsito), y se apoya en dos servicios principales: AWS KMS para las claves y AWS Certificate Manager (ACM) para los certificados."
+  },
+  "clases-de-almacenamiento-y-ciclo-de-vida-de-s3": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Clases según el patrón de acceso",
+      "Clasificar los datos en frío",
+      "S3 Lifecycle",
+      "Elegir el ciclo de vida correcto",
+      "Cargas por lotes frente a cargas individuales",
+      "Requester Pays",
+      "S3 frente a otros servicios de almacenamiento",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "En Amazon S3 no pagas lo mismo por todos los datos: cada objeto tiene una clase de almacenamiento, y cada clase equilibra de forma distinta el precio de guardar, el costo de leer y la rapidez de acceso. Elegir la clase según cómo se usan los datos, y moverlos automáticamente a medida que envejecen, es la base del almacenamiento de objetos rentable."
+  },
+  "colas-mensajeria-y-publicacion-suscripcion": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Tres tipos de mensajería",
+      "Amazon SQS",
+      "Colas estándar y FIFO",
+      "Amazon SNS",
+      "Otras opciones de mensajería",
+      "Escalar los consumidores con la cola",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "La mensajería asíncrona permite que los componentes de una aplicación se comuniquen sin esperar unos a otros: uno envía un mensaje y sigue trabajando, y otro lo procesa cuando puede. Es la base del acoplamiento débil en AWS, y en el examen aparece sobre todo con Amazon SQS (colas) y Amazon SNS (publicación/suscripción)."
+  },
+  "computo-distribuido-y-en-la-periferia": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "La base: regiones y zonas de disponibilidad",
+      "Cómputo en el borde con CloudFront",
+      "AWS Local Zones",
+      "AWS Wavelength",
+      "Cómputo híbrido: AWS Outposts",
+      "Contenedores fuera de la región",
+      "Procesamiento distribuido en la región",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "No todo el cómputo tiene que vivir en una sola región de AWS. Cuando los usuarios están repartidos por el mundo, cuando una aplicación necesita latencias muy bajas o cuando los datos deben quedarse en un lugar concreto, conviene acercar el cómputo al usuario o al dato. AWS ofrece para ello una escalera de opciones que va desde las regiones y zonas de disponibilidad hasta las ubicaciones de borde de CloudFront, las Local Zones, las Wavelength Zones y AWS Outposts en tu propio centro de datos."
+  },
+  "computo-rentable-segun-la-carga-de-trabajo": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Qué servicio de cómputo según la carga",
+      "Aprovechar mejor el cómputo: contenedores, sin servidor y microservicios",
+      "Ajustar la capacidad a la demanda",
+      "Hibernación de EC2",
+      "Encontrar recursos sobredimensionados u ociosos",
+      "Disponibilidad según la clase de carga de trabajo",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "El cómputo suele ser una de las partidas más grandes de la factura, y también una de las más fáciles de desperdiciar: servidores encendidos toda la noche sin usuarios, instancias dimensionadas para un pico que llega una vez al mes o entornos de pruebas con la misma redundancia que producción. Hacer el cómputo rentable consiste en elegir el servicio que encaja con la carga, ajustar la capacidad a la demanda real y no pagar más disponibilidad de la que cada carga necesita."
+  },
+  "conectividad-hibrida-vpn-direct-connect-y-privatelink": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "AWS Site-to-Site VPN",
+      "AWS Direct Connect",
+      "AWS PrivateLink",
+      "Direct Connect frente a VPN frente a internet",
+      "Elegir el ancho de banda",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Por defecto, una instancia de una VPC no puede comunicarse con tu red local. Para unir ambos mundos, AWS ofrece conexiones cifradas sobre internet con AWS Site-to-Site VPN, líneas privadas dedicadas con AWS Direct Connect y acceso privado a servicios con AWS PrivateLink. Elegir entre ellas, y dimensionar su ancho de banda, depende de cuánto tráfico mueves, cuánta coherencia necesitas en la red, qué seguridad exiges y cuánto quieres gastar."
+  },
+  "conmutacion-por-error-y-patrones-distribuidos": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Mitigar los puntos únicos de error",
+      "Estrategias de conmutación por error",
+      "Patrones de diseño distribuidos",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "En un sistema distribuido, los componentes se comunican a través de la red y cualquiera de ellos puede fallar o responder tarde. Una arquitectura fiable da por hecho que habrá fallos y se diseña para que la carga de trabajo siga funcionando: elimina los puntos únicos de error, prepara a dónde enviar el tráfico cuando algo cae y aplica patrones que evitan que un fallo local se propague."
+  },
+  "contenedores-cuando-usarlos-y-como-migrar": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Ventajas de los contenedores",
+      "Capas de los servicios de contenedores",
+      "Amazon ECS",
+      "Amazon EKS",
+      "AWS Fargate",
+      "Cuándo usar contenedores",
+      "Cómo migrar una aplicación a contenedores",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Un contenedor empaqueta una aplicación junto con todas sus dependencias en una imagen que se ejecuta igual en cualquier entorno. En AWS la pregunta no es solo si conviene usar contenedores, sino también quién los orquesta (Amazon ECS o Amazon EKS), dónde se ejecutan (instancias EC2 o AWS Fargate) y cómo llevar hasta allí una aplicación existente."
+  },
+  "copias-de-seguridad-y-archivado-rentables": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Copia de seguridad o archivo",
+      "Frecuencia y retención: las dos palancas del costo",
+      "Niveles de almacenamiento para copias antiguas",
+      "Elegir la clase S3 Glacier para archivar",
+      "Sustituir las cintas físicas",
+      "La copia de seguridad como estrategia de recuperación ante desastres",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Las copias de seguridad y los archivos crecen en silencio: cada instantánea, cada copia diaria y cada dato que se guarda \"por si acaso\" ocupa almacenamiento que se paga mes a mes. Una estrategia rentable protege lo que el negocio necesita recuperar, durante el tiempo que lo necesita, en el nivel de almacenamiento más barato que todavía permite recuperarlo a tiempo."
+  },
+  "copias-de-seguridad-y-replicacion-de-datos": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Copias de seguridad centralizadas con AWS Backup",
+      "Copias de los discos: instantáneas de EBS",
+      "Copias de bases de datos: Amazon RDS",
+      "Replicación de objetos en Amazon S3",
+      "Cómo diseñar la estrategia de copia",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Las copias de seguridad y la replicación son las dos formas de tener tus datos disponibles cuando algo falla. Una copia de seguridad es un punto de restauración al que puedes volver; una réplica es una copia viva en otro lugar. Elegir entre ellas, y cómo configurarlas, determina cuánto tiempo tardas en recuperarte y cuántos datos puedes perder."
+  },
+  "costos-de-transferencia-de-datos": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cómo se cobra la transferencia",
+      "Rutas de red que reducen el costo",
+      "Servicios de periferia y conectividad",
+      "El método de menor costo para llevar datos a AWS",
+      "Revisar cargas existentes",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Mover datos también cuesta. Al diseñar en la nube es fácil olvidar los cargos de transferencia, porque en un centro de datos propio no existían, pero en AWS dependen del origen, del destino y del volumen del tráfico. Saber por dónde viajan los datos te permite elegir rutas y servicios que reducen la factura de red."
+  },
+  "diseno-de-red-subredes-enrutamiento-y-direccionamiento-ip": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Direccionamiento IP y bloques CIDR",
+      "Subredes y tamaño",
+      "Tipos de subred y segmentación",
+      "Enrutamiento",
+      "Elegir la tecnología de red según el requisito",
+      "Diseñar para crecer",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Una VPC es la red virtual donde viven tus recursos. Su diseño se decide con tres piezas: los rangos de direcciones IP, las subredes en que los divides y las tablas de enrutamiento que dicen hacia dónde va el tráfico de cada subred. Un buen diseño separa lo que debe ser público de lo que no, resiste la caída de una zona de disponibilidad y deja espacio para crecer."
+  },
+  "elegir-almacenamiento-por-rendimiento-y-escala": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Bloques, archivos y objetos",
+      "Amazon EBS",
+      "Almacén de instancia",
+      "Amazon EFS",
+      "Amazon FSx",
+      "Amazon S3",
+      "Durabilidad y replicación",
+      "Rendimiento: qué medir",
+      "Tamaño correcto y escalado del almacenamiento",
+      "Costo",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Elegir almacenamiento en AWS empieza por una pregunta sencilla: ¿cómo accede la aplicación a los datos? A partir de ahí se decide entre almacenamiento de bloques, de archivos o de objetos, y luego se ajusta el rendimiento, la durabilidad, la capacidad de crecer y el costo. El examen suele plantear un requisito (latencia, acceso compartido, crecimiento impredecible, presupuesto) y espera que reconozcas el servicio que lo cumple."
+  },
+  "elegir-base-de-datos-tipo-y-motor": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Relacionales: Amazon RDS y Amazon Aurora",
+      "No relacionales (NoSQL)",
+      "En memoria",
+      "Sin servidor o aprovisionada",
+      "Patrones de acceso: lecturas frente a escrituras",
+      "Elegir el motor relacional: MySQL, PostgreSQL y los demás",
+      "Migraciones homogéneas y heterogéneas",
+      "Estrategia de migración y operación",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "No existe una base de datos que sirva para todo. AWS ofrece más de quince opciones con modelos de datos distintos: relacional, clave-valor, documentos, en memoria, grafos, columnas anchas y otros. Elegir bien implica responder tres preguntas: qué forma tienen los datos, cómo se accede a ellos (más lecturas o más escrituras, qué latencia) y de dónde vienes (qué motor usas hoy y cómo vas a migrar). El examen suele describir una carga y esperar que identifiques el tipo de base de datos y, si es relacional, el motor."
+  },
+  "elegir-instancias-familias-tipos-y-tamanos": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cómo leer el nombre de una instancia",
+      "Familias de instancias",
+      "Instancias de rendimiento ampliable (T)",
+      "Virtualización y AWS Nitro System",
+      "Recursos compartidos y E/S",
+      "Elegir el tamaño correcto",
+      "Tamaño de una función de Lambda",
+      "Qué tecnología de cómputo usar",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Elegir bien una instancia de Amazon EC2 es una de las decisiones con más impacto en el rendimiento y en el costo de una carga de trabajo. AWS ofrece cientos de tipos de instancia, pero se ordenan con una lógica sencilla: una familia según el recurso que prioriza (CPU, memoria, almacenamiento o aceleradores), una generación, unas opciones y un tamaño. El examen espera que sepas leer un requisito y llegar a la familia y al tamaño adecuados, y que sepas hacer lo mismo con la memoria de una función de Lambda."
+  },
+  "escalado-automatico-metricas-y-politicas": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Amazon EC2 Auto Scaling",
+      "Formas de escalar",
+      "Políticas de escalado dinámico",
+      "Qué métrica elegir",
+      "Arranques lentos: grupos templados e hibernación",
+      "Escalar otros componentes",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Escalar de forma automática significa que la capacidad sigue a la demanda sin que nadie tenga que intervenir: se añaden recursos cuando la carga sube y se quitan cuando baja. Para que funcione bien hay que decidir tres cosas: qué servicio escala cada componente, qué métrica o condición dispara la acción y qué tipo de política la ejecuta. El examen pregunta con frecuencia por la métrica correcta y por la política que mejor encaja con un patrón de tráfico."
+  },
+  "escalado-horizontal-y-vertical": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Escalado vertical",
+      "Escalado horizontal",
+      "Métodos de escalado",
+      "Arranques lentos: hibernación y grupos en caliente",
+      "Cómo decidir en un diseño",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Cuando una aplicación necesita más capacidad tienes dos caminos: darle más potencia al mismo recurso (escalado vertical) o añadir más recursos que repartan el trabajo (escalado horizontal). Saber cuál aplicar a cada componente del diseño, y cómo hacerlo de forma elástica, es una decisión central de cualquier arquitectura en AWS."
+  },
+  "estrategia-de-varias-cuentas-organizations-scp-y-control-tower": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "AWS Organizations",
+      "Políticas de control de servicios (SCP)",
+      "AWS Control Tower",
+      "Cómo se conecta con otros servicios",
+      "Cómo diseñar la estrategia"
+    ],
+    "summary": "A medida que una organización crece en AWS, concentrar todo en una sola cuenta deja de ser práctico ni seguro. Una estrategia de varias cuentas reparte las cargas de trabajo entre cuentas separadas y las gobierna de forma central. AWS Organizations, las políticas de control de servicios (SCP) y AWS Control Tower son las piezas principales para lograrlo."
+  },
+  "estrategias-de-cache": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Qué conviene almacenar en caché",
+      "Estrategias para llenar y mantener la caché",
+      "Amazon ElastiCache",
+      "DynamoDB Accelerator (DAX)",
+      "Caché en el borde y en la API",
+      "Caché y costos",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Una caché guarda una copia de datos que se consultan a menudo en un lugar más rápido que su origen, normalmente la memoria. Bien usada, reduce la latencia, quita carga a la base de datos o al servidor de origen y puede bajar costos. Mal usada, sirve datos desactualizados o desperdicia recursos. En AWS hay cachés en varias capas, y el examen espera que sepas cuál integrar según el requisito."
+  },
+  "federacion-de-identidades-y-servicios-de-directorio": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Federación con un proveedor de identidades",
+      "Tres formas de federar",
+      "Servicios de directorio",
+      "Cuándo federar un servicio de directorio con roles de IAM",
+      "Cómo elegir"
+    ],
+    "summary": "Federar significa que las identidades de tus usuarios viven fuera de AWS, en un proveedor de identidades o en un directorio, y que esos usuarios obtienen acceso a AWS sin que tengas que crearles un usuario de IAM a cada uno. Saber cuándo federar y con qué servicio es una decisión de diseño clave en cualquier organización que ya tiene su propio directorio."
+  },
+  "fiabilidad-para-aplicaciones-heredadas": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Recuperar la instancia de forma automática",
+      "Reemplazar y repartir con Auto Scaling y Elastic Load Balancing",
+      "Una base de datos más resiliente",
+      "Proteger los datos y recuperarse de un desastre",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Muchas aplicaciones no fueron creadas para la nube: corren en un solo servidor, guardan estado local o dependen de una base de datos única, y a veces no es posible modificarlas. Aun así, puedes mejorar su fiabilidad con servicios de AWS que actúan alrededor de la aplicación, en la infraestructura, la base de datos y la protección de datos, en vez de dentro de su código."
+  },
+  "gobernanza-clasificacion-retencion-y-cumplimiento-de-datos": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Acceso a los datos y gobernanza",
+      "Clasificación de datos con Amazon Macie",
+      "Retención de datos",
+      "Cumplimiento",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Proteger los datos no es solo cifrarlos. También hay que saber qué datos tienes y cuáles son sensibles, quién puede acceder a ellos, cuánto tiempo debes conservarlos, cuándo deben borrarse y cómo demuestras que cumples las normas que te aplican. Este tema reúne las herramientas de AWS para gobernar los datos a lo largo de su ciclo de vida."
+  },
+  "herramientas-de-costos-y-etiquetas": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Etiquetas de asignación de costos",
+      "AWS Cost Categories",
+      "Facturación consolidada",
+      "AWS Cost Explorer",
+      "AWS Budgets",
+      "Informe de costo y uso (AWS CUR)",
+      "Otras herramientas útiles",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Para optimizar costos primero hay que verlos: saber cuánto gastas, en qué servicio, en qué cuenta y para qué proyecto. AWS ofrece funciones de facturación para organizar los cargos y herramientas para analizarlos, ponerles límites y recibir avisos antes de que el gasto se salga de lo previsto."
+  },
+  "iam-usuarios-grupos-roles-politicas-y-mfa": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Las identidades de IAM",
+      "Políticas de permisos",
+      "Un modelo de autorización flexible",
+      "Buenas prácticas de seguridad",
+      "Cómo se conecta con otros servicios",
+      "Usuario de IAM o rol"
+    ],
+    "summary": "AWS Identity and Access Management (IAM) es el servicio que decide quién puede entrar a tu cuenta de AWS y qué puede hacer una vez dentro. Casi todas las decisiones de seguridad de una arquitectura pasan por IAM, así que conviene dominar sus piezas: identidades, políticas y las buenas prácticas para usarlas."
+  },
+  "infraestructura-inmutable-y-automatizacion": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Infraestructura inmutable",
+      "Patrones de despliegue",
+      "Infraestructura como código",
+      "Automatizar los despliegues",
+      "Detectar y corregir desviaciones",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Una infraestructura que se modifica a mano poco a poco termina siendo distinta en cada entorno y difícil de reproducir. La infraestructura inmutable y la automatización resuelven eso: nada se cambia en caliente, todo se describe como código y cada cambio se despliega como un conjunto nuevo de recursos que se puede probar y revertir."
+  },
+  "ingesta-y-streaming-de-datos": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Patrones de ingesta según la frecuencia",
+      "Arquitectura de un flujo de datos en streaming",
+      "Amazon Kinesis Data Streams",
+      "Modos de capacidad de Kinesis Data Streams",
+      "Amazon Data Firehose",
+      "Amazon MSK",
+      "Acceso seguro a los puntos de ingesta",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "La ingesta es la puerta de entrada de los datos a tu arquitectura de análisis. Antes de elegir un servicio tienes que responder tres preguntas: con qué frecuencia llegan los datos, cuántos llegan y a qué velocidad, y quién puede enviarlos. En AWS, los servicios de streaming del examen son Amazon Kinesis Data Streams, Amazon Data Firehose y Amazon MSK, y el examen espera que sepas cuál encaja en cada flujo, cómo dimensionarlo y cómo proteger sus puntos de entrada."
+  },
+  "lagos-de-datos": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Crear el lago de datos",
+      "Organizar los datos en capas",
+      "Proteger el lago con Lake Formation",
+      "Proteger el almacenamiento en S3",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Un lago de datos (data lake) es un repositorio centralizado donde combinas datos estructurados y no estructurados de distintos orígenes para catalogarlos, protegerlos y analizarlos con distintas herramientas. En AWS el almacenamiento suele ser Amazon S3, el catálogo es AWS Glue Data Catalog y el gobierno del acceso lo aporta AWS Lake Formation. El examen espera que sepas crear un lago de datos y, sobre todo, protegerlo."
+  },
+  "microservicios-y-cargas-sin-estado": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Principios de diseño de microservicios",
+      "Cargas sin estado frente a cargas con estado",
+      "Cómo sacar el estado de la aplicación",
+      "Dónde ejecutar los microservicios",
+      "Comunicación y datos distribuidos",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Una arquitectura de microservicios divide la aplicación en servicios pequeños y débilmente acoplados que se comunican mediante API bien definidas y que gestionan equipos autónomos. Para que esos servicios escalen y se recuperen de fallos con facilidad, la regla de diseño más importante es que no guarden estado propio entre solicitudes."
+  },
+  "nat-gateway-frente-a-instancia-nat": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cómo se cobra cada opción",
+      "Lo que no aparece en la factura: la operación",
+      "Cuándo puede tener sentido una instancia NAT",
+      "Una NAT gateway compartida o una por zona de disponibilidad",
+      "NAT gateway regional",
+      "Reducir el tráfico que pasa por la NAT",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Las instancias de una subred privada suelen necesitar salir a internet, por ejemplo para descargar actualizaciones, sin aceptar conexiones entrantes. Para eso hace falta un dispositivo NAT. AWS ofrece dos: la puerta de enlace NAT (NAT gateway), que es un servicio administrado, y la instancia NAT, que es una instancia EC2 que administras tú. Elegir entre ellas, y decidir cuántas puertas de enlace crear, es una decisión de costo tanto como de disponibilidad."
+  },
+  "observabilidad-y-metricas-de-disponibilidad": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Disponibilidad como métrica",
+      "Métricas según los requisitos del negocio",
+      "Amazon CloudWatch",
+      "AWS X-Ray",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "No puedes mantener disponible lo que no ves. La observabilidad reúne métricas, registros y trazas para saber cómo se comporta cada parte de la carga de trabajo, y las métricas de disponibilidad traducen los requisitos del negocio en objetivos medibles que indican si la solución cumple lo prometido."
+  },
+  "opciones-de-compra-bajo-demanda-spot-reservadas-y-savings-plans": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Instancias bajo demanda (On-Demand)",
+      "Savings Plans",
+      "Instancias reservadas (Reserved Instances)",
+      "Instancias de spot (Spot Instances)",
+      "Otras opciones",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Una misma instancia de EC2 puede costar muy distinto según cómo la compres. Elegir bien la opción de compra es una de las formas más directas de bajar la factura de cómputo sin cambiar la arquitectura: se trata de casar el patrón de uso de la carga con el modelo de pago."
+  },
+  "orquestacion-de-flujos-de-trabajo": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "AWS Step Functions",
+      "Tipos de estado",
+      "Manejo de errores",
+      "Flujos Standard y Express",
+      "Integración con otros servicios",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Cuando un proceso de negocio requiere varios pasos que se ejecutan en distintos servicios (validar un pedido, cobrarlo, actualizar el inventario, avisar al cliente), alguien tiene que decidir el orden, qué hacer si un paso falla y cuándo reintentar. Eso es la orquestación de flujos de trabajo, y en AWS el servicio de referencia es AWS Step Functions."
+  },
+  "patrones-sin-servidor": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "AWS Lambda",
+      "AWS Fargate",
+      "Patrones sin servidor",
+      "Cuándo usar tecnologías sin servidor",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Sin servidor (serverless) significa construir y ejecutar aplicaciones sin aprovisionar ni administrar servidores. Pagas solo por los recursos que consumes y los servicios escalan solos según la demanda. Las dos piezas de cómputo que el examen menciona son AWS Lambda, para código que responde a eventos, y AWS Fargate, para contenedores."
+  },
+  "periferia-cloudfront-frente-a-global-accelerator": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Amazon CloudFront",
+      "AWS Global Accelerator",
+      "Diferencias clave",
+      "Necesidades estratégicas de una CDN y del almacenamiento en caché periférico",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Los servicios de periferia hacen que el tráfico de los usuarios entre en la red global de AWS lo más cerca posible de ellos, en lugar de recorrer internet hasta la región donde vive la aplicación. Amazon CloudFront y AWS Global Accelerator usan ambos las ubicaciones de borde de AWS, pero resuelven problemas distintos: CloudFront es una red de entrega de contenido (CDN) que guarda copias en caché, y Global Accelerator dirige conexiones hacia los puntos de enlace más adecuados a través de direcciones IP estáticas."
+  },
+  "politicas-basadas-en-recursos": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Basadas en identidad y basadas en recursos",
+      "Cómo se evalúan dentro de una misma cuenta",
+      "Acceso entre cuentas",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Hay dos maneras de escribir permisos en AWS: asociarlos a quien actúa, o asociarlos al recurso al que se quiere acceder. Las políticas basadas en recursos son la segunda: viven en el propio recurso y dicen quién puede usarlo y para qué. Saber cuándo usarlas, y cuándo bastan los permisos de identidad, es la decisión que plantea este tema."
+  },
+  "puntos-de-enlace-de-vpc-y-privatelink": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Proveedores y consumidores",
+      "Tipos de puntos de enlace de VPC",
+      "Puntos de enlace de puerta de enlace para S3 y DynamoDB",
+      "Políticas de punto de enlace",
+      "Acceso seguro a los puntos de ingesta",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Por defecto, los recursos de una subred privada no llegan a los servicios de AWS sin pasar por una puerta de enlace de internet o un dispositivo NAT. Los puntos de enlace de VPC resuelven eso: conectan tu VPC con servicios y recursos de forma privada, de modo que el tráfico no tiene que salir a internet. AWS PrivateLink es la tecnología que hay detrás de la mayoría de ellos."
+  },
+  "recuperacion-ante-desastres": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "RTO y RPO",
+      "Copia de seguridad y restauración",
+      "Recuperación de datos",
+      "Luz piloto (pilot light)",
+      "Espera activa (warm standby)",
+      "Multisitio activo-activo",
+      "Conmutación por error",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "La recuperación ante desastres (DR) es la capacidad de restablecer una carga de trabajo y sus datos después de un evento grave: la pérdida de un centro de datos o de una región entera, la corrupción de datos o un borrado malicioso. En AWS hay cuatro estrategias, desde la más barata y sencilla (copias de seguridad) hasta la más compleja y costosa (varias regiones activas). Elegir bien depende de cuánto tiempo y cuántos datos puede perder el negocio."
+  },
+  "replicas-de-lectura-proxies-y-conexiones": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Réplicas de lectura de Amazon RDS",
+      "Réplicas de lectura frente a Multi-AZ",
+      "Réplicas entre regiones",
+      "Réplicas de Aurora",
+      "Amazon RDS Proxy",
+      "Cuándo conviene un proxy",
+      "Costos de replicar y de conectar",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Una base de datos relacional suele llegar a su límite por dos caminos: demasiadas lecturas para una sola instancia o demasiadas conexiones abiertas a la vez. Las réplicas de lectura atacan el primero, repartiendo las consultas entre varias copias. Amazon RDS Proxy ataca el segundo, agrupando y reutilizando conexiones. Saber cuál aplicar, y cuánto cuesta cada una, es una pregunta frecuente del examen."
+  },
+  "roles-aws-sts-y-acceso-entre-cuentas": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Roles y credenciales temporales",
+      "Asumir un rol",
+      "Acceso entre cuentas",
+      "Tipos de rol que verás con frecuencia",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir el método"
+    ],
+    "summary": "Cuando una persona, una aplicación o un servicio necesita acceso temporal a recursos, o cuando ese acceso cruza los límites de una cuenta de AWS, la herramienta indicada es un rol de IAM. AWS Security Token Service (AWS STS) es el servicio que entrega las credenciales temporales que hacen posible ese acceso. Juntos son la base de la estrategia de control de acceso basada en roles."
+  },
+  "secretos-y-credenciales-de-aplicaciones": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "AWS Secrets Manager",
+      "AWS Systems Manager Parameter Store",
+      "Elegir dónde guardar cada dato",
+      "Otros tipos de secreto",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Toda aplicación necesita datos de configuración y, muchas veces, credenciales: la contraseña de una base de datos, una clave de API, un token. Dónde los guardas y cómo los entregas a la aplicación marca la diferencia entre un sistema seguro y uno con secretos expuestos en el código."
+  },
+  "seguridad-de-la-vpc-grupos-de-seguridad-acl-de-red-y-segmentacion": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Segmentación de la red",
+      "Grupos de seguridad: el control principal",
+      "ACL de red: el control secundario",
+      "Salida a internet sin exponer los recursos",
+      "Visibilidad del tráfico",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir el control"
+    ],
+    "summary": "Una VPC segura no se logra con un único control, sino con capas que se complementan: la segmentación en subredes, las rutas, las ACL de red a nivel de subred y los grupos de seguridad a nivel de recurso. Esta página se centra en cómo combinarlas al diseñar, y asume los conceptos básicos de redes que ya viste en el tema de fundamentos."
+  },
+  "service-quotas-y-limitacion": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Qué son las Service Quotas",
+      "Service Quotas",
+      "Cuotas para un entorno en espera",
+      "Estrategias de limitación de solicitudes",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Cada cuenta de AWS tiene límites sobre cuántos recursos puede crear y cuántas operaciones puede hacer. Conocer esas cuotas, pedir aumentos a tiempo y limitar de forma controlada las solicitudes que recibe tu propia carga de trabajo son dos caras de la misma idea: que ni un pico de demanda ni una conmutación por error te dejen sin capacidad."
+  },
+  "servicios-administrados-para-cada-carga-de-trabajo": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Consumir la tecnología como servicio",
+      "Servicios administrados para integración y seguridad",
+      "Servicios de inteligencia artificial ya entrenados",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Antes de construir y operar una pieza de infraestructura por tu cuenta, conviene preguntar si AWS ya la ofrece como servicio administrado y diseñado para ese fin. Un servidor de transferencia de archivos, una cola de mensajes, un almacén de secretos o un modelo que convierte texto en voz son tareas que AWS resuelve como servicio, sin que tengas que operar la infraestructura."
+  },
+  "topologias-de-red-global-hibrida-y-de-varios-niveles": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Topología de varios niveles",
+      "Conectar VPC: emparejamiento frente a Transit Gateway",
+      "Topología híbrida",
+      "Topología global",
+      "Ubicación de los recursos",
+      "Configuraciones que escalan",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Una topología de red describe cómo se conectan entre sí las piezas de una arquitectura: los niveles dentro de una VPC, las VPC entre sí, las regiones de AWS y tu red local. No existe una única topología correcta; cada arquitectura (de varios niveles, híbrida o global) exige decidir qué conectar, cómo y dónde colocar cada recurso para cumplir los requisitos de latencia, disponibilidad y normativa."
+  },
+  "transferencia-y-migracion-de-datos": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "AWS DataSync",
+      "AWS Storage Gateway",
+      "AWS Transfer Family",
+      "AWS Snow Family",
+      "Migrar bases de datos con AWS DMS",
+      "Tamaño, velocidad y costo de la transferencia",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Llevar datos a AWS, ya sea una vez o de forma continua, es una de las decisiones de diseño más frecuentes en el examen. Hay servicios para copiar archivos y objetos por la red (AWS DataSync), para dar acceso híbrido a almacenamiento en la nube (AWS Storage Gateway), para mantener flujos de trabajo SFTP o FTP (AWS Transfer Family), para mover datos físicamente (AWS Snow Family) y para migrar bases de datos al mismo motor o a otro distinto (AWS DMS). Elegir bien depende del tipo de datos, el volumen, el plazo y el costo."
+  },
+  "transformacion-y-formatos-de-datos": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Formatos columnares: Parquet y ORC",
+      "Formas de convertir de CSV a Parquet",
+      "AWS Glue",
+      "Amazon EMR",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Los datos casi nunca llegan en la forma en que conviene analizarlos. Transformarlos significa limpiarlos, combinarlos y, muy a menudo, cambiarlos de formato, por ejemplo de CSV o JSON a Apache Parquet. En AWS puedes hacerlo con AWS Glue, con Amazon EMR, con consultas de Amazon Athena o durante la entrega con Amazon Data Firehose. El examen espera que sepas qué servicio de transformación y qué opción de cómputo encajan con cada caso."
+  },
+  "transit-gateway-frente-a-interconexion-de-vpc": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Cómo se cobra cada opción",
+      "El límite del peering: crece como una malla",
+      "El concentrador central: Transit Gateway",
+      "Centralizar la salida a internet",
+      "Menos VPC que conectar: VPC compartidas",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Cuando una organización tiene varias VPC, tarde o temprano necesita que se comuniquen entre sí y con la red local. Las dos herramientas principales son la interconexión de VPC (VPC peering) y AWS Transit Gateway. Las dos funcionan, pero se cobran de forma distinta y escalan de forma distinta, así que la topología que elijas define buena parte del costo de la red."
+  },
+  "volumenes-de-ebs-ssd-frente-a-hdd": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Volúmenes SSD",
+      "Volúmenes HDD",
+      "Tamaño correcto",
+      "Recursos olvidados e instantáneas",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "En Amazon EBS se te cobra según la configuración del volumen que aprovisionas. Por eso el costo depende sobre todo de dos decisiones: el tipo de volumen (SSD o HDD) y su tamaño. Elegir un tipo más caro del necesario, o reservar mucho más espacio del que la carga ocupa, se paga cada mes."
+  }
+}

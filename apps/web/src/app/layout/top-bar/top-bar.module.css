@@ -74,7 +74,12 @@
   font-family: var(--font-sans);
   font-size: 14px;
   line-height: 1.5;
-  text-decoration: none;
+  text-align: start;
+  cursor: pointer;
+}
+
+.top-bar__search:hover {
+  border-color: var(--color-faint);
 }
 
 .top-bar__search-text {

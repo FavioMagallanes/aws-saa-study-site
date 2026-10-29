@@ -1,9 +1,10 @@
 import { Link } from '@tanstack/react-router';
 import { Menu, Moon, Search, Sun, X } from 'lucide-react';
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
+import { LazySearchDialog } from '../../../features/search/components/lazy-search-dialog';
+import { useSearchDialog } from '../../../features/search/hooks/use-search-dialog';
 import { useThemeStore } from '../../../features/theme/store/use-theme-store';
 import { IconButton } from '../../../shared/ui/icon-button/icon-button';
-import { IconLink } from '../../../shared/ui/icon-button/icon-link';
 import styles from './top-bar.module.css';
 
 const NAV_ITEMS = [
@@ -17,6 +18,7 @@ export const TopBar = () => {
   const theme = useThemeStore((state) => state.theme);
   const toggleTheme = useThemeStore((state) => state.toggle);
   const [menuOpen, setMenuOpen] = useState(false);
+  const search = useSearchDialog();
 
   const navLinks = NAV_ITEMS.map((item) => (
     <Link
@@ -43,15 +45,28 @@ export const TopBar = () => {
           {navLinks}
         </nav>
         <div className={styles['top-bar__actions']}>
-          <Link to="/buscar" className={styles['top-bar__search']}>
+          <button
+            type="button"
+            className={styles['top-bar__search']}
+            aria-haspopup="dialog"
+            aria-keyshortcuts="Meta+K Control+K"
+            onClick={search.open}
+          >
             <Search size={16} strokeWidth={1.75} aria-hidden="true" />
             <span className={styles['top-bar__search-text']}>
               Buscar servicio, concepto o sigla
             </span>
-            <kbd className={styles['top-bar__shortcut']}>⌘K</kbd>
-          </Link>
+            <kbd className={styles['top-bar__shortcut']} aria-hidden="true">
+              ⌘K
+            </kbd>
+          </button>
           <span className={styles['top-bar__mobile-only']}>
-            <IconLink to="/buscar" label="Buscar" icon={<Search size={18} strokeWidth={1.75} />} />
+            <IconButton
+              label="Buscar"
+              aria-haspopup="dialog"
+              icon={<Search size={18} strokeWidth={1.75} />}
+              onClick={search.open}
+            />
           </span>
           <IconButton
             label={theme === 'light' ? 'Cambiar a modo oscuro' : 'Cambiar a modo claro'}
@@ -91,6 +106,11 @@ export const TopBar = () => {
         >
           {navLinks}
         </nav>
+      ) : null}
+      {search.isOpen ? (
+        <Suspense fallback={null}>
+          <LazySearchDialog onClose={search.close} />
+        </Suspense>
       ) : null}
     </header>
   );
