@@ -7,4 +7,168 @@ export const meta = {
   covers: ['2.1-s2', '3.2-k4', '3.2-s2', '4.2-k9'],
 };
 
-Contenido pendiente.
+Escalar de forma automática significa que la capacidad sigue a la demanda sin que nadie tenga que intervenir: se añaden recursos cuando la carga sube y se quitan cuando baja. Para que funcione bien hay que decidir tres cosas: qué servicio escala cada componente, qué métrica o condición dispara la acción y qué tipo de política la ejecuta. El examen pregunta con frecuencia por la métrica correcta y por la política que mejor encaja con un patrón de tráfico.
+
+## Qué problema resuelve
+
+Si aprovisionas para el pico, pagas capacidad ociosa la mayor parte del tiempo; si aprovisionas para la media, la aplicación se degrada cuando llega un pico. El escalado automático mantiene la cantidad correcta de recursos para la carga del momento, mejora la disponibilidad porque sustituye instancias dañadas y reduce costos al eliminar capacidad que ya no hace falta. Cuando las instancias tardan mucho en arrancar, además, necesitas estrategias que tengan la capacidad lista antes de que llegue la demanda.
+
+## Conceptos clave
+
+### Amazon EC2 Auto Scaling
+
+Organiza las instancias EC2 en grupos de Auto Scaling que se tratan como una unidad. Cada grupo tiene:
+
+- **Capacidad mínima**: el grupo nunca baja de este número.
+- **Capacidad máxima**: el grupo nunca la supera, aunque una política pida más.
+- **Capacidad deseada**: el número de instancias que el grupo mantiene en cada momento, y que las políticas de escalado ajustan entre el mínimo y el máximo.
+
+Además, EC2 Auto Scaling supervisa el estado de las instancias con comprobaciones de estado y reemplaza las que fallan, y reparte la capacidad entre varias zonas de disponibilidad. Las instancias se lanzan a partir de una plantilla de lanzamiento.
+
+### Formas de escalar
+
+- **Tamaño fijo**: sin políticas, el grupo mantiene su capacidad deseada y solo reemplaza las instancias que fallan.
+- **Manual**: cambias la capacidad deseada a mano.
+- **Programado**: las acciones se ejecutan en una fecha y hora. Sirve cuando sabes exactamente cuándo cambiará la demanda.
+- **Dinámico**: una política ajusta la capacidad cuando cambia el tráfico. Sirve cuando no sabes cuándo llegarán los cambios.
+- **Predictivo**: analiza el historial de carga para detectar patrones diarios o semanales y aumenta la capacidad antes de la carga prevista. Conviene con tráfico cíclico (horario laboral), cargas recurrentes de encendido y apagado, y aplicaciones que tardan en inicializarse. Puedes combinarlo con el escalado dinámico: el predictivo es proactivo y el dinámico, reactivo.
+
+### Políticas de escalado dinámico
+
+- **Seguimiento de destino (target tracking)**: eliges una métrica y un valor objetivo, y Auto Scaling crea y administra las alarmas de CloudWatch para mantener la métrica cerca de ese valor, como un termostato. Por ejemplo, mantener la CPU media del grupo en torno al 50 %. AWS recomienda este tipo de política.
+- **Escalado por pasos (step scaling)**: aplica ajustes distintos según cuánto se supere el umbral de la alarma.
+- **Escalado simple**: aplica un único ajuste y espera un periodo de enfriamiento (cooldown) antes de la siguiente acción. AWS recomienda no usar el escalado simple ni los periodos de enfriamiento y preferir el seguimiento de destino o el escalado por pasos.
+
+Si usas varias políticas de seguimiento de destino con métricas distintas, el grupo escala hacia fuera si cualquiera lo pide, pero solo escala hacia dentro si todas están listas para hacerlo: se prioriza la disponibilidad.
+
+### Qué métrica elegir
+
+Para el seguimiento de destino, la métrica debe describir lo ocupada que está una instancia y cambiar de forma inversamente proporcional a la capacidad del grupo: si duplicas las instancias, la métrica debe bajar a la mitad. Métricas predefinidas que cumplen esto:
+
+- `ASGAverageCPUUtilization`: uso medio de CPU del grupo.
+- `ASGAverageNetworkIn` y `ASGAverageNetworkOut`: bytes medios recibidos y enviados.
+- `ALBRequestCountPerTarget`: solicitudes medias por destino en un Application Load Balancer.
+
+No sirven para el seguimiento de destino, porque no cambian en proporción al tamaño del grupo:
+
+- El total de solicitudes que recibe el balanceador (`RequestCount`).
+- La latencia de las solicitudes del balanceador (`Latency`).
+- El número de mensajes visibles en una cola de Amazon SQS (`ApproximateNumberOfMessagesVisible`).
+
+Para una cola de SQS, usa una métrica de **retraso por instancia** (backlog per instance): la longitud de la cola dividida entre las instancias en servicio. El valor objetivo sale de dividir la latencia aceptable entre el tiempo medio que tarda una instancia en procesar un mensaje. Puedes calcularla con matemáticas de métricas de CloudWatch, sin publicar una métrica propia.
+
+Para reaccionar más rápido, usa métricas publicadas cada minuto o menos. Las métricas de EC2 se publican cada cinco minutos por defecto; activa la supervisión detallada para tenerlas cada minuto.
+
+### Arranques lentos: grupos templados e hibernación
+
+- **Grupo templado (warm pool)**: un conjunto de instancias ya inicializadas junto al grupo de Auto Scaling, que se usan cuando hay que escalar hacia fuera. Reduce la latencia de aplicaciones con tiempos de arranque muy largos sin sobreaprovisionar el grupo. Las instancias pueden esperar detenidas (pagas solo volúmenes y direcciones IP elásticas), hibernadas o en ejecución. Si el arranque no causa problemas de latencia, el grupo templado solo añade costos.
+- **Hibernación**: guarda el contenido de la memoria RAM en el volumen raíz de EBS y, al reiniciar, recarga la memoria y reanuda los procesos. Sirve para "precalentar" instancias que tardan en estar productivas. Mientras está hibernada no pagas el uso de la instancia, pero sí el almacenamiento de los volúmenes de EBS, incluido el que guarda la RAM.
+
+### Escalar otros componentes
+
+No todo son instancias EC2. **Application Auto Scaling** escala recursos de otros servicios con seguimiento de destino, por pasos, programado o predictivo, entre ellos:
+
+- Servicios de Amazon ECS.
+- Tablas e índices secundarios globales de DynamoDB.
+- Réplicas de Aurora.
+- Concurrencia aprovisionada de funciones de Lambda.
+- Grupos de replicación y clústeres de ElastiCache.
+- Solicitudes de Spot Fleet y clústeres de Amazon EMR.
+
+**AWS Auto Scaling** ofrece planes de escalado (scaling plans) para configurar en pocos minutos el escalado de varios recursos relacionados, por ejemplo agrupados por etiquetas o por pila de CloudFormation, con recomendaciones para optimizar el rendimiento, el costo o un equilibrio entre ambos. Si solo quieres escalado predictivo, AWS recomienda definir las políticas directamente en cada recurso.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Dispara las acciones con"
+    service="Amazon CloudWatch"
+    description="Las políticas usan métricas y alarmas de CloudWatch; el seguimiento de destino las crea y administra por ti."
+  />
+  <ConnectionCard
+    relation="Reparte el tráfico con"
+    service="Elastic Load Balancing"
+    description="El balanceador distribuye las solicitudes entre las instancias del grupo y aporta la métrica de solicitudes por destino."
+  />
+  <ConnectionCard
+    relation="Escala según la cola de"
+    service="Amazon SQS"
+    description="El retraso por instancia permite ajustar los trabajadores al volumen de mensajes pendientes."
+  />
+  <ConnectionCard
+    relation="Escala otros recursos con"
+    service="Application Auto Scaling"
+    description="Ajusta tareas de ECS, capacidad de DynamoDB, réplicas de Aurora o concurrencia aprovisionada de Lambda."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Seguimiento de destino cuando"
+    items={[
+      'Quieres mantener una métrica de uso estable, como la CPU media o las solicitudes por destino.',
+      'No sabes cuándo cambiará el tráfico.',
+      'Procesas una cola y escalas por retraso por instancia.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra estrategia cuando"
+    items={[
+      'Sabes exactamente cuándo cambia la demanda: escalado programado.',
+      'El tráfico tiene patrones diarios o semanales: escalado predictivo.',
+      'Las instancias tardan mucho en arrancar: grupo templado o hibernación.',
+      'El componente no es EC2: Application Auto Scaling.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon EC2 Auto Scaling"
+  url="https://docs.aws.amazon.com/autoscaling/ec2/userguide/what-is-amazon-ec2-auto-scaling.html"
+/>
+<OfficialSource
+  title="Elegir el método de escalado"
+  url="https://docs.aws.amazon.com/autoscaling/ec2/userguide/scaling-overview.html"
+/>
+<OfficialSource
+  title="Escalado dinámico de Amazon EC2 Auto Scaling"
+  url="https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-scale-based-on-demand.html"
+/>
+<OfficialSource
+  title="Políticas de seguimiento de destino"
+  url="https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-scaling-target-tracking.html"
+/>
+<OfficialSource
+  title="Periodos de enfriamiento del escalado"
+  url="https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-scaling-cooldowns.html"
+/>
+<OfficialSource
+  title="Escalado predictivo"
+  url="https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-predictive-scaling.html"
+/>
+<OfficialSource
+  title="Política de escalado basada en Amazon SQS"
+  url="https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-using-sqs-queue.html"
+/>
+<OfficialSource
+  title="Grupos templados para aplicaciones con arranque lento"
+  url="https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-warm-pools.html"
+/>
+<OfficialSource
+  title="Hibernar una instancia de EC2"
+  url="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Hibernate.html"
+/>
+<OfficialSource
+  title="Qué es Application Auto Scaling"
+  url="https://docs.aws.amazon.com/autoscaling/application/userguide/what-is-application-auto-scaling.html"
+/>
+<OfficialSource
+  title="Qué es un plan de escalado de AWS Auto Scaling"
+  url="https://docs.aws.amazon.com/autoscaling/plans/userguide/what-is-a-scaling-plan.html"
+/>
