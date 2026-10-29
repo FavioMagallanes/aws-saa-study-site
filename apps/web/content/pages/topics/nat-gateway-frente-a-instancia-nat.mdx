@@ -7,4 +7,131 @@ export const meta = {
   covers: ['4.4-k4', '4.4-s1'],
 };
 
-Contenido pendiente.
+Las instancias de una subred privada suelen necesitar salir a internet, por ejemplo para descargar actualizaciones, sin aceptar conexiones entrantes. Para eso hace falta un dispositivo NAT. AWS ofrece dos: la puerta de enlace NAT (NAT gateway), que es un servicio administrado, y la instancia NAT, que es una instancia EC2 que administras tú. Elegir entre ellas, y decidir cuántas puertas de enlace crear, es una decisión de costo tanto como de disponibilidad.
+
+## Qué problema resuelve
+
+Un dispositivo NAT traduce la dirección IP privada de las instancias para que puedan conectarse a servicios fuera de la VPC, mientras que esos servicios externos no pueden iniciar conexiones hacia ellas. El costo depende del dispositivo elegido y de cómo lo despliegues: cuántas puertas de enlace creas, cuántos datos pasan por ellas y si ese tráfico cruza zonas de disponibilidad. Diseñar bien esta pieza evita pagar por tráfico o recursos innecesarios sin sacrificar la disponibilidad que la carga de trabajo necesita.
+
+## Conceptos clave
+
+### Cómo se cobra cada opción
+
+- **NAT gateway**: se cobra por cada hora que la puerta de enlace está disponible y por cada gigabyte de datos que procesa. En resumen, el costo depende de cuántas puertas de enlace uses, durante cuánto tiempo y cuántos datos envíes a través de ellas.
+- **Instancia NAT**: se cobra como cualquier instancia EC2, según cuántas instancias NAT uses, durante cuánto tiempo y su tipo y tamaño.
+
+Con una instancia NAT eliges el tipo y el tamaño según la carga prevista, y su ancho de banda depende de ese tipo de instancia. Con una NAT gateway no eliges nada: es una oferta uniforme que escala automáticamente hasta 100 Gbps.
+
+### Lo que no aparece en la factura: la operación
+
+La comparación de costos no termina en el precio por hora. La instancia NAT trae trabajo que pagas en tiempo:
+
+- **Mantenimiento**: tú instalas las actualizaciones de software y los parches del sistema operativo. La NAT gateway la administra AWS y no requiere mantenimiento.
+- **Disponibilidad**: con instancias NAT necesitas un script que gestione la conmutación por error entre instancias. Cada NAT gateway se implementa con redundancia dentro de su zona de disponibilidad.
+- **Configuración**: la instancia NAT debe estar en una subred pública, con una dirección IP pública o elástica, y debes desactivar la comprobación de origen y destino, porque tiene que reenviar tráfico que no es suyo.
+- **Software antiguo**: la AMI de NAT que ofrecía AWS se basa en la versión 2018.03 de Amazon Linux AMI, que ya terminó su soporte. Si necesitas una instancia NAT, debes crear tu propia AMI de NAT a partir de una versión actual de Amazon Linux.
+
+Por todo esto, AWS recomienda usar NAT gateways, porque ofrecen mejor disponibilidad y ancho de banda y requieren menos esfuerzo de administración, y sugiere migrar a ellas si ya usas instancias NAT.
+
+### Cuándo puede tener sentido una instancia NAT
+
+La instancia NAT admite cosas que la NAT gateway no: reenvío de puertos configurado a mano, usarla también como servidor bastión y asociarle grupos de seguridad. A una NAT gateway no se le pueden asociar grupos de seguridad; los aplicas a los recursos que están detrás de ella. Si tu caso de uso necesita esas funciones, una instancia NAT puede encajar mejor, a cambio de asumir su administración.
+
+### Una NAT gateway compartida o una por zona de disponibilidad
+
+Cada NAT gateway estándar (zonal) se crea en una zona de disponibilidad concreta. Hay dos formas de desplegarlas:
+
+- **Una única NAT gateway compartida**: todas las subredes privadas, de todas las zonas, envían su tráfico a la misma puerta de enlace. Pagas por menos puertas de enlace, pero si la zona donde está la NAT gateway falla, los recursos de las demás zonas pierden el acceso a internet. Además, el tráfico de las otras zonas cruza zonas de disponibilidad para llegar a ella, lo que añade cargos de transferencia de datos.
+- **Una NAT gateway por zona de disponibilidad**: creas una en cada zona que tenga recursos y configuras las rutas para que cada recurso use la de su propia zona. Es la arquitectura independiente de zonas que AWS recomienda para mejorar la resiliencia, y además evita el tráfico entre zonas hacia la puerta de enlace.
+
+La elección depende de la clase de carga de trabajo: para un entorno de desarrollo o pruebas, una única NAT gateway puede ser un compromiso aceptable; para producción, una por zona protege la disponibilidad.
+
+Con muchas VPC, desplegar NAT gateways en cada una también multiplica el cargo por hora. Una alternativa es centralizar la salida a internet en una VPC de salida conectada mediante AWS Transit Gateway, como se explica en la página de Transit Gateway frente a interconexión de VPC.
+
+### NAT gateway regional
+
+Además de las NAT gateways zonales existe el modo regional. Una NAT gateway regional se expande y se contrae automáticamente entre las zonas de disponibilidad según dónde haya cargas de trabajo, con un único identificador que puedes usar en las rutas de todas las subredes. No necesita una subred pública. Ten en cuenta que no admite NAT privada: para ese caso hay que usar NAT gateways zonales. Mientras se expande a una zona nueva, el tráfico de esa zona se procesa desde otra zona existente.
+
+### Reducir el tráfico que pasa por la NAT
+
+Como la NAT gateway cobra por cada gigabyte procesado, conviene que no pase por ella tráfico que podría ir por otro camino:
+
+- **Mantener el tráfico en la misma zona**: si tus recursos envían o reciben mucho tráfico entre zonas, colócalos en la misma zona que la NAT gateway o crea una NAT gateway en cada zona con recursos.
+- **Usar puntos de enlace de VPC**: si la mayor parte del tráfico va a servicios de AWS, crea puntos de enlace de interfaz o de puerta de enlace para ellos. Los puntos de enlace de puerta de enlace para Amazon S3 y DynamoDB no tienen cargo adicional y no necesitan un dispositivo NAT. Los puntos de enlace se explican en la página de puntos de enlace de VPC y PrivateLink.
+- **Tráfico IPv6 solo de salida**: para salir a internet por IPv6, otra opción es una puerta de enlace de internet de solo salida (egress-only internet gateway).
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Sale a internet a través de"
+    service="Puerta de enlace de internet"
+    description="Una NAT gateway pública se crea en una subred pública con una dirección IP elástica, y su tráfico se enruta a la puerta de enlace de internet de la VPC."
+  />
+  <ConnectionCard
+    relation="Se evita para S3 y DynamoDB con"
+    service="Puntos de enlace de VPC"
+    description="Los puntos de enlace de puerta de enlace llegan a Amazon S3 y DynamoDB sin pasar por un dispositivo NAT ni pagar por el procesamiento de esos datos."
+  />
+  <ConnectionCard
+    relation="La instancia NAT se ejecuta en"
+    service="Amazon EC2"
+    description="La instancia NAT es una instancia EC2: pagas su tipo y tamaño, y tú gestionas los parches, la AMI y la conmutación por error."
+  />
+  <ConnectionCard
+    relation="Se supervisa con"
+    service="Amazon CloudWatch"
+    description="Puedes ver las métricas de CloudWatch de la NAT gateway, o de la instancia NAT, para seguir el tráfico que procesa."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="NAT gateway cuando"
+    items={[
+      'Quieres un servicio administrado, sin parches ni scripts de conmutación por error.',
+      'El tráfico de salida es variable o alto y no quieres dimensionar una instancia.',
+      'Es producción: crea una NAT gateway por zona de disponibilidad, o usa una regional.',
+      'Es desarrollo o pruebas y aceptas el riesgo: una única NAT gateway compartida.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Necesitas reenvío de puertos, un bastión o grupos de seguridad en el propio dispositivo: instancia NAT.',
+      'La mayor parte del tráfico va a Amazon S3 o DynamoDB: puntos de enlace de puerta de enlace.',
+      'Solo necesitas salida a internet por IPv6: puerta de enlace de internet de solo salida.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Comparar NAT gateways e instancias NAT"
+  url="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-comparison.html"
+/>
+<OfficialSource
+  title="Precios de las NAT gateways"
+  url="https://docs.aws.amazon.com/vpc/latest/userguide/nat-gateway-pricing.html"
+/>
+<OfficialSource
+  title="Conceptos básicos de las NAT gateways"
+  url="https://docs.aws.amazon.com/vpc/latest/userguide/nat-gateway-basics.html"
+/>
+<OfficialSource
+  title="NAT gateways regionales"
+  url="https://docs.aws.amazon.com/vpc/latest/userguide/nat-gateways-regional.html"
+/>
+<OfficialSource
+  title="Instancias NAT"
+  url="https://docs.aws.amazon.com/vpc/latest/userguide/VPC_NAT_Instance.html"
+/>
+<OfficialSource
+  title="Puntos de enlace de puerta de enlace"
+  url="https://docs.aws.amazon.com/vpc/latest/privatelink/gateway-endpoints.html"
+/>
