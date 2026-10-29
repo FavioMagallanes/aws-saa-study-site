@@ -7,4 +7,94 @@ export const meta = {
   covers: ['2.2-k9'],
 };
 
-Contenido pendiente.
+Amazon RDS (Amazon Relational Database Service) es un servicio web que facilita configurar, operar y escalar una base de datos relacional en la nube de AWS. Ofrece capacidad redimensionable para motores estándar del sector y se encarga de las tareas habituales de administración. Puedes elegir entre IBM Db2, MariaDB, Microsoft SQL Server, MySQL, Oracle Database y PostgreSQL; Amazon Aurora también se administra con RDS, pero tiene su propia página.
+
+## Qué problema resuelve
+
+Instalar una base de datos en un servidor local o en Amazon EC2 te deja a cargo de los parches del sistema operativo y del motor, las copias de seguridad, la alta disponibilidad y el escalado, con más riesgo de errores que provoquen cortes. RDS asume esas tareas, y AWS lo recomienda como opción predeterminada para la mayoría de las bases relacionales. Tú sigues siendo responsable de ajustar las consultas, que dependen del diseño de la base de datos y de la carga de tu aplicación.
+
+## Conceptos clave
+
+- **Instancia de base de datos**: el componente básico de RDS, un entorno aislado que puede contener una o varias bases de datos creadas por ti. Se accede con las mismas herramientas que a una base de datos independiente.
+- **Copias de seguridad**: RDS crea copias automáticas durante la ventana de copia de seguridad y las conserva según el periodo de retención, lo que permite recuperar la instancia a cualquier momento dentro de ese periodo. También puedes crear instantáneas manuales.
+- **Multi-AZ**: una implementación de instancia Multi-AZ tiene una instancia en espera síncrona que da soporte a la conmutación por error, pero no atiende lecturas. Una implementación de clúster Multi-AZ tiene dos instancias en espera que, además, pueden atender lecturas.
+- **Réplicas de lectura**: copias de solo lectura, actualizadas de forma asíncrona, para escalar las lecturas. El tema «Réplicas de lectura, proxies y conexiones» las explica en detalle.
+- **Seguridad**: además de la seguridad del propio motor, puedes definir usuarios y permisos con IAM y aislar las bases de datos en una VPC.
+
+### Amazon RDS Proxy
+
+RDS Proxy aplica el concepto de proxy a la base de datos: se coloca entre la aplicación y la base de datos y permite que las aplicaciones agrupen y compartan conexiones.
+
+- **Grupo de conexiones**: mantiene un conjunto de conexiones con la base de datos y las reutiliza, lo que evita el gasto de memoria y CPU de abrir una conexión nueva cada vez. Los clientes pueden abrir muchas conexiones contra el proxy mientras este mantiene menos conexiones, de larga duración, con la base de datos.
+- **Picos impredecibles**: puedes limitar las conexiones que crea el proxy. Las que no puede atender en el momento las pone en cola o las limita, y si se superan los límites, las rechaza. La latencia puede subir, pero la base de datos no se satura.
+- **Conmutación por error más transparente**: se conecta automáticamente a la instancia en espera conservando las conexiones de la aplicación, y evita las cachés de DNS para reducir el tiempo de conmutación por error en instancias Multi-AZ.
+- **Autenticación**: puede exigir autenticación de IAM a los clientes y conectarse a la base de datos con autenticación de IAM o con credenciales guardadas en AWS Secrets Manager.
+- **Candidatos típicos**: instancias con errores de "too many connections", funciones de AWS Lambda que abren conexiones cortas y frecuentes, y aplicaciones que abren y cierran muchas conexiones sin un grupo de conexiones propio.
+- **Requisitos**: el proxy debe estar en la misma VPC que la base de datos y no puede ser de acceso público. Con réplicas, solo se asocia a la instancia de escritura. La mayoría de las aplicaciones lo usan sin cambiar código.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Recibe conexiones de"
+    service="AWS Lambda"
+    description="Las funciones abren conexiones cortas y frecuentes; RDS Proxy las agrupa para no saturar la base de datos."
+  />
+  <ConnectionCard
+    relation="Guarda credenciales en"
+    service="AWS Secrets Manager"
+    description="RDS Proxy puede conectarse a la base de datos con credenciales guardadas en Secrets Manager."
+  />
+  <ConnectionCard
+    relation="Se aísla en"
+    service="Amazon VPC"
+    description="Las instancias se protegen dentro de una VPC, y el proxy debe estar en la misma VPC que la base de datos."
+  />
+  <ConnectionCard
+    relation="Controla el acceso con"
+    service="AWS IAM"
+    description="Define usuarios y permisos, y puede usarse para autenticar a los clientes del proxy."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Amazon RDS cuando"
+    items={[
+      'Necesitas una base relacional administrada con un motor concreto, como Oracle, SQL Server, Db2, MariaDB, MySQL o PostgreSQL.',
+      'Quieres alta disponibilidad con Multi-AZ y copias de seguridad automáticas sin administrar servidores.',
+      'La aplicación abre muchas conexiones o usa Lambda: añade RDS Proxy.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Usas MySQL o PostgreSQL y quieres almacenamiento distribuido, hasta 15 réplicas y bases globales: Amazon Aurora.',
+      'Prefieres administrar tú el sistema operativo y el software de la base de datos: instalarla en Amazon EC2, con más trabajo de administración.',
+      'Accedes por clave con un volumen muy alto de solicitudes: Amazon DynamoDB.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon RDS"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Welcome.html"
+/>
+<OfficialSource
+  title="Implementaciones Multi-AZ de Amazon RDS"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.MultiAZ.html"
+/>
+<OfficialSource
+  title="Amazon RDS Proxy"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-proxy.html"
+/>
+<OfficialSource
+  title="Planificar dónde usar RDS Proxy"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-proxy-planning.html"
+/>
