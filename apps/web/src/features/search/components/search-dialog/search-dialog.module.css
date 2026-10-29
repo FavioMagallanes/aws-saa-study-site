@@ -20,7 +20,7 @@
 }
 
 .search-dialog::backdrop {
-  background: rgb(0 0 0 / 0.4);
+  background: rgb(27 24 20 / 0.4);
 }
 
 .search-dialog__header {
@@ -33,7 +33,7 @@
 
 .search-dialog__icon {
   flex-shrink: 0;
-  color: var(--color-faint);
+  color: var(--color-muted);
 }
 
 .search-dialog__input {
@@ -44,7 +44,8 @@
   background: transparent;
   color: var(--color-text);
   font-family: var(--font-sans);
-  font-size: 16px;
+  font-size: 17px;
+  font-weight: 500;
   line-height: 1.5;
 }
 
@@ -108,12 +109,11 @@
   grid-column: 1 / -1;
   overflow: hidden;
   color: var(--color-muted);
-  font-family: var(--font-serif);
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.5;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
 }
 
 .search-dialog__summary:empty {
@@ -123,7 +123,7 @@
 .search-dialog__hint {
   display: none;
   margin: 0;
-  padding: 10px var(--space-5);
+  padding: 12px var(--space-5);
   border-top: 1px solid var(--color-border);
   color: var(--color-faint);
   font-size: 12px;
@@ -132,13 +132,15 @@
 
 @media (min-width: 768px) {
   .search-dialog {
-    inset: 12vh 0 auto;
+    inset: 120px 0 auto;
     width: min(640px, calc(100% - 2 * var(--space-6)));
     height: auto;
     max-height: 70vh;
     margin: 0 auto;
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-2xl);
+    /* Penpot uses 16px here; there is no token between radius-xl (14px) and radius-2xl (20px). */
+    border-radius: 16px;
+    box-shadow: 0 24px 64px rgb(27 24 20 / 0.18);
   }
 
   .search-dialog__header {
