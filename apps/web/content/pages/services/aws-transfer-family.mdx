@@ -7,4 +7,85 @@ export const meta = {
   covers: ['2.1-k2'],
 };
 
-Contenido pendiente.
+AWS Transfer Family es un servicio seguro y totalmente administrado para transferir archivos hacia y desde los servicios de almacenamiento de AWS. Admite los protocolos SFTP, FTPS, FTP y AS2, además de transferencias desde el navegador, y guarda los datos directamente en Amazon S3 o Amazon EFS.
+
+## Qué problema resuelve
+
+Muchos sectores, como servicios financieros, salud, publicidad o comercio minorista, intercambian archivos con socios y clientes mediante protocolos como SFTP. Mantener esos servidores propios exige operar infraestructura, escalarla y protegerla. Transfer Family es un buen ejemplo de **servicio administrado** que sustituye infraestructura que antes operabas tú: ofrece el servidor de transferencia sin que ejecutes ningún servidor, escala en tiempo real y te cobra solo por el uso, sin costos iniciales. Además conserva la configuración de autenticación, acceso y firewall de los clientes, así que para socios, clientes y equipos internos nada cambia. El tema «Servicios administrados para cada carga de trabajo» trata este criterio de forma general.
+
+## Conceptos clave
+
+### Protocolos y destinos
+
+- **SFTP, FTPS y FTP**: los protocolos clásicos de transferencia de archivos.
+- **AS2**: para flujos con requisitos de cumplimiento que necesitan protección de datos integrada en el protocolo, como logística, pagos o transacciones entre empresas (B2B).
+- **Aplicaciones web**: dan a usuarios de negocio acceso sencillo a datos de S3 desde el navegador.
+- **Destinos**: buckets de Amazon S3 o sistemas de archivos de Amazon EFS.
+
+### Cómo funciona un servidor
+
+Asocias tu nombre de host al punto de enlace del servidor, das de alta a los usuarios con el nivel de acceso adecuado y, a partir de ahí, las transferencias se atienden directamente desde el servidor de Transfer Family.
+
+### Casos de uso típicos
+
+- **Con S3**: lagos de datos que reciben archivos de proveedores y socios, distribución de datos a clientes por suscripción y transferencias internas.
+- **Con EFS**: distribución de datos, cadena de suministro, gestión de contenidos y aplicaciones web.
+- Una vez en S3, los datos se pueden procesar, analizar, auditar o archivar con otros servicios de AWS.
+
+### Flujos de trabajo administrados
+
+Puedes lanzar un flujo de trabajo cuando se termina de subir un archivo por SFTP, FTPS o FTP: moverlo a carpetas por usuario, descifrarlo, etiquetarlo, procesarlo con una función de AWS Lambda o enviar una notificación. Cada paso genera registros que puedes auditar.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Guarda archivos en"
+    service="Amazon S3"
+    description="Los archivos recibidos quedan en buckets, listos para análisis, auditoría o archivado."
+  />
+  <ConnectionCard
+    relation="Guarda archivos en"
+    service="Amazon EFS"
+    description="Como alternativa a S3, escribe en un sistema de archivos NFS elástico y administrado."
+  />
+  <ConnectionCard
+    relation="Procesa archivos con"
+    service="AWS Lambda"
+    description="Los flujos de trabajo administrados pueden ejecutar una función de Lambda tras cada subida."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Transfer Family cuando"
+    items={[
+      'Socios, proveedores o clientes envían o reciben archivos por SFTP, FTPS, FTP o AS2.',
+      'Quieres migrar a AWS esos flujos sin cambiar los clientes ni operar servidores.',
+      'Necesitas procesar automáticamente cada archivo recibido.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Migras o sincronizas grandes volúmenes de datos de tus propios sistemas: AWS DataSync.',
+      'Las aplicaciones locales necesitan acceso continuo con NFS o SMB a datos en S3: AWS Storage Gateway.',
+      'Lo que necesitas es desacoplar componentes de una aplicación con mensajes, no transferir archivos: Amazon SQS.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Transfer Family"
+  url="https://docs.aws.amazon.com/transfer/latest/userguide/what-is-aws-transfer-family.html"
+/>
+<OfficialSource
+  title="Flujos de trabajo administrados de AWS Transfer Family"
+  url="https://docs.aws.amazon.com/transfer/latest/userguide/transfer-workflows.html"
+/>
