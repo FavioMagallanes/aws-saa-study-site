@@ -7,4 +7,93 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Amazon Translate es un servicio de traducción de texto que usa aprendizaje automático para ofrecer traducciones de alta calidad bajo demanda. Sirve para traducir documentos o para crear aplicaciones que funcionen en varios idiomas.
+
+## Qué problema resuelve
+
+Atender a usuarios y empleados en su propio idioma exige traducir contenido continuamente: artículos de una base de conocimiento, correos, chats de atención al cliente o publicaciones en redes sociales. Translate hace esa traducción por API, en tiempo real o por lotes, sin contratos ni compromisos mínimos.
+
+## Conceptos clave
+
+### Tiempo real o por lotes
+
+- **Tiempo real**: traduce texto sin formato o un archivo de texto, HTML o Word, y devuelve el resultado en el mismo formato.
+- **Por lotes (asíncrono)**: para colecciones grandes de documentos cuando no necesitas traducción instantánea. Guardas los documentos en Amazon S3, inicias un trabajo con un rol de IAM que puede leer la carpeta de entrada y escribir en el bucket de salida, y recoges allí los resultados. Admite más formatos, como Excel, PowerPoint y XLIFF, y puede traducir a varios idiomas de destino.
+
+### Personalización
+
+- **Terminología personalizada**: indica cómo traducir términos concretos, como nombres de marca. Translate decide según el contexto si usa el término definido, así que no está garantizado en cada traducción.
+- **Etiquetas de no traducir**: marcan contenido HTML que debe quedar igual.
+- **Datos paralelos**: adaptan el estilo, el tono y la elección de palabras a ejemplos de traducción que aportas.
+- **Formalidad, blasfemias y brevedad**: ajustan el nivel de formalidad, enmascaran palabras ofensivas y acortan la salida (la brevedad, en traducciones de texto en tiempo real).
+
+### Detección automática del idioma
+
+Puedes dejar que Translate detecte el idioma de origen; si tiene poca confianza en el resultado, lo indica con una excepción.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Traduce documentos guardados en"
+    service="Amazon S3"
+    description="Los trabajos por lotes leen los documentos de una carpeta de S3 y escriben las traducciones en un bucket de salida."
+  />
+  <ConnectionCard
+    relation="Subtitula en varios idiomas con"
+    service="Amazon Transcribe"
+    description="Transcribe convierte el audio en texto y Translate lo traduce para ofrecer subtítulos en otros idiomas."
+  />
+  <ConnectionCard
+    relation="Da voz a la traducción con"
+    service="Amazon Polly"
+    description="Polly no traduce: pronuncia en voz el texto que Translate ya llevó al idioma de destino."
+  />
+  <ConnectionCard
+    relation="Analiza textos en varios idiomas con"
+    service="Amazon Comprehend"
+    description="Comprehend extrae entidades, sentimiento y frases clave del contenido traducido."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Amazon Translate cuando"
+    items={[
+      'Necesitas traducir texto o documentos entre idiomas.',
+      'Quieres una aplicación multilingüe, como chats o contenido traducido al vuelo.',
+      'Debes respetar la terminología de tu marca en las traducciones.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'El origen es audio: Amazon Transcribe, y luego Translate.',
+      'Necesitas convertir el texto en voz: Amazon Polly.',
+      'Solo necesitas detectar el idioma o el sentimiento de un texto: Amazon Comprehend.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon Translate"
+  url="https://docs.aws.amazon.com/translate/latest/dg/what-is.html"
+/>
+<OfficialSource
+  title="Cómo funciona Amazon Translate"
+  url="https://docs.aws.amazon.com/translate/latest/dg/how-it-works.html"
+/>
+<OfficialSource
+  title="Procesamiento asíncrono por lotes"
+  url="https://docs.aws.amazon.com/translate/latest/dg/async.html"
+/>
+<OfficialSource
+  title="Terminología personalizada"
+  url="https://docs.aws.amazon.com/translate/latest/dg/how-custom-terminology.html"
+/>
