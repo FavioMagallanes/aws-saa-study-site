@@ -7,4 +7,98 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Amazon ECR (Elastic Container Registry) es un registro de imágenes de contenedor administrado por AWS, seguro, escalable y fiable. Guarda imágenes de Docker, imágenes OCI (Open Container Initiative) y artefactos compatibles con OCI, que subes y descargas con tu CLI habitual.
+
+## Qué problema resuelve
+
+Para desplegar contenedores necesitas un lugar donde guardar sus imágenes y desde el que los orquestadores las descarguen. Mantener un registro propio obliga a operar sus servidores y su escalado. ECR elimina esa tarea: aloja las imágenes en una arquitectura muy disponible y escalable, se integra con Amazon ECS y Amazon EKS, y controla el acceso con IAM. Pagas por los datos que guardas y por los que transfieres a internet, sin cuotas iniciales. Dónde encaja ECR entre los servicios de contenedores se resume en el tema «Contenedores: cuándo usarlos y cómo migrar».
+
+## Conceptos clave
+
+### Repositorios y permisos
+
+ECR admite repositorios **privados** con permisos basados en recursos mediante IAM, para que solo ciertos usuarios o instancias de Amazon EC2 accedan a las imágenes. También ofrece repositorios públicos con ECR Public.
+
+### Análisis de vulnerabilidades
+
+Puedes configurar cada repositorio para analizar las imágenes al subirlas:
+
+- **Análisis básico**: busca vulnerabilidades del sistema operativo con la base de datos CVE, al subir la imagen o de forma manual.
+- **Análisis mejorado**: se integra con Amazon Inspector para analizar de forma continua paquetes del sistema operativo y de lenguajes de programación. Cuando aparecen vulnerabilidades nuevas, actualiza los resultados y envía un evento a Amazon EventBridge.
+
+### Replicación entre regiones y cuentas
+
+Se configura en el registro, por región, y copia las imágenes a otras regiones o cuentas para tenerlas donde se necesitan. En la replicación entre cuentas, solo la cuenta de destino necesita una política de permisos del registro que la autorice.
+
+### Políticas de ciclo de vida y otras funciones
+
+- **Políticas de ciclo de vida**: reglas que hacen caducar o archivar las imágenes que ya no usas. Puedes previsualizar su efecto antes de aplicarlas.
+- **Caché de extracción**: mantiene en tu registro privado una copia actualizada de imágenes de un registro externo.
+- **Firma administrada**: genera firmas criptográficas automáticamente al subir imágenes.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Entrega imágenes a"
+    service="Amazon ECS"
+    description="Las definiciones de tarea apuntan a imágenes guardadas en ECR."
+  />
+  <ConnectionCard
+    relation="Entrega imágenes a"
+    service="Amazon EKS"
+    description="Los pods de Kubernetes descargan sus imágenes de repositorios de ECR."
+  />
+  <ConnectionCard
+    relation="Analiza con"
+    service="Amazon Inspector"
+    description="El análisis mejorado revisa de forma continua las imágenes en busca de vulnerabilidades."
+  />
+  <ConnectionCard
+    relation="Registra acciones en"
+    service="AWS CloudTrail"
+    description="Las acciones de las políticas de ciclo de vida quedan registradas como eventos."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="ECR cuando"
+    items={[
+      'Necesitas un registro privado de imágenes integrado con IAM, ECS y EKS.',
+      'Quieres detectar vulnerabilidades en las imágenes al subirlas o de forma continua.',
+      'Necesitas las imágenes en varias regiones o cuentas: replicación.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Lo que necesitas es ejecutar y orquestar los contenedores, no guardarlos: Amazon ECS o Amazon EKS.',
+      'Tu equipo tiene poca experiencia con contenedores o infraestructura: soluciones verticales como AWS Lambda, Amazon Lightsail o AWS Batch.',
+      'Quieres compartir imágenes con cualquiera: un repositorio público de ECR Public.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon ECR"
+  url="https://docs.aws.amazon.com/AmazonECR/latest/userguide/what-is-ecr.html"
+/>
+<OfficialSource
+  title="Analizar imágenes en busca de vulnerabilidades en Amazon ECR"
+  url="https://docs.aws.amazon.com/AmazonECR/latest/userguide/image-scanning.html"
+/>
+<OfficialSource
+  title="Replicación de imágenes privadas en Amazon ECR"
+  url="https://docs.aws.amazon.com/AmazonECR/latest/userguide/replication.html"
+/>
+<OfficialSource
+  title="Servicios de contenedores de AWS"
+  url="https://docs.aws.amazon.com/whitepapers/latest/aws-overview/containers.html"
+/>
