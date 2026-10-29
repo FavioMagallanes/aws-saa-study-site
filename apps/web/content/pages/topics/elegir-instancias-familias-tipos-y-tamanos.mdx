@@ -7,4 +7,168 @@ export const meta = {
   covers: ['2.1-s6', '3.2-s3', '3.2-s4', '4.2-k7', '4.2-s5', '4.2-s6'],
 };
 
-Contenido pendiente.
+Elegir bien una instancia de Amazon EC2 es una de las decisiones con más impacto en el rendimiento y en el costo de una carga de trabajo. AWS ofrece cientos de tipos de instancia, pero se ordenan con una lógica sencilla: una familia según el recurso que prioriza (CPU, memoria, almacenamiento o aceleradores), una generación, unas opciones y un tamaño. El examen espera que sepas leer un requisito y llegar a la familia y al tamaño adecuados, y que sepas hacer lo mismo con la memoria de una función de Lambda.
+
+## Qué problema resuelve
+
+Si la instancia es demasiado pequeña, la aplicación se queda sin CPU o sin memoria y empeora la experiencia del usuario. Si es demasiado grande o de la familia equivocada, pagas recursos que no usas. Cada tipo de instancia combina de forma distinta CPU, memoria, almacenamiento y red, así que lo importante es identificar qué recurso limita a la carga y elegir la combinación que la atiende con el menor desperdicio. Y si las necesidades cambian, puedes cambiar el tipo de instancia más adelante.
+
+## Conceptos clave
+
+### Cómo leer el nombre de una instancia
+
+En un nombre como `c7gn.4xlarge`:
+
+- **Serie** (`c`): la familia, por ejemplo C de cómputo optimizado.
+- **Generación** (`7`): cuanto mayor, más reciente.
+- **Opciones** (`gn`): características adicionales. Algunas comunes: `g` procesadores AWS Graviton, `a` procesadores AMD, `i` procesadores Intel, `d` volúmenes de almacén de instancia, `n` red y EBS optimizados, `e` memoria o almacenamiento extra, `z` alta frecuencia de CPU, `flex` instancia Flex.
+- **Tamaño** (después del punto): por ejemplo `small`, `large` o `4xlarge`, o `metal` para una instancia bare metal.
+
+Cada tipo incluye uno o varios tamaños, de modo que puedes ajustar los recursos a la carga sin cambiar de familia.
+
+### Familias de instancias
+
+- **Uso general (M, y T con rendimiento ampliable)**: equilibran cómputo, memoria y red. Ideales para aplicaciones que usan esos recursos en proporciones similares, como servidores web y repositorios de código.
+- **Cómputo optimizado (C)**: para aplicaciones intensivas en cómputo que aprovechan procesadores de alto rendimiento: procesamiento por lotes, transcodificación de medios, servidores web de alto rendimiento, HPC, modelado científico, servidores de juegos dedicados, motores de anuncios e inferencia de aprendizaje automático.
+- **Memoria optimizada (R, X, U, z1d)**: diseñadas para un rendimiento rápido en cargas que procesan grandes conjuntos de datos en memoria, como bases de datos grandes o cachés en memoria, con una proporción de memoria por CPU más alta.
+- **Almacenamiento optimizado (I, D, H)**: para cargas que necesitan acceso secuencial de lectura y escritura elevado a conjuntos de datos muy grandes en almacenamiento local; entregan decenas de miles de IOPS aleatorias de baja latencia.
+- **Computación acelerada (P, G, Inf, Trn, F)**: usan aceleradores de hardware, como GPU, para hacer cálculos de coma flotante, procesamiento de gráficos o búsqueda de patrones de forma más eficiente que el software en CPU. Encajan con el entrenamiento de modelos de aprendizaje automático, que suele requerir aceleradores especializados.
+- **Computación de alto rendimiento (Hpc)**: diseñadas para ofrecer la mejor relación precio-rendimiento en cargas HPC a escala, como simulaciones grandes y complejas.
+
+### Instancias de rendimiento ampliable (T)
+
+Muchas cargas de uso general no están ocupadas la mayor parte del tiempo y no necesitan CPU alta de forma sostenida. Las instancias T ofrecen un rendimiento base de CPU con la capacidad de superarlo cuando hace falta. Son la forma más rentable de ejecutar un amplio abanico de aplicaciones de uso general con uso de CPU bajo o moderado: microservicios, servidores web, bases de datos pequeñas y medianas, entornos de desarrollo y prueba. Los tamaños pequeños, como `nano`, `micro`, `small` y `medium`, convienen a cargas con poca memoria y poca CPU.
+
+### Virtualización y AWS Nitro System
+
+EC2 usa dos hipervisores: Xen, en tipos más antiguos, y Nitro, en la mayoría de los actuales. El Nitro System es un conjunto de componentes de hardware y software de AWS que permite alto rendimiento, alta disponibilidad y alta seguridad; su hipervisor ligero ofrece, en la mayoría de las cargas, un rendimiento indistinguible del de un servidor físico. Las instancias bare metal (`metal`) eliminan la sobrecarga de la virtualización y sirven cuando la carga necesita acceso a funciones de hardware de bajo nivel o un entorno no virtualizado por licencias o soporte. Los tipos de la generación actual solo admiten virtualización HVM, que viene determinada por la AMI.
+
+### Recursos compartidos y E/S
+
+EC2 dedica a cada instancia parte de los recursos del servidor, como CPU, memoria y almacenamiento de instancia, y comparte otros, como la red y el subsistema de disco. Los tipos con E/S alta reciben una porción mayor de esos recursos compartidos y un rendimiento más estable. Para la mayoría de las aplicaciones basta con E/S moderada; si necesitas más o más constante, elige un tipo con E/S alta.
+
+### Elegir el tamaño correcto
+
+- **Prueba con tu carga**: AWS recomienda lanzar instancias y medir con tu propia aplicación de referencia. Como pagas por segundo, probar varios tipos antes de decidir es cómodo y barato.
+- **Cambia cuando haga falta**: si la instancia queda grande o pequeña, puedes cambiar su tipo, por ejemplo de `t2.micro` a `t2.large` o a `m5.large`. Pasas a pagar la tarifa del nuevo tipo. Para añadir almacenamiento no hace falta cambiar de tipo: basta con conectar otro volumen de EBS.
+- **AWS Compute Optimizer**: analiza la configuración y las métricas de uso de instancias EC2, grupos de Auto Scaling, volúmenes de EBS, funciones de Lambda y otros recursos, y genera recomendaciones de tamaño (rightsizing) para reducir costos y mejorar el rendimiento. También detecta recursos inactivos. Hay que activarlo (opt in).
+
+### Tamaño de una función de Lambda
+
+En Lambda no eliges un tipo de instancia: eliges la memoria, entre 128 MB y 10.240 MB, y Lambda asigna CPU en proporción a esa memoria. La memoria es la palanca principal del rendimiento de una función.
+
+- 128 MB, el valor predeterminado y mínimo, solo se recomienda para funciones simples, como las que transforman y enrutan eventos.
+- Si una función está limitada por CPU, red o memoria, aumentar la memoria puede mejorar mucho su rendimiento, porque también aumenta la CPU.
+- Para encontrar el valor adecuado, supervisa con Amazon CloudWatch el consumo de memoria y la duración. La herramienta de código abierto AWS Lambda Power Tuning ejecuta la función con distintas memorias y mide el rendimiento.
+
+### Qué tecnología de cómputo usar
+
+Antes de elegir el tamaño, decide el modelo: Amazon EC2 para servidores virtuales con control total; Amazon ECS o Amazon EKS para contenedores, sobre EC2 o sobre AWS Fargate sin administrar servidores; AWS Lambda para ejecutar código sin aprovisionar servidores, con escalado automático; y AWS Batch para procesar grandes volúmenes de datos en paralelo. Una misma carga puede combinar varios.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Recomienda tamaños con"
+    service="AWS Compute Optimizer"
+    description="Analiza las métricas de uso de instancias, grupos de Auto Scaling, volúmenes de EBS y funciones de Lambda y propone el tamaño adecuado."
+  />
+  <ConnectionCard
+    relation="Mide el uso con"
+    service="Amazon CloudWatch"
+    description="Las métricas de CPU, memoria y duración indican si un recurso está sobredimensionado o se queda corto."
+  />
+  <ConnectionCard
+    relation="Escala con"
+    service="Amazon EC2 Auto Scaling"
+    description="Una vez elegido el tipo, Auto Scaling añade o quita instancias según la demanda."
+  />
+  <ConnectionCard
+    relation="Guarda datos en"
+    service="Amazon EBS"
+    description="Puedes añadir almacenamiento conectando volúmenes de EBS sin cambiar el tipo de instancia."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Uso general cuando"
+    items={[
+      'La carga usa CPU, memoria y red en proporciones parecidas, como un servidor web.',
+      'El uso de CPU es bajo o moderado con picos ocasionales: instancias T.',
+      'No sabes aún qué recurso domina: empieza aquí, mide y ajusta.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra familia cuando"
+    items={[
+      'Procesamiento por lotes, transcodificación o servidores de juegos: cómputo optimizado (C).',
+      'Bases de datos grandes o cachés en memoria: memoria optimizada (R, X).',
+      'Muchas IOPS sobre grandes conjuntos de datos locales: almacenamiento optimizado (I, D).',
+      'Entrenamiento de modelos o gráficos: computación acelerada (P, G, Trn, Inf).',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Tipos de instancias de Amazon EC2"
+  url="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html"
+/>
+<OfficialSource
+  title="Convenciones de nombres de los tipos de instancia"
+  url="https://docs.aws.amazon.com/ec2/latest/instancetypes/instance-type-names.html"
+/>
+<OfficialSource
+  title="Instancias de uso general"
+  url="https://docs.aws.amazon.com/ec2/latest/instancetypes/gp.html"
+/>
+<OfficialSource
+  title="Instancias de cómputo optimizado"
+  url="https://docs.aws.amazon.com/ec2/latest/instancetypes/co.html"
+/>
+<OfficialSource
+  title="Instancias de memoria optimizada"
+  url="https://docs.aws.amazon.com/ec2/latest/instancetypes/mo.html"
+/>
+<OfficialSource
+  title="Instancias de almacenamiento optimizado"
+  url="https://docs.aws.amazon.com/ec2/latest/instancetypes/so.html"
+/>
+<OfficialSource
+  title="Instancias de computación acelerada"
+  url="https://docs.aws.amazon.com/ec2/latest/instancetypes/ac.html"
+/>
+<OfficialSource
+  title="Instancias de computación de alto rendimiento"
+  url="https://docs.aws.amazon.com/ec2/latest/instancetypes/hpc.html"
+/>
+<OfficialSource
+  title="Instancias de rendimiento ampliable"
+  url="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/burstable-performance-instances.html"
+/>
+<OfficialSource
+  title="Instancias basadas en AWS Nitro System"
+  url="https://docs.aws.amazon.com/ec2/latest/instancetypes/ec2-nitro-instances.html"
+/>
+<OfficialSource
+  title="Cambiar el tipo de instancia de EC2"
+  url="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-resize.html"
+/>
+<OfficialSource
+  title="Qué es AWS Compute Optimizer"
+  url="https://docs.aws.amazon.com/compute-optimizer/latest/ug/what-is-compute-optimizer.html"
+/>
+<OfficialSource
+  title="Configurar la memoria de una función de Lambda"
+  url="https://docs.aws.amazon.com/lambda/latest/dg/configuration-memory.html"
+/>
+<OfficialSource
+  title="Elegir un servicio de cómputo de AWS"
+  url="https://docs.aws.amazon.com/decision-guides/latest/compute-on-aws-how-to-choose/choosing-aws-compute-service.html"
+/>
