@@ -7,4 +7,127 @@ export const meta = {
   covers: ['4.1-s1', '4.1-s3', '4.4-s3', '4.4-s5'],
 };
 
-Contenido pendiente.
+Mover datos también cuesta. Al diseñar en la nube es fácil olvidar los cargos de transferencia, porque en un centro de datos propio no existían, pero en AWS dependen del origen, del destino y del volumen del tráfico. Saber por dónde viajan los datos te permite elegir rutas y servicios que reducen la factura de red.
+
+## Qué problema resuelve
+
+Una arquitectura puede ser correcta y aun así generar cargos de red innecesarios: tráfico entre zonas de disponibilidad que podría quedarse en una, réplicas en otra región que nadie necesita, o instancias privadas que llegan a S3 a través de un NAT gateway que cobra por cada GB procesado. Modelar la transferencia de datos desde el diseño, y revisarla en las cargas que ya funcionan, permite decidir con información qué cargos aceptar (por ejemplo, por resiliencia) y cuáles eliminar.
+
+## Conceptos clave
+
+### Cómo se cobra la transferencia
+
+- **Desde internet hacia AWS**: no tiene cargo.
+- **De AWS hacia internet**: tiene cargo, y se identifica en la factura como transferencia de salida desde la región.
+- **Entre zonas de disponibilidad de la misma región**: por cada recurso medido se cobra tanto el tráfico de entrada como el de salida. Algunos servicios no cobran el tráfico dentro de la región, así que revisa la página de precios de cada uno.
+- **Entre regiones**: el cargo lo determina el tráfico que sale de la región de origen; la entrada en la región de destino no tiene cargo. Como AWS indica que este tráfico suele generar cargos, ir a una arquitectura multirregión debe ser una decisión meditada.
+
+Los importes concretos varían según el servicio y la región de origen; consulta la página de precios de cada servicio.
+
+### Rutas de red que reducen el costo
+
+- **Puntos de enlace de VPC**: permiten conexiones privadas entre tu VPC y servicios de AWS sin pasar por internet. Los de tipo puerta de enlace, para Amazon S3 y DynamoDB, no tienen cargo adicional. Los de tipo interfaz, basados en AWS PrivateLink, cobran por hora y por GB. Ambos ayudan a reducir la transferencia pública y los costos de un NAT gateway.
+- **NAT gateway en la misma zona**: un NAT gateway cobra por hora y por cada GB que procesa. Si los recursos que más tráfico envían están en otra zona de disponibilidad, crea un NAT gateway en su zona para evitar los cargos entre zonas. La comparación con una instancia NAT se trata en su propia página.
+- **Evitar cruzar zonas y regiones sin motivo**: como el tráfico entre zonas y entre regiones tiene cargo, vincula cada uno de esos flujos a un resultado concreto, como la redundancia, y acepta el costo solo cuando ese resultado lo justifique.
+- **Privado frente a público**: el tráfico que sale a internet tiene cargo, y el que va a servicios de AWS a través de un NAT gateway paga además su procesamiento. Siempre que puedas, mantén el tráfico dentro de la red privada con puntos de enlace de VPC.
+
+### Servicios de periferia y conectividad
+
+- **Amazon CloudFront**: entrega el contenido desde ubicaciones de borde y lo guarda en caché, lo que reduce la carga en tus recursos. AWS lo recomienda, junto con las capas de caché delante de servidores y bases de datos, para reducir la transferencia de datos.
+- **AWS Global Accelerator**: mejora el rendimiento y la disponibilidad dirigiendo el tráfico por la red global de AWS, pero no es una herramienta de ahorro: tiene una tarifa fija por hora por acelerador y un cargo por GB que se suma a las tarifas estándar de transferencia. Úsalo cuando el rendimiento o la disponibilidad global lo justifiquen.
+- **AWS Direct Connect**: una conexión privada y dedicada entre tu red local y AWS que puede ser más rentable y constante que transferir grandes volúmenes por internet.
+- **AWS Site-to-Site VPN**: una conexión segura y administrada adecuada para oficinas pequeñas o socios.
+
+### El método de menor costo para llevar datos a AWS
+
+La transferencia desde internet hacia AWS no tiene cargo. Para cantidades muy grandes, la familia AWS Snow permite mover petabytes a la nube sin conexión y de forma rentable. Para transferir grandes volúmenes desde tu red local, Direct Connect puede ser más rentable y constante que internet. S3 Transfer Acceleration acelera las cargas a larga distancia a través de las ubicaciones de borde, pero puede añadir cargos de transferencia, así que elígelo por velocidad, no por costo. Los servicios de migración y transferencia se detallan en su propia página.
+
+### Revisar cargas existentes
+
+- **Medir**: el informe de costo y uso identifica los cargos de transferencia por tipo de uso (entre zonas, entre regiones, hacia internet, Direct Connect, Transfer Acceleration o CloudFront). Cost Explorer y Amazon CloudWatch ayudan a ver el costo y el uso de red, y los VPC Flow Logs capturan el tráfico por dirección IP e interfaz de red.
+- **Modelar**: AWS Pricing Calculator estima el costo de transferencia de una arquitectura antes de construirla. Calcúlalo en distintos niveles de uso y compara las alternativas.
+- **Actuar**: céntrate en los flujos de mayor costo y volumen, y busca un servicio que reduzca o elimine esa transferencia, como un punto de enlace, una caché o una red de entrega de contenido.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Evita el NAT con"
+    service="Puntos de enlace de VPC"
+    description="Los de tipo puerta de enlace llevan el tráfico a S3 y DynamoDB sin internet gateway ni NAT y sin cargo adicional."
+  />
+  <ConnectionCard
+    relation="Acerca el contenido con"
+    service="Amazon CloudFront"
+    description="Sirve el contenido desde la caché de las ubicaciones de borde y reduce la carga y la transferencia desde tus orígenes."
+  />
+  <ConnectionCard
+    relation="Mide los cargos con"
+    service="AWS Cost and Usage Report"
+    description="Cada tipo de transferencia aparece con su propio tipo de uso, lo que permite saber dónde se genera el gasto."
+  />
+  <ConnectionCard
+    relation="Analiza el tráfico con"
+    service="VPC Flow Logs"
+    description="Capturan información del tráfico de las interfaces de red para encontrar los flujos que más transfieren."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Para reducir el costo de red"
+    items={[
+      'Las instancias privadas acceden a S3 o DynamoDB: punto de enlace de tipo puerta de enlace.',
+      'El tráfico al NAT gateway cruza zonas: un NAT gateway por zona de disponibilidad.',
+      'Sirves el mismo contenido a muchos usuarios: CloudFront o una capa de caché.',
+      'Mueves petabytes a AWS sin prisa: la familia AWS Snow.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Ten en cuenta que"
+    items={[
+      'Global Accelerator y S3 Transfer Acceleration mejoran el rendimiento, pero añaden cargos.',
+      'Replicar entre regiones o zonas cuesta transferencia: justifícalo con un requisito de resiliencia.',
+      'Los puntos de enlace de tipo interfaz cobran por hora y por GB, a diferencia de los de puerta de enlace.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Cargos de transferencia de datos en el informe de costo y uso"
+  url="https://docs.aws.amazon.com/cur/latest/userguide/cur-data-transfers-charges.html"
+/>
+<OfficialSource
+  title="COST08-BP01 Modelar la transferencia de datos"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/cost-optimization-pillar/cost_data_transfer_modeling.html"
+/>
+<OfficialSource
+  title="COST08-BP02 Elegir componentes para optimizar la transferencia"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/cost-optimization-pillar/cost_data_transfer_optimized_components.html"
+/>
+<OfficialSource
+  title="COST08-BP03 Implementar servicios que reducen la transferencia"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/cost-optimization-pillar/cost_data_transfer_implement_services.html"
+/>
+<OfficialSource
+  title="Puntos de enlace de tipo puerta de enlace"
+  url="https://docs.aws.amazon.com/vpc/latest/privatelink/gateway-endpoints.html"
+/>
+<OfficialSource
+  title="Precios de los NAT gateways"
+  url="https://docs.aws.amazon.com/vpc/latest/userguide/nat-gateway-pricing.html"
+/>
+<OfficialSource
+  title="Precios de AWS Global Accelerator"
+  url="https://docs.aws.amazon.com/global-accelerator/latest/dg/introduction-pricing.html"
+/>
+<OfficialSource
+  title="Amazon S3 Transfer Acceleration"
+  url="https://docs.aws.amazon.com/AmazonS3/latest/userguide/transfer-acceleration.html"
+/>
