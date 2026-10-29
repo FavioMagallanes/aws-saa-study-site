@@ -7,4 +7,145 @@ export const meta = {
   covers: ['2.1-k11', '2.1-s3', '3.2-k3', '3.2-s1'],
 };
 
-Contenido pendiente.
+La mensajería asíncrona permite que los componentes de una aplicación se comuniquen sin esperar unos a otros: uno envía un mensaje y sigue trabajando, y otro lo procesa cuando puede. Es la base del acoplamiento débil en AWS, y en el examen aparece sobre todo con Amazon SQS (colas) y Amazon SNS (publicación/suscripción).
+
+## Qué problema resuelve
+
+Si un componente llama directamente a otro y espera su respuesta, el fallo o la lentitud del segundo afecta al primero, y ambos tienen que escalar al mismo ritmo. Poner una cola o un tema en medio aísla el comportamiento de cada componente: el productor no depende de que el consumidor esté disponible en ese momento, los picos de tráfico se absorben en la cola y cada parte escala de forma independiente.
+
+## Conceptos clave
+
+### Tres tipos de mensajería
+
+- **Cola de mensajes**: un búfer que desacopla a los emisores (productores) de los receptores (consumidores). Los productores ponen mensajes en la cola y los consumidores los sacan y procesan. Sirve para la comunicación asíncrona, para nivelar la carga y para absorber ráfagas de tráfico.
+- **Publicación/suscripción**: un mensaje se publica en un tema y lo reciben todos los suscriptores interesados. Permite difundir eventos a varios consumidores de forma asíncrona.
+- **Mensajería basada en eventos**: los eventos se publican en un intermediario y los servicios se suscriben a los tipos de evento que les interesan, sin dependencias directas.
+
+### Amazon SQS
+
+Amazon SQS ofrece una cola alojada, segura, duradera y disponible para integrar y desacoplar sistemas y componentes distribuidos. Guarda los mensajes de forma redundante en varios servidores y escala de forma transparente ante aumentos o picos de carga sin que tengas que aprovisionar nada.
+
+- **Ciclo de vida de un mensaje**: el productor envía el mensaje; un consumidor lo recibe y, mientras lo procesa, el mensaje sigue en la cola pero queda oculto para los demás consumidores durante el **tiempo de espera de visibilidad** (30 segundos por defecto, ajustable). Al terminar, el consumidor lo elimina. Si no lo elimina a tiempo, el mensaje vuelve a ser visible y otro consumidor puede procesarlo.
+- **Retención**: SQS elimina automáticamente los mensajes que superan el periodo de retención, que es de 4 días por defecto y se puede configurar entre 60 segundos y 14 días.
+- **Colas de mensajes fallidos (DLQ)**: una cola de origen puede enviar a una DLQ los mensajes que no se procesan correctamente. La política de redirección define `maxReceiveCount`, el número de veces que se puede recibir un mensaje antes de moverlo a la DLQ. Sirve para aislar y analizar los mensajes problemáticos; la DLQ debe estar en la misma cuenta y región que la cola de origen.
+- **Sondeo largo**: con el sondeo corto (predeterminado), la respuesta llega de inmediato aunque no haya mensajes. Con el sondeo largo, SQS espera hasta que haya al menos un mensaje, hasta un máximo de 20 segundos, lo que reduce las respuestas vacías y puede bajar el costo.
+- **Seguridad**: controlas quién envía y recibe mensajes, y puedes cifrarlos con cifrado del lado del servidor administrado por SQS o con claves de AWS KMS.
+
+### Colas estándar y FIFO
+
+- **Estándar**: rendimiento casi ilimitado, entrega **al menos una vez** (un mensaje puede llegar más de una vez) y orden de **mejor esfuerzo** (puede llegar desordenado). Diseña la aplicación para que procesar el mismo mensaje varias veces no altere el resultado (operaciones idempotentes). Úsala cuando el rendimiento es lo crucial, por ejemplo para separar las solicitudes de los usuarios del trabajo pesado en segundo plano o repartir tareas entre muchos nodos de trabajo.
+- **FIFO**: entrega los mensajes en el orden en que se enviaron dentro de cada grupo de mensajes y ofrece procesamiento **exactamente una vez**, con deduplicación. Tiene un rendimiento más limitado que la estándar: sin lotes, hasta 300 llamadas a la API por segundo por método; con lotes, hasta 3.000 mensajes por segundo, y más con el modo de alto rendimiento. Úsala cuando el orden importa, por ejemplo para aplicar cambios de precio en la secuencia correcta.
+
+### Amazon SNS
+
+Amazon SNS es un servicio totalmente administrado que entrega mensajes de publicadores a suscriptores. Los publicadores envían mensajes de forma asíncrona a un **tema**, que actúa como canal de comunicación. Los suscriptores los reciben mediante distintos puntos de enlace: colas de Amazon SQS, funciones de Lambda, puntos de enlace HTTP(S), correo electrónico, notificaciones push móviles, SMS y Amazon Data Firehose.
+
+- **Fanout**: un mensaje publicado en el tema se replica y se envía a varios puntos de enlace para procesarlo en paralelo. Por ejemplo, cada pedido nuevo se publica en un tema al que están suscritas varias colas de SQS: una para preparar el pedido y otra para analizarlo.
+- **Filtrado de mensajes**: por defecto, cada suscriptor recibe todos los mensajes del tema. Con una política de filtro en la suscripción, recibe solo los que cumplen sus condiciones, según los atributos o el cuerpo del mensaje.
+- **SNS más SQS**: para no perder mensajes cuando un suscriptor no está disponible, integra SNS con colas de SQS, que guardan los mensajes hasta que se procesan.
+
+### Otras opciones de mensajería
+
+- **Amazon EventBridge**: bus de eventos sin servidor, adecuado para enrutar eventos de muchos orígenes a muchos destinos, incluidos servicios de AWS y aplicaciones SaaS.
+- **Amazon MQ**: agente de mensajes administrado para quienes migran desde agentes tradicionales y necesitan protocolos estándar como AMQP o MQTT, con Apache ActiveMQ y RabbitMQ. AWS recomienda SQS y SNS para aplicaciones nuevas, por su escalabilidad casi ilimitada y sus API sencillas, y Amazon MQ para migrar aplicaciones que dependen de un agente existente con API como JMS o protocolos como AMQP, MQTT, OpenWire o STOMP.
+- **Amazon Kinesis Data Streams**: recoge y procesa grandes flujos de registros de datos en tiempo real; varias aplicaciones pueden leer el mismo flujo de forma independiente.
+- **Amazon MSK**: Apache Kafka administrado, útil cuando los mensajes se deben procesar varias veces y para la transmisión de mensajes en tiempo real.
+
+### Escalar los consumidores con la cola
+
+Desacoplar con una cola permite escalar el consumidor según el trabajo pendiente. Por ejemplo, un grupo de Amazon EC2 Auto Scaling que procesa imágenes de una cola de SQS puede usar una política de seguimiento de destino basada en el **trabajo pendiente por instancia**: el número de mensajes disponibles en la cola dividido entre las instancias en servicio. Escalar solo por el número de mensajes no tiene en cuenta cuántas instancias hay y puede añadir más de las necesarias mientras la cola se vacía. AWS Lambda también puede leer mensajes de una cola de SQS e invocar la función.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Escala los consumidores con"
+    service="Amazon EC2 Auto Scaling"
+    description="Ajusta el número de instancias según el trabajo pendiente por instancia en la cola de SQS."
+  />
+  <ConnectionCard
+    relation="Procesa mensajes con"
+    service="AWS Lambda"
+    description="Lambda sondea la cola de SQS e invoca la función con los mensajes; también puede suscribirse a un tema de SNS."
+  />
+  <ConnectionCard
+    relation="Cifra los mensajes con"
+    service="AWS KMS"
+    description="SQS admite cifrado del lado del servidor con claves administradas por SQS o con claves propias de KMS."
+  />
+  <ConnectionCard
+    relation="Avisa de mensajes fallidos con"
+    service="Amazon CloudWatch"
+    description="Puedes crear alarmas para saber cuándo llegan mensajes a una cola de mensajes fallidos."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="SQS o SNS cuando"
+    items={[
+      'Un solo consumidor procesa cada mensaje y necesitas absorber picos: cola de SQS.',
+      'Importa el orden o evitar duplicados: cola FIFO.',
+      'El mismo mensaje debe llegar a varios destinos en paralelo: tema de SNS con fanout a colas de SQS.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Migras una aplicación que ya usa un agente con AMQP, MQTT, ActiveMQ o RabbitMQ: Amazon MQ.',
+      'Necesitas enrutar eventos de muchos orígenes, incluidos socios SaaS, a muchos destinos: Amazon EventBridge.',
+      'Procesas flujos de datos en tiempo real que varias aplicaciones leen a la vez: Kinesis Data Streams o Amazon MSK.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon SQS"
+  url="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welcome.html"
+/>
+<OfficialSource
+  title="Tipos de cola de Amazon SQS"
+  url="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-queue-types.html"
+/>
+<OfficialSource
+  title="Tiempo de espera de visibilidad de Amazon SQS"
+  url="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-visibility-timeout.html"
+/>
+<OfficialSource
+  title="Colas de mensajes fallidos en Amazon SQS"
+  url="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html"
+/>
+<OfficialSource
+  title="Sondeo corto y largo en Amazon SQS"
+  url="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-short-and-long-polling.html"
+/>
+<OfficialSource
+  title="Qué es Amazon SNS"
+  url="https://docs.aws.amazon.com/sns/latest/dg/welcome.html"
+/>
+<OfficialSource
+  title="Filtrado de mensajes de Amazon SNS"
+  url="https://docs.aws.amazon.com/sns/latest/dg/sns-message-filtering.html"
+/>
+<OfficialSource
+  title="Política de escalado basada en Amazon SQS"
+  url="https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-using-sqs-queue.html"
+/>
+<OfficialSource
+  title="Mecanismos de comunicación entre microservicios"
+  url="https://docs.aws.amazon.com/whitepapers/latest/microservices-on-aws/communication-mechanisms.html"
+/>
+<OfficialSource
+  title="Crear arquitecturas basadas en eventos con Lambda"
+  url="https://docs.aws.amazon.com/lambda/latest/dg/concepts-event-driven-architectures.html"
+/>
+<OfficialSource
+  title="Qué es Amazon Kinesis Data Streams"
+  url="https://docs.aws.amazon.com/streams/latest/dev/introduction.html"
+/>
