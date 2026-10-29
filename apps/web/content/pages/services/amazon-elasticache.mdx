@@ -7,4 +7,90 @@ export const meta = {
   covers: ['3.3-k2'],
 };
 
-Contenido pendiente.
+Amazon ElastiCache es un servicio web que facilita configurar, administrar y escalar un almacén de datos en memoria o una caché distribuida en la nube. Funciona con los motores Valkey, Memcached y Redis OSS, y se encarga del aprovisionamiento del hardware, la supervisión, el reemplazo de nodos y los parches de software.
+
+## Qué problema resuelve
+
+Consultar una base de datos siempre es más lento y más caro que leer una clave de una caché en memoria, y hay consultas especialmente costosas, como las que unen varias tablas o hacen cálculos intensivos. ElastiCache se coloca entre la aplicación y el almacén de datos: guardas allí el resultado y lo reutilizas muchas veces sin repetir la consulta. Así reduces la latencia, con accesos por debajo del milisegundo, y quitas carga de lectura a la base de datos.
+
+## Conceptos clave
+
+### Dos formas de usarlo
+
+- **Sin servidor**: creas una caché de alta disponibilidad en menos de un minuto, sin aprovisionar nodos ni planificar capacidad. ElastiCache vigila la memoria, el cómputo y el ancho de banda que usa la aplicación y escala según haga falta.
+- **Clústeres basados en nodos**: eliges el tipo y el número de nodos y su reparto entre zonas de disponibilidad. Tienes más control, por ejemplo para elegir entre una o varias zonas de disponibilidad, pero eres responsable de dimensionar la capacidad.
+
+### Elegir el motor
+
+- **Memcached**: el modelo más simple, nodos grandes con varios núcleos o hilos y posibilidad de añadir y quitar nodos según la demanda. Sirve para almacenar objetos en caché.
+- **Valkey o Redis OSS**: tipos de datos complejos y funciones adicionales. Por ejemplo, los conjuntos ordenados resuelven tablas de clasificación de juegos, y la publicación/suscripción permite enviar mensajes a canales.
+
+### Estrategias de caché
+
+Las estrategias más comunes son la carga diferida (lazy loading), que solo guarda lo que se pide y acepta datos desactualizados; la escritura simultánea (write-through), que actualiza la caché en cada escritura; y el tiempo de vida (TTL), que hace caducar las claves. El tema «Estrategias de caché» las compara en detalle, junto con qué conviene almacenar y las cachés de otras capas.
+
+### Qué almacenar en caché
+
+Los mejores candidatos son los datos lentos o caros de obtener, que se consultan a menudo y que cambian poco o toleran estar algo desactualizados. No compensa guardar datos que cambian muy rápido, que casi nadie consulta o que suelen ser únicos, como los resultados de una búsqueda.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Acelera las lecturas de"
+    service="Amazon RDS y Amazon Aurora"
+    description="Una caché delante de la base relacional sirve las consultas frecuentes o costosas sin repetirlas en la base de datos."
+  />
+  <ConnectionCard
+    relation="Se conecta a través de"
+    service="Amazon VPC"
+    description="Una caché sin servidor usa una conexión de VPC o, con Valkey 9.0 o posterior, un punto de enlace público que exige autenticación de IAM y TLS 1.3."
+  />
+  <ConnectionCard
+    relation="Para tablas de"
+    service="Amazon DynamoDB"
+    description="Si los datos ya están en DynamoDB, su caché específica es DynamoDB Accelerator (DAX), compatible con la API de DynamoDB."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="ElastiCache cuando"
+    items={[
+      'Necesitas reducir la latencia de lectura y la carga de una base de datos con consultas repetidas.',
+      'Quieres tablas de clasificación, publicación/suscripción u otras estructuras en memoria: Valkey o Redis OSS.',
+      'Prefieres no planificar capacidad: ElastiCache sin servidor.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Los datos están en DynamoDB y quieres lecturas en microsegundos con cambios mínimos: DynamoDB Accelerator (DAX).',
+      'Quieres almacenar en caché contenido para usuarios de todo el mundo: Amazon CloudFront.',
+      'El cuello de botella es de lectura y necesitas datos consultables con SQL: réplicas de lectura de RDS o Aurora.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon ElastiCache"
+  url="https://docs.aws.amazon.com/AmazonElastiCache/latest/dg/WhatIs.html"
+/>
+<OfficialSource
+  title="Casos de uso comunes de ElastiCache"
+  url="https://docs.aws.amazon.com/AmazonElastiCache/latest/dg/elasticache-use-cases.html"
+/>
+<OfficialSource
+  title="Comparar Valkey, Memcached y Redis OSS"
+  url="https://docs.aws.amazon.com/AmazonElastiCache/latest/dg/SelectEngine.html"
+/>
+<OfficialSource
+  title="Estrategias de caché"
+  url="https://docs.aws.amazon.com/AmazonElastiCache/latest/dg/Strategies.html"
+/>
