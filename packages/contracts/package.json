@@ -4,7 +4,8 @@
   "type": "module",
   "exports": {
     "./progress": "./src/progress/progress.ts",
-    "./content": "./src/content/page-meta.ts"
+    "./content": "./src/content/page-meta.ts",
+    "./glossary": "./src/content/glossary-entry.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
