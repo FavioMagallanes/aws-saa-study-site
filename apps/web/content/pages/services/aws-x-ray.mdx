@@ -7,4 +7,84 @@ export const meta = {
   covers: ['2.2-k12'],
 };
 
-Contenido pendiente.
+AWS X-Ray recopila datos sobre las solicitudes que atiende tu aplicación y te da herramientas para verlos, filtrarlos y analizarlos. Por cada solicitud rastreada ves la solicitud y la respuesta, y también las llamadas que la aplicación hace a recursos de AWS, microservicios, bases de datos y API web. Así da visibilidad de la carga de trabajo de extremo a extremo.
+
+## Qué problema resuelve
+
+En una aplicación distribuida, una sola solicitud puede pasar por un balanceador de carga, el código de la aplicación, varias funciones y bases de datos. Las métricas de cada pieza por separado no dicen dónde se pierde el tiempo ni qué componente falla. X-Ray une todos los tramos de una misma solicitud en una traza y los dibuja en un mapa, para encontrar cuellos de botella, picos de latencia y errores. El tema «Observabilidad y métricas de disponibilidad» explica cómo encaja X-Ray junto a CloudWatch.
+
+## Conceptos clave
+
+- **Segmentos**: los recursos de cómputo que ejecutan la lógica envían datos de su trabajo como segmentos: el host, la solicitud, la respuesta, los tiempos y los errores.
+- **Subsegmentos**: detallan las llamadas a otros servicios, API HTTP o bases de datos. Para servicios que no envían sus propios segmentos, como Amazon DynamoDB, X-Ray genera segmentos inferidos y los muestra igualmente en el mapa.
+- **Traza**: agrupa todos los segmentos de una misma solicitud. El primer servicio integrado que recibe la solicitud añade el encabezado `X-Amzn-Trace-Id` con el identificador de traza, que se propaga a los servicios siguientes.
+- **Mapa de rastreo**: muestra el cliente, el servicio de front-end y los servicios de backend a los que llama.
+- **Muestreo**: para no rastrear todo y evitar costos innecesarios, el SDK de X-Ray registra de forma predeterminada la primera solicitud de cada segundo y el cinco por ciento de las demás. Puedes cambiar las reglas, por ejemplo para rastrear todas las llamadas que modifican datos.
+- **Anotaciones y metadatos**: las anotaciones son pares clave-valor indexados que sirven para filtrar trazas; los metadatos se guardan en la traza pero no se indexan.
+- **Grupos**: con una expresión de filtro defines qué trazas entran en un grupo, que publica sus propias métricas en Amazon CloudWatch.
+- **Errores**: distingue errores de cliente (4xx), fallos del servidor (5xx) y limitación (429).
+- **Instrumentación**: la aplicación envía datos de rastreo con SDK, agentes u otras herramientas, y a veces basta con cambiar la configuración. AWS anuncia que los SDK y el daemon de X-Ray entran en modo de mantenimiento el 25 de febrero de 2026 y recomienda migrar a OpenTelemetry, por ejemplo con AWS Distro for OpenTelemetry (ADOT).
+- **Retención**: los datos de las trazas se conservan 30 días.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Recibe trazas de"
+    service="AWS Lambda"
+    description="Lambda puede enviar datos de rastreo de las solicitudes a tus funciones y ejecuta el daemon de X-Ray."
+  />
+  <ConnectionCard
+    relation="Publica métricas en"
+    service="Amazon CloudWatch"
+    description="Los grupos de X-Ray envían a CloudWatch métricas sobre las trazas que cumplen su filtro, y los detalles de las trazas se consultan en su consola."
+  />
+  <ConnectionCard
+    relation="Ejecuta el daemon en"
+    service="AWS Elastic Beanstalk"
+    description="El daemon de X-Ray viene incluido en las plataformas de Elastic Beanstalk."
+  />
+  <ConnectionCard
+    relation="Se visualiza con"
+    service="Amazon Managed Grafana"
+    description="Grafana puede usar X-Ray como fuente de datos para mostrar trazas junto a métricas y registros."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="X-Ray cuando"
+    items={[
+      'Necesitas seguir una solicitud a través de varios servicios.',
+      'Quieres ubicar cuellos de botella, picos de latencia y errores en una aplicación distribuida.',
+      'Debes ver las dependencias de tu aplicación, incluso las que no envían trazas.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Debes alertar cuando una métrica cruza un umbral: Amazon CloudWatch.',
+      'Quieres registrar las acciones que hacen usuarios, roles o servicios en tu cuenta: AWS CloudTrail.',
+      'Necesitas métricas de contenedores con PromQL: Amazon Managed Service para Prometheus.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS X-Ray"
+  url="https://docs.aws.amazon.com/xray/latest/devguide/aws-xray.html"
+/>
+<OfficialSource
+  title="Conceptos de AWS X-Ray"
+  url="https://docs.aws.amazon.com/xray/latest/devguide/xray-concepts.html"
+/>
+<OfficialSource
+  title="Instrumentar tu aplicación para AWS X-Ray"
+  url="https://docs.aws.amazon.com/xray/latest/devguide/xray-instrumenting-your-app.html"
+/>
