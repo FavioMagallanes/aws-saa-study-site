@@ -7,4 +7,88 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Amazon Textract añade detección y análisis de texto de documentos a tus aplicaciones. Detecta texto impreso y manuscrito y extrae datos estructurados, como formularios y tablas, de archivos de imagen y PDF, sin necesidad de experiencia en aprendizaje automático.
+
+## Qué problema resuelve
+
+Muchos procesos de negocio dependen de documentos escaneados: informes financieros, historiales médicos, formularios fiscales, facturas o documentos de identidad. Transcribirlos a mano es lento, y un reconocimiento de texto simple pierde la estructura (qué valor corresponde a qué campo o celda). Textract extrae el texto y sus relaciones para incorporarlos a flujos de trabajo, índices de búsqueda o aplicaciones de procesamiento de lenguaje natural. Pagas solo por los documentos que analizas.
+
+## Conceptos clave
+
+### Operaciones según el tipo de documento
+
+- **Detección de texto**: palabras y líneas de texto impreso o manuscrito.
+- **Análisis de documentos**: texto, formularios y tablas. Con **Queries** preguntas por un dato concreto del documento, y con **Custom Queries** entrenas un adaptador con tus documentos para personalizar las respuestas.
+- **Facturas y recibos**: la API `AnalyzeExpense`.
+- **Documentos de identidad**: la API `AnalyzeID`, para licencias de conducir y pasaportes emitidos por el gobierno de Estados Unidos.
+- **Préstamos hipotecarios**: el flujo Analyze Lending clasifica las páginas y las envía a la operación de análisis adecuada.
+
+### Síncrono frente a asíncrono
+
+- **Síncrono**: procesa documentos de una página con respuestas casi en tiempo real, para aplicaciones donde la latencia es crítica.
+- **Asíncrono**: procesa documentos de varias páginas en PDF o TIFF guardados en Amazon S3. Inicias con una operación `Start`, el estado de finalización se publica en un tema de Amazon SNS, lo recibes con una cola de Amazon SQS o una función de AWS Lambda y obtienes los resultados con la operación `Get`.
+
+Las operaciones de la API tienen cuotas; algunas se pueden aumentar desde Service Quotas.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Procesa documentos de"
+    service="Amazon S3"
+    description="Las operaciones asíncronas analizan documentos guardados en S3 y pueden escribir los resultados en el bucket que indiques."
+  />
+  <ConnectionCard
+    relation="Avisa de que terminó con"
+    service="Amazon SNS"
+    description="Los trabajos asíncronos publican su estado de finalización en un tema de SNS."
+  />
+  <ConnectionCard
+    relation="Recibe el aviso con"
+    service="Amazon SQS"
+    description="Una cola de SQS o una función de Lambda recoge la notificación y lanza la lectura de resultados."
+  />
+  <ConnectionCard
+    relation="Entrega texto para analizar a"
+    service="Amazon Comprehend"
+    description="El texto extraído puede servir de entrada a una aplicación de NLP, como el análisis de entidades o sentimiento."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Amazon Textract cuando"
+    items={[
+      'Necesitas extraer texto, formularios o tablas de documentos escaneados o PDF.',
+      'Quieres automatizar la captura de datos de facturas, recibos o documentos de identidad.',
+      'Debes procesar documentos de varias páginas de forma asíncrona.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Buscas texto en fotos o videos junto con objetos y rostros: Amazon Rekognition.',
+      'Ya tienes el texto y necesitas entender su significado: Amazon Comprehend.',
+      'El contenido es audio: Amazon Transcribe.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon Textract"
+  url="https://docs.aws.amazon.com/textract/latest/dg/what-is.html"
+/>
+<OfficialSource
+  title="Identificar el caso de uso de Amazon Textract"
+  url="https://docs.aws.amazon.com/textract/latest/dg/how-it-works.html"
+/>
+<OfficialSource
+  title="Llamar a operaciones asíncronas de Amazon Textract"
+  url="https://docs.aws.amazon.com/textract/latest/dg/api-async.html"
+/>
