@@ -7,4 +7,104 @@ export const meta = {
   covers: ['3.2-k1', '3.5-s5'],
 };
 
-Contenido pendiente.
+Amazon EMR, antes llamado Amazon Elastic MapReduce, es una plataforma de clústeres administrada para ejecutar marcos de big data como Apache Hadoop y Apache Spark, y aplicaciones como Hive, con el fin de procesar y analizar grandes volúmenes de datos. También sirve para transformar y mover grandes cantidades de datos hacia y desde almacenes como Amazon S3 y Amazon DynamoDB.
+
+## Qué problema resuelve
+
+Montar un clúster de Hadoop o Spark propio implica comprar servidores, instalar el software, coordinar los nodos y reemplazar los que fallan. EMR aprovisiona las instancias, instala las aplicaciones que eliges y supervisa los nodos, sustituyendo automáticamente una instancia que falla. Tú decides el tamaño del clúster, su configuración y el código que ejecuta, y pagas según las instancias que usas. La guía del examen lo cita junto a AWS Batch y AWS Fargate como servicios de cómputo con casos de uso distintos: EMR procesa datos a gran escala con marcos de código abierto, AWS Batch ejecuta cargas de cómputo por lotes aprovisionando los recursos según los trabajos enviados, y Fargate ejecuta contenedores sin administrar servidores ni clústeres de EC2.
+
+## Conceptos clave
+
+### Clúster y nodos
+
+El clúster es un conjunto de instancias de Amazon EC2, y cada instancia es un nodo con un papel:
+
+- **Nodo primario**: administra el clúster, reparte los datos y las tareas y supervisa su estado. Todo clúster tiene uno.
+- **Nodos core**: ejecutan tareas y guardan datos en HDFS.
+- **Nodos de tarea**: solo ejecutan tareas y no guardan datos en HDFS. Son opcionales.
+
+Eliges el tipo y el tamaño de las instancias según el procesamiento: por lotes, consultas de baja latencia, datos de streaming o almacenamiento de grandes datos.
+
+### Ciclo de vida y costo
+
+- **Clúster transitorio**: termina automáticamente cuando acaban todos sus pasos (steps). Encaja con trabajos que procesan una cantidad fija de datos.
+- **Clúster de larga duración**: sigue activo hasta que lo terminas, y le envías pasos o consultas cuando quieres.
+- **Instancias de spot y reservadas**: el precio depende del tipo y número de instancias y de la región. Puedes combinar un grupo bajo demanda, para garantizar capacidad, con otro de spot, para terminar antes y a menor costo.
+- **EMRFS frente a HDFS**: con EMRFS los datos viven en S3, sobreviven al clúster y permiten escalar cómputo y almacenamiento por separado. HDFS sirve para datos que no necesitas conservar después del clúster.
+
+### Opciones de despliegue
+
+- **EMR en EC2**: el clúster clásico, con control total sobre las instancias y el software.
+- **EMR Serverless**: ejecuta Spark y Hive sin configurar ni operar clústeres. Determina los recursos de cada trabajo y los libera al terminar, lo que evita aprovisionar de más o de menos.
+- **EMR on EKS**: ejecuta los marcos de código abierto en un clúster de Amazon EKS, junto a otras aplicaciones en contenedores.
+
+El tema «Transformación y formatos de datos» compara EMR con AWS Glue para tareas de ETL.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Lee y escribe datos en"
+    service="Amazon S3"
+    description="Con EMRFS, S3 guarda los datos de entrada y salida y los conserva más allá del clúster."
+  />
+  <ConnectionCard
+    relation="Se ejecuta sobre"
+    service="Amazon EC2"
+    description="Los nodos del clúster son instancias de EC2, bajo demanda, reservadas o de spot."
+  />
+  <ConnectionCard
+    relation="Gobierna el lago con"
+    service="AWS Lake Formation"
+    description="EMR se integra con Lake Formation para descubrir, catalogar y proteger datos del lago en S3."
+  />
+  <ConnectionCard
+    relation="Se supervisa con"
+    service="Amazon CloudWatch"
+    description="Supervisa el rendimiento del clúster y configura alarmas."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Amazon EMR cuando"
+    items={[
+      'Procesas conjuntos de datos muy grandes con código propio y marcos como Spark, Hadoop, Hive o Presto.',
+      'Necesitas control total de la configuración del clúster y del software instalado.',
+      'Quieres abaratar el procesamiento con instancias de spot.',
+      'Quieres Spark o Hive sin operar clústeres: EMR Serverless.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Solo necesitas consultas SQL ad hoc sobre S3, sin clústeres: Amazon Athena.',
+      'Quieres ETL sin servidor con un editor visual y catálogo integrado: AWS Glue.',
+      'Ejecutas cargas de cómputo por lotes que no usan marcos de big data: AWS Batch.',
+      'Solo necesitas ejecutar contenedores sin administrar servidores: AWS Fargate.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon EMR"
+  url="https://docs.aws.amazon.com/emr/latest/ManagementGuide/emr-what-is-emr.html"
+/>
+<OfficialSource
+  title="Clústeres y nodos de Amazon EMR"
+  url="https://docs.aws.amazon.com/emr/latest/ManagementGuide/emr-overview.html"
+/>
+<OfficialSource
+  title="Ventajas de usar Amazon EMR"
+  url="https://docs.aws.amazon.com/emr/latest/ManagementGuide/emr-overview-benefits.html"
+/>
+<OfficialSource
+  title="Qué es Amazon EMR Serverless"
+  url="https://docs.aws.amazon.com/emr/latest/EMR-Serverless-UserGuide/emr-serverless.html"
+/>
