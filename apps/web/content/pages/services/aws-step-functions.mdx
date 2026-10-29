@@ -7,4 +7,91 @@ export const meta = {
   covers: ['2.1-k16'],
 };
 
-Contenido pendiente.
+AWS Step Functions es el servicio de orquestación de flujos de trabajo de AWS. Con él creas flujos de trabajo, también llamados máquinas de estado, para construir aplicaciones distribuidas, automatizar procesos, orquestar microservicios y crear canalizaciones de datos y de machine learning.
+
+## Qué problema resuelve
+
+Un proceso de negocio con varios pasos en distintos servicios necesita que alguien decida el orden, las ramas, los reintentos y qué hacer si algo falla. Si ese código de coordinación vive dentro de cada servicio, todos quedan más acoplados. Step Functions saca esa lógica a un flujo visible en la consola, donde puedes ver, editar y depurar cada paso. Las ventajas de orquestar frente a coreografiar, los tipos de estado y el patrón Saga se explican en el tema «Orquestación de flujos de trabajo».
+
+## Conceptos clave
+
+### Flujos, estados y ejecuciones
+
+- **Flujo de trabajo (máquina de estado)**: una serie de pasos basados en eventos, definida en Amazon States Language.
+- **Estado**: cada paso. Un estado Task representa una unidad de trabajo, como llamar a otro servicio de AWS o a una API; otros estados eligen ramas, ejecutan en paralelo, esperan o terminan el flujo.
+- **Ejecución**: cada instancia en marcha de un flujo.
+- **Manejo de errores**: por defecto, un error hace fallar toda la ejecución; los estados Task, Parallel y Map admiten reintentos y la captura de errores para pasar a un estado de recuperación, sin escribir ese código en los servicios.
+
+### Standard frente a Express
+
+Eliges el tipo al crear la máquina de estado y no se puede cambiar después:
+
+- **Standard**: flujos largos, duraderos y auditables, de hasta un año. Modelo **exactamente una vez**, adecuado para acciones no idempotentes como procesar pagos. Se cobra por transición de estado. También sirve para flujos largos que requieren interacción humana.
+- **Express**: cargas de alto volumen de eventos, como ingesta de datos de IoT o procesamiento de streaming, de hasta cinco minutos. Se cobra por número de ejecuciones, duración y memoria. Las asíncronas son **al menos una vez** y las síncronas **como máximo una vez**, así que conviene que las acciones sean idempotentes.
+
+### Integraciones
+
+Step Functions puede llamar a más de doscientos servicios de AWS mediante integraciones del AWS SDK, y tiene integraciones optimizadas con servicios como Lambda, Amazon ECS, AWS Batch o AWS Glue. Puede avanzar en cuanto recibe la respuesta, esperar a que termine un trabajo (`.sync`) o esperar un token de devolución de llamada; los flujos Express solo admiten el primer patrón. Los flujos pueden iniciarse por eventos, como solicitudes HTTP de Amazon API Gateway o eventos de Amazon EventBridge.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Ejecuta pasos con"
+    service="AWS Lambda"
+    description="Un estado Task invoca una función que realiza una parte del proceso."
+  />
+  <ConnectionCard
+    relation="Se inicia desde"
+    service="Amazon EventBridge"
+    description="Un evento que coincide con una regla, o una canalización de EventBridge Pipes, pone en marcha una ejecución."
+  />
+  <ConnectionCard
+    relation="Espera trabajos de"
+    service="Amazon ECS y AWS Batch"
+    description="Con el patrón .sync, el flujo lanza un contenedor o un trabajo por lotes y espera a que termine."
+  />
+  <ConnectionCard
+    relation="Registra ejecuciones en"
+    service="Amazon CloudWatch"
+    description="Los flujos Express envían su historial a CloudWatch Logs cuando habilitas el registro."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Step Functions cuando"
+    items={[
+      'Un proceso tiene varios pasos en distintos servicios y necesitas controlar orden, ramas y paralelismo.',
+      'Quieres reintentos y recuperación de errores sin escribir código de coordinación.',
+      'El proceso es largo, auditable o espera una aprobación humana: flujo Standard.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Solo necesitas desacoplar un productor de un consumidor: Amazon SQS.',
+      'Varios servicios deben reaccionar a un evento sin un coordinador central: Amazon EventBridge o Amazon SNS.',
+      'Ejecutas trabajos por lotes de cómputo intensivo sin un flujo de varios pasos: AWS Batch.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Step Functions"
+  url="https://docs.aws.amazon.com/step-functions/latest/dg/welcome.html"
+/>
+<OfficialSource
+  title="Elegir el tipo de flujo de trabajo en Step Functions"
+  url="https://docs.aws.amazon.com/step-functions/latest/dg/choosing-workflow-type.html"
+/>
+<OfficialSource
+  title="Manejo de errores en Step Functions"
+  url="https://docs.aws.amazon.com/step-functions/latest/dg/concepts-error-handling.html"
+/>
