@@ -1,0 +1,38 @@
+.bottom-sheet {
+  position: fixed;
+  inset: auto 0 0;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: var(--space-3) var(--space-6) 36px;
+  border: 0;
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.bottom-sheet::backdrop {
+  background: rgb(0 0 0 / 0.4);
+}
+
+.bottom-sheet__handle {
+  width: 40px;
+  height: 4px;
+  margin: 0 auto var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-border);
+}
+
+.bottom-sheet__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.bottom-sheet__eyebrow {
+  color: var(--color-accent);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 500;
+}

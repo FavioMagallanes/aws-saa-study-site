@@ -1,0 +1,46 @@
+.abbr-details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: var(--font-sans);
+}
+
+.abbr-details__abbreviation {
+  color: var(--color-accent);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.abbr-details__name {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.abbr-details__definition {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.abbr-details--sheet .abbr-details__name {
+  font-size: 18px;
+}
+
+.abbr-details--sheet .abbr-details__definition {
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.abbr-card {
+  width: 320px;
+  max-width: 100%;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
