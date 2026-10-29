@@ -7,4 +7,105 @@ export const meta = {
   covers: ['3.1-k2', '4.1-k1'],
 };
 
-Contenido pendiente.
+Amazon S3 (Simple Storage Service) es un servicio de almacenamiento de objetos con gran escalabilidad, disponibilidad, seguridad y rendimiento. Guarda cualquier cantidad de datos como objetos dentro de buckets, y se usa para lagos de datos, sitios web, aplicaciones móviles, copias de seguridad, archivado y análisis de big data.
+
+## Qué problema resuelve
+
+Guardar millones de archivos, imágenes o registros en discos o servidores de archivos propios obliga a planificar capacidad y a operar el almacenamiento. S3 guarda los datos sin que reserves espacio, los ofrece por API a cualquier aplicación o servicio, y añade funciones para controlar el costo, el acceso y el cumplimiento. Dentro de los servicios de almacenamiento, S3 es la opción de **objetos**; la comparación con bloques y archivos está en el tema «Elegir almacenamiento por rendimiento y escala».
+
+## Conceptos clave
+
+### Buckets, objetos y consistencia
+
+Un objeto son los datos más sus metadatos, identificado por una clave dentro de un bucket. S3 ofrece consistencia fuerte de lectura después de escritura para las operaciones PUT y DELETE en todas las regiones.
+
+### Clases de almacenamiento y ciclo de vida
+
+Las clases ajustan el costo al patrón de acceso: S3 Standard para datos de acceso frecuente, S3 Standard-IA y S3 One Zone-IA para acceso poco frecuente, S3 Intelligent-Tiering para patrones cambiantes o desconocidos, y las clases S3 Glacier para archivar. Las reglas de S3 Lifecycle mueven los objetos a otra clase o los hacen caducar. El detalle está en el tema «Clases de almacenamiento y ciclo de vida de S3».
+
+### Protección de los datos
+
+- **S3 Versioning**: conserva varias versiones de un objeto en el mismo bucket, para restaurar lo que se borró o sobrescribió por error.
+- **S3 Object Lock**: impide que los objetos se eliminen o sobrescriban durante un tiempo fijo o de forma indefinida, para almacenamiento WORM (una escritura, muchas lecturas).
+- **S3 Replication**: copia los objetos, con sus metadatos y etiquetas, a uno o varios buckets de la misma región o de otras.
+
+### Opciones de acceso
+
+Por defecto, los buckets y sus objetos son privados. Para dar acceso tienes varias herramientas:
+
+- **Políticas de IAM y políticas de bucket**: permisos basados en identidades o en el recurso. AWS recomienda usar políticas en lugar de ACL; por defecto las ACL están desactivadas y el propietario del bucket es dueño de todos los objetos.
+- **S3 Block Public Access**: anula las políticas o permisos que harían público un recurso. Viene activado en los buckets nuevos y se puede aplicar a nivel de bucket, punto de acceso, cuenta u organización.
+- **Puntos de acceso (access points)**: puntos de enlace de red con nombre y su propia política, para gestionar el acceso a conjuntos de datos compartidos. Puedes limitarlos para que solo acepten solicitudes desde una VPC.
+- **URL prefirmadas**: dan permiso temporal para descargar un objeto concreto, usando las credenciales de quien generó la URL.
+
+### Buckets con pago a cargo del solicitante (Requester Pays)
+
+Normalmente el propietario del bucket paga el almacenamiento y la transferencia de datos. En un bucket **Requester Pays**, quien hace la solicitud paga la solicitud y la descarga de datos; el propietario sigue pagando el almacenamiento. Se usa para compartir grandes conjuntos de datos sin asumir el costo de que otros los descarguen. Importante: un bucket Requester Pays no admite acceso anónimo, todas las solicitudes deben estar autenticadas y el solicitante debe indicar en la solicitud que acepta los cargos.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Controla el acceso con"
+    service="AWS IAM"
+    description="Las políticas de IAM y las políticas de bucket deciden quién puede leer o escribir cada objeto."
+  />
+  <ConnectionCard
+    relation="Dispara procesos en"
+    service="AWS Lambda"
+    description="Las notificaciones de eventos de S3 invocan funciones de Lambda o envían mensajes a Amazon SNS y Amazon SQS cuando cambian los objetos."
+  />
+  <ConnectionCard
+    relation="Registra la actividad en"
+    service="AWS CloudTrail"
+    description="Registra las operaciones de API sobre buckets y objetos; las métricas de CloudWatch siguen la salud y el uso."
+  />
+  <ConnectionCard
+    relation="Se distribuye con"
+    service="Amazon CloudFront"
+    description="Guarda en caché el contenido del bucket para acelerar su entrega a los usuarios."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Amazon S3 cuando"
+    items={[
+      'Guardas objetos a gran escala, como medios, registros, copias de seguridad o un lago de datos.',
+      'Necesitas acceso por API desde aplicaciones y servicios, o desde internet.',
+      'Quieres compartir un conjunto de datos y que pague quien lo descarga: Requester Pays.',
+      'Debes impedir que los objetos se borren o modifiquen: Object Lock.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Una instancia necesita un disco de bloques de baja latencia: Amazon EBS.',
+      'Varias instancias Linux comparten archivos con NFS: Amazon EFS.',
+      'Las aplicaciones esperan SMB, Lustre, NetApp ONTAP u OpenZFS: Amazon FSx.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon S3"
+  url="https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html"
+/>
+<OfficialSource
+  title="Buckets con pago a cargo del solicitante"
+  url="https://docs.aws.amazon.com/AmazonS3/latest/userguide/RequesterPaysBuckets.html"
+/>
+<OfficialSource
+  title="Puntos de acceso de Amazon S3"
+  url="https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-points.html"
+/>
+<OfficialSource
+  title="Bloquear el acceso público a Amazon S3"
+  url="https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-block-public-access.html"
+/>
