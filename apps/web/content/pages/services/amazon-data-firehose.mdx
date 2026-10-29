@@ -7,4 +7,85 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Amazon Data Firehose es un servicio totalmente administrado que entrega datos de streaming en tiempo real a destinos como Amazon S3, Amazon Redshift, Amazon OpenSearch Service, Splunk, tablas Apache Iceberg o puntos de enlace HTTP. No escribes aplicaciones ni administras recursos: los productores envían los datos al flujo de Firehose y el servicio los entrega en el destino que configuraste, con la opción de transformarlos antes.
+
+## Qué problema resuelve
+
+Guardar registros de aplicaciones, flujos de clics o datos de sensores en un lago de datos o en un almacén exige agrupar los registros, convertirlos de formato y particionarlos antes de que estén listos para el análisis. Hacerlo con código propio implica mantener servidores y lógica de entrega. Firehose se encarga de todo ese tramo final: recibe el flujo y lo deposita en el destino, sin aplicaciones consumidoras que operar. El tema «Ingesta y streaming de datos» compara este enfoque con Kinesis Data Streams y Amazon MSK.
+
+## Conceptos clave
+
+- **Flujo de Firehose (Firehose stream)**: es la entidad principal; creas un flujo y le envías datos. Un productor puede ser, por ejemplo, un servidor web que envía registros. También puede leer automáticamente de un flujo de Kinesis Data Streams existente.
+- **Registros**: cada registro que envía un productor puede ocupar hasta 1.000 KB.
+- **Búfer**: Firehose acumula los datos hasta alcanzar un tamaño (en MB) o un intervalo (en segundos), lo que ocurra primero, y entonces los entrega.
+- **Entrega según el destino**: en S3 deja los datos en tu bucket. En Redshift los deja primero en S3 y luego ejecuta un comando `COPY` para cargarlos. En OpenSearch Service y Splunk puede guardar a la vez una copia de respaldo en S3.
+- **Transformación con Lambda**: puede invocar una función de AWS Lambda con cada lote para transformar los datos antes de entregarlos. Si activas la transformación, puede respaldar los datos de origen en otro bucket de S3.
+- **Conversión de formato**: convierte JSON a Apache Parquet o Apache ORC antes de guardarlo en S3, usando un esquema del AWS Glue Data Catalog. Si el origen es CSV, primero lo pasas a JSON con Lambda.
+- **Particionamiento dinámico**: agrupa los datos en tránsito por claves del propio registro, como un ID de cliente, y los entrega en prefijos distintos de S3. Así las consultas posteriores leen menos datos y cuestan menos.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Lee datos de"
+    service="Amazon Kinesis"
+    description="Un flujo de Firehose puede consumir automáticamente un flujo de Kinesis Data Streams existente."
+  />
+  <ConnectionCard
+    relation="Entrega datos en"
+    service="Amazon S3"
+    description="Deposita el flujo en un bucket, con particiones y en Parquet u ORC si lo configuras."
+  />
+  <ConnectionCard
+    relation="Carga datos en"
+    service="Amazon Redshift"
+    description="Deja los datos en S3 y ejecuta COPY para cargarlos en el almacén de datos."
+  />
+  <ConnectionCard
+    relation="Transforma registros con"
+    service="AWS Lambda"
+    description="Invoca una función con cada lote para limpiar, enriquecer o convertir los datos."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Firehose cuando"
+    items={[
+      'Solo necesitas entregar el flujo en S3, Redshift, OpenSearch Service u otro destino compatible.',
+      'No quieres escribir ni operar aplicaciones consumidoras.',
+      'Quieres convertir a Parquet u ORC o particionar los datos durante la entrega.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Necesitas procesar cada registro con aplicaciones propias o que varias lean el mismo flujo: Amazon Kinesis Data Streams.',
+      'Ya usas Apache Kafka y sus herramientas: Amazon MSK.',
+      'Después de la entrega necesitas un ETL más elaborado: AWS Glue.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon Data Firehose"
+  url="https://docs.aws.amazon.com/firehose/latest/dev/what-is-this-service.html"
+/>
+<OfficialSource
+  title="Transformar datos de origen en Amazon Data Firehose"
+  url="https://docs.aws.amazon.com/firehose/latest/dev/data-transformation.html"
+/>
+<OfficialSource
+  title="Convertir el formato de entrada en Amazon Data Firehose"
+  url="https://docs.aws.amazon.com/firehose/latest/dev/record-format-conversion.html"
+/>
+<OfficialSource
+  title="Particionar datos de streaming en Amazon Data Firehose"
+  url="https://docs.aws.amazon.com/firehose/latest/dev/dynamic-partitioning.html"
+/>
