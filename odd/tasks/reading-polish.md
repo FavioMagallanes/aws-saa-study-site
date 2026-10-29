@@ -13,10 +13,11 @@ Follows AGENTS.md, odd/tasks/design-system.md and odd/tasks/progress-logic.md. D
 
 ## Tasks
 
-- [ ] T1 (S3,S4) TOC active state (features/reading)
-- [ ] T2 (S2,S4) Abbreviation help inside the MDX body (features/reading, features/glossary)
-- [ ] T3 (S1,S4,S5,S6) Cmd+K search: build-time index of written pages, MiniSearch, dialog, top bar trigger (features/search, top bar)
+- [x] T1 (S3,S4) TOC active state (features/reading)
+- [x] T2 (S2,S4) Abbreviation help inside the MDX body (features/reading, features/glossary)
+- [x] T3 (S1,S4,S5,S6) Cmd+K search: build-time index of written pages, MiniSearch, dialog, top bar trigger (features/search, top bar)
 
 ## Log
 
 - L1: "empieza" (start the remaining phase 3 logic after the content is written)
+- L2: Built by two parallel workers (T1-T2 reading+glossary, T3 search+top bar), reviewed by the parent. 351 web tests, lint, prettier, tsc pass. Checked in desktop Chrome against the dev server: Cmd+K dialog, results, Enter navigation, KMS abbreviation card with glossary link, TOC active state on scroll. Not checked: mobile bottom sheet and full-screen search, dark theme, focus return, Safari. Design gaps: Penpot not consulted (workers had no MCP access); active-TOC and search dialog styling are mine. Open: the search index JSON must be regenerated with 'pnpm --filter @arquitecto/web search:index' after content edits (a test fails if stale); main bundle is 1.9 MB (471 KB gzip) because load-pages.ts imports whole MDX modules; /buscar route and IconLink are now unused.
