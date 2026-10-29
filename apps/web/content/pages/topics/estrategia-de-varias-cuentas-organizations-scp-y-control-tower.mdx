@@ -7,4 +7,106 @@ export const meta = {
   covers: ['1.1-k1', '1.1-s4'],
 };
 
-Contenido pendiente.
+A medida que una organización crece en AWS, concentrar todo en una sola cuenta deja de ser práctico ni seguro. Una estrategia de varias cuentas reparte las cargas de trabajo entre cuentas separadas y las gobierna de forma central. AWS Organizations, las políticas de control de servicios (SCP) y AWS Control Tower son las piezas principales para lograrlo.
+
+## Qué problema resuelve
+
+Las cuentas de AWS son límites naturales de permisos, seguridad, costos y cargas de trabajo, y usar un entorno de varias cuentas es una práctica recomendada para escalar. Pero cada cuenta nueva trae preguntas: cómo se crean de forma consistente, cómo se garantiza que ninguna se salga de las normas de la empresa y cómo se controla qué pueden hacer sus usuarios. Las herramientas de esta página responden a esas preguntas sin que tengas que revisar cuenta por cuenta.
+
+## Conceptos clave
+
+### AWS Organizations
+
+AWS Organizations te ayuda a administrar y gobernar tu entorno de forma central a medida que creces: puedes crear cuentas y asignar recursos, agruparlas para organizar tus flujos de trabajo, aplicar políticas de gobernanza y simplificar la facturación con un único método de pago para todas.
+
+- **Unidades organizativas (OU)**: grupos de cuentas que sirven a una sola aplicación o servicio.
+- **Creación de cuentas**: puedes crear cuentas nuevas por programación con la AWS CLI, los SDK o las API, y aprovisionar de forma central los recursos y permisos recomendados con AWS CloudFormation StackSets.
+- **Políticas de etiquetas**: sirven para clasificar o rastrear recursos y permiten un control de acceso basado en atributos.
+- **Seguridad y supervisión**: ofreces de forma central herramientas y acceso a tu equipo de seguridad, por ejemplo acceso de solo lectura en todas las cuentas, Amazon GuardDuty para detectar amenazas, IAM Access Analyzer para revisar accesos no intencionados y Amazon Macie para proteger datos sensibles.
+- **Acceso y permisos**: con AWS IAM Identity Center das acceso a las cuentas usando tu directorio y personalizas permisos por función. Además puedes aplicar políticas de la organización a usuarios, cuentas u OU.
+- **Compartir recursos**: con AWS Resource Access Manager (AWS RAM) compartes recursos dentro de la organización; por ejemplo, creas subredes de una VPC una sola vez y las compartes con todas las cuentas.
+
+### Políticas de control de servicios (SCP)
+
+Una SCP es un tipo de política de la organización con la que controlas de forma central los **permisos máximos disponibles** para los usuarios y roles de IAM de tu organización. Funciona como una barrera de protección: define límites sobre las acciones que pueden realizar, y ayuda a que las cuentas se mantengan dentro de las pautas de control de acceso de la empresa. Con ellas puedes controlar el acceso a recursos, servicios y regiones.
+
+Lo más importante de las SCP:
+
+- **No conceden permisos.** Para conceder permisos hacen falta políticas basadas en identidad o en recursos. Los permisos efectivos son la intersección entre lo que permiten las SCP y las políticas de control de recursos (RCP) y lo que permiten las políticas basadas en identidad y en recursos.
+- Solo están disponibles en una organización con todas las funciones habilitadas, no si solo se activó la facturación consolidada.
+- **No afectan a los usuarios ni a los roles de la cuenta de administración**, solo a las cuentas miembro.
+- AWS recomienda no asociar una SCP a la raíz de la organización sin probar a fondo su efecto. Mejor crea una OU y pasa las cuentas a ella una por una, o en grupos pequeños, para no bloquear a los usuarios por accidente. Para saber si una cuenta usa un servicio, puedes consultar los datos de último acceso a servicios de IAM o registrar el uso con AWS CloudTrail.
+- No quites la política `FullAWSAccess` a menos que la modifiques o la sustituyas por otra con acciones permitidas; de lo contrario, todas las acciones de las cuentas miembro fallarán.
+
+### AWS Control Tower
+
+AWS Control Tower ofrece una forma sencilla de configurar y gobernar un entorno de varias cuentas siguiendo prácticas recomendadas. Orquesta las capacidades de otros servicios, como AWS Organizations, AWS Service Catalog y AWS IAM Identity Center, para crear una zona de aterrizaje en menos de una hora, y amplía las capacidades de Organizations. Si administras más de un puñado de cuentas, conviene tener una capa de orquestación que facilite su despliegue y su gobernanza.
+
+- **Zona de aterrizaje (landing zone)**: un entorno de varias cuentas bien diseñado y basado en prácticas de seguridad y cumplimiento. Contiene todas tus OU, cuentas, usuarios y otros recursos sujetos a regulación.
+- **Controles (guardrails)**: reglas de alto nivel, expresadas en lenguaje sencillo, que dan gobernanza continua. Pueden ser preventivos, de detección o proactivos, y su guía es obligatoria, muy recomendada u opcional. Ayudan a evitar la deriva, es decir, la divergencia respecto de las prácticas recomendadas; por ejemplo, para asegurar que se crean y no se alteran los registros de seguridad y los permisos de acceso entre cuentas.
+- **Account Factory**: una plantilla de cuenta configurable que estandariza el aprovisionamiento de cuentas nuevas con configuraciones preaprobadas. Los equipos distribuidos crean cuentas con rapidez y los administradores centrales comprueban que todas cumplan las políticas de la empresa.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Se apoya en"
+    service="AWS Organizations"
+    description="Control Tower orquesta sus capacidades y las amplía para crear una zona de aterrizaje con cuentas y OU gobernadas por controles."
+  />
+  <ConnectionCard
+    relation="Da acceso con"
+    service="AWS IAM Identity Center"
+    description="Las personas acceden a las cuentas de la organización usando tu directorio, con permisos personalizados por función."
+  />
+  <ConnectionCard
+    relation="Comparte recursos con"
+    service="AWS RAM"
+    description="Permite crear un recurso una vez, como una subred de una VPC, y compartirlo con las demás cuentas de la organización."
+  />
+  <ConnectionCard
+    relation="Detecta amenazas con"
+    service="Amazon GuardDuty"
+    description="Tu equipo de seguridad puede usarlo de forma central para detectar y mitigar amenazas en las cuentas de la organización."
+  />
+</CardGrid>
+
+## Cómo diseñar la estrategia
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Qué herramienta para cada necesidad"
+    items={[
+      'Crear, agrupar y facturar varias cuentas de forma central: AWS Organizations.',
+      'Fijar los permisos máximos de los usuarios y roles de una OU o cuenta: SCP.',
+      'Montar y gobernar un entorno de varias cuentas con prácticas recomendadas: Control Tower.',
+      'Estandarizar la creación de cuentas nuevas: Account Factory.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Cuidados al usarlas"
+    items={[
+      'Una SCP no concede permisos: combínala con políticas de IAM.',
+      'Prueba una SCP en una OU antes de asociarla a la raíz.',
+      'No quites FullAWSAccess sin una política de reemplazo.',
+      'Las SCP no afectan a la cuenta de administración.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Organizations"
+  url="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_introduction.html"
+/>
+<OfficialSource
+  title="Políticas de control de servicios (SCP)"
+  url="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps.html"
+/>
+<OfficialSource
+  title="Qué es AWS Control Tower"
+  url="https://docs.aws.amazon.com/controltower/latest/userguide/what-is-control-tower.html"
+/>
