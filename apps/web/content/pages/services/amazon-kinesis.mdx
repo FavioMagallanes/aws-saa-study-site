@@ -7,4 +7,91 @@ export const meta = {
   covers: ['3.5-k7'],
 };
 
-Contenido pendiente.
+Amazon Kinesis es la plataforma de AWS para datos de streaming. Está formada por Amazon Kinesis Data Streams, Amazon Data Firehose, Amazon Kinesis Video Streams y Amazon Managed Service for Apache Flink. El servicio central es Kinesis Data Streams, que recoge y procesa en tiempo real grandes flujos de registros de datos con las aplicaciones que tú escribes. Esta página se centra en él; Firehose y Kinesis Video Streams tienen su propia página.
+
+## Qué problema resuelve
+
+Registros de aplicaciones, flujos de clics, datos de mercado o métricas de infraestructura llegan de forma continua y pierden valor si se procesan horas después. Si cada servidor acumula los datos antes de enviarlos, el análisis se retrasa y los datos se pierden cuando el servidor falla. Con Kinesis Data Streams los productores envían los datos directamente al flujo y quedan disponibles para procesarse en segundos; el retraso entre escribir un registro y poder leerlo suele ser inferior a un segundo. El tema «Ingesta y streaming de datos» compara los patrones por lotes y en streaming.
+
+## Conceptos clave
+
+- **Productores y consumidores**: los productores, como un servidor web que envía registros, escriben en el flujo. Los consumidores, llamados aplicaciones de Kinesis Data Streams, leen y procesan los registros, a menudo en instancias de EC2. Varias aplicaciones pueden procesar el mismo flujo en paralelo.
+- **Shards**: un flujo es un conjunto de shards, y su capacidad total es la suma de la de sus shards. En modo aprovisionado, cada shard admite hasta 1 MB por segundo o 1.000 registros por segundo de escritura, y hasta 2 MB por segundo de lectura.
+- **Registros y clave de partición**: cada registro tiene un número de secuencia, una clave de partición y un bloque de datos que Kinesis no inspecciona ni modifica.
+- **Retención**: por defecto los registros se conservan 24 horas; puedes ampliarla hasta 365 días con un costo adicional. Así un consumidor puede volver a leer los datos.
+- **Modos de capacidad**: en el modo bajo demanda no planificas capacidad y Kinesis administra los shards automáticamente; encaja con tráfico muy variable o impredecible y pagas por GB escrito y leído. En el modo aprovisionado indicas el número de shards, puedes aumentarlo o reducirlo, y pagas por shard y hora.
+- **Enhanced fan-out**: sin esta función, los consumidores que leen un shard comparten 2 MB por segundo. Con ella, cada consumidor registrado recibe hasta 2 MB por segundo por shard de rendimiento dedicado, y Kinesis le envía los registros sin que tenga que sondear.
+
+### Otros servicios de la familia
+
+- **Amazon Data Firehose**: entrega el flujo en destinos como S3 o Redshift sin escribir consumidores.
+- **Amazon Managed Service for Apache Flink**: procesa y analiza datos de streaming con Java, Scala, Python o SQL, sobre Apache Flink, sin administrar su infraestructura.
+- **Amazon Kinesis Video Streams**: transmite video en directo desde dispositivos, como cámaras, a la nube para procesarlo en tiempo real o analizarlo por lotes.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Entrega el flujo con"
+    service="Amazon Data Firehose"
+    description="Firehose puede leer de un flujo de Kinesis Data Streams y cargar los datos en S3, Redshift u OpenSearch Service."
+  />
+  <ConnectionCard
+    relation="Ejecuta consumidores en"
+    service="Amazon EC2"
+    description="Las aplicaciones consumidoras suelen ejecutarse en una flota de instancias de EC2."
+  />
+  <ConnectionCard
+    relation="Guarda resultados en"
+    service="Amazon DynamoDB"
+    description="Los consumidores pueden guardar sus resultados en DynamoDB, Amazon Redshift o Amazon S3."
+  />
+  <ConnectionCard
+    relation="Se procesa con"
+    service="AWS Glue"
+    description="Los trabajos de ETL en streaming de Glue consumen de Kinesis Data Streams de forma continua y cargan el resultado en S3."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Kinesis Data Streams cuando"
+    items={[
+      'Necesitas procesar datos en tiempo real con aplicaciones consumidoras propias.',
+      'Varias aplicaciones deben leer el mismo flujo de forma independiente.',
+      'Necesitas conservar los registros y volver a leerlos durante días.',
+      'El tráfico es impredecible y prefieres el modo bajo demanda.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Solo necesitas entregar el flujo en S3, Redshift u OpenSearch Service sin código: Amazon Data Firehose.',
+      'Ya usas Apache Kafka y quieres mantener sus herramientas: Amazon MSK.',
+      'Quieres analizar el flujo con SQL, Java, Scala o Python sobre Apache Flink sin administrar infraestructura: Managed Service for Apache Flink.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon Kinesis Data Streams"
+  url="https://docs.aws.amazon.com/streams/latest/dev/introduction.html"
+/>
+<OfficialSource
+  title="Terminología y conceptos de Kinesis Data Streams"
+  url="https://docs.aws.amazon.com/streams/latest/dev/key-concepts.html"
+/>
+<OfficialSource
+  title="Elegir el modo de capacidad de Kinesis Data Streams"
+  url="https://docs.aws.amazon.com/streams/latest/dev/how-do-i-size-a-stream.html"
+/>
+<OfficialSource
+  title="Consumidores con enhanced fan-out"
+  url="https://docs.aws.amazon.com/streams/latest/dev/enhanced-consumers.html"
+/>
