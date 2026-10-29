@@ -7,4 +7,104 @@ export const meta = {
   covers: ['1.3-s5'],
 };
 
-Contenido pendiente.
+AWS Backup es un servicio totalmente administrado que centraliza y automatiza la protección de datos de los servicios de AWS, en la nube y en entornos locales. Desde un solo lugar defines las políticas de copia de seguridad y supervisas la actividad de copia y restauración de tus recursos.
+
+## Qué problema resuelve
+
+Sin un servicio central, cada equipo respalda cada servicio por su cuenta, con scripts propios y procesos manuales que es fácil olvidar o configurar mal. AWS Backup reúne esas tareas: aplicas la misma política a recursos de distintos servicios y compruebas en una consola que todo se respalda como exige el negocio o la normativa. Cómo combinar copias de seguridad y replicación en una estrategia completa se explica en el tema «Copias de seguridad y replicación de datos».
+
+## Conceptos clave
+
+### Planes de copia de seguridad
+
+Un plan de copia de seguridad es una política que define cuándo y cómo se respaldan los recursos. Puedes tener planes distintos para requisitos de negocio o de cumplimiento diferentes, y asignar los recursos al plan de varias formas, entre ellas mediante **etiquetas**: así todos los recursos con una etiqueta se respaldan de forma coherente.
+
+### Almacenes de copias de seguridad (backup vaults)
+
+Un almacén es el contenedor que guarda y organiza las copias. Al crearlo indicas la clave de AWS KMS que cifra las copias que gestiona AWS Backup, y puedes definir políticas de acceso basadas en recursos que limitan quién accede a las copias y qué acciones puede hacer. El contenido de cada copia es inmutable, y el almacén la conserva según su ciclo de vida aunque elimines el recurso de origen.
+
+### AWS Backup Vault Lock
+
+Es una función opcional del almacén que impide eliminar copias o cambiar su ciclo de vida antes de que termine su retención, incluso al usuario raíz. Tiene dos modos:
+
+- **Governance**: los usuarios con permisos de IAM suficientes pueden quitar el bloqueo.
+- **Compliance**: tras un periodo de gracia, ni los usuarios ni AWS pueden cambiar ni eliminar el almacén mientras contenga copias. Úsalo con cuidado, porque las copias se conservan, y se pagan, hasta que termina su retención.
+
+### Ciclo de vida, copias incrementales y copias en otras regiones o cuentas
+
+- **Ciclo de vida**: pasa las copias de almacenamiento templado a un nivel en frío de menor costo según un calendario, en los recursos que lo admiten.
+- **Copias incrementales**: en los tipos de recurso compatibles, la primera copia es completa y las siguientes solo guardan los cambios.
+- **Entre regiones**: copias las copias a otras regiones, bajo demanda o en el plan programado, cuando la continuidad del negocio o el cumplimiento exigen guardarlas lejos de producción.
+- **Entre cuentas**: con AWS Organizations aplicas políticas de copia a todas las cuentas y copias las copias a otras cuentas de la organización.
+
+### Auditoría
+
+AWS Backup Audit Manager ofrece controles para comprobar que las copias cumplen tus requisitos y genera informes diarios como evidencia de cumplimiento.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Aplica planes en varias cuentas con"
+    service="AWS Organizations"
+    description="Las políticas de copia de seguridad aplican planes a las cuentas de la organización y permiten copiar las copias entre cuentas."
+  />
+  <ConnectionCard
+    relation="Cifra las copias con"
+    service="AWS KMS"
+    description="Cada almacén usa una clave de KMS para cifrar las copias que gestiona AWS Backup."
+  />
+  <ConnectionCard
+    relation="Respalda volúmenes de"
+    service="Amazon EBS"
+    description="Programa instantáneas de los volúmenes y las conserva en el almacén aunque borres el volumen o la instancia."
+  />
+  <ConnectionCard
+    relation="Se supervisa con"
+    service="Amazon CloudWatch"
+    description="Las métricas y alarmas de CloudWatch, los eventos de EventBridge y CloudTrail permiten seguir y auditar la actividad de copia."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="AWS Backup cuando"
+    items={[
+      'Quieres gobernar las copias de varios servicios con las mismas políticas y en un solo lugar.',
+      'Necesitas guardar copias en otra región o en otra cuenta.',
+      'Debes impedir que nadie borre las copias antes de tiempo: Vault Lock.',
+      'Tienes que demostrar el cumplimiento de tus copias con informes.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Solo necesitas programar instantáneas de EBS: Amazon Data Lifecycle Manager.',
+      'Quieres una copia viva de los objetos en otro bucket, no puntos de restauración: replicación de Amazon S3.',
+      'Necesitas volver a un momento dado de una base de datos de RDS: las copias automáticas del propio RDS.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Backup"
+  url="https://docs.aws.amazon.com/aws-backup/latest/devguide/whatisbackup.html"
+/>
+<OfficialSource
+  title="Almacenes de copias de seguridad"
+  url="https://docs.aws.amazon.com/aws-backup/latest/devguide/vaults.html"
+/>
+<OfficialSource
+  title="AWS Backup Vault Lock"
+  url="https://docs.aws.amazon.com/aws-backup/latest/devguide/vault-lock.html"
+/>
+<OfficialSource
+  title="Copias de seguridad entre regiones"
+  url="https://docs.aws.amazon.com/aws-backup/latest/devguide/cross-region-backup.html"
+/>
