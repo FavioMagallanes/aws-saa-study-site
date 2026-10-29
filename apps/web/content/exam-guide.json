@@ -1,0 +1,1350 @@
+{
+  "tasks": [
+    {
+      "id": "1.1",
+      "title": "Diseñar un acceso seguro a los recursos de AWS",
+      "knowledge": [
+        {
+          "id": "1.1-k1",
+          "text": "Controles y administración de acceso en varias cuentas"
+        },
+        {
+          "id": "1.1-k2",
+          "text": "Servicios de identidad y acceso federados de AWS (por ejemplo, IAM, AWS IAM Identity Center)"
+        },
+        {
+          "id": "1.1-k3",
+          "text": "Infraestructura global de AWS (por ejemplo, zonas de disponibilidad, regiones de AWS)"
+        },
+        {
+          "id": "1.1-k4",
+          "text": "Prácticas recomendadas de seguridad de AWS (por ejemplo, el principio de mínimo privilegio)"
+        },
+        {
+          "id": "1.1-k5",
+          "text": "El modelo de responsabilidad compartida de AWS"
+        }
+      ],
+      "skills": [
+        {
+          "id": "1.1-s1",
+          "text": "Aplicar las prácticas recomendadas de seguridad de AWS a los usuarios de IAM y a los usuarios raíz (por ejemplo, autenticación multifactor [MFA])."
+        },
+        {
+          "id": "1.1-s2",
+          "text": "Diseñar un modelo de autorización flexible que incluya usuarios, grupos, roles y políticas de IAM."
+        },
+        {
+          "id": "1.1-s3",
+          "text": "Diseñar una estrategia de control de acceso basada en roles (por ejemplo, AWS STS, cambio de roles, acceso entre cuentas)."
+        },
+        {
+          "id": "1.1-s4",
+          "text": "Diseñar una estrategia de seguridad para varias cuentas de AWS (por ejemplo, AWS Control Tower, políticas de control de servicios [SCP])."
+        },
+        {
+          "id": "1.1-s5",
+          "text": "Determinar el uso adecuado de las políticas de recursos para los servicios de AWS."
+        },
+        {
+          "id": "1.1-s6",
+          "text": "Determinar cuándo federar un servicio de directorio con roles de IAM."
+        }
+      ]
+    },
+    {
+      "id": "1.2",
+      "title": "Diseñar cargas de trabajo y aplicaciones seguras",
+      "knowledge": [
+        {
+          "id": "1.2-k1",
+          "text": "Configuración de aplicaciones y seguridad de credenciales"
+        },
+        {
+          "id": "1.2-k2",
+          "text": "Puntos de enlace de servicios de AWS"
+        },
+        {
+          "id": "1.2-k3",
+          "text": "Puertos de control, protocolos y tráfico de red en AWS"
+        },
+        {
+          "id": "1.2-k4",
+          "text": "Acceso seguro a las aplicaciones"
+        },
+        {
+          "id": "1.2-k5",
+          "text": "Servicios de seguridad con casos de uso adecuados (por ejemplo, Amazon Cognito, Amazon GuardDuty y Amazon Macie)"
+        },
+        {
+          "id": "1.2-k6",
+          "text": "Vectores de amenazas externas a AWS (por ejemplo, denegación de servicio distribuido [DDoS], inyección de código SQL)"
+        }
+      ],
+      "skills": [
+        {
+          "id": "1.2-s1",
+          "text": "Diseñar arquitecturas de VPC con componentes de seguridad (por ejemplo, grupos de seguridad, tablas de enrutamiento, ACL de red, puertas de enlace de NAT)."
+        },
+        {
+          "id": "1.2-s2",
+          "text": "Determinar las estrategias de segmentación de red (por ejemplo, el uso de subredes públicas y subredes privadas)."
+        },
+        {
+          "id": "1.2-s3",
+          "text": "Integrar a los servicios de AWS para proteger las aplicaciones (por ejemplo, AWS Shield, AWS WAF, IAM Identity Center, AWS Secrets Manager)."
+        },
+        {
+          "id": "1.2-s4",
+          "text": "Proteger las conexiones de red externas desde la nube de AWS y hacia ella (por ejemplo, VPN, AWS Direct Connect)."
+        }
+      ]
+    },
+    {
+      "id": "1.3",
+      "title": "Determinar los controles de seguridad de datos adecuados",
+      "knowledge": [
+        {
+          "id": "1.3-k1",
+          "text": "Acceso a los datos y gobernanza"
+        },
+        {
+          "id": "1.3-k2",
+          "text": "Recuperación de datos"
+        },
+        {
+          "id": "1.3-k3",
+          "text": "Retención y clasificación de datos"
+        },
+        {
+          "id": "1.3-k4",
+          "text": "Cifrado y administración adecuada de claves"
+        }
+      ],
+      "skills": [
+        {
+          "id": "1.3-s1",
+          "text": "Alinear las tecnologías de AWS para satisfacer los requisitos de cumplimiento."
+        },
+        {
+          "id": "1.3-s2",
+          "text": "Cifrar datos en reposo (por ejemplo, AWS KMS)."
+        },
+        {
+          "id": "1.3-s3",
+          "text": "Cifrar datos en tránsito (por ejemplo, AWS Certificate Manager [ACM] mediante TLS)."
+        },
+        {
+          "id": "1.3-s4",
+          "text": "Implementar políticas de acceso para claves de cifrado."
+        },
+        {
+          "id": "1.3-s5",
+          "text": "Implementar copias de seguridad y replicaciones de datos."
+        },
+        {
+          "id": "1.3-s6",
+          "text": "Implementar políticas de acceso, ciclo de vida y protección de datos."
+        },
+        {
+          "id": "1.3-s7",
+          "text": "Rotar claves de cifrado y renovar certificados."
+        }
+      ]
+    },
+    {
+      "id": "2.1",
+      "title": "Diseñar arquitecturas escalables y con acoplamiento débil",
+      "knowledge": [
+        {
+          "id": "2.1-k1",
+          "text": "Creación y administración de API (por ejemplo, Amazon API Gateway, API de REST)"
+        },
+        {
+          "id": "2.1-k2",
+          "text": "AWS Managed Services con casos de uso adecuados (por ejemplo, AWS Transfer Family, Amazon SQS, AWS Secrets Manager)"
+        },
+        {
+          "id": "2.1-k3",
+          "text": "Estrategias de almacenamiento en caché"
+        },
+        {
+          "id": "2.1-k4",
+          "text": "Principios de diseño para microservicios (por ejemplo, cargas de trabajo sin estado en comparación con cargas de trabajo con estado)"
+        },
+        {
+          "id": "2.1-k5",
+          "text": "Arquitecturas basadas en eventos"
+        },
+        {
+          "id": "2.1-k6",
+          "text": "Escalado horizontal y escalado vertical"
+        },
+        {
+          "id": "2.1-k7",
+          "text": "Cómo utilizar correctamente los aceleradores periféricos (por ejemplo, red de entrega de contenido [CDN])"
+        },
+        {
+          "id": "2.1-k8",
+          "text": "Cómo migrar aplicaciones a contenedores"
+        },
+        {
+          "id": "2.1-k9",
+          "text": "Conceptos de equilibrio de carga (por ejemplo, equilibrador de carga de aplicación [ALB])"
+        },
+        {
+          "id": "2.1-k10",
+          "text": "Arquitecturas de varios niveles"
+        },
+        {
+          "id": "2.1-k11",
+          "text": "Conceptos de cola y mensajería (por ejemplo, publicación/suscripción)"
+        },
+        {
+          "id": "2.1-k12",
+          "text": "Tecnologías y patrones sin servidor (por ejemplo, AWS Lambda, AWS Fargate)"
+        },
+        {
+          "id": "2.1-k13",
+          "text": "Tipos de almacenamiento con características asociadas (por ejemplo, objeto, archivo, bloque)"
+        },
+        {
+          "id": "2.1-k14",
+          "text": "Orquestación de contenedores (por ejemplo, Amazon ECS, Amazon EKS)"
+        },
+        {
+          "id": "2.1-k15",
+          "text": "Cuándo usar réplicas de lectura"
+        },
+        {
+          "id": "2.1-k16",
+          "text": "Orquestación del flujo de trabajo (por ejemplo, AWS Step Functions)"
+        }
+      ],
+      "skills": [
+        {
+          "id": "2.1-s1",
+          "text": "Diseñar arquitecturas basadas en eventos, de microservicios o de varios niveles en función de los requisitos."
+        },
+        {
+          "id": "2.1-s2",
+          "text": "Determinar estrategias de escalado para componentes utilizados en un diseño de arquitectura."
+        },
+        {
+          "id": "2.1-s3",
+          "text": "Determinar los servicios de AWS necesarios para lograr un acoplamiento débil en función de los requisitos."
+        },
+        {
+          "id": "2.1-s4",
+          "text": "Determinar cuándo usar contenedores."
+        },
+        {
+          "id": "2.1-s5",
+          "text": "Determinar cuándo usar tecnologías y patrones sin servidor."
+        },
+        {
+          "id": "2.1-s6",
+          "text": "Recomendar tecnologías de computación, almacenamiento, redes y bases de datos adecuadas en función de los requisitos."
+        },
+        {
+          "id": "2.1-s7",
+          "text": "Usar servicios de AWS diseñados específicamente para cargas de trabajo."
+        }
+      ]
+    },
+    {
+      "id": "2.2",
+      "title": "Diseñar arquitecturas de alta disponibilidad y/o tolerantes a",
+      "knowledge": [
+        {
+          "id": "2.2-k1",
+          "text": "Infraestructura global de AWS (por ejemplo, zonas de disponibilidad, regiones de AWS, Amazon Route 53)"
+        },
+        {
+          "id": "2.2-k2",
+          "text": "AWS Managed Services (AMS) con casos de uso adecuados (por ejemplo, Amazon Comprehend, Amazon Polly)"
+        },
+        {
+          "id": "2.2-k3",
+          "text": "Conceptos básicos de redes (por ejemplo, tablas de enrutamiento)"
+        },
+        {
+          "id": "2.2-k4",
+          "text": "Estrategias de recuperación de desastres (DR) (por ejemplo, copia de seguridad y restauración, llama piloto, espera activa, activo-activo, conmutación por error, objetivo de punto de recuperación [RPO], objetivo de tiempo de recuperación [RTO])"
+        },
+        {
+          "id": "2.2-k5",
+          "text": "Patrones de diseño distribuidos"
+        },
+        {
+          "id": "2.2-k6",
+          "text": "Estrategias de conmutación por error"
+        },
+        {
+          "id": "2.2-k7",
+          "text": "Infraestructura inmutable"
+        },
+        {
+          "id": "2.2-k8",
+          "text": "Conceptos de equilibrio de carga (por ejemplo, ALB)"
+        },
+        {
+          "id": "2.2-k9",
+          "text": "Conceptos de proxy (por ejemplo, Amazon RDS Proxy)"
+        },
+        {
+          "id": "2.2-k10",
+          "text": "Service Quotas y limitación controlada (por ejemplo, cómo configurar Service Quotas para una carga de trabajo en un entorno en espera)"
+        },
+        {
+          "id": "2.2-k11",
+          "text": "Opciones y características de almacenamiento (por ejemplo, durabilidad, replicación)"
+        },
+        {
+          "id": "2.2-k12",
+          "text": "Visibilidad de las cargas de trabajo (por ejemplo, AWS X-Ray)"
+        }
+      ],
+      "skills": [
+        {
+          "id": "2.2-s1",
+          "text": "Determinar estrategias de automatización para garantizar la integridad de la infraestructura."
+        },
+        {
+          "id": "2.2-s2",
+          "text": "Determinar los servicios de AWS necesarios para brindar una arquitectura de alta disponibilidad o tolerante a errores en todas las zonas de disponibilidad o regiones de AWS."
+        },
+        {
+          "id": "2.2-s3",
+          "text": "Identificar métricas en función de los requisitos empresariales para ofrecer una solución de alta disponibilidad."
+        },
+        {
+          "id": "2.2-s4",
+          "text": "Implementar diseños para mitigar puntos únicos de error."
+        },
+        {
+          "id": "2.2-s5",
+          "text": "Implementar estrategias para garantizar la durabilidad y disponibilidad de los datos (por ejemplo, copias de seguridad)."
+        },
+        {
+          "id": "2.2-s6",
+          "text": "Seleccionar una estrategia de DR adecuada para cumplir con los requisitos empresariales."
+        },
+        {
+          "id": "2.2-s7",
+          "text": "Usar servicios de AWS que mejoren la fiabilidad de las aplicaciones heredadas y las que no son creadas para la nube (por ejemplo, cuando no es posible realizar cambios en las aplicaciones)."
+        },
+        {
+          "id": "2.2-s8",
+          "text": "Usar servicios de AWS diseñados específicamente para cargas de trabajo."
+        }
+      ]
+    },
+    {
+      "id": "3.1",
+      "title": "Determinar soluciones de almacenamiento escalables o de alto",
+      "knowledge": [
+        {
+          "id": "3.1-k1",
+          "text": "Soluciones de almacenamiento híbrido para cumplir con los requisitos de la empresa"
+        },
+        {
+          "id": "3.1-k2",
+          "text": "Servicios de almacenamiento con casos de uso adecuados (por ejemplo, Amazon S3, Amazon EFS, Amazon EBS)"
+        },
+        {
+          "id": "3.1-k3",
+          "text": "Tipos de almacenamiento con características asociadas (por ejemplo, objeto, archivo, bloque)"
+        }
+      ],
+      "skills": [
+        {
+          "id": "3.1-s1",
+          "text": "Determinar los servicios y configuraciones de almacenamiento que cumplen con las demandas de rendimiento."
+        },
+        {
+          "id": "3.1-s2",
+          "text": "Determinar los servicios de almacenamiento que pueden escalar para adaptarse a necesidades futuras."
+        }
+      ]
+    },
+    {
+      "id": "3.2",
+      "title": "Diseñar soluciones de computación elásticas y de alto",
+      "knowledge": [
+        {
+          "id": "3.2-k1",
+          "text": "Servicios de computación de AWS con casos de uso adecuados (por ejemplo, AWS Batch, Amazon EMR, AWS Fargate)"
+        },
+        {
+          "id": "3.2-k2",
+          "text": "Conceptos de computación distribuida compatibles con la infraestructura global y los servicios periféricos de AWS"
+        },
+        {
+          "id": "3.2-k3",
+          "text": "Conceptos de cola y mensajería (por ejemplo, publicación/suscripción)"
+        },
+        {
+          "id": "3.2-k4",
+          "text": "Capacidades de escalabilidad con casos de uso adecuados (por ejemplo, Amazon EC2 Auto Scaling, AWS Auto Scaling)"
+        },
+        {
+          "id": "3.2-k5",
+          "text": "Tecnologías y patrones sin servidor (por ejemplo, AWS Lambda, Fargate)"
+        },
+        {
+          "id": "3.2-k6",
+          "text": "Orquestación de contenedores (por ejemplo, Amazon ECS, Amazon EKS)"
+        }
+      ],
+      "skills": [
+        {
+          "id": "3.2-s1",
+          "text": "Desacoplar cargas de trabajo para que los componentes puedan escalar de forma independiente."
+        },
+        {
+          "id": "3.2-s2",
+          "text": "Identificar métricas y condiciones para realizar acciones de escalado."
+        },
+        {
+          "id": "3.2-s3",
+          "text": "Seleccionar opciones y características de computación adecuadas (por ejemplo, tipos de instancias de EC2) para cumplir con los requisitos de la empresa."
+        },
+        {
+          "id": "3.2-s4",
+          "text": "Seleccionar el tipo y el tamaño de recursos adecuados (por ejemplo, la cantidad de memoria Lambda) para cumplir con los requisitos empresariales."
+        }
+      ]
+    },
+    {
+      "id": "3.3",
+      "title": "Determinar soluciones de bases de datos de alto rendimiento",
+      "knowledge": [
+        {
+          "id": "3.3-k1",
+          "text": "Infraestructura global de AWS (por ejemplo, zonas de disponibilidad, regiones de AWS)"
+        },
+        {
+          "id": "3.3-k2",
+          "text": "Estrategias y servicios de almacenamiento en caché (por ejemplo, Amazon ElastiCache)"
+        },
+        {
+          "id": "3.3-k3",
+          "text": "Patrones de acceso a datos (por ejemplo, de lectura intensiva en comparación con escritura intensiva)"
+        },
+        {
+          "id": "3.3-k4",
+          "text": "Planificación de la capacidad de la base de datos (por ejemplo, unidades de capacidad, tipos de instancias, IOPS aprovisionadas)"
+        },
+        {
+          "id": "3.3-k5",
+          "text": "Conexiones y proxies de bases de datos"
+        },
+        {
+          "id": "3.3-k6",
+          "text": "Motores de bases de datos con casos de uso adecuados (por ejemplo, migraciones heterogéneas, migraciones homogéneas)"
+        },
+        {
+          "id": "3.3-k7",
+          "text": "Replicación de bases de datos (por ejemplo, réplicas de lectura)"
+        },
+        {
+          "id": "3.3-k8",
+          "text": "Tipos y servicios de bases de datos (por ejemplo, sin servidor, relacionales en comparación con no relacionales, en memoria)"
+        }
+      ],
+      "skills": [
+        {
+          "id": "3.3-s1",
+          "text": "Configurar réplicas de lectura para cumplir con los requisitos empresariales."
+        },
+        {
+          "id": "3.3-s2",
+          "text": "Diseñar arquitecturas de bases de datos."
+        },
+        {
+          "id": "3.3-s3",
+          "text": "Determinar un motor de base de datos adecuado (por ejemplo, MySQL en comparación con PostgreSQL)."
+        },
+        {
+          "id": "3.3-s4",
+          "text": "Determinar un tipo de base de datos adecuado (por ejemplo, Amazon Aurora, Amazon DynamoDB)."
+        },
+        {
+          "id": "3.3-s5",
+          "text": "Integrar el almacenamiento en caché para cumplir con los requisitos empresariales."
+        }
+      ]
+    },
+    {
+      "id": "3.4",
+      "title": "Determinar arquitecturas de red escalables o de alto",
+      "knowledge": [
+        {
+          "id": "3.4-k1",
+          "text": "Servicios de redes de periferia con casos de uso adecuados (por ejemplo, Amazon CloudFront, AWS Global Accelerator)"
+        },
+        {
+          "id": "3.4-k2",
+          "text": "Cómo diseñar una arquitectura de red (por ejemplo, niveles de subred, enrutamiento, direccionamiento IP)"
+        },
+        {
+          "id": "3.4-k3",
+          "text": "Conceptos de equilibrio de carga (por ejemplo, equilibrador de carga de aplicación [ALB])"
+        },
+        {
+          "id": "3.4-k4",
+          "text": "Opciones de conexión de red (por ejemplo, AWS VPN, AWS Direct Connect, AWS PrivateLink)"
+        }
+      ],
+      "skills": [
+        {
+          "id": "3.4-s1",
+          "text": "Crear una topología de red para varias arquitecturas (por ejemplo, global, híbrida o de varios niveles)."
+        },
+        {
+          "id": "3.4-s2",
+          "text": "Determinar las configuraciones de red que pueden escalar para adaptarse a necesidades futuras."
+        },
+        {
+          "id": "3.4-s3",
+          "text": "Determinar la ubicación adecuada de los recursos para cumplir con los requisitos de la empresa."
+        },
+        {
+          "id": "3.4-s4",
+          "text": "Seleccionar la estrategia de equilibrio de carga adecuada."
+        }
+      ]
+    },
+    {
+      "id": "3.5",
+      "title": "Determinar soluciones de transformación e ingesta de datos de",
+      "knowledge": [
+        {
+          "id": "3.5-k1",
+          "text": "Servicios de análisis y visualización de datos con casos de uso adecuados (por ejemplo, Amazon Athena, AWS Lake Formation, Amazon Quick)"
+        },
+        {
+          "id": "3.5-k2",
+          "text": "Patrones de ingesta de datos (por ejemplo, frecuencia)"
+        },
+        {
+          "id": "3.5-k3",
+          "text": "Servicios de transferencia de datos con casos de uso adecuados (por ejemplo, AWS DataSync, AWS Storage Gateway)"
+        },
+        {
+          "id": "3.5-k4",
+          "text": "Servicios de transformación de datos con casos de uso adecuados (por ejemplo, AWS Glue)"
+        },
+        {
+          "id": "3.5-k5",
+          "text": "Acceso seguro a los puntos de acceso de ingesta"
+        },
+        {
+          "id": "3.5-k6",
+          "text": "Tamaños y velocidades necesarios para cumplir con los requisitos empresariales"
+        },
+        {
+          "id": "3.5-k7",
+          "text": "Servicios de datos de streaming con casos de uso adecuados (por ejemplo, Amazon Kinesis)"
+        }
+      ],
+      "skills": [
+        {
+          "id": "3.5-s1",
+          "text": "Crear y proteger lagos de datos."
+        },
+        {
+          "id": "3.5-s2",
+          "text": "Diseñar arquitecturas de flujo de datos."
+        },
+        {
+          "id": "3.5-s3",
+          "text": "Diseñar soluciones de transferencia de datos."
+        },
+        {
+          "id": "3.5-s4",
+          "text": "Implementar estrategias de visualización."
+        },
+        {
+          "id": "3.5-s5",
+          "text": "Seleccionar las opciones de computación adecuadas para el procesamiento de datos (por ejemplo, Amazon EMR)."
+        },
+        {
+          "id": "3.5-s6",
+          "text": "Seleccionar configuraciones adecuadas para la ingesta."
+        },
+        {
+          "id": "3.5-s7",
+          "text": "Transformar datos entre formatos (por ejemplo, de .csv a .parquet)."
+        }
+      ]
+    },
+    {
+      "id": "4.1",
+      "title": "Diseñar soluciones de almacenamiento rentables",
+      "knowledge": [
+        {
+          "id": "4.1-k1",
+          "text": "Opciones de acceso (por ejemplo, un bucket de S3 con almacenamiento de objetos con pago a cargo del solicitante)"
+        },
+        {
+          "id": "4.1-k2",
+          "text": "Características del servicio de administración de costos de AWS (por ejemplo, etiquetas de asignación de costos, facturación en varias cuentas)"
+        },
+        {
+          "id": "4.1-k3",
+          "text": "Herramientas de administración de costos de AWS con casos de uso adecuados (por ejemplo, Explorador de costos de AWS, AWS Budgets, Informe de costo y uso de AWS)"
+        },
+        {
+          "id": "4.1-k4",
+          "text": "Servicios de almacenamiento de AWS con casos de uso adecuados (por ejemplo, Amazon FSx, Amazon EFS, Amazon S3, Amazon EBS)"
+        },
+        {
+          "id": "4.1-k5",
+          "text": "Estrategias de copia de seguridad"
+        },
+        {
+          "id": "4.1-k6",
+          "text": "Opciones de almacenamiento en bloque (por ejemplo, tipos de volumen de unidad de disco duro [HDD], tipos de volumen de unidad de estado sólido [SSD])"
+        },
+        {
+          "id": "4.1-k7",
+          "text": "Ciclos de vida de los datos"
+        },
+        {
+          "id": "4.1-k8",
+          "text": "Opciones de almacenamiento híbrido (por ejemplo, AWS DataSync, AWS Transfer Family, AWS Storage Gateway)"
+        },
+        {
+          "id": "4.1-k9",
+          "text": "Patrones de acceso al almacenamiento"
+        },
+        {
+          "id": "4.1-k10",
+          "text": "Clasificación del almacenamiento (por ejemplo, clasificación en frío para el almacenamiento de objetos)"
+        },
+        {
+          "id": "4.1-k11",
+          "text": "Tipos de almacenamiento con características asociadas (por ejemplo, objeto, archivo, bloque)"
+        }
+      ],
+      "skills": [
+        {
+          "id": "4.1-s1",
+          "text": "Diseñar estrategias de almacenamiento adecuadas (por ejemplo, cargas por lotes a Amazon S3 en comparación con cargas individuales)."
+        },
+        {
+          "id": "4.1-s2",
+          "text": "Determinar el tamaño de almacenamiento correcto para una carga de trabajo."
+        },
+        {
+          "id": "4.1-s3",
+          "text": "Determinar el método de menor costo de transferencia de datos para una carga de trabajo al almacenamiento de AWS."
+        },
+        {
+          "id": "4.1-s4",
+          "text": "Determinar cuándo se requiere el escalado automático del almacenamiento."
+        },
+        {
+          "id": "4.1-s5",
+          "text": "Administrar los ciclos de vida de objetos S3."
+        },
+        {
+          "id": "4.1-s6",
+          "text": "Seleccionar la solución de copia de seguridad o archivado adecuada."
+        },
+        {
+          "id": "4.1-s7",
+          "text": "Seleccionar el servicio adecuado para la migración de datos a los servicios de almacenamiento."
+        },
+        {
+          "id": "4.1-s8",
+          "text": "Seleccionar el nivel de almacenamiento adecuado."
+        },
+        {
+          "id": "4.1-s9",
+          "text": "Seleccionar el ciclo de vida de datos correcto para el almacenamiento."
+        },
+        {
+          "id": "4.1-s10",
+          "text": "Seleccionar el servicio de almacenamiento más rentable para una carga de trabajo."
+        }
+      ]
+    },
+    {
+      "id": "4.2",
+      "title": "Diseñar soluciones de computación rentables",
+      "knowledge": [
+        {
+          "id": "4.2-k1",
+          "text": "Características del servicio de administración de costos de AWS (por ejemplo, etiquetas de asignación de costos, facturación en varias cuentas)"
+        },
+        {
+          "id": "4.2-k2",
+          "text": "Herramientas de administración de costos de AWS con casos de uso adecuados (por ejemplo, Explorador de costos de AWS, AWS Budgets, Informe de costo y uso de AWS)"
+        },
+        {
+          "id": "4.2-k3",
+          "text": "Infraestructura global de AWS (por ejemplo, zonas de disponibilidad, regiones de AWS)"
+        },
+        {
+          "id": "4.2-k4",
+          "text": "Opciones de compra de AWS (por ejemplo, instancias de spot, instancias reservadas, Savings Plans)"
+        },
+        {
+          "id": "4.2-k5",
+          "text": "Estrategias de computación distribuida (por ejemplo, procesamiento periférico)"
+        },
+        {
+          "id": "4.2-k6",
+          "text": "Opciones de computación híbridas (por ejemplo, AWS Outposts)"
+        },
+        {
+          "id": "4.2-k7",
+          "text": "Tipos, familias y tamaños de instancias (por ejemplo, memoria optimizada, computación optimizada, virtualización)"
+        },
+        {
+          "id": "4.2-k8",
+          "text": "Optimización de la utilización de computación (por ejemplo, contenedores, computación sin servidor, microservicios)"
+        },
+        {
+          "id": "4.2-k9",
+          "text": "Estrategias de escalado (por ejemplo, escalado automático, hibernación)"
+        }
+      ],
+      "skills": [
+        {
+          "id": "4.2-s1",
+          "text": "Determinar una estrategia de equilibrio de carga adecuada (por ejemplo, equilibrador de carga de aplicación [capa 7] en comparación con equilibrador de carga de red [capa 4], en comparación con equilibrador de carga de puerta de enlace)."
+        },
+        {
+          "id": "4.2-s2",
+          "text": "Determinar métodos y estrategias de escalado adecuados para cargas de trabajo elásticas (por ejemplo, horizontal en comparación con vertical, hibernación EC2)."
+        },
+        {
+          "id": "4.2-s3",
+          "text": "Determinar servicios de computación de AWS rentables con casos de uso adecuados (por ejemplo, AWS Lambda, Amazon EC2, AWS Fargate)."
+        },
+        {
+          "id": "4.2-s4",
+          "text": "Determinar la disponibilidad necesaria para diferentes clases de cargas de trabajo (por ejemplo, cargas de trabajo de producción, cargas de trabajo que no son de producción)."
+        },
+        {
+          "id": "4.2-s5",
+          "text": "Seleccionar la familia de instancias adecuada para una carga de trabajo."
+        },
+        {
+          "id": "4.2-s6",
+          "text": "Seleccionar el tamaño de instancia adecuado para una carga de trabajo."
+        }
+      ]
+    },
+    {
+      "id": "4.3",
+      "title": "Diseñar soluciones de bases de datos rentables",
+      "knowledge": [
+        {
+          "id": "4.3-k1",
+          "text": "Características del servicio de administración de costos de AWS (por ejemplo, etiquetas de asignación de costos, facturación en varias cuentas)"
+        },
+        {
+          "id": "4.3-k2",
+          "text": "Herramientas de administración de costos de AWS con casos de uso adecuados (por ejemplo, Explorador de costos de AWS, AWS Budgets, Informe de costo y uso de AWS)"
+        },
+        {
+          "id": "4.3-k3",
+          "text": "Estrategias de almacenamiento en caché"
+        },
+        {
+          "id": "4.3-k4",
+          "text": "Políticas de retención de datos"
+        },
+        {
+          "id": "4.3-k5",
+          "text": "Planificación de capacidad de las bases de datos (por ejemplo, unidades de capacidad)"
+        },
+        {
+          "id": "4.3-k6",
+          "text": "Conexiones y proxies de bases de datos"
+        },
+        {
+          "id": "4.3-k7",
+          "text": "Motores de bases de datos con casos de uso adecuados (por ejemplo, migraciones heterogéneas, migraciones homogéneas)"
+        },
+        {
+          "id": "4.3-k8",
+          "text": "Replicación de bases de datos (por ejemplo, réplicas de lectura)"
+        },
+        {
+          "id": "4.3-k9",
+          "text": "Tipos y servicios de bases de datos (por ejemplo, relacionales en comparación con no relacionales, Amazon Aurora, Amazon DynamoDB)"
+        }
+      ],
+      "skills": [
+        {
+          "id": "4.3-s1",
+          "text": "Diseñar políticas de copia de seguridad y retención adecuadas (por ejemplo, frecuencia de instantáneas)."
+        },
+        {
+          "id": "4.3-s2",
+          "text": "Determinar un motor de base de datos adecuado (por ejemplo, MySQL en comparación con PostgreSQL)."
+        },
+        {
+          "id": "4.3-s3",
+          "text": "Determinar servicios de bases de datos de AWS rentables con casos de uso adecuados (por ejemplo, DynamoDB en comparación con Amazon RDS, sin servidor)."
+        },
+        {
+          "id": "4.3-s4",
+          "text": "Determinar tipos de bases de datos de AWS rentables (por ejemplo, formato de serie temporal, formato en columnas)."
+        },
+        {
+          "id": "4.3-s5",
+          "text": "Migrar esquemas y datos de bases de datos a diferentes ubicaciones y diferentes motores de bases de datos."
+        }
+      ]
+    },
+    {
+      "id": "4.4",
+      "title": "Diseñar arquitecturas de redes con optimización de costos",
+      "knowledge": [
+        {
+          "id": "4.4-k1",
+          "text": "Características del servicio de administración de costos de AWS (por ejemplo, etiquetas de asignación de costos, facturación en varias cuentas)"
+        },
+        {
+          "id": "4.4-k2",
+          "text": "Herramientas de administración de costos de AWS con casos de uso adecuados (por ejemplo, Explorador de costos de AWS, AWS Budgets, Informe de costo y uso de AWS)"
+        },
+        {
+          "id": "4.4-k3",
+          "text": "Conceptos de equilibrio de carga (por ejemplo, equilibrador de carga de aplicación [ALB])"
+        },
+        {
+          "id": "4.4-k4",
+          "text": "Puerta de enlace de NAT (por ejemplo, costos de instancias de NAT en comparación con los costos de puertas de enlace de NAT)"
+        },
+        {
+          "id": "4.4-k5",
+          "text": "Conectividad de red (por ejemplo, líneas privadas, líneas dedicadas, VPN)"
+        },
+        {
+          "id": "4.4-k6",
+          "text": "Enrutamiento, topología e interconexión de redes (por ejemplo, AWS Transit Gateway, interconexión de VPC)"
+        },
+        {
+          "id": "4.4-k7",
+          "text": "Servicios de redes con casos de uso adecuados (por ejemplo, DNS)"
+        }
+      ],
+      "skills": [
+        {
+          "id": "4.4-s1",
+          "text": "Configurar los tipos de puertas de enlace de NAT adecuados para una red (por ejemplo, una única puerta de enlace de NAT compartida en comparación con las puertas de enlace de NAT para cada zona de disponibilidad)."
+        },
+        {
+          "id": "4.4-s2",
+          "text": "Configurar las conexiones de red adecuadas (por ejemplo, AWS Direct Connect en comparación con una VPN, en comparación con internet)."
+        },
+        {
+          "id": "4.4-s3",
+          "text": "Configurar las rutas de red adecuadas para minimizar los costos de transferencia de red (por ejemplo, de región a región, de zona de disponibilidad a zona de disponibilidad, de privada a pública, AWS Global Accelerator, puntos de enlace de VPC)."
+        },
+        {
+          "id": "4.4-s4",
+          "text": "Determinar las necesidades estratégicas para las redes de entrega de contenido (CDN) y el almacenamiento en caché periférico."
+        },
+        {
+          "id": "4.4-s5",
+          "text": "Revisar cargas de trabajo existentes para optimizaciones de red."
+        },
+        {
+          "id": "4.4-s6",
+          "text": "Seleccionar una estrategia de limitación adecuada."
+        },
+        {
+          "id": "4.4-s7",
+          "text": "Seleccionar la asignación de ancho de banda adecuada para un dispositivo de red (por ejemplo, una sola VPN en comparación con varias VPN, velocidad de Direct Connect)."
+        }
+      ]
+    }
+  ],
+  "services": [
+    {
+      "category": "Análisis",
+      "name": "Amazon Athena"
+    },
+    {
+      "category": "Análisis",
+      "name": "AWS Data Exchange"
+    },
+    {
+      "category": "Análisis",
+      "name": "Amazon Data Firehose"
+    },
+    {
+      "category": "Análisis",
+      "name": "Amazon EMR"
+    },
+    {
+      "category": "Análisis",
+      "name": "AWS Glue"
+    },
+    {
+      "category": "Análisis",
+      "name": "Amazon Kinesis"
+    },
+    {
+      "category": "Análisis",
+      "name": "AWS Lake Formation"
+    },
+    {
+      "category": "Análisis",
+      "name": "Amazon Managed Streaming para Apache Kafka (Amazon MSK)"
+    },
+    {
+      "category": "Análisis",
+      "name": "Amazon OpenSearch Service"
+    },
+    {
+      "category": "Análisis",
+      "name": "Amazon Quick"
+    },
+    {
+      "category": "Análisis",
+      "name": "Amazon Redshift"
+    },
+    {
+      "category": "Integración de aplicaciones",
+      "name": "Amazon AppFlow"
+    },
+    {
+      "category": "Integración de aplicaciones",
+      "name": "Amazon EventBridge"
+    },
+    {
+      "category": "Integración de aplicaciones",
+      "name": "Amazon MQ"
+    },
+    {
+      "category": "Integración de aplicaciones",
+      "name": "Amazon SNS"
+    },
+    {
+      "category": "Integración de aplicaciones",
+      "name": "Amazon SQS"
+    },
+    {
+      "category": "Integración de aplicaciones",
+      "name": "AWS Step Functions"
+    },
+    {
+      "category": "Administración de costos de AWS",
+      "name": "AWS Budgets"
+    },
+    {
+      "category": "Administración de costos de AWS",
+      "name": "Informe de costo y uso de AWS"
+    },
+    {
+      "category": "Administración de costos de AWS",
+      "name": "Explorador de costos de AWS"
+    },
+    {
+      "category": "Administración de costos de AWS",
+      "name": "Savings Plans"
+    },
+    {
+      "category": "Computación",
+      "name": "AWS Batch"
+    },
+    {
+      "category": "Computación",
+      "name": "Amazon EC2"
+    },
+    {
+      "category": "Computación",
+      "name": "Amazon EC2 Auto Scaling"
+    },
+    {
+      "category": "Computación",
+      "name": "AWS Elastic Beanstalk"
+    },
+    {
+      "category": "Computación",
+      "name": "AWS Outposts"
+    },
+    {
+      "category": "Computación",
+      "name": "Repositorio de aplicaciones sin servidor de AWS"
+    },
+    {
+      "category": "Computación",
+      "name": "VMware Cloud en AWS"
+    },
+    {
+      "category": "Computación",
+      "name": "AWS Wavelength"
+    },
+    {
+      "category": "Contenedores",
+      "name": "Amazon ECR"
+    },
+    {
+      "category": "Contenedores",
+      "name": "Amazon ECS"
+    },
+    {
+      "category": "Contenedores",
+      "name": "Amazon ECS Anywhere"
+    },
+    {
+      "category": "Contenedores",
+      "name": "Amazon EKS"
+    },
+    {
+      "category": "Contenedores",
+      "name": "Amazon EKS Anywhere"
+    },
+    {
+      "category": "Contenedores",
+      "name": "Amazon EKS Distro"
+    },
+    {
+      "category": "Base de datos",
+      "name": "Amazon Aurora"
+    },
+    {
+      "category": "Base de datos",
+      "name": "Amazon Aurora sin servidor"
+    },
+    {
+      "category": "Base de datos",
+      "name": "Amazon DocumentDB"
+    },
+    {
+      "category": "Base de datos",
+      "name": "Amazon DynamoDB"
+    },
+    {
+      "category": "Base de datos",
+      "name": "Amazon ElastiCache"
+    },
+    {
+      "category": "Base de datos",
+      "name": "Amazon Keyspaces"
+    },
+    {
+      "category": "Base de datos",
+      "name": "Amazon Neptune"
+    },
+    {
+      "category": "Base de datos",
+      "name": "Amazon RDS"
+    },
+    {
+      "category": "Base de datos",
+      "name": "Amazon Redshift"
+    },
+    {
+      "category": "Herramientas para desarrolladores",
+      "name": "AWS X-Ray"
+    },
+    {
+      "category": "Frontend web y móvil",
+      "name": "AWS Amplify"
+    },
+    {
+      "category": "Frontend web y móvil",
+      "name": "Amazon API Gateway"
+    },
+    {
+      "category": "Frontend web y móvil",
+      "name": "AWS Device Farm"
+    },
+    {
+      "category": "Machine learning",
+      "name": "Amazon Comprehend"
+    },
+    {
+      "category": "Machine learning",
+      "name": "Amazon Lex"
+    },
+    {
+      "category": "Machine learning",
+      "name": "Amazon Polly"
+    },
+    {
+      "category": "Machine learning",
+      "name": "Amazon Rekognition"
+    },
+    {
+      "category": "Machine learning",
+      "name": "Amazon SageMaker AI"
+    },
+    {
+      "category": "Machine learning",
+      "name": "Amazon Textract"
+    },
+    {
+      "category": "Machine learning",
+      "name": "Amazon Transcribe"
+    },
+    {
+      "category": "Machine learning",
+      "name": "Amazon Translate"
+    },
+    {
+      "category": "Administración y gobernanza",
+      "name": "AWS Auto Scaling"
+    },
+    {
+      "category": "Administración y gobernanza",
+      "name": "AWS CLI"
+    },
+    {
+      "category": "Administración y gobernanza",
+      "name": "AWS CloudFormation"
+    },
+    {
+      "category": "Administración y gobernanza",
+      "name": "AWS CloudTrail"
+    },
+    {
+      "category": "Administración y gobernanza",
+      "name": "Amazon CloudWatch"
+    },
+    {
+      "category": "Administración y gobernanza",
+      "name": "AWS Compute Optimizer"
+    },
+    {
+      "category": "Administración y gobernanza",
+      "name": "AWS Config"
+    },
+    {
+      "category": "Administración y gobernanza",
+      "name": "AWS Control Tower"
+    },
+    {
+      "category": "Administración y gobernanza",
+      "name": "Panel de AWS Health"
+    },
+    {
+      "category": "Administración y gobernanza",
+      "name": "AWS License Manager"
+    },
+    {
+      "category": "Administración y gobernanza",
+      "name": "Amazon Managed Grafana"
+    },
+    {
+      "category": "Administración y gobernanza",
+      "name": "Amazon Managed Service para Prometheus"
+    },
+    {
+      "category": "Administración y gobernanza",
+      "name": "Consola de administración de AWS"
+    },
+    {
+      "category": "Administración y gobernanza",
+      "name": "AWS Organizations"
+    },
+    {
+      "category": "Administración y gobernanza",
+      "name": "AWS Service Catalog"
+    },
+    {
+      "category": "Administración y gobernanza",
+      "name": "AWS Systems Manager"
+    },
+    {
+      "category": "Administración y gobernanza",
+      "name": "AWS Trusted Advisor"
+    },
+    {
+      "category": "Administración y gobernanza",
+      "name": "Herramienta de AWS Well-Architected"
+    },
+    {
+      "category": "Servicios multimedia",
+      "name": "Amazon Elastic Transcoder"
+    },
+    {
+      "category": "Servicios multimedia",
+      "name": "Amazon Kinesis Video Streams"
+    },
+    {
+      "category": "Migración y transferencia",
+      "name": "AWS Application Migration Service"
+    },
+    {
+      "category": "Migración y transferencia",
+      "name": "AWS DataSync"
+    },
+    {
+      "category": "Migración y transferencia",
+      "name": "AWS DMS"
+    },
+    {
+      "category": "Migración y transferencia",
+      "name": "AWS Snow Family"
+    },
+    {
+      "category": "Migración y transferencia",
+      "name": "AWS Transfer Family"
+    },
+    {
+      "category": "Redes y entrega de contenido",
+      "name": "AWS Client VPN"
+    },
+    {
+      "category": "Redes y entrega de contenido",
+      "name": "Amazon CloudFront"
+    },
+    {
+      "category": "Redes y entrega de contenido",
+      "name": "AWS Direct Connect"
+    },
+    {
+      "category": "Redes y entrega de contenido",
+      "name": "Elastic Load Balancing (ELB)"
+    },
+    {
+      "category": "Redes y entrega de contenido",
+      "name": "AWS Global Accelerator"
+    },
+    {
+      "category": "Redes y entrega de contenido",
+      "name": "AWS PrivateLink"
+    },
+    {
+      "category": "Redes y entrega de contenido",
+      "name": "Amazon Route 53"
+    },
+    {
+      "category": "Redes y entrega de contenido",
+      "name": "AWS Site-to-Site VPN"
+    },
+    {
+      "category": "Redes y entrega de contenido",
+      "name": "AWS Transit Gateway"
+    },
+    {
+      "category": "Redes y entrega de contenido",
+      "name": "Amazon VPC"
+    },
+    {
+      "category": "Seguridad, identidad y cumplimiento",
+      "name": "AWS Artifact"
+    },
+    {
+      "category": "Seguridad, identidad y cumplimiento",
+      "name": "AWS Certificate Manager (ACM)"
+    },
+    {
+      "category": "Seguridad, identidad y cumplimiento",
+      "name": "AWS CloudHSM"
+    },
+    {
+      "category": "Seguridad, identidad y cumplimiento",
+      "name": "Amazon Cognito"
+    },
+    {
+      "category": "Seguridad, identidad y cumplimiento",
+      "name": "Amazon Detective"
+    },
+    {
+      "category": "Seguridad, identidad y cumplimiento",
+      "name": "AWS Directory Service"
+    },
+    {
+      "category": "Seguridad, identidad y cumplimiento",
+      "name": "AWS Firewall Manager"
+    },
+    {
+      "category": "Seguridad, identidad y cumplimiento",
+      "name": "Amazon GuardDuty"
+    },
+    {
+      "category": "Seguridad, identidad y cumplimiento",
+      "name": "AWS IAM Identity Center"
+    },
+    {
+      "category": "Seguridad, identidad y cumplimiento",
+      "name": "Amazon Inspector"
+    },
+    {
+      "category": "Seguridad, identidad y cumplimiento",
+      "name": "AWS KMS"
+    },
+    {
+      "category": "Seguridad, identidad y cumplimiento",
+      "name": "Amazon Macie"
+    },
+    {
+      "category": "Seguridad, identidad y cumplimiento",
+      "name": "AWS Network Firewall"
+    },
+    {
+      "category": "Seguridad, identidad y cumplimiento",
+      "name": "AWS Resource Access Manager (AWS RAM)"
+    },
+    {
+      "category": "Seguridad, identidad y cumplimiento",
+      "name": "AWS Secrets Manager"
+    },
+    {
+      "category": "Seguridad, identidad y cumplimiento",
+      "name": "AWS Security Hub"
+    },
+    {
+      "category": "Seguridad, identidad y cumplimiento",
+      "name": "AWS Shield"
+    },
+    {
+      "category": "Seguridad, identidad y cumplimiento",
+      "name": "AWS WAF"
+    },
+    {
+      "category": "Seguridad, identidad y cumplimiento",
+      "name": "IAM"
+    },
+    {
+      "category": "Sin servidor",
+      "name": "AWS Fargate"
+    },
+    {
+      "category": "Sin servidor",
+      "name": "AWS Lambda"
+    },
+    {
+      "category": "Almacenamiento",
+      "name": "AWS Backup"
+    },
+    {
+      "category": "Almacenamiento",
+      "name": "Amazon EBS"
+    },
+    {
+      "category": "Almacenamiento",
+      "name": "Amazon EFS"
+    },
+    {
+      "category": "Almacenamiento",
+      "name": "Amazon FSx (para todos los tipos)"
+    },
+    {
+      "category": "Almacenamiento",
+      "name": "Amazon S3"
+    },
+    {
+      "category": "Almacenamiento",
+      "name": "Amazon S3 Glacier"
+    },
+    {
+      "category": "Almacenamiento",
+      "name": "AWS Storage Gateway"
+    }
+  ]
+}
