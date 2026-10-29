@@ -7,4 +7,138 @@ export const meta = {
   covers: ['4.2-k4'],
 };
 
-Contenido pendiente.
+Una misma instancia de EC2 puede costar muy distinto según cómo la compres. Elegir bien la opción de compra es una de las formas más directas de bajar la factura de cómputo sin cambiar la arquitectura: se trata de casar el patrón de uso de la carga con el modelo de pago.
+
+## Qué problema resuelve
+
+Pagar todo bajo demanda es simple y flexible, pero desperdicia ahorro cuando el uso es estable y predecible. Al revés, comprometerte a largo plazo con una carga que cambia o que puede desaparecer te deja pagando capacidad que no usas. AWS ofrece varias opciones para cubrir cada patrón: sin compromiso, con compromiso de uso o de configuración, y capacidad sobrante con descuento a cambio de aceptar interrupciones. Para elegir la familia y el tamaño de instancia, consulta la página sobre familias y tipos de instancias; aquí nos centramos en cómo pagarlas.
+
+## Conceptos clave
+
+### Instancias bajo demanda (On-Demand)
+
+Pagas por segundo la capacidad que lanzas, sin compromiso a largo plazo y con control total del ciclo de vida de la instancia. Solo pagas mientras la instancia está en ejecución, con un mínimo de 60 segundos, y el precio por segundo es fijo. AWS las recomienda para cargas de corto plazo e irregulares que no pueden interrumpirse. Si no hay capacidad disponible al lanzar, recibes un error de capacidad insuficiente.
+
+### Savings Plans
+
+Te comprometes a gastar una cantidad constante de cómputo, medida en dólares por hora, durante uno o tres años. A cambio pagas menos que bajo demanda, y el precio se mantiene durante todo el plazo. Puedes pagar todo por adelantado, una parte o nada por adelantado. Los tipos principales:
+
+- **Compute Savings Plans**: los más flexibles. Se aplican al uso de EC2 sin importar la familia, el tamaño, la región, el sistema operativo o la tenencia, y también a AWS Fargate y AWS Lambda. Puedes pasar de una familia a otra, cambiar de región o migrar de EC2 a contenedores en Fargate y conservar el descuento.
+- **EC2 Instance Savings Plans**: dan un descuento mayor a cambio de comprometerte con una familia de instancias en una región concreta. Dentro de esa familia se aplican a cualquier tamaño, sistema operativo y tenencia.
+- **Database Savings Plans**: reducen el costo de servicios de bases de datos como Aurora, RDS, DynamoDB o ElastiCache, y se aplican a las generaciones de instancias más recientes con independencia del motor, la familia, el tamaño o la región.
+
+El compromiso no se puede cambiar ni cancelar durante el plazo; si tu uso crece, puedes contratar planes adicionales. Los Savings Plans no reservan capacidad ni se aplican al uso de Spot. AWS Cost Explorer recomienda el nivel de compromiso adecuado según tu historial.
+
+### Instancias reservadas (Reserved Instances)
+
+Una instancia reservada no es una instancia física, sino un descuento de facturación que se aplica a las instancias bajo demanda que coinciden con sus atributos: tipo de instancia, región, tenencia y plataforma. El plazo es de uno o tres años, y el de tres años da un descuento mayor. No se renuevan solas: al vencer, la instancia sigue funcionando pero vuelves a pagar la tarifa bajo demanda. AWS recomienda Savings Plans frente a instancias reservadas por su mayor flexibilidad.
+
+- **Standard**: mayor descuento, pero no se pueden intercambiar. Sí se pueden vender en el Reserved Instance Marketplace.
+- **Convertible**: menor descuento, pero se pueden intercambiar durante el plazo por otra con distinta familia, tipo, plataforma, alcance o tenencia.
+- **Alcance regional o zonal**: la regional no reserva capacidad, pero el descuento vale en cualquier zona de disponibilidad de la región. La zonal reserva capacidad en una zona de disponibilidad concreta y solo aplica allí. El alcance no cambia el precio.
+
+### Instancias de spot (Spot Instances)
+
+Usan capacidad de EC2 sobrante a un precio inferior al bajo demanda, lo que puede reducir mucho el costo. A cambio, EC2 puede recuperar la instancia cuando necesita la capacidad: la termina, la detiene o la hiberna, y avisa con dos minutos de antelación. También emite una recomendación de reequilibrio cuando el riesgo de interrupción aumenta. El precio de spot lo fija EC2 y se ajusta de forma gradual según la oferta y la demanda a largo plazo. Son una opción rentable si puedes ser flexible con el momento en que se ejecuta la aplicación y si esta tolera interrupciones, como en análisis de datos, trabajos por lotes o procesamiento en segundo plano.
+
+### Otras opciones
+
+- **Capacity Reservations**: reservan capacidad de EC2 en una zona de disponibilidad concreta durante el tiempo que necesites. Las de uso inmediato no tienen compromiso de plazo y se pueden cancelar en cualquier momento. Puedes combinarlas con Savings Plans para obtener a la vez capacidad garantizada y descuento.
+- **Dedicated Hosts**: pagas un servidor físico dedicado y puedes usar tus licencias de software existentes por socket, núcleo o máquina virtual para reducir costos.
+- **Dedicated Instances**: instancias que se ejecutan en hardware de un solo inquilino.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Recomienda compromisos con"
+    service="AWS Cost Explorer"
+    description="Muestra recomendaciones de Savings Plans e instancias reservadas, y permite comprarlos y revisar su rendimiento."
+  />
+  <ConnectionCard
+    relation="Vigila el aprovechamiento con"
+    service="AWS Budgets"
+    description="Los presupuestos de utilización y cobertura avisan si tus instancias reservadas o Savings Plans se usan por debajo de lo previsto."
+  />
+  <ConnectionCard
+    relation="Extiende el descuento a"
+    service="AWS Fargate y AWS Lambda"
+    description="Los Compute Savings Plans también se aplican al uso de Fargate y Lambda, no solo a EC2."
+  />
+  <ConnectionCard
+    relation="Comparte descuentos con"
+    service="AWS Organizations"
+    description="Con la facturación consolidada, los descuentos de instancias reservadas y Savings Plans se comparten entre las cuentas de la organización."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Usa cada opción cuando"
+    items={[
+      'La carga es corta, irregular y no puede interrumpirse: bajo demanda.',
+      'El uso es estable y puedes comprometer un gasto por hora durante uno o tres años: Savings Plans.',
+      'La carga es flexible en el tiempo y tolera interrupciones: Spot.',
+      'Necesitas capacidad garantizada en una zona de disponibilidad: Capacity Reservations o instancias reservadas zonales.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Ten en cuenta que"
+    items={[
+      'Si cambiarás de familia, región o pasarás a Fargate o Lambda, Compute Savings Plans es más flexible que EC2 Instance Savings Plans o las instancias reservadas.',
+      'Si necesitas cambiar los atributos de una instancia reservada, elige Convertible, no Standard.',
+      'Si debes usar licencias ligadas al servidor o cumplir requisitos de hardware dedicado: Dedicated Hosts o Dedicated Instances.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Opciones de facturación y compra de Amazon EC2"
+  url="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-purchasing-options.html"
+/>
+<OfficialSource
+  title="Instancias bajo demanda"
+  url="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-on-demand-instances.html"
+/>
+<OfficialSource
+  title="Qué son los Savings Plans"
+  url="https://docs.aws.amazon.com/savingsplans/latest/userguide/what-is-savings-plans.html"
+/>
+<OfficialSource
+  title="Tipos de Savings Plans"
+  url="https://docs.aws.amazon.com/savingsplans/latest/userguide/plan-types.html"
+/>
+<OfficialSource
+  title="Compute Savings Plans e instancias reservadas"
+  url="https://docs.aws.amazon.com/savingsplans/latest/userguide/sp-ris.html"
+/>
+<OfficialSource
+  title="Instancias reservadas de Amazon EC2"
+  url="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-reserved-instances.html"
+/>
+<OfficialSource
+  title="Tipos de instancias reservadas"
+  url="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/reserved-instances-types.html"
+/>
+<OfficialSource
+  title="Instancias reservadas regionales y zonales"
+  url="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/reserved-instances-scope.html"
+/>
+<OfficialSource
+  title="Instancias de spot"
+  url="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-spot-instances.html"
+/>
+<OfficialSource
+  title="Interrupciones de instancias de spot"
+  url="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-interruptions.html"
+/>
+<OfficialSource
+  title="Capacity Reservations bajo demanda"
+  url="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-capacity-reservations.html"
+/>
