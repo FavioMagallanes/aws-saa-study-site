@@ -1,27 +1,39 @@
 import { useNavigate } from '@tanstack/react-router';
-import { Search, X } from 'lucide-react';
+import { BookA, CornerDownLeft, FileText, Hash, Search, type LucideIcon } from 'lucide-react';
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import { cx } from '../../../../shared/lib/class-names';
-import { IconButton } from '../../../../shared/ui/icon-button/icon-button';
 import { VisuallyHidden } from '../../../../shared/ui/visually-hidden/visually-hidden';
-import { pageSearch } from '../../data/page-search';
+import { siteSearch } from '../../data/page-search';
+import type { SearchGroupId, SearchResult, SearchTarget } from '../../model/site-search';
 import styles from './search-dialog.module.css';
 
 interface SearchDialogProps {
   readonly onClose: () => void;
+  // Text typed while the dialog chunk was loading.
+  readonly initialQuery?: string;
 }
 
 const FOCUSABLE_SELECTOR = 'button:not([disabled]), input:not([disabled]), [href], [tabindex]';
+
+const GROUP_ICONS: Readonly<Record<SearchGroupId, LucideIcon>> = {
+  abbreviations: BookA,
+  pages: FileText,
+  headings: Hash,
+};
 
 const resultCountLabel = (count: number): string => {
   if (count === 0) return 'Sin resultados';
   return count === 1 ? '1 resultado' : `${String(count)} resultados`;
 };
 
+// The desktop and mobile close buttons are hidden by CSS in turn; jsdom has no checkVisibility.
+const isRendered = (element: HTMLElement): boolean =>
+  !('checkVisibility' in element) || element.checkVisibility();
+
 // Keeps Tab and Shift+Tab inside the dialog, also where native modal focus containment is missing.
 const trapTabFocus = (event: KeyboardEvent<HTMLElement>, container: HTMLElement) => {
   const focusable = [...container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)].filter(
-    (element) => element.tabIndex >= 0,
+    (element) => element.tabIndex >= 0 && isRendered(element),
   );
   const first = focusable[0];
   const last = focusable.at(-1);
@@ -35,18 +47,20 @@ const trapTabFocus = (event: KeyboardEvent<HTMLElement>, container: HTMLElement)
   }
 };
 
-export const SearchDialog = ({ onClose }: SearchDialogProps) => {
+export const SearchDialog = ({ onClose, initialQuery = '' }: SearchDialogProps) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(initialQuery);
   const [activeIndex, setActiveIndex] = useState(0);
   const baseId = useId();
   const listId = `${baseId}-results`;
   const optionId = (index: number) => `${baseId}-option-${String(index)}`;
 
   const hasQuery = query.trim() !== '';
-  const results = pageSearch.search(query);
+  const groups = siteSearch.search(query);
+  // Keyboard navigation walks every row in visual order, across groups.
+  const results = groups.flatMap((group) => group.results);
   const activeResult = results[activeIndex];
 
   useEffect(() => {
@@ -61,9 +75,19 @@ export const SearchDialog = ({ onClose }: SearchDialogProps) => {
     };
   }, []);
 
-  const openPage = (pageId: string) => {
+  const openResult = (target: SearchTarget) => {
     onClose();
-    void navigate({ to: '/lectura/$pageId', params: { pageId } });
+    if (target.kind === 'abbreviation') {
+      void navigate({ to: '/glosario', hash: target.entryId });
+    } else if (target.kind === 'page') {
+      void navigate({ to: '/lectura/$pageId', params: { pageId: target.pageId } });
+    } else {
+      void navigate({
+        to: '/lectura/$pageId',
+        params: { pageId: target.pageId },
+        hash: target.headingId,
+      });
+    }
   };
 
   const handleDialogKeyDown = (event: KeyboardEvent<HTMLDialogElement>) => {
@@ -91,9 +115,70 @@ export const SearchDialog = ({ onClose }: SearchDialogProps) => {
       moveActive(-1);
     } else if (event.key === 'Enter' && activeResult) {
       event.preventDefault();
-      openPage(activeResult.id);
+      openResult(activeResult.target);
     }
   };
+
+  const renderOption = (result: SearchResult, index: number, Icon: LucideIcon) => {
+    const id = optionId(index);
+    const isActive = index === activeIndex;
+    return (
+      <div
+        key={result.key}
+        id={id}
+        role="option"
+        aria-selected={isActive}
+        aria-labelledby={`${id}-title`}
+        aria-describedby={result.summary ? `${id}-context ${id}-summary` : `${id}-context`}
+        className={cx(
+          styles['search-dialog__result'],
+          isActive && styles['search-dialog__result--active'],
+        )}
+        onMouseMove={() => {
+          if (!isActive) setActiveIndex(index);
+        }}
+        onMouseDown={(event) => {
+          event.preventDefault();
+        }}
+        onClick={() => {
+          openResult(result.target);
+        }}
+      >
+        <span className={styles['search-dialog__result-icon']} aria-hidden="true">
+          <Icon size={16} strokeWidth={1.75} />
+        </span>
+        <span className={styles['search-dialog__result-text']}>
+          <span id={`${id}-title`} className={styles['search-dialog__title']}>
+            {result.title}
+          </span>
+          <span className={styles['search-dialog__secondary']}>
+            <span id={`${id}-context`}>{result.context}</span>
+            {result.summary ? (
+              <>
+                <span aria-hidden="true"> · </span>
+                <span id={`${id}-summary`}>{result.summary}</span>
+              </>
+            ) : null}
+          </span>
+        </span>
+        {isActive ? (
+          <CornerDownLeft
+            className={styles['search-dialog__enter']}
+            size={16}
+            strokeWidth={1.75}
+            aria-hidden="true"
+          />
+        ) : null}
+      </div>
+    );
+  };
+
+  const positionedGroups = groups.map((group, groupIndex) => ({
+    group,
+    firstIndex: groups
+      .slice(0, groupIndex)
+      .reduce((count, previous) => count + previous.results.length, 0),
+  }));
 
   return (
     <dialog
@@ -133,11 +218,18 @@ export const SearchDialog = ({ onClose }: SearchDialogProps) => {
           }}
           onKeyDown={handleInputKeyDown}
         />
-        <IconButton
-          label="Cerrar búsqueda"
-          icon={<X size={18} strokeWidth={1.75} />}
+        <button
+          type="button"
+          className={styles['search-dialog__esc']}
+          aria-label="Cerrar búsqueda (esc)"
+          aria-keyshortcuts="Escape"
           onClick={onClose}
-        />
+        >
+          esc
+        </button>
+        <button type="button" className={styles['search-dialog__cancel']} onClick={onClose}>
+          Cancelar
+        </button>
       </div>
 
       <div role="status">
@@ -154,58 +246,52 @@ export const SearchDialog = ({ onClose }: SearchDialogProps) => {
           <p className={styles['search-dialog__message']}>Sin resultados para «{query.trim()}».</p>
         ) : null}
         {results.length > 0 ? (
-          <ul
+          <div
             id={listId}
             className={styles['search-dialog__results']}
             role="listbox"
             aria-label="Resultados"
           >
-            {results.map((hit, index) => (
-              <li
-                key={hit.id}
-                id={optionId(index)}
-                role="option"
-                aria-selected={index === activeIndex}
-                aria-labelledby={`${optionId(index)}-title`}
-                aria-describedby={`${optionId(index)}-category ${optionId(index)}-summary`}
-                className={cx(
-                  styles['search-dialog__result'],
-                  index === activeIndex && styles['search-dialog__result--active'],
-                )}
-                onMouseMove={() => {
-                  if (index !== activeIndex) setActiveIndex(index);
-                }}
-                onMouseDown={(event) => {
-                  event.preventDefault();
-                }}
-                onClick={() => {
-                  openPage(hit.id);
-                }}
-              >
-                <span id={`${optionId(index)}-title`} className={styles['search-dialog__title']}>
-                  {hit.title}
-                </span>
-                <span
-                  id={`${optionId(index)}-category`}
-                  className={styles['search-dialog__category']}
+            {positionedGroups.map(({ group, firstIndex }) => {
+              const labelId = `${baseId}-group-${group.id}`;
+              return (
+                <div
+                  key={group.id}
+                  role="group"
+                  aria-labelledby={labelId}
+                  className={styles['search-dialog__group']}
                 >
-                  {hit.category}
-                </span>
-                <span
-                  id={`${optionId(index)}-summary`}
-                  className={styles['search-dialog__summary']}
-                >
-                  {hit.summary}
-                </span>
-              </li>
-            ))}
-          </ul>
+                  <div id={labelId} className={styles['search-dialog__group-label']}>
+                    {group.label}
+                  </div>
+                  {group.results.map((result, index) =>
+                    renderOption(result, firstIndex + index, GROUP_ICONS[group.id]),
+                  )}
+                </div>
+              );
+            })}
+          </div>
         ) : null}
       </div>
 
-      <p className={styles['search-dialog__hint']}>
-        ↑ ↓ para moverte · Enter para abrir · Esc para cerrar
-      </p>
+      <div className={styles['search-dialog__footer']}>
+        <span className={styles['search-dialog__hints']}>
+          <span className={styles['search-dialog__hint']}>
+            <kbd className={styles['search-dialog__key']}>↑</kbd>
+            <kbd className={styles['search-dialog__key']}>↓</kbd>
+            <span>navegar</span>
+          </span>
+          <span className={styles['search-dialog__hint']}>
+            <kbd className={styles['search-dialog__key']}>↵</kbd>
+            <span>abrir</span>
+          </span>
+          <span className={styles['search-dialog__hint']}>
+            <kbd className={styles['search-dialog__key']}>esc</kbd>
+            <span>cerrar</span>
+          </span>
+        </span>
+        <span>Busca en servicios, siglas y texto</span>
+      </div>
     </dialog>
   );
 };

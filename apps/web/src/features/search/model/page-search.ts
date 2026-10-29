@@ -53,7 +53,7 @@ const toNameKey = (text: string): string =>
     .replace(/\s+/g, ' ')
     .replace(/^(amazon|aws)\s+/, '');
 
-const processTerm = (term: string): string | null => {
+export const processTerm = (term: string): string | null => {
   const normalized = normalizeSearchText(term);
   return STOP_WORDS.has(normalized) ? null : normalized;
 };

@@ -1,12 +1,14 @@
 import { z } from 'zod';
 import type { PageMeta } from '@arquitecto/contracts/content';
 import type { GlossaryEntry } from '@arquitecto/contracts/glossary';
+import { slugifyHeading } from '../../reading/model/heading-id';
 import { examGuide } from '../../content/data/load-exam-guide';
 import { loadPages } from '../../content/data/load-pages';
 import type { ExamGuide } from '../../content/model/exam-guide';
 import { glossary } from '../../glossary/data/load-glossary';
 import type { PageText } from '../model/extract-page-text';
 import { createPageSearch, type SearchDocument } from '../model/page-search';
+import { createSiteSearch, type HeadingDocument } from '../model/site-search';
 import pageSearchTextJson from './page-search-text.json';
 
 const pageTextSchema = z.record(
@@ -54,6 +56,30 @@ export const buildSearchDocuments = (
   });
 };
 
+// Heading ids match the ones the reading screen renders (reading/model/heading-id.ts).
+export const buildHeadingDocuments = (
+  pages: readonly PageMeta[],
+  pageText: Readonly<Record<string, PageText>>,
+): HeadingDocument[] =>
+  pages.flatMap((page) =>
+    (pageText[page.id]?.headings ?? []).map((heading) => ({
+      pageId: page.id,
+      pageTitle: page.title,
+      category: page.category ?? KIND_LABELS[page.kind],
+      headingId: slugifyHeading(heading),
+      heading,
+    })),
+  );
+
+const pages = loadPages();
+const pageText = pageTextSchema.parse(pageSearchTextJson);
+
 export const pageSearch = createPageSearch(
-  buildSearchDocuments(loadPages(), pageTextSchema.parse(pageSearchTextJson), examGuide, glossary),
+  buildSearchDocuments(pages, pageText, examGuide, glossary),
+);
+
+export const siteSearch = createSiteSearch(
+  pageSearch,
+  buildHeadingDocuments(pages, pageText),
+  glossary,
 );

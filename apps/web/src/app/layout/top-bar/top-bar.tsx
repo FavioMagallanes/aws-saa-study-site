@@ -109,7 +109,7 @@ export const TopBar = () => {
       ) : null}
       {search.isOpen ? (
         <Suspense fallback={null}>
-          <LazySearchDialog onClose={search.close} />
+          <LazySearchDialog onClose={search.close} initialQuery={search.pendingQuery} />
         </Suspense>
       ) : null}
     </header>

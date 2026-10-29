@@ -9,10 +9,25 @@ const openWithShortcut = async (modifier: 'ctrlKey' | 'metaKey' = 'ctrlKey') => 
   return screen.findByRole('dialog', { name: DIALOG_NAME });
 };
 
+const queryInput = () => screen.getByRole('combobox', { name: 'Buscar páginas' });
+
 const typeQuery = (value: string) => {
-  fireEvent.change(screen.getByRole('combobox', { name: 'Buscar páginas' }), {
-    target: { value },
-  });
+  fireEvent.change(queryInput(), { target: { value } });
+};
+
+const pressKey = (key: string) => {
+  fireEvent.keyDown(queryInput(), { key });
+};
+
+const optionsIn = (groupName: string) =>
+  within(screen.getByRole('group', { name: groupName })).getAllByRole('option');
+
+// Moves the active row down until it is the given option.
+const activate = (option: HTMLElement) => {
+  const options = screen.getAllByRole('option');
+  const index = options.indexOf(option);
+  for (let step = 0; step < index; step += 1) pressKey('ArrowDown');
+  expect(queryInput()).toHaveAttribute('aria-activedescendant', option.id);
 };
 
 describe('search dialog', () => {
@@ -42,9 +57,7 @@ describe('search dialog', () => {
     trigger.focus();
     fireEvent.click(trigger);
     await screen.findByRole('dialog', { name: DIALOG_NAME });
-    fireEvent.keyDown(screen.getByRole('combobox', { name: 'Buscar páginas' }), {
-      key: 'Escape',
-    });
+    pressKey('Escape');
     await waitFor(() => {
       expect(screen.queryByRole('dialog', { name: DIALOG_NAME })).not.toBeInTheDocument();
     });
@@ -57,7 +70,35 @@ describe('search dialog', () => {
     expect(await screen.findByRole('dialog', { name: DIALOG_NAME })).toBeInTheDocument();
   });
 
-  it('lists real results and announces how many there are', async () => {
+  it('groups the results under Siglas, Páginas and En el texto, in that order', async () => {
+    await renderApp('/');
+    const dialog = await openWithShortcut();
+    typeQuery('S3');
+    const listbox = within(dialog).getByRole('listbox', { name: 'Resultados' });
+    const groups = within(listbox).getAllByRole('group');
+    expect(groups).toHaveLength(3);
+    expect(groups[0]).toHaveAccessibleName('Siglas');
+    expect(groups[1]).toHaveAccessibleName('Páginas');
+    expect(groups[2]).toHaveAccessibleName('En el texto');
+    const [sigla] = optionsIn('Siglas');
+    expect(sigla).toHaveAccessibleName('S3');
+    expect(sigla).toHaveAccessibleDescription('Amazon Simple Storage Service');
+    expect(
+      within(groups[2] ?? dialog).getByRole('option', {
+        name: 'Amazon S3 Glacier › Las tres clases S3 Glacier',
+      }),
+    ).toHaveAccessibleDescription('Almacenamiento');
+  });
+
+  it('does not render empty groups', async () => {
+    await renderApp('/');
+    const dialog = await openWithShortcut();
+    typeQuery('Amazon CloudFront');
+    expect(within(dialog).queryByRole('group', { name: 'Siglas' })).not.toBeInTheDocument();
+    expect(within(dialog).getByRole('group', { name: 'Páginas' })).toBeInTheDocument();
+  });
+
+  it('lists real results and announces how many there are across groups', async () => {
     await renderApp('/');
     const dialog = await openWithShortcut();
     typeQuery('Amazon S3');
@@ -67,9 +108,10 @@ describe('search dialog', () => {
       `${String(options.length)} resultados`,
     );
     expect(within(dialog).getByRole('combobox')).toHaveAttribute('aria-expanded', 'true');
-    const selected = within(dialog).getByRole('option', { selected: true });
-    expect(selected).toHaveAccessibleName('Amazon S3');
-    expect(selected).toHaveAccessibleDescription(
+    expect(within(dialog).getByRole('option', { selected: true })).toBe(options[0]);
+    const [page] = optionsIn('Páginas');
+    expect(page).toHaveAccessibleName('Amazon S3');
+    expect(page).toHaveAccessibleDescription(
       /^Almacenamiento\s+Amazon S3 \(Simple Storage Service\)/,
     );
   });
@@ -83,40 +125,85 @@ describe('search dialog', () => {
     expect(within(dialog).queryByRole('option')).not.toBeInTheDocument();
   });
 
-  it('moves the active result with the arrow keys and wraps around', async () => {
+  it('moves the active result across groups in visual order and wraps around', async () => {
     await renderApp('/');
     await openWithShortcut();
-    typeQuery('Amazon S3');
-    const input = screen.getByRole('combobox', { name: 'Buscar páginas' });
+    typeQuery('S3');
+    const input = queryInput();
     const options = screen.getAllByRole('option');
+    const [lastSigla] = optionsIn('Siglas').slice(-1);
+    const [firstPage] = optionsIn('Páginas');
+    const [firstHeading] = optionsIn('En el texto');
+    const lastPage = optionsIn('Páginas').at(-1);
     expect(input).toHaveAttribute('aria-activedescendant', options[0]?.id);
 
-    fireEvent.keyDown(input, { key: 'ArrowDown' });
-    expect(input).toHaveAttribute('aria-activedescendant', options[1]?.id);
-    expect(options[1]).toHaveAttribute('aria-selected', 'true');
-    expect(options[0]).toHaveAttribute('aria-selected', 'false');
+    for (const option of options.slice(1)) {
+      pressKey('ArrowDown');
+      expect(input).toHaveAttribute('aria-activedescendant', option.id);
+      expect(option).toHaveAttribute('aria-selected', 'true');
+    }
+    expect(options.indexOf(firstPage ?? input)).toBe(options.indexOf(lastSigla ?? input) + 1);
+    expect(options.indexOf(firstHeading ?? input)).toBe(options.indexOf(lastPage ?? input) + 1);
 
-    fireEvent.keyDown(input, { key: 'ArrowUp' });
-    fireEvent.keyDown(input, { key: 'ArrowUp' });
+    pressKey('ArrowDown');
+    expect(input).toHaveAttribute('aria-activedescendant', options[0]?.id);
+    expect(screen.getAllByRole('option', { selected: true })).toHaveLength(1);
+
+    pressKey('ArrowUp');
     expect(input).toHaveAttribute('aria-activedescendant', options.at(-1)?.id);
   });
 
-  it('opens the active result with Enter and closes the dialog', async () => {
-    await renderApp('/');
+  it('opens a page result with Enter and closes the dialog', async () => {
+    const { router } = await renderApp('/');
     await openWithShortcut();
-    typeQuery('Amazon S3');
-    fireEvent.keyDown(screen.getByRole('combobox', { name: 'Buscar páginas' }), {
-      key: 'Enter',
-    });
-    expect(await screen.findByRole('heading', { level: 1, name: 'Amazon S3' })).toBeInTheDocument();
+    typeQuery('Amazon CloudFront');
+    expect(screen.getByRole('option', { selected: true })).toHaveAccessibleName(
+      'Amazon CloudFront',
+    );
+    pressKey('Enter');
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Amazon CloudFront' }),
+    ).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe('/lectura/amazon-cloudfront');
+    expect(router.state.location.hash).toBe('');
     expect(screen.queryByRole('dialog', { name: DIALOG_NAME })).not.toBeInTheDocument();
+  });
+
+  it('opens an abbreviation in the glossary at its entry', async () => {
+    const { router } = await renderApp('/');
+    await openWithShortcut();
+    typeQuery('S3');
+    const [sigla] = optionsIn('Siglas');
+    if (!sigla) throw new Error('No abbreviation results');
+    activate(sigla);
+    pressKey('Enter');
+    expect(await screen.findByRole('heading', { level: 3, name: 'S3' })).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe('/glosario');
+    expect(router.state.location.hash).toBe('s3');
+    expect(screen.queryByRole('dialog', { name: DIALOG_NAME })).not.toBeInTheDocument();
+  });
+
+  it('opens a heading result in its page at the heading', async () => {
+    const { router } = await renderApp('/');
+    await openWithShortcut();
+    typeQuery('pago a cargo del solicitante');
+    const heading = within(screen.getByRole('group', { name: 'En el texto' })).getByRole('option', {
+      name: 'Amazon S3 › Buckets con pago a cargo del solicitante (Requester Pays)',
+    });
+    activate(heading);
+    pressKey('Enter');
+    expect(await screen.findByRole('heading', { level: 1, name: 'Amazon S3' })).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe('/lectura/amazon-s3');
+    expect(router.state.location.hash).toBe(
+      'buckets-con-pago-a-cargo-del-solicitante-requester-pays',
+    );
   });
 
   it('opens a result when it is clicked', async () => {
     await renderApp('/');
     await openWithShortcut();
     typeQuery('CDN');
-    const [first] = screen.getAllByRole('option');
+    const [first] = optionsIn('Páginas');
     if (!first) throw new Error('No search results');
     act(() => {
       fireEvent.click(first);
@@ -126,24 +213,33 @@ describe('search dialog', () => {
     ).toBeInTheDocument();
   });
 
+  it('shows the keyboard hints and what the search covers', async () => {
+    await renderApp('/');
+    const dialog = await openWithShortcut();
+    expect(within(dialog).getByText('Busca en servicios, siglas y texto')).toBeInTheDocument();
+    expect(within(dialog).getByText('navegar')).toBeInTheDocument();
+    expect(within(dialog).getByText('abrir')).toBeInTheDocument();
+    expect(within(dialog).getByText('cerrar')).toBeInTheDocument();
+  });
+
   it('keeps Tab focus inside the dialog', async () => {
     await renderApp('/');
     const dialog = await openWithShortcut();
     const input = within(dialog).getByRole('combobox', { name: 'Buscar páginas' });
-    const close = within(dialog).getByRole('button', { name: 'Cerrar búsqueda' });
+    const cancel = within(dialog).getByRole('button', { name: 'Cancelar' });
 
-    close.focus();
-    fireEvent.keyDown(close, { key: 'Tab' });
+    cancel.focus();
+    fireEvent.keyDown(cancel, { key: 'Tab' });
     expect(input).toHaveFocus();
 
     fireEvent.keyDown(input, { key: 'Tab', shiftKey: true });
-    expect(close).toHaveFocus();
+    expect(cancel).toHaveFocus();
   });
 
-  it('closes with the close button', async () => {
+  it.each(['Cerrar búsqueda (esc)', 'Cancelar'])('closes with the "%s" button', async (name) => {
     await renderApp('/');
     const dialog = await openWithShortcut();
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Cerrar búsqueda' }));
+    fireEvent.click(within(dialog).getByRole('button', { name }));
     await waitFor(() => {
       expect(screen.queryByRole('dialog', { name: DIALOG_NAME })).not.toBeInTheDocument();
     });
