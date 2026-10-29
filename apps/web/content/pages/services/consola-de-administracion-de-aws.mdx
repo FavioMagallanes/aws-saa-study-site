@@ -7,4 +7,85 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+La consola de administración de AWS (AWS Management Console) es una aplicación web que reúne y da acceso centralizado a las consolas de cada servicio de AWS. Su página de inicio se llama AWS Console Home y desde ahí administras tus aplicaciones y llegas al resto de las consolas.
+
+## Qué problema resuelve
+
+Cada servicio de AWS tiene su propia consola. Sin un punto de entrada común tendrías que recordar dónde está cada una, configurar por separado el idioma o la región y cambiar de herramienta para ejecutar un comando. La consola unifica la navegación, la búsqueda, las notificaciones y la configuración en un solo lugar, desde el navegador.
+
+## Conceptos clave
+
+- **Navegación unificada**: accedes a las consolas visitadas hace poco, a tu lista de favoritos, a la configuración y a las notificaciones de AWS User Notifications.
+- **Búsqueda unificada**: buscas servicios, funciones y productos de AWS Marketplace.
+- **Configuración unificada**: personalizas aspectos como el idioma y la región predeterminada.
+- **AWS Console Home**: se personaliza con widgets, como los servicios visitados recientemente o AWS Health. Con myApplications supervisas el costo, el estado, la postura de seguridad y el rendimiento de tus aplicaciones.
+- **AWS CloudShell**: un shell en el navegador, ya autenticado con las credenciales con las que entraste a la consola, para ejecutar comandos de la AWS CLI sin instalar nada.
+- **Inicio de sesión**: entras como usuario raíz, como usuario de IAM, como usuario de IAM Identity Center o con una identidad federada. El usuario raíz tiene acceso completo a todos los servicios y recursos de la cuenta, y AWS recomienda no usarlo en las tareas diarias.
+- **Acceso privado (Console Private Access)**: limita el uso de la consola a un conjunto de cuentas de AWS conocidas cuando el tráfico sale de tu red. Se implementa con puntos de enlace de VPC de AWS PrivateLink, de modo que el tráfico del navegador no necesita salir a internet, y admite redes locales conectadas por AWS Direct Connect o AWS Site-to-Site VPN.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Controla quién entra con"
+    service="AWS IAM"
+    description="Los usuarios de IAM inician sesión en la consola, y las políticas de IAM conceden o deniegan acciones, por ejemplo el uso de CloudShell."
+  />
+  <ConnectionCard
+    relation="Ejecuta comandos con"
+    service="AWS CLI"
+    description="CloudShell, desde la consola, trae la AWS CLI instalada y autenticada con tu sesión."
+  />
+  <ConnectionCard
+    relation="Se aísla en la red con"
+    service="AWS PrivateLink"
+    description="Console Private Access enruta el tráfico de la consola por puntos de enlace de VPC."
+  />
+  <ConnectionCard
+    relation="Muestra el estado con"
+    service="Panel de AWS Health"
+    description="Las notificaciones de AWS Health aparecen en la consola y como widget en Console Home."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="La consola cuando"
+    items={[
+      'Exploras un servicio o haces tareas puntuales de forma visual.',
+      'Revisas el estado, el costo o las notificaciones de tus recursos.',
+      'Necesitas ejecutar un comando rápido con CloudShell sin instalar herramientas.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Quieres ejecutar desde la terminal las mismas funciones que ofrece la consola: AWS CLI.',
+      'Quieres describir tus recursos en una plantilla y que el servicio los aprovisione: AWS CloudFormation.',
+      'Necesitas entregar productos aprobados a usuarios finales: AWS Service Catalog.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es la consola de administración de AWS"
+  url="https://docs.aws.amazon.com/awsconsolehelpdocs/latest/gsg/what-is.html"
+/>
+<OfficialSource
+  title="AWS Management Console Private Access"
+  url="https://docs.aws.amazon.com/awsconsolehelpdocs/latest/gsg/console-private-access.html"
+/>
+<OfficialSource
+  title="Qué es AWS CloudShell"
+  url="https://docs.aws.amazon.com/cloudshell/latest/userguide/welcome.html"
+/>
+<OfficialSource
+  title="Determinar tu tipo de usuario"
+  url="https://docs.aws.amazon.com/signin/latest/userguide/user-types-list.html"
+/>
