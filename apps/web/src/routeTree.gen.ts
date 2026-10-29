@@ -10,33 +10,115 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ArquitecturasRouteImport } from './routes/arquitecturas'
+import { Route as BuscarRouteImport } from './routes/buscar'
+import { Route as GlosarioRouteImport } from './routes/glosario'
+import { Route as MapaDelExamenRouteImport } from './routes/mapa-del-examen'
+import { Route as ServiciosRouteImport } from './routes/servicios'
+import { Route as LecturaPageIdRouteImport } from './routes/lectura.$pageId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ArquitecturasRoute = ArquitecturasRouteImport.update({
+  id: '/arquitecturas',
+  path: '/arquitecturas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuscarRoute = BuscarRouteImport.update({
+  id: '/buscar',
+  path: '/buscar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GlosarioRoute = GlosarioRouteImport.update({
+  id: '/glosario',
+  path: '/glosario',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MapaDelExamenRoute = MapaDelExamenRouteImport.update({
+  id: '/mapa-del-examen',
+  path: '/mapa-del-examen',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServiciosRoute = ServiciosRouteImport.update({
+  id: '/servicios',
+  path: '/servicios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LecturaPageIdRoute = LecturaPageIdRouteImport.update({
+  id: '/lectura/$pageId',
+  path: '/lectura/$pageId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/arquitecturas': typeof ArquitecturasRoute
+  '/buscar': typeof BuscarRoute
+  '/glosario': typeof GlosarioRoute
+  '/mapa-del-examen': typeof MapaDelExamenRoute
+  '/servicios': typeof ServiciosRoute
+  '/lectura/$pageId': typeof LecturaPageIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/arquitecturas': typeof ArquitecturasRoute
+  '/buscar': typeof BuscarRoute
+  '/glosario': typeof GlosarioRoute
+  '/mapa-del-examen': typeof MapaDelExamenRoute
+  '/servicios': typeof ServiciosRoute
+  '/lectura/$pageId': typeof LecturaPageIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/arquitecturas': typeof ArquitecturasRoute
+  '/buscar': typeof BuscarRoute
+  '/glosario': typeof GlosarioRoute
+  '/mapa-del-examen': typeof MapaDelExamenRoute
+  '/servicios': typeof ServiciosRoute
+  '/lectura/$pageId': typeof LecturaPageIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/arquitecturas'
+    | '/buscar'
+    | '/glosario'
+    | '/mapa-del-examen'
+    | '/servicios'
+    | '/lectura/$pageId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/arquitecturas'
+    | '/buscar'
+    | '/glosario'
+    | '/mapa-del-examen'
+    | '/servicios'
+    | '/lectura/$pageId'
+  id:
+    | '__root__'
+    | '/'
+    | '/arquitecturas'
+    | '/buscar'
+    | '/glosario'
+    | '/mapa-del-examen'
+    | '/servicios'
+    | '/lectura/$pageId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ArquitecturasRoute: typeof ArquitecturasRoute
+  BuscarRoute: typeof BuscarRoute
+  GlosarioRoute: typeof GlosarioRoute
+  MapaDelExamenRoute: typeof MapaDelExamenRoute
+  ServiciosRoute: typeof ServiciosRoute
+  LecturaPageIdRoute: typeof LecturaPageIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +130,59 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/arquitecturas': {
+      id: '/arquitecturas'
+      path: '/arquitecturas'
+      fullPath: '/arquitecturas'
+      preLoaderRoute: typeof ArquitecturasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/buscar': {
+      id: '/buscar'
+      path: '/buscar'
+      fullPath: '/buscar'
+      preLoaderRoute: typeof BuscarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/glosario': {
+      id: '/glosario'
+      path: '/glosario'
+      fullPath: '/glosario'
+      preLoaderRoute: typeof GlosarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mapa-del-examen': {
+      id: '/mapa-del-examen'
+      path: '/mapa-del-examen'
+      fullPath: '/mapa-del-examen'
+      preLoaderRoute: typeof MapaDelExamenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/servicios': {
+      id: '/servicios'
+      path: '/servicios'
+      fullPath: '/servicios'
+      preLoaderRoute: typeof ServiciosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lectura/$pageId': {
+      id: '/lectura/$pageId'
+      path: '/lectura/$pageId'
+      fullPath: '/lectura/$pageId'
+      preLoaderRoute: typeof LecturaPageIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ArquitecturasRoute: ArquitecturasRoute,
+  BuscarRoute: BuscarRoute,
+  GlosarioRoute: GlosarioRoute,
+  MapaDelExamenRoute: MapaDelExamenRoute,
+  ServiciosRoute: ServiciosRoute,
+  LecturaPageIdRoute: LecturaPageIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
