@@ -7,4 +7,97 @@ export const meta = {
   covers: ['1.2-k5'],
 };
 
-Contenido pendiente.
+Amazon Macie es un servicio de seguridad de datos que descubre datos sensibles en Amazon S3 mediante aprendizaje automático y coincidencia de patrones, te da visibilidad sobre los riesgos de seguridad de esos datos y permite automatizar su protección.
+
+## Qué problema resuelve
+
+Con muchos buckets y millones de objetos, es difícil saber dónde hay información personal, datos financieros o credenciales, y si algún bucket que los contiene quedó público. Macie mantiene un inventario de tus buckets de uso general de S3, los evalúa de forma continua y genera hallazgos cuando encuentra datos sensibles o un problema de seguridad, como un bucket que pasa a ser accesible públicamente. La clasificación de datos como parte de la gobernanza se trata en el tema «Gobernanza, clasificación, retención y cumplimiento de datos».
+
+## Conceptos clave
+
+### Dos tipos de hallazgo
+
+- **Hallazgos de política**: problemas de seguridad o privacidad de un bucket, detectados al evaluar su acceso público, su cifrado o si se comparte con otras cuentas.
+- **Hallazgos de datos sensibles**: un informe detallado de los datos sensibles que Macie encontró en un objeto.
+
+Cada hallazgo incluye una calificación de gravedad e información sobre el recurso afectado.
+
+### Dos formas de descubrir datos sensibles
+
+- **Descubrimiento automatizado**: visibilidad amplia. Macie evalúa el inventario de buckets y analiza objetos representativos mediante muestreo. Puedes excluir buckets, por ejemplo los de registros.
+- **Trabajos de descubrimiento**: análisis más profundo y dirigido. Eliges los buckets, la profundidad del muestreo y criterios propios, y los ejecutas una sola vez o de forma periódica.
+
+### Qué detecta
+
+- **Identificadores de datos administrados**: criterios integrados que detectan, por ejemplo, números de tarjeta de crédito, claves de acceso secretas de AWS o números de pasaporte, entre muchos tipos de información personal (PII), financiera y de credenciales.
+- **Identificadores de datos personalizados**: una expresión regular tuya, para datos propios como identificadores de empleado.
+- **Listas de permitidos**: texto que Macie debe ignorar, como teléfonos públicos de tu organización.
+
+Para analizar un objeto cifrado, Macie necesita poder usar la clave, y si el bucket tiene una política restrictiva, esta debe permitirle el acceso.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Analiza los datos de"
+    service="Amazon S3"
+    description="Inventaría los buckets de uso general, evalúa su acceso y cifrado e inspecciona los objetos en busca de datos sensibles."
+  />
+  <ConnectionCard
+    relation="Publica hallazgos en"
+    service="Amazon EventBridge"
+    description="Envía los hallazgos como eventos, que puedes dirigir a funciones de AWS Lambda o temas de Amazon SNS para procesarlos casi en tiempo real."
+  />
+  <ConnectionCard
+    relation="Centraliza hallazgos en"
+    service="AWS Security Hub"
+    description="Puede publicar sus hallazgos para evaluarlos junto con el resto de la postura de seguridad."
+  />
+  <ConnectionCard
+    relation="Se administra en varias cuentas con"
+    service="AWS Organizations"
+    description="Un administrador de Macie puede habilitarlo en las cuentas miembro y revisar sus buckets."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Amazon Macie cuando"
+    items={[
+      'Necesitas encontrar información personal, financiera o credenciales guardadas en S3.',
+      'Quieres saber qué buckets son públicos, están compartidos o no tienen cifrado.',
+      'Debes demostrar el cumplimiento de requisitos de privacidad de los datos en S3.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otro servicio cuando"
+    items={[
+      'Buscas actividad maliciosa, como credenciales comprometidas o minería de criptomonedas: Amazon GuardDuty.',
+      'Necesitas autenticar y autorizar a los usuarios de una aplicación web o móvil: Amazon Cognito.',
+      'Quieres una vista consolidada de los hallazgos de varios servicios de seguridad: AWS Security Hub.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon Macie"
+  url="https://docs.aws.amazon.com/macie/latest/user/what-is-macie.html"
+/>
+<OfficialSource
+  title="Descubrir datos sensibles con Macie"
+  url="https://docs.aws.amazon.com/macie/latest/user/data-classification.html"
+/>
+<OfficialSource
+  title="Qué es Amazon GuardDuty"
+  url="https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html"
+/>
+<OfficialSource
+  title="Qué es Amazon Cognito"
+  url="https://docs.aws.amazon.com/cognito/latest/developerguide/what-is-amazon-cognito.html"
+/>
