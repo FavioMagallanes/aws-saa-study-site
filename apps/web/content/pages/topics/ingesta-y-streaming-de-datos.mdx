@@ -7,4 +7,166 @@ export const meta = {
   covers: ['3.5-k2', '3.5-k5', '3.5-k6', '3.5-k7', '3.5-s2', '3.5-s6'],
 };
 
-Contenido pendiente.
+La ingesta es la puerta de entrada de los datos a tu arquitectura de análisis. Antes de elegir un servicio tienes que responder tres preguntas: con qué frecuencia llegan los datos, cuántos llegan y a qué velocidad, y quién puede enviarlos. En AWS, los servicios de streaming del examen son Amazon Kinesis Data Streams, Amazon Data Firehose y Amazon MSK, y el examen espera que sepas cuál encaja en cada flujo, cómo dimensionarlo y cómo proteger sus puntos de entrada.
+
+## Qué problema resuelve
+
+No todos los datos llegan igual. Algunos se acumulan y se procesan por lotes a intervalos, por ejemplo una agregación diaria de ventas que se carga cada noche en el almacén de datos. Otros llegan de forma continua, como registros de aplicaciones, flujos de clics o datos de sensores, y pierden valor si no se procesan en segundos. Un diseño de ingesta adecuado elige el patrón según la frecuencia y la latencia que necesita el negocio, dimensiona la capacidad para el volumen real y evita que los datos se pierdan cuando falla un servidor.
+
+## Conceptos clave
+
+### Patrones de ingesta según la frecuencia
+
+- **Por lotes (batch)**: los datos se procesan en bloques a intervalos variables. La lente de análisis de datos del AWS Well-Architected Framework indica que el sistema debe escalar al tamaño de cada lote, admitir orígenes y destinos distintos y orquestar los trabajos con flujos de trabajo. Los requisitos del negocio, como un acuerdo de nivel de servicio o un presupuesto, determinan sus características. En AWS se usan servicios como Amazon EMR, Amazon Redshift, AWS Glue y los blueprints de Lake Formation.
+- **Streaming (tiempo real)**: los datos se ingieren y procesan de forma casi continua. Sirve para ETL en streaming, análisis en tiempo real, detección de fraude o análisis de flujos de clics, registros y dispositivos IoT, y exige escalabilidad de rendimiento, fiabilidad, alta disponibilidad y baja latencia.
+
+### Arquitectura de un flujo de datos en streaming
+
+La lente de análisis describe cinco piezas que se combinan para diseñar el flujo:
+
+- **Orígenes**: registros de aplicaciones y de clics, aplicaciones móviles, bases de datos transaccionales, sensores IoT.
+- **Ingesta y productores**: SDK y bibliotecas de Kinesis y Apache Kafka, e integraciones como AWS IoT Core, CloudWatch Logs, Amazon Data Firehose o AWS DMS.
+- **Almacenamiento del flujo**: Kinesis Data Streams, Amazon MSK o Apache Kafka.
+- **Procesamiento y consumidores**: Amazon EMR, trabajos de streaming de AWS Glue o aplicaciones propias.
+- **Destinos**: bases de datos, almacenes de datos, Amazon OpenSearch Service y lagos de datos.
+
+### Amazon Kinesis Data Streams
+
+Kinesis Data Streams recoge y procesa grandes flujos de registros de datos en tiempo real. Los productores envían los datos directamente al flujo, sin agruparlos antes en los servidores, de modo que están disponibles para procesarse en segundos y no se pierden si falla el servidor de aplicaciones. Los consumidores leen y procesan los registros, y varias aplicaciones pueden leer el mismo flujo de forma independiente y simultánea.
+
+- **Shards**: un flujo es un conjunto de shards, y su capacidad total es la suma de la de sus shards. Cada shard admite hasta 1.000 registros por segundo y 1 MB por segundo de escritura, y hasta 5 transacciones por segundo y 2 MB por segundo de lectura.
+- **Registros y claves de partición**: cada registro tiene un número de secuencia, una clave de partición y un blob de datos de hasta 1 MB. La clave de partición decide a qué shard va cada registro; una clave que concentra demasiado tráfico puede superar los límites de un shard y provocar errores de escritura.
+- **Retención**: por defecto los registros se conservan 24 horas, y puedes ampliarlo hasta 365 días con un costo adicional.
+- **Enhanced fan-out**: cada consumidor que lo usa recibe hasta 2 MB por segundo por shard de rendimiento dedicado, sin competir con otros consumidores. Es la opción recomendada cuando hay más de una aplicación consumidora.
+
+### Modos de capacidad de Kinesis Data Streams
+
+- **Bajo demanda (on-demand)**: no planificas capacidad; Kinesis administra los shards y escala de forma automática. Pagas por GB escrito y leído. Es ideal para tráfico muy variable o impredecible. Admite hasta el doble del pico de escritura observado en los 30 días anteriores; si el tráfico supera ese doble en menos de 15 minutos puede haber limitación (throttling) y debes reintentar.
+- **Aprovisionado**: indicas el número de shards y pagas por shard y hora. Puedes aumentar o reducir los shards mientras el flujo está en uso. Encaja con tráfico predecible y fácil de estimar, y cuando tienes claves de partición muy desiguales que requieren divisiones de shard más finas.
+
+### Amazon Data Firehose
+
+Firehose es un servicio totalmente administrado que entrega datos de streaming en tiempo real a destinos como Amazon S3, Amazon Redshift, Amazon OpenSearch Service, Splunk, tablas Apache Iceberg o puntos de enlace HTTP. No escribes aplicaciones ni administras recursos: configuras los productores para enviar datos al flujo de Firehose, o haces que lea de un flujo de Kinesis Data Streams existente, y el servicio los entrega al destino. También puede transformar los datos antes de entregarlos.
+
+- **Búfer**: Firehose acumula los datos hasta alcanzar un tamaño (en MB) o un intervalo (en segundos), lo que ocurra primero, y entonces los entrega. Por ejemplo, para el respaldo en S3 eliges entre 1 y 128 MiB y entre 60 y 900 segundos. Si la entrega se retrasa respecto a la escritura, Firehose aumenta el tamaño del búfer de forma dinámica para ponerse al día.
+- **Registros**: cada registro puede ocupar hasta 1.000 KB.
+- **Destino Redshift**: Firehose entrega primero los datos en un bucket de S3 y luego ejecuta un comando `COPY` para cargarlos en Redshift.
+- **Respaldo**: puede guardar en S3 los datos de origen o solo los que no se pudieron entregar, y comprimirlos con GZIP, Snappy o Zip.
+
+### Amazon MSK
+
+Amazon Managed Streaming for Apache Kafka es un servicio totalmente administrado para crear y ejecutar aplicaciones que usan Apache Kafka. Ejecuta versiones de código abierto de Kafka, así que las aplicaciones, herramientas y complementos existentes funcionan sin cambiar el código. En MSK Provisioned eliges cuántos nodos de broker crear en cada zona de disponibilidad; con MSK Serverless ejecutas Kafka sin administrar ni escalar la capacidad del clúster. Encaja cuando ya tienes aplicaciones o herramientas basadas en Kafka.
+
+### Acceso seguro a los puntos de ingesta
+
+- **Puntos de enlace de VPC de interfaz**: Kinesis Data Streams y Firehose admiten puntos de enlace de interfaz basados en AWS PrivateLink, de modo que el tráfico desde tu VPC no sale de la red de Amazon y no necesitas puerta de enlace de internet, NAT, VPN ni Direct Connect. Con políticas de punto de enlace y condiciones en las políticas de IAM puedes limitar el acceso a ciertos flujos para que solo ocurra a través de ese punto de enlace.
+- **Cifrado en Kinesis Data Streams**: el cifrado del lado del servidor cifra los datos con una clave de AWS KMS antes de guardarlos y los descifra al recuperarlos. Solo cifra los datos que llegan después de activarlo.
+- **Seguridad en MSK**: MSK siempre cifra los datos en reposo con KMS, con una clave tuya o una administrada por AWS. Por defecto cifra con TLS el tráfico entre brokers y solo admite TLS entre clientes y brokers. Para autenticar clientes puedes usar IAM, TLS mutuo o SASL/SCRAM con credenciales guardadas en AWS Secrets Manager, y autorizar acciones con IAM o con ACL de Apache Kafka.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Entrega datos en"
+    service="Amazon S3"
+    description="Firehose deposita los datos del flujo en S3, la base habitual de un lago de datos, y lo usa también para respaldos."
+  />
+  <ConnectionCard
+    relation="Carga datos en"
+    service="Amazon Redshift"
+    description="Firehose deja los datos en S3 y ejecuta COPY para cargarlos en el almacén de datos."
+  />
+  <ConnectionCard
+    relation="Protege el acceso con"
+    service="AWS PrivateLink"
+    description="Los puntos de enlace de VPC de interfaz mantienen el tráfico de ingesta dentro de la red de Amazon."
+  />
+  <ConnectionCard
+    relation="Cifra los datos con"
+    service="AWS KMS"
+    description="Kinesis Data Streams y MSK cifran los datos en reposo con claves de KMS."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Kinesis Data Streams cuando"
+    items={[
+      'Necesitas procesar datos en tiempo real con aplicaciones consumidoras propias.',
+      'Varias aplicaciones deben leer el mismo flujo de forma independiente.',
+      'Necesitas conservar y volver a leer los registros durante días.',
+      'Quieres elegir entre capacidad bajo demanda o shards aprovisionados.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Solo necesitas entregar el flujo en S3, Redshift u OpenSearch sin escribir código: Amazon Data Firehose.',
+      'Ya usas Apache Kafka o quieres mantener su API: Amazon MSK.',
+      'Los datos se procesan por lotes a intervalos: AWS Glue, Amazon EMR o Amazon Redshift.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon Kinesis Data Streams"
+  url="https://docs.aws.amazon.com/streams/latest/dev/introduction.html"
+/>
+<OfficialSource
+  title="Terminología y conceptos de Kinesis Data Streams"
+  url="https://docs.aws.amazon.com/streams/latest/dev/key-concepts.html"
+/>
+<OfficialSource
+  title="Elegir el modo de capacidad de Kinesis Data Streams"
+  url="https://docs.aws.amazon.com/streams/latest/dev/how-do-i-size-a-stream.html"
+/>
+<OfficialSource
+  title="Consumidores con enhanced fan-out"
+  url="https://docs.aws.amazon.com/streams/latest/dev/enhanced-consumers.html"
+/>
+<OfficialSource
+  title="Kinesis Data Streams con puntos de enlace de VPC de interfaz"
+  url="https://docs.aws.amazon.com/streams/latest/dev/vpc.html"
+/>
+<OfficialSource
+  title="Cifrado del lado del servidor en Kinesis Data Streams"
+  url="https://docs.aws.amazon.com/streams/latest/dev/what-is-sse.html"
+/>
+<OfficialSource
+  title="Qué es Amazon Data Firehose"
+  url="https://docs.aws.amazon.com/firehose/latest/dev/what-is-this-service.html"
+/>
+<OfficialSource
+  title="Configurar el respaldo y el búfer en Firehose"
+  url="https://docs.aws.amazon.com/firehose/latest/dev/create-configure-backup.html"
+/>
+<OfficialSource
+  title="Amazon Data Firehose con AWS PrivateLink"
+  url="https://docs.aws.amazon.com/firehose/latest/dev/vpc.html"
+/>
+<OfficialSource
+  title="Qué es Amazon MSK"
+  url="https://docs.aws.amazon.com/msk/latest/developerguide/what-is-msk.html"
+/>
+<OfficialSource
+  title="Cifrado en Amazon MSK"
+  url="https://docs.aws.amazon.com/msk/latest/developerguide/msk-encryption.html"
+/>
+<OfficialSource
+  title="Autenticación y autorización para las API de Apache Kafka"
+  url="https://docs.aws.amazon.com/msk/latest/developerguide/kafka_apis_iam.html"
+/>
+<OfficialSource
+  title="Procesamiento de datos por lotes (lente de análisis de datos)"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/analytics-lens/batch-data-processing.html"
+/>
+<OfficialSource
+  title="Ingesta y procesamiento en streaming (lente de análisis de datos)"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/analytics-lens/streaming-ingest-and-stream-processing.html"
+/>
