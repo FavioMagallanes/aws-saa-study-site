@@ -7,4 +7,82 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Amazon Managed Service para Prometheus es un servicio de supervisión sin servidor y compatible con Prometheus, pensado para las métricas de contenedores. Usas el mismo modelo de datos y el mismo lenguaje de consulta (PromQL) de Prometheus de código abierto, pero sin administrar la infraestructura que lo sostiene.
+
+## Qué problema resuelve
+
+Prometheus es una opción habitual para vigilar cargas de trabajo en contenedores, pero ejecutarlo a escala obliga a dimensionar, escalar y mantener disponibles la ingesta, el almacenamiento y las consultas de métricas. Este servicio escala esas tres funciones de forma automática a medida que las cargas crecen o se reducen, y se integra con los servicios de seguridad de AWS para dar acceso seguro a los datos.
+
+## Conceptos clave
+
+- **Espacio de trabajo (workspace)**: es donde se ingieren, guardan y consultan las métricas.
+- **Alta disponibilidad**: está diseñado con despliegues en varias zonas de disponibilidad. Los datos que ingiere un espacio de trabajo se replican en tres zonas de disponibilidad de la misma región.
+- **Kubernetes**: funciona con clústeres de contenedores que se ejecutan en Amazon EKS y con entornos de Kubernetes autoadministrados.
+- **Compatibilidad con Prometheus**: con PromQL filtras, agregas y creas alarmas sobre las métricas sin cambiar el código.
+- **Ingesta**: puedes usar un agente de Prometheus que recoge las métricas del clúster y las reenvía al espacio de trabajo, o un recopilador administrado (scraper) que descubre y extrae las métricas de un clúster de Amazon EKS sin que administres instancias ni agentes.
+- **Reglas**: las reglas de registro precalculan expresiones costosas o frecuentes, y las reglas de alerta definen condiciones con PromQL y un umbral. Al cumplirse, la alerta pasa al administrador de alertas, que puede reenviarla a destinos como Amazon SNS.
+- **Retención**: las métricas se conservan 150 días de forma predeterminada y después se borran de forma automática. Puedes ampliar ese periodo hasta un máximo de 1095 días (tres años).
+- **Costo**: se cobra por la ingesta y el almacenamiento de las métricas.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Recoge métricas de"
+    service="Amazon EKS"
+    description="Un agente de Prometheus o un recopilador administrado extrae las métricas del clúster y las envía al espacio de trabajo."
+  />
+  <ConnectionCard
+    relation="Se visualiza con"
+    service="Amazon Managed Grafana"
+    description="Grafana consulta el espacio de trabajo como fuente de datos para construir paneles."
+  />
+  <ConnectionCard
+    relation="Notifica alertas con"
+    service="Amazon SNS"
+    description="El administrador de alertas puede reenviar las alertas de las reglas a temas de SNS."
+  />
+  <ConnectionCard
+    relation="Controla el acceso con"
+    service="AWS IAM"
+    description="Los roles de IAM para cuentas de servicio de EKS dan permiso al agente para enviar métricas."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Managed Service para Prometheus cuando"
+    items={[
+      'Vigilas contenedores en Amazon EKS o en Kubernetes autoadministrado.',
+      'Ya usas Prometheus y PromQL y no quieres operar su infraestructura.',
+      'Necesitas que la ingesta y las consultas escalen solas con la carga.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Quieres métricas, registros y alarmas de los servicios de AWS sin adoptar Prometheus: Amazon CloudWatch.',
+      'Necesitas paneles sobre estas métricas: Amazon Managed Grafana, que se usa junto a este servicio.',
+      'Debes seguir solicitudes de extremo a extremo: AWS X-Ray.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon Managed Service for Prometheus"
+  url="https://docs.aws.amazon.com/prometheus/latest/userguide/what-is-Amazon-Managed-Service-Prometheus.html"
+/>
+<OfficialSource
+  title="Configurar recopiladores administrados para Amazon EKS"
+  url="https://docs.aws.amazon.com/prometheus/latest/userguide/AMP-collector-how-to.html"
+/>
+<OfficialSource
+  title="Usar reglas para modificar o vigilar métricas"
+  url="https://docs.aws.amazon.com/prometheus/latest/userguide/AMP-Ruler.html"
+/>
