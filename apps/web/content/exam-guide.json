@@ -1,4 +1,26 @@
 {
+  "domains": [
+    {
+      "id": 1,
+      "title": "Diseño de arquitecturas seguras",
+      "weight": 30
+    },
+    {
+      "id": 2,
+      "title": "Diseño de arquitecturas resistentes",
+      "weight": 26
+    },
+    {
+      "id": 3,
+      "title": "Diseño de arquitecturas de alto rendimiento",
+      "weight": 24
+    },
+    {
+      "id": 4,
+      "title": "Diseño de arquitecturas con optimización de costos",
+      "weight": 20
+    }
+  ],
   "tasks": [
     {
       "id": "1.1",
@@ -254,7 +276,7 @@
     },
     {
       "id": "2.2",
-      "title": "Diseñar arquitecturas de alta disponibilidad y/o tolerantes a",
+      "title": "Diseñar arquitecturas de alta disponibilidad y/o tolerantes a errores",
       "knowledge": [
         {
           "id": "2.2-k1",
@@ -342,7 +364,7 @@
     },
     {
       "id": "3.1",
-      "title": "Determinar soluciones de almacenamiento escalables o de alto",
+      "title": "Determinar soluciones de almacenamiento escalables o de alto rendimiento",
       "knowledge": [
         {
           "id": "3.1-k1",
@@ -370,7 +392,7 @@
     },
     {
       "id": "3.2",
-      "title": "Diseñar soluciones de computación elásticas y de alto",
+      "title": "Diseñar soluciones de computación elásticas y de alto rendimiento",
       "knowledge": [
         {
           "id": "3.2-k1",
@@ -478,7 +500,7 @@
     },
     {
       "id": "3.4",
-      "title": "Determinar arquitecturas de red escalables o de alto",
+      "title": "Determinar arquitecturas de red escalables o de alto rendimiento",
       "knowledge": [
         {
           "id": "3.4-k1",
@@ -518,7 +540,7 @@
     },
     {
       "id": "3.5",
-      "title": "Determinar soluciones de transformación e ingesta de datos de",
+      "title": "Determinar soluciones de transformación e ingesta de datos de alto rendimiento",
       "knowledge": [
         {
           "id": "3.5-k1",

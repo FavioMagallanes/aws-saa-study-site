@@ -34,9 +34,9 @@ TopBar desktop 1440 (pad 20/80, brand Literata 20/600 + SAA-C03 tag, nav Ruta/Se
 
 - [x] T1 (S1,S2,S5) Primitives in shared/ui: Button, IconButton, Link, Chip, ProgressBar + cx helper
 - [x] T2 (S1,S4) Reading components: ExamTasks, ConnectionCard, DecisionBox, DiagramNode, OfficialSource
-- [ ] T3 (S1,S5) Glossary: Abbr card + BottomSheet (static)
-- [ ] T4 (S1,S4) Navigation: TopBar desktop/mobile, BottomBar mobile
-- [ ] T5 (S3,S4) App shell and routes: sidebar 240 / column 680 / TOC 220, route for each real page
+- [x] T3 (S1,S5) Glossary: Abbr card + BottomSheet (static)
+- [x] T4 (S1,S4) Navigation: TopBar desktop/mobile, BottomBar mobile
+- [x] T5 (S3,S4) App shell and routes: sidebar 240 / column 680 / TOC 220, route for each real page
 - [ ] T6 (S3) Screens: Inicio, Mapa del examen, Página de lectura, Glosario, Búsqueda (layout only)
 
 ## Log

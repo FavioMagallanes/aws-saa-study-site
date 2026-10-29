@@ -4,6 +4,13 @@ import { bulletIdSchema } from '@arquitecto/contracts/content';
 const guideBulletSchema = z.object({ id: bulletIdSchema, text: z.string().min(1) });
 
 export const examGuideSchema = z.object({
+  domains: z.array(
+    z.object({
+      id: z.number().int().min(1).max(4),
+      title: z.string().min(1),
+      weight: z.number().int().min(1).max(100),
+    }),
+  ),
   tasks: z.array(
     z.object({
       id: z.string().regex(/^[1-4]\.\d+$/),

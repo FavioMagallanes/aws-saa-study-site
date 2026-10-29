@@ -4,6 +4,7 @@ import { checkCoverage } from '../../model/check-coverage';
 import type { ExamGuide } from '../../model/exam-guide';
 
 const guide: ExamGuide = {
+  domains: [{ id: 1, title: 'Domain', weight: 100 }],
   tasks: [
     {
       id: '1.1',
