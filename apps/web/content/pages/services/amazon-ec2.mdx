@@ -7,4 +7,105 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Amazon Elastic Compute Cloud (Amazon EC2) ofrece capacidad de cómputo escalable y bajo demanda en la nube de AWS. Una instancia EC2 es un servidor virtual: lanzas tantas como necesites, configuras su red y su seguridad, administras su almacenamiento y aumentas o reduces la capacidad según la demanda.
+
+## Qué problema resuelve
+
+Comprar servidores físicos obliga a pagar el hardware por adelantado y a dimensionarlo para el pico, aunque ese pico llegue una vez al mes. Con EC2 añades capacidad para tareas intensivas o picos de tráfico y la quitas cuando el uso baja. A cambio de ese control total, tú eres responsable de configurar, parchear y escalar los servidores, algo que los servicios sin servidor o administrados hacen por ti.
+
+## Conceptos clave
+
+### Las piezas de una instancia
+
+- **AMI (Amazon Machine Image)**: plantilla preconfigurada con el sistema operativo y el software adicional con la que arranca la instancia.
+- **Tipo de instancia**: define el hardware disponible, con distintas combinaciones de CPU, memoria, almacenamiento, red y aceleradores. Cómo elegirlo se explica en el tema "Elegir instancias: familias, tipos y tamaños".
+- **Almacenamiento**: los volúmenes de Amazon EBS son persistentes; los volúmenes de almacén de instancia guardan datos temporales que se borran al detener, hibernar o terminar la instancia.
+- **Pares de claves**: credenciales de inicio de sesión. AWS guarda la clave pública y tú la privada.
+- **Grupos de seguridad**: un firewall virtual que define protocolos, puertos e intervalos de IP que pueden llegar a la instancia y a los que ella puede conectarse.
+
+### Credenciales para las aplicaciones
+
+Una aplicación en una instancia necesita credenciales de AWS para firmar sus llamadas a la API. En lugar de copiar claves a cada instancia, le asignas un **rol de IAM** al lanzarla o después. La aplicación obtiene credenciales temporales del rol, y no tienes que distribuirlas ni rotarlas a mano.
+
+### Estados y facturación
+
+Una instancia pasa por los estados `pending`, `running`, `stopping`, `stopped`, `shutting-down` y `terminated`. Solo se factura el uso mientras está en `running` (por segundo, con un mínimo de un minuto), aunque esté inactiva. Algunos recursos, como los volúmenes de EBS y las direcciones IP elásticas, generan cargos en cualquier estado.
+
+### Grupos de colocación
+
+Opcionales y sin costo, influyen en cómo se ubican instancias que dependen entre sí:
+
+- **Clúster**: agrupa las instancias dentro de una zona de disponibilidad para lograr la baja latencia de red que necesita la computación de alto rendimiento (HPC).
+- **Partición**: reparte las instancias en particiones lógicas que no comparten hardware, típico de Hadoop, Cassandra o Kafka.
+- **Distribución (spread)**: coloca un grupo pequeño de instancias en hardware distinto para reducir fallos correlacionados.
+
+### Opciones de compra
+
+EC2 ofrece instancias bajo demanda, Savings Plans, instancias reservadas, instancias de spot, hosts dedicados y reservas de capacidad bajo demanda. Se comparan en el tema "Opciones de compra: bajo demanda, spot, reservadas y Savings Plans".
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Escala las instancias con"
+    service="Amazon EC2 Auto Scaling"
+    description="Mantiene el número correcto de instancias para la carga y reemplaza las que fallan."
+  />
+  <ConnectionCard
+    relation="Reparte el tráfico con"
+    service="Elastic Load Balancing"
+    description="Distribuye automáticamente el tráfico entrante entre varias instancias."
+  />
+  <ConnectionCard
+    relation="Guarda los datos en"
+    service="Amazon EBS"
+    description="Volúmenes persistentes que se conectan a la instancia, a diferencia del almacén de instancia temporal."
+  />
+  <ConnectionCard
+    relation="Se supervisa con"
+    service="Amazon CloudWatch"
+    description="Monitorea las instancias y sus volúmenes de EBS."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Amazon EC2 cuando"
+    items={[
+      'Necesitas control total del sistema operativo, el software y la configuración del servidor.',
+      'La carga requiere un tipo de hardware concreto, como GPU o mucha memoria.',
+      'Necesitas un control detallado del entorno que justifique el esfuerzo de administrarlo.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Solo quieres ejecutar código en respuesta a eventos sin administrar servidores: AWS Lambda.',
+      'Ejecutas contenedores y no quieres administrar instancias: AWS Fargate.',
+      'Quieres desplegar una aplicación web sin configurar la infraestructura: AWS Elastic Beanstalk.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon EC2"
+  url="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/concepts.html"
+/>
+<OfficialSource
+  title="Cambios de estado de las instancias de Amazon EC2"
+  url="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-lifecycle.html"
+/>
+<OfficialSource
+  title="Grupos de colocación"
+  url="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/placement-groups.html"
+/>
+<OfficialSource
+  title="Roles de IAM para Amazon EC2"
+  url="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html"
+/>
