@@ -7,4 +7,97 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+AWS Network Firewall es un firewall de red administrado y con estado, que además funciona como servicio de detección y prevención de intrusiones para tus VPC de Amazon VPC. Filtra el tráfico en el perímetro de la VPC: el que entra o sale por una gateway de internet, una gateway NAT, una VPN o AWS Direct Connect.
+
+## Qué problema resuelve
+
+Los grupos de seguridad son el mecanismo principal para controlar el acceso de red en una VPC, y las ACL de red sirven como control secundario y sin estado por subred. Network Firewall añade otra capa en el perímetro de la VPC: inspección profunda de paquetes, filtrado por nombre de dominio y reglas de prevención de intrusiones, en un servicio administrado. Los controles básicos de la VPC se explican en el tema «Seguridad de la VPC: grupos de seguridad, ACL de red y segmentación».
+
+## Conceptos clave
+
+### Cómo se despliega
+
+- **Puntos de enlace del firewall**: el firewall crea puntos de enlace en una subred de cada zona de disponibilidad que elijas. Esa subred del firewall debe dedicarse solo a él, porque un punto de enlace no filtra el tráfico de su propia subred.
+- **Tablas de enrutamiento**: para que el tráfico pase por el firewall, modificas las tablas de enrutamiento de la VPC y lo diriges a los puntos de enlace. Los puntos de enlace quedan entre las subredes protegidas y los destinos fuera de la VPC.
+- **Política y grupos de reglas**: la política del firewall define las reglas y la configuración, agrupadas en grupos de reglas.
+
+### Reglas sin estado y con estado
+
+- **Sin estado**: evalúan cada paquete por separado, sin el contexto del resto del flujo.
+- **Con estado**: evalúan los paquetes en el contexto de su flujo. Usan el motor de código abierto Suricata y admiten reglas compatibles con Suricata, filtrado de dominios y reglas por la tupla de cinco elementos.
+
+### Para qué se usa
+
+- Dejar pasar solo el tráfico hacia dominios o puntos de enlace conocidos de servicios de AWS, como Amazon S3.
+- Bloquear dominios maliciosos conocidos con listas propias.
+- Hacer inspección profunda del tráfico que entra o sale de la VPC.
+- Filtrar protocolos como HTTPS sin depender del puerto.
+
+Tenlo en cuenta: no admite la interconexión de VPC (VPC peering) como arquitectura de inspección.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Protege el perímetro de"
+    service="Amazon VPC"
+    description="Las tablas de enrutamiento de la VPC dirigen el tráfico a los puntos de enlace del firewall."
+  />
+  <ConnectionCard
+    relation="Inspecciona tráfico de"
+    service="AWS Transit Gateway"
+    description="Se combina con una gateway de internet, una gateway NAT, una VPN o un transit gateway."
+  />
+  <ConnectionCard
+    relation="Se administra de forma central con"
+    service="AWS Firewall Manager"
+    description="Configura y administra firewalls en varias cuentas de AWS Organizations desde una sola cuenta."
+  />
+  <ConnectionCard
+    relation="Inspecciona conexiones híbridas por"
+    service="AWS Direct Connect y AWS Site-to-Site VPN"
+    description="Filtra el tráfico que entra o sale de la VPC por estas conexiones."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="AWS Network Firewall cuando"
+    items={[
+      'Necesitas inspección profunda de paquetes o prevención de intrusiones en el tráfico de la VPC.',
+      'Quieres permitir o bloquear el tráfico de salida según el nombre de dominio.',
+      'Debes inspeccionar el tráfico entre la VPC e internet, una VPN o Direct Connect.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Basta con el control de acceso de red a las instancias: grupos de seguridad, y ACL de red como control secundario por subred.',
+      'Quieres filtrar solicitudes HTTP(S), como inyección de SQL, delante de CloudFront o un Application Load Balancer: AWS WAF.',
+      'Debes aplicar las mismas reglas en muchas cuentas: AWS Firewall Manager.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Network Firewall"
+  url="https://docs.aws.amazon.com/network-firewall/latest/developerguide/what-is-aws-network-firewall.html"
+/>
+<OfficialSource
+  title="Cómo funciona AWS Network Firewall"
+  url="https://docs.aws.amazon.com/network-firewall/latest/developerguide/how-it-works.html"
+/>
+<OfficialSource
+  title="Arquitecturas de ejemplo con enrutamiento"
+  url="https://docs.aws.amazon.com/network-firewall/latest/developerguide/architectures.html"
+/>
+<OfficialSource
+  title="Seguridad de la infraestructura en Amazon VPC"
+  url="https://docs.aws.amazon.com/vpc/latest/userguide/infrastructure-security.html"
+/>
