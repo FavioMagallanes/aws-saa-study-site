@@ -6,4 +6,135 @@ export const meta = {
   covers: ['1.1-k3', '2.2-k1', '3.3-k1', '3.4-s3', '4.2-k3'],
 };
 
-Contenido pendiente.
+AWS no es un único lugar en internet: es una red de centros de datos repartidos por el mundo, organizada en niveles. Entender esos niveles te permite decidir dónde ejecutar una carga de trabajo para que sea rápida para tus usuarios, cumpla las reglas que le apliquen y siga funcionando cuando algo falla.
+
+## Qué problema resuelve
+
+Si todo vive en un solo centro de datos, un corte de energía, un fallo de red o un desastre local deja sin servicio a todos los usuarios. Además, un usuario lejano siempre recibirá respuestas más lentas, y algunos datos no pueden salir del país donde se generan. La infraestructura global de AWS ofrece ubicaciones aisladas entre sí y a distintas distancias de tus usuarios, para que repartas tus recursos según lo que necesites proteger.
+
+## Conceptos clave
+
+### Regiones
+
+Una región es una ubicación geográfica del mundo donde AWS tiene varias zonas de disponibilidad. Cada región está diseñada para estar aislada de las demás, y eso da la mayor tolerancia a fallos posible: AWS no replica tus recursos entre regiones de forma automática. Cuando consultas tus recursos en la consola, solo ves los de la región que tienes seleccionada. Para trabajar con un servicio desde la línea de comandos o la API, indicas el punto de enlace de esa región.
+
+### Zonas de disponibilidad
+
+Una zona de disponibilidad (AZ) son una o más instalaciones de centros de datos, con energía, red y conectividad redundantes, dentro de una región y separadas físicamente de las otras zonas. Cada región tiene al menos tres. El código de una zona es el de su región seguido de una letra, por ejemplo `us-east-2a`. Como ese código puede apuntar a ubicaciones físicas distintas según la cuenta en las regiones más antiguas, cada zona también tiene un ID de zona (por ejemplo `use1-az1`) que identifica la misma ubicación física en todas las cuentas.
+
+Al lanzar instancias de EC2 repartidas en varias zonas, una instancia puede asumir el trabajo de otra si una zona falla. Ese reparto es la base de la alta disponibilidad dentro de una región.
+
+### Ubicaciones más cercanas a tus usuarios o a tu centro de datos
+
+Además de regiones y zonas, AWS ofrece tres formas de acercar la infraestructura:
+
+- **AWS Local Zones**: una extensión de una región, situada en proximidad geográfica a tus usuarios. Tiene sus propias conexiones a internet y admite AWS Direct Connect, para servir a usuarios locales con baja latencia.
+- **AWS Wavelength**: despliega servicios estándar de cómputo y almacenamiento en el borde de las redes 5G de los operadores de telecomunicaciones, para aplicaciones que necesitan latencias ultrabajas en dispositivos 5G.
+- **AWS Outposts**: lleva la infraestructura, los servicios y las API de AWS a un centro de datos propio. AWS opera esa capacidad como parte de una región, y las instancias del Outpost se comunican con las de la región mediante direcciones IP privadas dentro de la misma VPC.
+
+### Ubicaciones de borde y servicios globales
+
+Para entregar contenido, AWS usa una red de puntos de presencia, también llamados ubicaciones de borde. Cuando un usuario pide un objeto, Amazon CloudFront dirige la solicitud, mediante DNS, al punto de presencia que mejor puede atenderla, normalmente el más cercano en latencia. Si el objeto está en caché, se devuelve de inmediato; si no, CloudFront lo pide al origen y lo guarda para la siguiente vez.
+
+Algunos servicios no pertenecen a una región concreta: se consideran globales. En la mayoría de ellos, el plano de control vive en una sola región y el plano de datos está distribuido por el mundo. Conviene tenerlo presente al diseñar la recuperación ante fallos, para no depender de un plano de control global justo cuando más lo necesitas.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Dirige tráfico con"
+    service="Amazon Route 53"
+    description="Servicio de DNS con políticas de enrutamiento. La política de latencia envía a cada usuario a la región con mejor latencia, y la de conmutación por error mueve el tráfico a un recurso de respaldo."
+  />
+  <ConnectionCard
+    relation="Acerca el contenido con"
+    service="Amazon CloudFront"
+    description="Guarda en caché el contenido en ubicaciones de borde para que los usuarios lo reciban desde un punto cercano, sin llegar siempre a tu región de origen."
+  />
+  <ConnectionCard
+    relation="Se lanza dentro de"
+    service="Amazon EC2"
+    description="Las instancias se lanzan en una región y en una subred de una de sus zonas de disponibilidad. Repartirlas en varias zonas protege la aplicación si falla una."
+  />
+  <ConnectionCard
+    relation="Se organiza en"
+    service="Amazon VPC"
+    description="Una VPC pertenece a una región y tus subredes la dividen entre zonas de disponibilidad. Las Local Zones y los Outposts también pueden alojar subredes de la misma VPC."
+  />
+</CardGrid>
+
+## Cómo elegir dónde colocar los recursos
+
+Cuando debas decidir la ubicación para cumplir los requisitos del negocio, compara las regiones según cuatro factores: el cumplimiento normativo, la latencia hacia tus usuarios, el costo y los servicios y características disponibles. Si los datos están sujetos a leyes de residencia, solo entran en la lista las regiones del país que exige la ley. En aplicaciones que procesan muchos datos, como las de análisis o aprendizaje automático, lo mejor es ejecutar el código cerca de donde están esos datos.
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Qué comparar entre regiones"
+    items={[
+      'Que cumpla la normativa y la residencia de datos que te aplica.',
+      'Que esté cerca de la mayoría de tus usuarios; mide la latencia en lugar de suponerla.',
+      'Que ofrezca los servicios y características que necesitas.',
+      'Que el costo de la carga de trabajo sea aceptable en esa región.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Cuándo mirar otra ubicación"
+    items={[
+      'Necesitas cómputo muy cerca de usuarios de una zona concreta: Local Zones.',
+      'Tu aplicación debe tener latencia ultrabaja en dispositivos 5G: Wavelength.',
+      'Los datos deben quedarse en tu propio centro de datos: Outposts.',
+      'Solo quieres acelerar la entrega de contenido: CloudFront.',
+    ]}
+  />
+</CardGrid>
+
+El costo también depende de la ubicación. En general, la transferencia de datos entre zonas de disponibilidad de una misma región se cobra (algunos servicios no cobran el tráfico dentro de la región), y la que sale de una región hacia otra también. En cambio, la que ocurre dentro de la misma zona no tiene cargo, y recibir datos desde internet no se cobra. Por eso conviene mantener juntos los componentes que más se hablan entre sí cuando el ahorro importa más que repartirlos.
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Regiones y zonas · Guía del usuario de Amazon EC2"
+  url="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html"
+/>
+<OfficialSource
+  title="Regiones de AWS · Guía de regiones y zonas de disponibilidad"
+  url="https://docs.aws.amazon.com/global-infrastructure/latest/regions/aws-regions.html"
+/>
+<OfficialSource
+  title="Zonas de disponibilidad de AWS"
+  url="https://docs.aws.amazon.com/global-infrastructure/latest/regions/aws-availability-zones.html"
+/>
+<OfficialSource
+  title="Elegir la ubicación de la carga de trabajo según los requisitos de red · Well-Architected"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/framework/perf_networking_choose_workload_location_network_requirements.html"
+/>
+<OfficialSource
+  title="Servicios globales · AWS Fault Isolation Boundaries"
+  url="https://docs.aws.amazon.com/whitepapers/latest/aws-fault-isolation-boundaries/global-services.html"
+/>
+<OfficialSource
+  title="Cómo entrega contenido CloudFront"
+  url="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/HowCloudFrontWorks.html"
+/>
+<OfficialSource
+  title="Qué es AWS Outposts"
+  url="https://docs.aws.amazon.com/outposts/latest/userguide/what-is-outposts.html"
+/>
+<OfficialSource
+  title="Elegir una política de enrutamiento · Amazon Route 53"
+  url="https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-policy.html"
+/>
+<OfficialSource
+  title="Consideraciones de los factores al elegir una región · Well-Architected"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/sustainability-pillar/sus_sus_region_a2.html"
+/>
+<OfficialSource
+  title="Facturación de una VPC compartida: transferencia dentro de una misma zona"
+  url="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-share-billing.html"
+/>
+<OfficialSource
+  title="Entender los cargos por transferencia de datos"
+  url="https://docs.aws.amazon.com/cur/latest/userguide/cur-data-transfers-charges.html"
+/>
