@@ -7,4 +7,93 @@ export const meta = {
   covers: ['1.1-s4'],
 };
 
-Contenido pendiente.
+AWS Control Tower es la forma más sencilla de configurar y gobernar un entorno de AWS con varias cuentas siguiendo prácticas recomendadas. Orquesta otros servicios, como AWS Organizations, AWS Service Catalog y AWS IAM Identity Center, para crear una zona de aterrizaje y mantenerla gobernada con controles.
+
+## Qué problema resuelve
+
+Cuando una empresa pasa de unas pocas cuentas a muchas, montar cada una a mano con sus registros, permisos y políticas lleva tiempo y produce diferencias entre cuentas. Control Tower crea el entorno de varias cuentas por ti, estandariza las cuentas nuevas y aplica controles que evitan la deriva, es decir, que las cuentas se alejen de las prácticas recomendadas. Cómo encajan Organizations, las SCP y Control Tower en una estrategia de seguridad para varias cuentas se explica en el tema "Estrategia de varias cuentas: Organizations, SCP y Control Tower".
+
+## Conceptos clave
+
+### Zona de aterrizaje
+
+Una zona de aterrizaje (landing zone) es un entorno de varias cuentas bien diseñado y basado en prácticas de seguridad y cumplimiento. Contiene todas tus unidades organizativas (OU), cuentas, usuarios y demás recursos sujetos a normas de cumplimiento, y escala a empresas de cualquier tamaño.
+
+### Controles
+
+Un control (a veces llamado guardrail) es una regla de alto nivel, expresada en lenguaje sencillo, que da gobernanza continua. Cada control aplica una sola regla.
+
+- **Preventivos**: impiden que una acción ocurra; el intento se deniega y se registra en CloudTrail. Se implementan con políticas de control de servicios (SCP) y políticas de control de recursos (RCP).
+- **De detección**: detectan situaciones concretas, por ejemplo un volumen de EBS sin cifrar asociado a una instancia. Se implementan con reglas de AWS Config.
+- **Proactivos**: comprueban los recursos antes de aprovisionarlos con plantillas de CloudFormation y no los crean si no cumplen. Se implementan con hooks de CloudFormation.
+
+Según su guía, los controles son obligatorios (siempre aplicados y no se pueden cambiar), muy recomendados u opcionales.
+
+### Account Factory y panel
+
+- **Account Factory**: plantilla de cuenta configurable que estandariza el aprovisionamiento de cuentas nuevas con configuraciones preaprobadas. Se basa en productos aprovisionados de AWS Service Catalog y aplica de forma automática los controles y las políticas a cada cuenta.
+- **Panel**: muestra a los administradores centrales las cuentas aprovisionadas, los controles activos y los recursos no conformes por cuenta y OU.
+- **Cuentas existentes**: puedes registrar una organización existente e inscribir sus cuentas para gobernarlas con Control Tower.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Se apoya en"
+    service="AWS Organizations"
+    description="Usa sus cuentas, OU, SCP y RCP como base de la gobernanza central."
+  />
+  <ConnectionCard
+    relation="Detecta incumplimientos con"
+    service="AWS Config"
+    description="Los controles de detección son reglas de Config que señalan recursos no conformes."
+  />
+  <ConnectionCard
+    relation="Crea cuentas con"
+    service="AWS Service Catalog"
+    description="Account Factory se construye sobre productos aprovisionados de Service Catalog."
+  />
+  <ConnectionCard
+    relation="Registra la actividad con"
+    service="AWS CloudTrail"
+    description="Las acciones denegadas por controles preventivos quedan registradas, y las cuentas reciben registros de seguimiento."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Control Tower cuando"
+    items={[
+      'Debes montar y gobernar un entorno de varias cuentas con prácticas recomendadas.',
+      'Quieres que los equipos creen cuentas nuevas ya configuradas y conformes.',
+      'Necesitas controles preventivos, de detección y proactivos listos para activar.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Solo necesitas agrupar cuentas, facturación consolidada y SCP propias: AWS Organizations.',
+      'Quieres evaluar la configuración con reglas propias en una cuenta: AWS Config.',
+      'Debes aprovisionar la misma plantilla en varias cuentas y regiones: CloudFormation StackSets.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Control Tower"
+  url="https://docs.aws.amazon.com/controltower/latest/userguide/what-is-control-tower.html"
+/>
+<OfficialSource
+  title="Cómo funcionan los controles"
+  url="https://docs.aws.amazon.com/controltower/latest/userguide/how-controls-work.html"
+/>
+<OfficialSource
+  title="Cuentas de AWS en AWS Control Tower"
+  url="https://docs.aws.amazon.com/controltower/latest/userguide/accounts.html"
+/>
