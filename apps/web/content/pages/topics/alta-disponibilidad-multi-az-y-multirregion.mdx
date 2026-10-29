@@ -7,4 +7,134 @@ export const meta = {
   covers: ['2.2-k1', '2.2-s2', '2.2-s4'],
 };
 
-Contenido pendiente.
+Un principio fundamental del diseño en AWS es evitar los puntos únicos de fallo, incluida la infraestructura física. Para lograrlo, AWS ofrece su infraestructura global en regiones formadas por varias zonas de disponibilidad. Repartir una carga de trabajo entre zonas, y cuando hace falta entre regiones, es la base de una arquitectura de alta disponibilidad y tolerante a errores.
+
+## Qué problema resuelve
+
+Si toda una carga de producción vive en una única zona de disponibilidad, un incendio, una inundación, un fallo eléctrico o un error humano en esa ubicación la deja fuera de servicio. Distribuir los recursos y los datos entre ubicaciones aisladas reduce ese riesgo. La pregunta de diseño es cuánta distribución necesitas: varias zonas en una región suelen bastar, y varias regiones añaden disponibilidad a cambio de más complejidad y costo.
+
+## Conceptos clave
+
+### Regiones y zonas de disponibilidad
+
+- **Región**: una ubicación geográfica física y lógicamente independiente. Al elegirla tienes en cuenta qué servicios y funciones ofrece, la cercanía a tus usuarios (para reducir la latencia) y los requisitos legales o de cumplimiento.
+- **Zona de disponibilidad (AZ)**: cada región tiene al menos tres. Están cerca unas de otras pero separadas físicamente y aisladas, cada una con su propia alimentación eléctrica, respaldo, servicios mecánicos y conectividad de red, de modo que un fallo queda limitado a la zona afectada.
+- **Red entre zonas**: las zonas de una misma región están lo bastante cerca para ofrecer una red de alto rendimiento y baja latencia (de un solo dígito de milisegundos). Por eso la mayoría de las cargas pueden replicar datos de forma síncrona entre zonas y funcionar en configuración activa-activa o activa-en espera.
+- **Nombres e ID**: el código de una zona es el de la región más una letra, como `us-east-2a`. En las regiones más antiguas, para cuentas creadas antes de noviembre de 2025, ese código puede apuntar a una ubicación física distinta en cada cuenta; el AZ ID, como `euw1-az1`, identifica la misma ubicación en todas las cuentas.
+- **Regiones independientes**: con pocas excepciones, los servicios de AWS funcionan de forma independiente en cada región, y el fallo de un servicio regional está diseñado para no afectar a otra región.
+
+### Alta disponibilidad multi-AZ
+
+AWS recomienda desplegar y operar toda carga de producción en al menos dos zonas de disponibilidad de una región.
+
+- **Cómputo**: reparte las instancias EC2, las tareas de Fargate y las funciones de Lambda conectadas a la VPC entre varias zonas. EC2 Auto Scaling, Amazon ECS y Amazon EKS pueden reemplazar automáticamente la capacidad en otra zona.
+- **Tráfico**: pon un Application Load Balancer o un Network Load Balancer delante del cómputo; los balanceadores redirigen el tráfico a las instancias disponibles si una zona falla.
+- **Datos multi-AZ por defecto**: Amazon S3, Amazon EFS, Amazon Aurora, Amazon DynamoDB, Amazon SQS y Amazon Kinesis Data Streams replican los datos en varias zonas sin configuración adicional.
+- **Datos multi-AZ que debes habilitar**: en Amazon RDS, Amazon Redshift y Amazon ElastiCache tienes que activar la replicación multi-AZ. Una vez activa, el servicio detecta el fallo de una zona y redirige las solicitudes a otra sin intervención.
+- **Almacenamiento autogestionado**: con volúmenes de Amazon EBS o almacén de instancias, la replicación entre zonas la gestionas tú.
+
+### Ejemplo: RDS Multi-AZ
+
+En una implementación de instancia de base de datos Multi-AZ, Amazon RDS aprovisiona y mantiene una réplica en espera síncrona en otra zona de disponibilidad. Protege frente al fallo de la instancia y la interrupción de una zona y mejora la disponibilidad durante el mantenimiento planificado. La réplica en espera no atiende lecturas: para escalar lecturas se usan réplicas de lectura o un clúster de base de datos Multi-AZ.
+
+### Alta disponibilidad multirregión
+
+Para cargas que exigen una resiliencia extrema, como infraestructura crítica o aplicaciones de salud, puede hacer falta operar en al menos dos regiones, siempre que los requisitos de residencia de datos lo permitan.
+
+- **Duplicar todo**: las regiones son independientes, así que cada una necesita su propia infraestructura (VPC incluida), cómputo y datos. AWS CloudFormation StackSets puede replicar la infraestructura en varias regiones.
+- **Evitar dependencias cruzadas**: cada región debe poder funcionar por sí sola; si un componente de una región depende de otra, aumenta el riesgo de fallo.
+- **Replicar datos**: Amazon S3, DynamoDB, RDS, Aurora, Redshift, ElastiCache y EFS ofrecen replicación entre regiones. Las tablas globales de DynamoDB aceptan escrituras en cualquier región; en otros servicios eliges una región principal para las escrituras y las demás tienen réplicas de solo lectura.
+- **Replicar artefactos**: EC2 Image Builder puede publicar las AMI en cada región, y Amazon ECR puede replicar imágenes de contenedor.
+- **Enrutar el tráfico**: con Amazon Route 53 puedes enviar a cada usuario a la región disponible más cercana o usar una configuración activa-en espera con una región principal. Amazon Application Recovery Controller (ARC) ofrece controles de enrutamiento para redirigir el tráfico manualmente.
+
+### Amazon Route 53 en la alta disponibilidad
+
+- **Comprobaciones de estado**: vigilan un recurso, el estado de otras comprobaciones o una alarma de CloudWatch, y permiten la conmutación por error de DNS de un recurso en mal estado a uno sano.
+- **Políticas de enrutamiento**: conmutación por error (activa-pasiva), latencia (la región con mejor latencia), geolocalización o geoproximidad (según la ubicación de usuarios o recursos), ponderada (proporciones que tú defines) y respuesta multivalor (hasta ocho registros sanos al azar).
+
+### Mitigar puntos únicos de fallo
+
+- **Una sola zona**: reparte cómputo y datos en al menos dos zonas.
+- **Una sola instancia**: usa un grupo de Auto Scaling detrás de un balanceador para que las instancias fallidas se reemplacen.
+- **Una sola base de datos**: activa Multi-AZ en RDS o usa servicios que ya replican entre zonas.
+- **Un solo NAT gateway**: cada NAT gateway zonal se crea en una zona; si varias zonas lo comparten y esa zona cae, las demás pierden el acceso a internet. Crea uno por zona y enruta cada subred al de su zona. Amazon VPC también ofrece NAT gateways regionales que se amplían a varias zonas automáticamente.
+- **Una sola región**: pasa a multirregión solo si los requisitos lo justifican; un antipatrón común es montar una arquitectura multirregión cuando una multi-AZ ya cumple los requisitos del negocio.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Reparte el tráfico entre zonas con"
+    service="Elastic Load Balancing"
+    description="Envía las solicitudes solo a destinos sanos y redirige el tráfico a otras zonas si una falla."
+  />
+  <ConnectionCard
+    relation="Reemplaza capacidad con"
+    service="Amazon EC2 Auto Scaling"
+    description="Equilibra las instancias entre zonas y sustituye las que fallan para mantener la capacidad deseada."
+  />
+  <ConnectionCard
+    relation="Enruta entre regiones con"
+    service="Amazon Route 53"
+    description="Usa comprobaciones de estado y políticas de enrutamiento para dirigir a los usuarios a una región sana."
+  />
+  <ConnectionCard
+    relation="Replica la infraestructura con"
+    service="AWS CloudFormation"
+    description="StackSets despliega la misma infraestructura en varias regiones y detecta desviaciones de configuración."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Multi-AZ cuando"
+    items={[
+      'Es una carga de producción: AWS recomienda al menos dos zonas.',
+      'Necesitas resistir el fallo de un centro de datos o de una zona completa.',
+      'Quieres replicación síncrona con baja latencia dentro de una región.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Multirregión cuando"
+    items={[
+      'La carga exige más disponibilidad de la que ofrece una sola región.',
+      'Necesitas servir a usuarios de distintas zonas geográficas con baja latencia.',
+      'Quieres una región secundaria para recuperación ante desastres, asumiendo más complejidad y costo.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Regiones de AWS"
+  url="https://docs.aws.amazon.com/global-infrastructure/latest/regions/aws-regions.html"
+/>
+<OfficialSource
+  title="Zonas de disponibilidad de AWS"
+  url="https://docs.aws.amazon.com/global-infrastructure/latest/regions/aws-availability-zones.html"
+/>
+<OfficialSource
+  title="REL10-BP01 Desplegar la carga de trabajo en varias ubicaciones"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/reliability-pillar/rel_fault_isolation_multiaz_region_system.html"
+/>
+<OfficialSource
+  title="Implementaciones Multi-AZ de instancias de Amazon RDS"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.MultiAZSingleStandby.html"
+/>
+<OfficialSource
+  title="Elegir una política de enrutamiento de Route 53"
+  url="https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-policy.html"
+/>
+<OfficialSource
+  title="Comprobaciones de estado de Route 53"
+  url="https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/dns-failover.html"
+/>
+<OfficialSource
+  title="Conceptos básicos de los NAT gateways"
+  url="https://docs.aws.amazon.com/vpc/latest/userguide/nat-gateway-basics.html"
+/>
