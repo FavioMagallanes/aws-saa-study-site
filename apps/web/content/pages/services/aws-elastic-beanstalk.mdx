@@ -7,4 +7,103 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+AWS Elastic Beanstalk sirve para desplegar aplicaciones web en AWS sin configurar a mano la infraestructura que las ejecuta. Tú subes el código; Elastic Beanstalk aprovisiona las instancias EC2 (o un clúster de EKS), configura el balanceo de carga y el escalado automático, y supervisa el estado de la aplicación. Conservas el control de los recursos subyacentes y no hay cargo adicional: pagas solo los recursos de AWS que consume tu aplicación.
+
+## Qué problema resuelve
+
+Desplegar una aplicación web en EC2 exige crear instancias, un balanceador, un grupo de Auto Scaling, la supervisión y un procedimiento para publicar versiones nuevas. Elastic Beanstalk hace todo eso a partir del código y, además, aplica actualizaciones administradas de parches del sistema operativo, del entorno de ejecución y del framework en las instancias que gestiona. Es una forma rápida de pasar del código a una aplicación escalable sin diseñar cada pieza.
+
+## Conceptos clave
+
+### Plataformas y modos
+
+- **Lenguajes**: admite aplicaciones en Go, Java, .NET, Node.js, PHP, Python y Ruby, y también contenedores Docker, con los que eliges tu propio lenguaje y dependencias.
+- **Modo Standard**: ejecuta la aplicación directamente en EC2 y admite aplicaciones de Windows.
+- **Modo Cluster**: ejecuta la aplicación como contenedores en Amazon EKS.
+
+### Aplicación, versión y entorno
+
+- **Aplicación**: la agrupación lógica de entornos, versiones y configuraciones.
+- **Versión de la aplicación**: una iteración etiquetada del código desplegable, guardada como objeto en Amazon S3.
+- **Entorno**: el conjunto de recursos de AWS que ejecuta una versión. Cada entorno ejecuta una sola versión a la vez, pero puedes tener varios entornos, por ejemplo uno de pruebas y otro de producción.
+
+### Niveles de entorno
+
+- **Servidor web**: atiende solicitudes HTTP.
+- **Trabajador (worker)**: un backend que toma tareas de una cola de Amazon SQS.
+
+### Políticas de despliegue
+
+- **Todo a la vez (all at once)**: la opción predeterminada; despliega en todas las instancias al mismo tiempo.
+- **Continuo (rolling)**: despliega por lotes; parte de las instancias sigue con la versión anterior mientras tanto.
+- **Continuo con lote adicional**: lanza primero un lote nuevo para mantener toda la capacidad durante el despliegue.
+- **Inmutable**: lanza un conjunto completo de instancias nuevas en un grupo de Auto Scaling aparte; si no superan las comprobaciones de estado, las termina sin tocar las originales.
+- **División de tráfico**: envía un porcentaje del tráfico a la versión nueva durante un tiempo de evaluación (prueba canary) y vuelve atrás si falla.
+- **Azul/verde**: despliegas en un entorno separado e intercambias los CNAME para redirigir el tráfico al instante. Si la aplicación usa una base de datos de producción, el entorno debe funcionar de forma independiente de ella.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Ejecuta la aplicación en"
+    service="Amazon EC2"
+    description="En modo Standard, aprovisiona y administra las instancias donde corre el código."
+  />
+  <ConnectionCard
+    relation="Escala y reparte el tráfico con"
+    service="EC2 Auto Scaling y Elastic Load Balancing"
+    description="Configura el balanceo de carga y el escalado dinámico del entorno."
+  />
+  <ConnectionCard
+    relation="Recibe tareas de"
+    service="Amazon SQS"
+    description="Los entornos de nivel trabajador procesan tareas que llegan a una cola de SQS."
+  />
+  <ConnectionCard
+    relation="Se define como código con"
+    service="AWS CloudFormation"
+    description="Puedes describir los entornos como infraestructura como código."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Elastic Beanstalk cuando"
+    items={[
+      'Quieres desplegar una aplicación web rápidamente con mínima administración de la infraestructura.',
+      'Tu aplicación usa un lenguaje o plataforma admitidos, o se empaqueta en Docker.',
+      'Necesitas despliegues continuos, inmutables o azul/verde sin construirlos tú.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Necesitas control total y detallado de cada servidor: Amazon EC2 con EC2 Auto Scaling.',
+      'Solo ejecutas código en respuesta a eventos: AWS Lambda.',
+      'Orquestas muchos contenedores y microservicios: Amazon ECS o Amazon EKS.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Elastic Beanstalk"
+  url="https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/Welcome.html"
+/>
+<OfficialSource
+  title="Conceptos de Elastic Beanstalk"
+  url="https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/concepts.html"
+/>
+<OfficialSource
+  title="Políticas y opciones de despliegue"
+  url="https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features.rolling-version-deploy.html"
+/>
+<OfficialSource
+  title="Despliegues azul/verde con Elastic Beanstalk"
+  url="https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features.CNAMESwap.html"
+/>
