@@ -7,4 +7,87 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+AWS Device Farm es un servicio de pruebas de aplicaciones que te permite probar e interactuar con tus aplicaciones Android, iOS y web en teléfonos y tabletas físicos y reales, alojados por AWS.
+
+## Qué problema resuelve
+
+Una aplicación móvil puede comportarse distinto según el fabricante, el modelo o el tamaño de pantalla. Comprar y mantener un parque de dispositivos para probar en todos ellos es caro y lento. Device Farm te da acceso a dispositivos reales y ejecuta tus pruebas en paralelo en muchos de ellos, sin que aprovisiones la infraestructura de pruebas.
+
+## Conceptos clave
+
+### Dos formas de uso
+
+- **Acceso remoto**: interactúas con un dispositivo en tiempo real desde el navegador, para pruebas manuales, reproducir errores en un modelo concreto o revisar cómo se ve la aplicación en distintas pantallas. También puedes ejecutar pruebas de Appium desde tu equipo contra el dispositivo remoto. Al terminar la sesión obtienes registros y un video.
+- **Pruebas automatizadas**: subes la aplicación y las pruebas, y Device Farm las ejecuta en paralelo en varios dispositivos, en hosts de prueba que administra el servicio. Al terminar genera un informe con resultados, registros, capturas de pantalla y artefactos. Este enfoque escala bien y encaja en una canalización de CI/CD.
+
+### Frameworks admitidos
+
+- Android: Appium e Instrumentation.
+- iOS: Appium, XCTest y XCTest UI.
+- Web: mediante Appium.
+- Una prueba integrada de tipo fuzz para Android e iOS, sin escribir scripts.
+
+### Organización
+
+Un **proyecto** agrupa las ejecuciones; una **ejecución** prueba una compilación concreta con un conjunto de pruebas en un **grupo de dispositivos**, y produce un informe.
+
+### Región y redes
+
+Device Farm solo está disponible en la región us-west-2 (Oregón). Con dispositivos privados, puedes conectar los dispositivos y sus hosts a una Amazon VPC de esa región para probar endpoints privados; si tu VPC está en otra región, puedes enlazarla con AWS Transit Gateway o interconexión de VPC.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Guarda aplicaciones y resultados en"
+    service="Amazon S3"
+    description="La aplicación y las pruebas se suben a un bucket de S3 administrado por el servicio, donde también quedan los resultados."
+  />
+  <ConnectionCard
+    relation="Llega a endpoints privados en"
+    service="Amazon VPC"
+    description="Con dispositivos privados, la conectividad VPC-ENI permite probar servicios que no están expuestos a internet."
+  />
+  <ConnectionCard
+    relation="Enlaza VPC de otras regiones con"
+    service="AWS Transit Gateway"
+    description="Si el endpoint privado no está en us-west-2, puedes conectar su VPC con una VPC de esa región."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="AWS Device Farm cuando"
+    items={[
+      'Necesitas probar aplicaciones Android, iOS o web en dispositivos físicos reales.',
+      'Quieres ejecutar pruebas automatizadas en paralelo en muchos dispositivos.',
+      'Debes reproducir un error en un modelo concreto de teléfono o tableta.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Necesitas alojar y desplegar la aplicación web, no probarla: AWS Amplify.',
+      'Necesitas exponer el backend de la aplicación como una API: Amazon API Gateway.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Device Farm"
+  url="https://docs.aws.amazon.com/devicefarm/latest/developerguide/welcome.html"
+/>
+<OfficialSource
+  title="Frameworks de prueba y pruebas integradas en AWS Device Farm"
+  url="https://docs.aws.amazon.com/devicefarm/latest/developerguide/test-types.html"
+/>
+<OfficialSource
+  title="VPC-ENI en AWS Device Farm"
+  url="https://docs.aws.amazon.com/devicefarm/latest/developerguide/vpc-eni.html"
+/>
