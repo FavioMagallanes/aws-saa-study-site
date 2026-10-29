@@ -7,4 +7,91 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+AWS CloudTrail registra la actividad de tu cuenta de AWS: cada acción que hace un usuario, un rol o un servicio de AWS queda guardada como un evento, ya venga de la consola, de la AWS CLI, de los SDK o de las API. Es la herramienta de auditoría que responde a la pregunta "quién hizo qué, sobre qué recurso y cuándo".
+
+## Qué problema resuelve
+
+Sin un registro de actividad no puedes investigar un incidente de seguridad, demostrar el cumplimiento de una norma ni saber quién cambió un recurso que dejó de funcionar. CloudTrail te da visibilidad de la actividad de la cuenta para ver, buscar, descargar, archivar, analizar y responder a ella, lo que sirve para la auditoría operativa y de riesgos, la gobernanza y el cumplimiento.
+
+## Conceptos clave
+
+### Tipos de eventos
+
+- **Eventos de administración**: operaciones del plano de control sobre los recursos, como adjuntar una política de IAM, crear una subred o crear un registro de seguimiento. También incluyen eventos que no son de API, como el inicio de sesión en la consola. Se registran de forma predeterminada.
+- **Eventos de datos**: operaciones del plano de datos sobre o dentro de un recurso, a menudo de gran volumen, como `GetObject` o `PutObject` en objetos de S3 o la invocación de una función de Lambda. No se registran de forma predeterminada.
+- **Eventos de actividad de red**: llamadas a la API hechas a través de un punto de enlace de VPC hacia un servicio de AWS.
+- **Eventos de Insights**: señalan niveles inusuales de llamadas de escritura o de errores en la API de administración. Hay que activarlos y tienen cargo adicional.
+
+### Tres formas de guardar los eventos
+
+- **Historial de eventos**: registro inmutable y consultable de los eventos de administración de los últimos 90 días en una región. Está disponible desde que creas la cuenta y verlo no tiene cargo de CloudTrail.
+- **Registros de seguimiento (trails)**: entregan los eventos a un bucket de S3, y opcionalmente a CloudWatch Logs y Amazon EventBridge, para conservarlos más tiempo y analizarlos, por ejemplo con Amazon Athena. AWS recomienda un registro de seguimiento multirregión, que captura la actividad de todas las regiones habilitadas. Puedes cifrar los archivos con una clave de AWS KMS.
+- **CloudTrail Lake**: un lago de datos administrado para guardar y consultar la actividad de usuarios y API con fines de auditoría y seguridad.
+
+### Organización e integridad
+
+- **Registro de seguimiento de la organización**: entrega los eventos de la cuenta de administración y de todas las cuentas miembro de AWS Organizations al mismo bucket de S3, para tener una estrategia de registro uniforme.
+- **Validación de integridad de los archivos**: CloudTrail calcula un hash de cada archivo de registro y firma archivos de resumen; así puedes comprobar si un archivo se modificó o eliminó después de entregarse, algo muy útil en investigaciones forenses.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Guarda los registros en"
+    service="Amazon S3"
+    description="Los registros de seguimiento entregan los archivos de eventos a un bucket de S3 para conservarlos."
+  />
+  <ConnectionCard
+    relation="Analiza y alerta con"
+    service="Amazon CloudWatch"
+    description="Puede enviar los eventos a CloudWatch Logs para supervisarlos junto al resto de registros."
+  />
+  <ConnectionCard
+    relation="Reacciona a eventos con"
+    service="Amazon EventBridge"
+    description="Los eventos pueden enviarse a EventBridge para activar respuestas automáticas."
+  />
+  <ConnectionCard
+    relation="Centraliza el registro con"
+    service="AWS Organizations"
+    description="Un registro de seguimiento de la organización reúne la actividad de todas las cuentas."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="CloudTrail cuando"
+    items={[
+      'Necesitas saber quién hizo una llamada a la API, sobre qué recurso y cuándo.',
+      'Debes conservar registros de auditoría de todas las cuentas y regiones.',
+      'Quieres demostrar que los archivos de registro no se alteraron.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Quieres saber cómo era la configuración de un recurso y si cumple tus reglas: AWS Config.',
+      'Necesitas métricas de rendimiento y alarmas de tus recursos: Amazon CloudWatch.',
+      'Buscas detectar amenazas de forma continua: Amazon GuardDuty.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS CloudTrail"
+  url="https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-user-guide.html"
+/>
+<OfficialSource
+  title="Conceptos de CloudTrail"
+  url="https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-concepts.html"
+/>
+<OfficialSource
+  title="Validar la integridad de los archivos de registro de CloudTrail"
+  url="https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-log-file-validation-intro.html"
+/>
