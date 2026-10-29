@@ -7,4 +7,112 @@ export const meta = {
   covers: ['2.2-s7'],
 };
 
-Contenido pendiente.
+Muchas aplicaciones no fueron creadas para la nube: corren en un solo servidor, guardan estado local o dependen de una base de datos única, y a veces no es posible modificarlas. Aun así, puedes mejorar su fiabilidad con servicios de AWS que actúan alrededor de la aplicación, en la infraestructura, la base de datos y la protección de datos, en vez de dentro de su código.
+
+## Qué problema resuelve
+
+Una aplicación heredada suele tener puntos únicos de error: si falla el host de su servidor, la base de datos o el centro de datos donde corre, la aplicación deja de responder y puede perder datos. Cuando no es posible hacer cambios en la aplicación, el objetivo es reducir el tiempo de inactividad y la pérdida de datos aprovechando capacidades de AWS que se configuran sin rediseñar la aplicación.
+
+## Conceptos clave
+
+### Recuperar la instancia de forma automática
+
+Si AWS detecta que una instancia de EC2 no está disponible por un problema del hardware o el software subyacente, puede restaurarla de forma automática. Es útil para aplicaciones que dependen de una sola instancia.
+
+- **Comprobación de estado del sistema**: vigila la infraestructura de AWS donde corre la instancia. Si falla, AWS intenta mover la instancia a otro host; para la instancia, esto se ve como un reinicio no planificado. Conserva su dirección IPv4 pública.
+- **Dos mecanismos**: la recuperación automática simplificada, activada de forma predeterminada en las instancias compatibles, y la recuperación basada en una acción de una alarma de Amazon CloudWatch, que configuras tú.
+- **Límites**: no actúa si solo falla la comprobación de estado de la instancia, que indica un problema de la propia instancia. Se pierde lo que haya en memoria y, con la recuperación basada en CloudWatch, también los datos de los volúmenes de almacén de instancias. Está pensada para instancias individuales; para un sistema resiliente hacen falta más piezas.
+
+### Reemplazar y repartir con Auto Scaling y Elastic Load Balancing
+
+- **EC2 Auto Scaling**: vigila de forma continua el estado de las instancias del grupo para mantener la capacidad deseada. Cuando una instancia no está sana, según las comprobaciones de EC2, de Elastic Load Balancing o personalizadas, la reemplaza por una nueva lanzada con la plantilla de lanzamiento del grupo. También la reemplaza si termina de forma inesperada.
+- **Elastic Load Balancing**: distribuye el tráfico entrante entre varios destinos, como instancias de EC2, contenedores o direcciones IP, en una o más zonas de disponibilidad. Vigila el estado de los destinos y solo envía tráfico a los sanos, lo que aumenta la disponibilidad y la tolerancia a fallos. También puede encargarse del cifrado y descifrado para que los servidores se dediquen a su trabajo principal.
+
+### Una base de datos más resiliente
+
+- **Amazon RDS Multi-AZ**: RDS mantiene una réplica en espera sincronizada en otra zona de disponibilidad, que protege la base de datos ante el fallo de la instancia o de la zona. Puedes convertir una instancia existente a Multi-AZ modificándola.
+- **Amazon RDS Proxy**: agrupa y comparte las conexiones a la base de datos. Hace a las aplicaciones más resilientes ante fallos de la base de datos porque se conecta de forma automática a la instancia en espera conservando las conexiones de la aplicación. También absorbe picos de conexiones: pone en cola o limita las que no puede atender y, si se superan los límites, las rechaza para proteger la base de datos. Según la documentación, se puede habilitar para la mayoría de las aplicaciones sin cambios de código.
+
+### Proteger los datos y recuperarse de un desastre
+
+- **AWS Elastic Disaster Recovery**: replica aplicaciones locales o en la nube que corren en sistemas operativos compatibles hacia una subred de área de preparación en tu cuenta y región de AWS, con almacenamiento económico y cómputo mínimo. Permite hacer simulacros sin interrumpir la operación y, ante un incidente, lanzar instancias de recuperación en AWS en minutos con el estado más reciente o el de un momento anterior. Convierte los servidores para que arranquen de forma nativa en AWS, y cuando el problema se resuelve puedes volver al sitio principal.
+- **AWS Backup**: centraliza y automatiza la protección de datos de servicios de AWS, en la nube y en las instalaciones, con planes de copia de seguridad que aplicas a los recursos. Elimina la necesidad de scripts personalizados y procesos manuales.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Recupera instancias con"
+    service="Amazon CloudWatch"
+    description="La recuperación basada en una acción de alarma de CloudWatch restaura una instancia de EC2 afectada por un problema del host."
+  />
+  <ConnectionCard
+    relation="Reemplaza instancias con"
+    service="EC2 Auto Scaling"
+    description="Sustituye las instancias que no están sanas para mantener la capacidad deseada del grupo."
+  />
+  <ConnectionCard
+    relation="Conserva las conexiones con"
+    service="Amazon RDS Proxy"
+    description="Se conecta a la instancia en espera durante una conmutación por error y conserva las conexiones de la aplicación."
+  />
+  <ConnectionCard
+    relation="Recupera servidores con"
+    service="AWS Elastic Disaster Recovery"
+    description="Replica servidores locales o en la nube y lanza instancias de recuperación en AWS en minutos."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Sin tocar la aplicación cuando"
+    items={[
+      'Corre en una sola instancia: recuperación automática de EC2 o un grupo de Auto Scaling.',
+      'La base de datos es un punto único de error: RDS Multi-AZ, con RDS Proxy para conservar las conexiones.',
+      'Necesitas recuperarte de la pérdida del sitio: AWS Elastic Disaster Recovery.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Tienes varias instancias que atienden el mismo tráfico: Elastic Load Balancing con comprobaciones de estado.',
+      'Debes centralizar y automatizar las copias de seguridad: AWS Backup.',
+      'Puedes modificar la aplicación: patrones distribuidos como reintentos con espera exponencial y disyuntores.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Recuperación automática de instancias de EC2"
+  url="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-recover.html"
+/>
+<OfficialSource
+  title="Comprobaciones de estado en un grupo de Auto Scaling"
+  url="https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-health-checks.html"
+/>
+<OfficialSource
+  title="Qué es Elastic Load Balancing"
+  url="https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/what-is-load-balancing.html"
+/>
+<OfficialSource
+  title="Implementaciones Multi-AZ de instancias de base de datos en Amazon RDS"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.MultiAZSingleStandby.html"
+/>
+<OfficialSource
+  title="Amazon RDS Proxy"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-proxy.html"
+/>
+<OfficialSource
+  title="Qué es AWS Elastic Disaster Recovery"
+  url="https://docs.aws.amazon.com/drs/latest/userguide/what-is-drs.html"
+/>
+<OfficialSource
+  title="Qué es AWS Backup"
+  url="https://docs.aws.amazon.com/aws-backup/latest/devguide/whatisbackup.html"
+/>
