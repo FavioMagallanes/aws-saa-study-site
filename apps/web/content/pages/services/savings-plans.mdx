@@ -7,4 +7,90 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Savings Plans es un modelo de precios que te da tarifas más bajas que las de bajo demanda a cambio de comprometerte a usar una cantidad constante de cómputo, medida en dólares por hora, durante uno o tres años. El precio se mantiene durante todo el plazo y puedes pagar todo por adelantado, una parte o nada por adelantado.
+
+## Qué problema resuelve
+
+Si una carga de trabajo tiene un uso estable, pagarla siempre bajo demanda es desaprovechar un descuento. Las instancias reservadas también descuentan, pero atadas a configuraciones concretas. Savings Plans se compromete con un gasto por hora en lugar de con una configuración, así que puedes cambiar de familia de instancias, de región o pasar a contenedores sin perder el descuento, según el tipo de plan. Cómo encajan con bajo demanda, spot e instancias reservadas se explica en el tema «Opciones de compra: bajo demanda, spot, reservadas y Savings Plans».
+
+## Conceptos clave
+
+### Tipos de plan
+
+- **Compute Savings Plans**: los más flexibles. Se aplican al uso de EC2 sin importar la familia, el tamaño, la región, el sistema operativo o la tenencia, y también a AWS Fargate y AWS Lambda.
+- **EC2 Instance Savings Plans**: mayor descuento a cambio de comprometerte con una familia de instancias en una región. Dentro de ella se aplican a cualquier tamaño, sistema operativo y tenencia.
+- **Database Savings Plans**: se aplican a servicios de bases de datos como Aurora, RDS, DynamoDB o ElastiCache, en las generaciones de instancias aprovisionadas más recientes y también al uso sin servidor, sin importar el motor, la familia, el tamaño o la región.
+- **SageMaker AI Savings Plans**: se aplican al uso de instancias de Amazon SageMaker AI.
+
+### Lo que no hacen
+
+- No se pueden cambiar ni cancelar durante el plazo; si tu uso crece, puedes contratar planes adicionales.
+- No reservan capacidad, aunque puedes combinarlos con reservas de capacidad bajo demanda.
+- No se aplican al uso de spot ni al uso cubierto por instancias reservadas.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Se recomiendan y compran en"
+    service="Explorador de costos de AWS"
+    description="Recomienda el compromiso según tu uso pasado y muestra el rendimiento de tus planes."
+  />
+  <ConnectionCard
+    relation="Se vigilan con"
+    service="AWS Budgets"
+    description="Los presupuestos de utilización y cobertura avisan si el compromiso no se aprovecha."
+  />
+  <ConnectionCard
+    relation="Descuentan el cómputo de"
+    service="Amazon EC2, AWS Fargate y AWS Lambda"
+    description="Los Compute Savings Plans cubren los tres; los EC2 Instance Savings Plans, solo EC2."
+  />
+  <ConnectionCard
+    relation="Se comparten con"
+    service="AWS Organizations"
+    description="La facturación consolidada combina el uso de las cuentas y comparte los descuentos de Savings Plans."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Savings Plans cuando"
+    items={[
+      'Tienes un uso de cómputo estable y puedes comprometer un gasto por hora durante uno o tres años.',
+      'Quieres conservar el descuento al cambiar de familia, de región o pasar a Fargate o Lambda: Compute Savings Plans.',
+      'Sabes que seguirás en una familia y una región: EC2 Instance Savings Plans, con mayor descuento.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Puedes ser flexible con el momento de ejecución y la carga tolera interrupciones: instancias spot.',
+      'Necesitas reservar capacidad en una zona de disponibilidad concreta: Capacity Reservations o instancias reservadas.',
+      'No puedes comprometer un uso: instancias bajo demanda, que pagas por segundo.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué son los Savings Plans"
+  url="https://docs.aws.amazon.com/savingsplans/latest/userguide/what-is-savings-plans.html"
+/>
+<OfficialSource
+  title="Tipos de Savings Plans"
+  url="https://docs.aws.amazon.com/savingsplans/latest/userguide/plan-types.html"
+/>
+<OfficialSource
+  title="Compute Savings Plans e instancias reservadas"
+  url="https://docs.aws.amazon.com/savingsplans/latest/userguide/sp-ris.html"
+/>
+<OfficialSource
+  title="Opciones de facturación y compra de Amazon EC2"
+  url="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-purchasing-options.html"
+/>
