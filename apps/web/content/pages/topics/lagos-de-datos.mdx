@@ -7,4 +7,134 @@ export const meta = {
   covers: ['3.5-s1'],
 };
 
-Contenido pendiente.
+Un lago de datos (data lake) es un repositorio centralizado donde combinas datos estructurados y no estructurados de distintos orígenes para catalogarlos, protegerlos y analizarlos con distintas herramientas. En AWS el almacenamiento suele ser Amazon S3, el catálogo es AWS Glue Data Catalog y el gobierno del acceso lo aporta AWS Lake Formation. El examen espera que sepas crear un lago de datos y, sobre todo, protegerlo.
+
+## Qué problema resuelve
+
+Cuando cada equipo guarda sus datos en un sistema distinto, se forman silos que no se integran bien y que dificultan un análisis completo. Un lago de datos reúne esos datos en un solo lugar, los registra en un catálogo para que se puedan encontrar y ofrece acceso de autoservicio y controlado a los servicios de análisis. Los servicios de análisis integrados, como Athena o Amazon EMR, consultan los datos directamente en S3 aplicando los mismos permisos centrales.
+
+## Conceptos clave
+
+### Crear el lago de datos
+
+Lake Formation describe el proceso en tres pasos: identificar los almacenes de datos existentes (en Amazon S3 o en bases de datos relacionales y NoSQL) y mover los datos al lago; rastrearlos, catalogarlos y prepararlos para el análisis; y dar a los usuarios acceso seguro de autoservicio desde el servicio de análisis que prefieran.
+
+- **Almacenamiento en S3**: para añadir una ubicación como almacenamiento del lago, la registras en Lake Formation. Al registrar una ruta de S3 quedan registradas también todas las carpetas que hay debajo. A partir de ahí puedes usar los permisos de Lake Formation sobre los objetos del catálogo que apuntan a esa ubicación y sobre los datos que contiene.
+- **Ingesta desde bases de datos**: Lake Formation puede importar datos y su esquema desde MySQL, PostgreSQL, SQL Server, MariaDB y Oracle en Amazon RDS o en Amazon EC2, con cargas masivas o incrementales, y desde bases de datos locales mediante JDBC. Para otros orígenes, creas trabajos de ETL personalizados con AWS Glue.
+- **Catálogo con AWS Glue Data Catalog**: es un repositorio central de metadatos que guarda la ubicación, el esquema y las propiedades de los conjuntos de datos, organizados en bases de datos y tablas. Lo llenas con rastreadores (crawlers) que examinan los orígenes y extraen el esquema, o definiendo las tablas a mano. Athena, Lake Formation y Amazon EMR usan este catálogo.
+
+### Organizar los datos en capas
+
+La guía prescriptiva de AWS recomienda al menos tres capas de datos, cada una en su propio bucket de S3:
+
+- **Raw (sin procesar)**: los datos tal como llegan. Conviene conservar el formato original y activar el control de versiones del bucket.
+- **Stage (intermedia)**: datos procesados y optimizados para el consumo, por ejemplo archivos CSV convertidos a Apache Parquet por un trabajo de AWS Glue que guarda los metadatos en el Data Catalog.
+- **Analytics**: datos agregados para casos de uso concretos, en un formato listo para consumir como Parquet.
+
+Si trabajas con datos sensibles, como información de identificación personal (PII), la guía recomienda un bucket adicional como zona de aterrizaje, donde enmascaras los datos antes de pasarlos a la capa raw. Cada capa puede tener su propia política de ciclo de vida, por ejemplo mover los archivos antiguos a clases de almacenamiento de acceso poco frecuente o de archivo.
+
+### Proteger el lago con Lake Formation
+
+Lake Formation ofrece su propio modelo de permisos, que complementa al de IAM y funciona como en una base de datos relacional: concedes o revocas permisos sobre bases de datos, tablas y columnas del Data Catalog. Esto sustituye a las combinaciones complejas de políticas de bucket de S3 y políticas de IAM.
+
+- **Control de grano fino**: puedes restringir el acceso en el nivel de base de datos, tabla, columna, fila y celda. Los filtros de datos permiten, por ejemplo, ocultar columnas con PII a quien no trabaja en recursos humanos o mostrar a cada usuario solo las filas que le corresponden.
+- **Entrega de credenciales temporales (credential vending)**: cuando un usuario consulta una tabla desde un servicio integrado como Athena, AWS Glue, Amazon EMR o Amazon Redshift Spectrum, el catálogo comprueba sus permisos en Lake Formation. Si está autorizado, Lake Formation da al servicio un acceso temporal a los datos de S3, y el servicio aplica el filtrado de columnas, filas o celdas antes de devolver el resultado.
+- **Control basado en etiquetas (LF-Tags)**: asignas etiquetas a bases de datos, tablas o columnas y concedes permisos sobre las etiquetas. Así gobiernas miles de recursos con unas pocas etiquetas lógicas.
+- **Acceso entre cuentas**: puedes compartir datos con otras cuentas de AWS, organizaciones o entidades de IAM de otra cuenta, con control de grano fino sobre los metadatos y los datos.
+- **Auditoría**: Lake Formation registra en AWS CloudTrail el acceso a los datos, para ver qué usuario o rol intentó acceder a qué datos, con qué servicio y cuándo.
+- **Modo de acceso híbrido**: te permite activar los permisos de Lake Formation de forma gradual, para un grupo de usuarios o tablas, sin interrumpir las políticas de IAM que ya usan otras cargas de trabajo.
+
+Lake Formation recomienda sus permisos para datos estructurados en tablas. Para datos no estructurados basados en objetos, sugiere considerar S3 Access Grants.
+
+### Proteger el almacenamiento en S3
+
+La seguridad del lago también depende de los buckets que lo forman:
+
+- **Bloqueo del acceso público**: salvo que necesites de verdad que cualquiera en internet lea o escriba en un bucket, mantenlo privado con S3 Block Public Access, que también puede aplicarse a toda la organización con AWS Organizations.
+- **ACL desactivadas**: con la opción de propietario del bucket obligatorio (bucket owner enforced), el acceso depende solo de políticas: de IAM, del bucket, de puntos de enlace de VPC y de AWS Organizations.
+- **Cifrado**: todos los buckets cifran por defecto los objetos nuevos en reposo con SSE-S3. Si necesitas más control sobre las claves, puedes configurar SSE-KMS o DSSE-KMS como cifrado predeterminado. Los datos en tránsito se protegen con TLS.
+- **Registrar ubicaciones cifradas**: Lake Formation admite registrar ubicaciones de S3 cifradas, también entre cuentas.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Guarda los datos en"
+    service="Amazon S3"
+    description="Las ubicaciones de S3 registradas en Lake Formation forman el almacenamiento del lago de datos."
+  />
+  <ConnectionCard
+    relation="Cataloga los datos con"
+    service="AWS Glue"
+    description="El Data Catalog guarda los metadatos y los rastreadores descubren esquemas; los trabajos de ETL preparan los datos."
+  />
+  <ConnectionCard
+    relation="Se consulta con"
+    service="Amazon Athena"
+    description="Athena, Amazon EMR, Redshift Spectrum y Amazon Quick leen el lago respetando los permisos de Lake Formation."
+  />
+  <ConnectionCard
+    relation="Audita el acceso con"
+    service="AWS CloudTrail"
+    description="Registra quién accedió a qué datos, con qué servicio y cuándo."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Lake Formation cuando"
+    items={[
+      'Necesitas permisos por columna, fila o celda sobre datos de S3.',
+      'Quieres gobernar el acceso a muchos recursos con etiquetas.',
+      'Compartes datos del lago con otras cuentas de forma controlada.',
+      'Necesitas auditar el acceso a los datos desde varios servicios de análisis.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Los datos son objetos no estructurados: S3 Access Grants.',
+      'Solo necesitas acceso en el nivel de bucket o prefijo: políticas de bucket y de IAM.',
+      'Solo necesitas descubrir y catalogar esquemas: rastreadores de AWS Glue.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Lake Formation"
+  url="https://docs.aws.amazon.com/lake-formation/latest/dg/what-is-lake-formation.html"
+/>
+<OfficialSource
+  title="Cómo funciona AWS Lake Formation"
+  url="https://docs.aws.amazon.com/lake-formation/latest/dg/how-it-works.html"
+/>
+<OfficialSource
+  title="Filtrado de datos y seguridad por celda en Lake Formation"
+  url="https://docs.aws.amazon.com/lake-formation/latest/dg/data-filtering.html"
+/>
+<OfficialSource
+  title="Añadir una ubicación de Amazon S3 al lago de datos"
+  url="https://docs.aws.amazon.com/lake-formation/latest/dg/register-data-lake.html"
+/>
+<OfficialSource
+  title="Descubrimiento y catalogación de datos en AWS Glue"
+  url="https://docs.aws.amazon.com/glue/latest/dg/catalog-and-crawler.html"
+/>
+<OfficialSource
+  title="Capas de datos recomendadas para un lago de datos"
+  url="https://docs.aws.amazon.com/prescriptive-guidance/latest/defining-bucket-names-data-lakes/data-layer-definitions.html"
+/>
+<OfficialSource
+  title="Prácticas recomendadas de seguridad para Amazon S3"
+  url="https://docs.aws.amazon.com/AmazonS3/latest/userguide/security-best-practices.html"
+/>
+<OfficialSource
+  title="Proteger los datos con cifrado en Amazon S3"
+  url="https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingEncryption.html"
+/>
