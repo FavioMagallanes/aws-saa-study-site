@@ -15,12 +15,13 @@ Backend contract (already built): GET /api/progress, PUT/DELETE /api/progress/:p
 
 ## Tasks
 
-- [ ] P1 (S1,S3) API client with Zod validation + write key store, tests
-- [ ] P2 (S2,S3,S5) Query hooks: progress list, mark read, mark unread (optimistic)
-- [ ] P3 (S2,S4) Wire the read set into Inicio, Mapa del examen and Lectura (+ last read title)
-- [ ] P4 (S5,S6,S7) Mark-as-read button, mobile bottom bar, write key dialog
-- [ ] P5 (S4) Dev proxy for /api, README, end-to-end check in the browser against the real API
+- [x] P1 (S1,S3) API client with Zod validation + write key store, tests
+- [x] P2 (S2,S3,S5) Query hooks: progress list, mark read, mark unread (optimistic)
+- [x] P3 (S2,S4) Wire the read set into Inicio, Mapa del examen and Lectura (+ last read title)
+- [x] P4 (S5,S6,S7) Mark-as-read button, mobile bottom bar, write key dialog
+- [x] P5 (S4) Dev proxy for /api, README, end-to-end check in the browser against the real API
 
 ## Log
 
 - L1: "3, y dime como levanto la app localmente" (phase 3, logic) — confirmed as phase 3 of logic, not deployment
+- L2: Closed. Verified in a real browser against the real API: wrong key rejected and forgotten, correct key saves, state survives a reload, Inicio shows the count. Not seen in the browser (tests only): toggling back to unread and Mapa del examen with progress. Design gaps left: write key dialog (no Penpot design), Siguiente link in the mobile bar (kept as the pager at the end of the article).

@@ -13,12 +13,27 @@ Personal reading-only study site for the AWS Certified Solutions Architect - Ass
 
 ## Getting started
 
+You need Node 22+, pnpm and Docker.
+
 ```bash
+docker compose up -d --wait   # Postgres on localhost:5432
 pnpm install
+
+# Terminal 1: API on :3001 (copy apps/api/.env.example to apps/api/.env first)
+pnpm --filter @arquitecto/api db:migrate
+pnpm --filter @arquitecto/api dev
+
+# Terminal 2: web on :5173 (proxies /api to the API)
 pnpm --filter @arquitecto/web dev
 ```
 
-The API needs Postgres. Start it with `docker compose up -d --wait`, then copy `apps/api/.env.example` to `apps/api/.env`, set `DATABASE_URL` and `WRITE_KEY`, then run `pnpm --filter @arquitecto/api db:migrate` and `pnpm --filter @arquitecto/api dev`.
+Open http://localhost:5173. Reading works without the API; saving progress needs it.
+
+### Saving progress
+
+There is no login. The first time you press "Marcar como leído" in a browser, the site asks for the
+write key (`WRITE_KEY` in `apps/api/.env`). It is stored only in that browser and sent in the
+`x-write-key` header. A wrong key is rejected and forgotten, and you are asked again.
 
 ## Checks
 

@@ -9,6 +9,10 @@ export default defineConfig({
     { enforce: 'pre', ...mdx() },
     react(),
   ],
+  server: {
+    // In development the API runs on :3001; in production both share one origin.
+    proxy: { '/api': 'http://localhost:3001' },
+  },
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/app/tests/setup.ts'],
