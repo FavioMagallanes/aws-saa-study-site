@@ -7,4 +7,150 @@ export const meta = {
   covers: ['3.2-k2', '4.2-k5', '4.2-k6'],
 };
 
-Contenido pendiente.
+No todo el cómputo tiene que vivir en una sola región de AWS. Cuando los usuarios están repartidos por el mundo, cuando una aplicación necesita latencias muy bajas o cuando los datos deben quedarse en un lugar concreto, conviene acercar el cómputo al usuario o al dato. AWS ofrece para ello una escalera de opciones que va desde las regiones y zonas de disponibilidad hasta las ubicaciones de borde de CloudFront, las Local Zones, las Wavelength Zones y AWS Outposts en tu propio centro de datos.
+
+## Qué problema resuelve
+
+Cada viaje de red entre el usuario y el servidor añade latencia. Para un sitio web eso puede ser aceptable, pero no para un videojuego en tiempo real, una transmisión en vivo o una aplicación móvil que depende de respuestas inmediatas. Otras veces el límite no es la latencia sino la normativa: los datos deben procesarse en un país, una ciudad o el propio edificio. Las estrategias de cómputo distribuido reparten el trabajo entre varias ubicaciones para reducir la latencia, procesar los datos donde se generan y cumplir los requisitos de residencia, sin renunciar a las mismas API y herramientas de AWS.
+
+## Conceptos clave
+
+### La base: regiones y zonas de disponibilidad
+
+- **Región**: una ubicación geográfica donde AWS agrupa centros de datos. Cada región está aislada de las demás, de modo que un fallo de servicio queda limitado a una región. Los recursos y datos que creas en una región no existen en otra salvo que los repliques. Las regiones se conectan mediante la red global de AWS, con conectividad privada de gran ancho de banda y baja latencia.
+- **Zona de disponibilidad**: uno o varios centros de datos con energía, red y conectividad independientes y redundantes. Las zonas de una región están lo bastante separadas para evitar fallos simultáneos, pero lo bastante cerca para replicar datos de forma síncrona con latencia de milisegundos de un solo dígito.
+
+Repartir la carga entre varias zonas, o entre varias regiones cercanas a los usuarios, es la primera forma de cómputo distribuido.
+
+### Cómputo en el borde con CloudFront
+
+Amazon CloudFront entrega contenido a través de una red mundial de centros de datos llamados ubicaciones de borde, y dirige cada solicitud a la ubicación con menor latencia. Además de almacenar en caché, permite ejecutar código propio cerca del usuario, sin administrar servidores, mediante funciones de borde:
+
+- **CloudFront Functions**: funciones ligeras en JavaScript, con arranque en menos de un milisegundo y capacidad para millones de solicitudes por segundo. Ideales para normalizar la clave de caché, manipular encabezados, redirigir o reescribir URL y validar tokens de autorización, como JWT. No tienen acceso a la red ni al cuerpo de la solicitud.
+- **Lambda@Edge**: una extensión de AWS Lambda en Node.js o Python para lógica más compleja. La publicas en una región y, al asociarla a una distribución, se replica automáticamente por todo el mundo. Es la opción cuando la función tarda varios milisegundos o más, necesita más CPU o memoria, usa bibliotecas de terceros, accede a la red o al sistema de archivos, o lee el cuerpo de la solicitud. También puede ejecutarse en los eventos de solicitud y respuesta al origen, no solo en los del espectador.
+
+### AWS Local Zones
+
+Las Local Zones colocan cómputo, almacenamiento, bases de datos y otros servicios seleccionados cerca de grandes centros de población e industria. Sirven para:
+
+- Ejecutar aplicaciones de baja latencia cerca de los usuarios: juegos en tiempo real, transmisión en vivo, realidad aumentada y virtual, estaciones de trabajo virtuales.
+- Simplificar migraciones híbridas a una ubicación cercana manteniendo los requisitos de baja latencia.
+- Cumplir requisitos estrictos de residencia de datos.
+
+No hay cargo por habilitarlas; pagas los recursos que despliegues, cuyos precios pueden ser distintos a los de la región principal.
+
+### AWS Wavelength
+
+Wavelength despliega servicios estándar de cómputo y almacenamiento en el borde de las redes 5G de los proveedores de telecomunicaciones, para ofrecer latencias muy bajas a dispositivos móviles y usuarios finales. Una Wavelength Zone es una extensión lógica de una región: extiendes tu VPC con una subred en la zona, ejecutas allí instancias EC2 y te comunicas con los servicios de la región. Un _carrier gateway_ permite el tráfico entre la red del operador y la zona.
+
+### Cómputo híbrido: AWS Outposts
+
+AWS Outposts es un servicio totalmente administrado que lleva la infraestructura, los servicios, las API y las herramientas de AWS a tus instalaciones. Un Outpost es capacidad de cómputo y almacenamiento de AWS instalada en tu sitio, que AWS opera, supervisa y administra como parte de una región.
+
+- Creas subredes en el Outpost y lanzas en ellas instancias EC2, volúmenes EBS, clústeres ECS o instancias RDS. Se comunican con la región por direcciones IP privadas dentro de la misma VPC.
+- Conviene cuando necesitas baja latencia hacia sistemas locales o procesar los datos en tu sitio, pero quieres usar las mismas interfaces que en una región.
+- Hay dos formatos: **racks** de Outposts (rack estándar de 42U) y **servidores** de Outposts (1U o 2U), para sitios con poco espacio o menos capacidad.
+
+### Contenedores fuera de la región
+
+- **Amazon ECS Anywhere**: registra servidores locales o máquinas virtuales como instancias externas de un clúster de ECS. Está optimizado para aplicaciones que generan tráfico saliente o procesan datos; como no admite Elastic Load Balancing, es menos eficiente para cargas que reciben tráfico entrante.
+- **Amazon EKS**: puede usar cómputo en regiones, Local Zones y Wavelength Zones; en tu centro de datos, con nodos en AWS Outposts o con nodos híbridos en tu propia infraestructura. **Amazon EKS Anywhere** está pensado para entornos aislados (air-gapped) y autocontenidos.
+
+### Procesamiento distribuido en la región
+
+No todo el cómputo distribuido está en el borde. AWS Batch planifica y ejecuta trabajos por lotes en contenedores sobre ECS, EKS, Fargate e instancias Spot o bajo demanda, para procesar grandes volúmenes de datos en paralelo.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Ejecuta código en el borde con"
+    service="Amazon CloudFront"
+    description="CloudFront Functions y Lambda@Edge procesan solicitudes y respuestas en ubicaciones cercanas a los usuarios."
+  />
+  <ConnectionCard
+    relation="Extiende la red con"
+    service="Amazon VPC"
+    description="Una misma VPC puede abarcar zonas de disponibilidad, Local Zones, Wavelength Zones y subredes de un Outpost."
+  />
+  <ConnectionCard
+    relation="Orquesta contenedores con"
+    service="Amazon ECS y Amazon EKS"
+    description="Ejecutan contenedores en la región, en el borde, en Outposts o en servidores propios con ECS Anywhere y EKS Anywhere."
+  />
+  <ConnectionCard
+    relation="Se administra desde"
+    service="La región principal de AWS"
+    description="Las Wavelength Zones son una extensión lógica de su región y AWS administra la capacidad de un Outpost como parte de una región."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Cómputo en el borde cuando"
+    items={[
+      'Necesitas manipular solicitudes HTTP cerca de usuarios de todo el mundo: CloudFront Functions o Lambda@Edge.',
+      'Usuarios de una ciudad necesitan latencia muy baja o los datos deben quedarse cerca: Local Zones.',
+      'Las aplicaciones móviles sobre 5G necesitan latencia mínima: Wavelength.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Cómputo híbrido cuando"
+    items={[
+      'Debes procesar datos en tu propio centro de datos con las mismas API de AWS: Outposts.',
+      'Quieres ejecutar contenedores de ECS en servidores propios: ECS Anywhere.',
+      'Necesitas Kubernetes en un entorno aislado: EKS Anywhere.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Regiones de AWS"
+  url="https://docs.aws.amazon.com/whitepapers/latest/aws-fault-isolation-boundaries/regions.html"
+/>
+<OfficialSource
+  title="Zonas de disponibilidad"
+  url="https://docs.aws.amazon.com/whitepapers/latest/aws-fault-isolation-boundaries/availability-zones.html"
+/>
+<OfficialSource
+  title="Qué es Amazon CloudFront"
+  url="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Introduction.html"
+/>
+<OfficialSource
+  title="Personalizar en el borde con funciones"
+  url="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/edge-functions.html"
+/>
+<OfficialSource
+  title="Diferencias entre CloudFront Functions y Lambda@Edge"
+  url="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/edge-functions-choosing.html"
+/>
+<OfficialSource
+  title="Qué es AWS Local Zones"
+  url="https://docs.aws.amazon.com/local-zones/latest/ug/what-is-aws-local-zones.html"
+/>
+<OfficialSource
+  title="Qué es AWS Wavelength"
+  url="https://docs.aws.amazon.com/wavelength/latest/developerguide/what-is-wavelength.html"
+/>
+<OfficialSource
+  title="Qué es AWS Outposts"
+  url="https://docs.aws.amazon.com/outposts/latest/userguide/what-is-outposts.html"
+/>
+<OfficialSource
+  title="Amazon ECS Anywhere: instancias externas"
+  url="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-anywhere.html"
+/>
+<OfficialSource
+  title="Opciones de despliegue de Amazon EKS"
+  url="https://docs.aws.amazon.com/eks/latest/userguide/eks-deployment-options.html"
+/>
+<OfficialSource
+  title="Elegir un servicio de cómputo de AWS"
+  url="https://docs.aws.amazon.com/decision-guides/latest/compute-on-aws-how-to-choose/choosing-aws-compute-service.html"
+/>
