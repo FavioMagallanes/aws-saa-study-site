@@ -7,4 +7,118 @@ export const meta = {
   covers: ['1.1-k2', '1.1-k4', '1.1-s1', '1.1-s2'],
 };
 
-Contenido pendiente.
+AWS Identity and Access Management (IAM) es el servicio que decide quién puede entrar a tu cuenta de AWS y qué puede hacer una vez dentro. Casi todas las decisiones de seguridad de una arquitectura pasan por IAM, así que conviene dominar sus piezas: identidades, políticas y las buenas prácticas para usarlas.
+
+## Qué problema resuelve
+
+Una cuenta de AWS reúne recursos de valor, y no todas las personas ni aplicaciones deben poder hacer todo. IAM te permite controlar quién se autentica, es decir, quién inicia sesión, y quién está autorizado, es decir, qué permisos tiene sobre qué recursos. Sin ese control, tendrías que compartir las credenciales de la cuenta, lo que es inseguro y no deja rastro de quién hizo qué.
+
+## Conceptos clave
+
+### Las identidades de IAM
+
+- **Usuario raíz**: al crear una cuenta de AWS empiezas con una identidad de inicio de sesión que tiene acceso completo a todos los servicios y recursos. AWS recomienda con firmeza no usarla en las tareas cotidianas.
+- **Usuario de IAM**: una identidad dentro de tu cuenta con permisos específicos para una sola persona o aplicación.
+- **Grupo de usuarios**: una colección de usuarios de IAM. Permite asignar permisos a varios usuarios a la vez: quien entra al grupo recibe sus permisos, y si alguien cambia de puesto, lo quitas de un grupo y lo añades a otro. Un grupo puede tener muchos usuarios y un usuario puede estar en varios grupos, pero los grupos no se anidan. Un grupo tampoco puede ser una entidad principal en una política, porque los grupos se relacionan con permisos y no con autenticación.
+- **Rol de IAM**: una identidad con permisos específicos, parecida a un usuario, pero pensada para que la asuma cualquiera que la necesite, no una persona concreta. No tiene credenciales de largo plazo, como contraseña o claves de acceso: al asumirlo recibes credenciales de seguridad temporales para esa sesión.
+
+Los roles sirven para delegar acceso a usuarios, aplicaciones o servicios que normalmente no lo tienen. Por ejemplo, para dar a usuarios de una cuenta acceso a recursos de otra, para que una aplicación móvil use recursos de AWS sin incrustar claves, para identidades que ya existen en tu directorio corporativo o para que un tercero audite tus recursos.
+
+### Políticas de permisos
+
+Una política es un objeto de AWS que, al asociarse con una identidad o un recurso, define sus permisos. AWS evalúa las políticas cuando una entidad principal (un usuario o un rol) hace una solicitud, y esos permisos determinan si se permite o se deniega. La mayoría se guardan como documentos JSON. AWS admite nueve tipos: basadas en identidad, basadas en recursos, de puntos de enlace de VPC, límites de permisos, políticas de control de servicios (SCP) y de control de recursos (RCP) de AWS Organizations, listas de control de acceso (ACL), recursos compartidos de AWS RAM y políticas de sesión.
+
+Los dos tipos más usados son:
+
+- **Basadas en identidad**: se asocian a usuarios, grupos o roles y les conceden permisos.
+- **Basadas en recursos**: se asocian a un recurso, como un bucket de S3, y conceden permisos a la entidad principal que indiques, de la misma cuenta o de otra.
+
+Las políticas definen los permisos de una acción sin importar el método: si una política permite `GetUser`, el usuario puede hacerlo desde la consola, la CLI o la API.
+
+### Un modelo de autorización flexible
+
+Para diseñar la autorización combina las piezas según su función. Los **grupos** reúnen a las personas con las mismas necesidades y les asignan permisos de una vez. Los **roles** dan acceso temporal a personas y cargas de trabajo sin credenciales de largo plazo. Las **políticas** describen qué acciones se pueden realizar sobre qué recursos. Cuando necesites acotar el máximo que una identidad podría recibir, usa un límite de permisos o, en varias cuentas, una SCP: ambos fijan un máximo y no conceden permisos por sí solos.
+
+### Buenas prácticas de seguridad
+
+- **Usa credenciales temporales**. Haz que las personas accedan mediante federación con un proveedor de identidades, asumiendo roles, y que las cargas de trabajo usen roles de IAM. Cuando una carga corre en EC2 o Lambda, AWS entrega las credenciales temporales del rol a ese recurso, y no hace falta repartir claves de un usuario de IAM. Para administrar de forma centralizada a las personas, AWS recomienda AWS IAM Identity Center.
+- **Exige MFA**. Si necesitas un usuario de IAM o el usuario raíz, exige autenticación multifactor: cada usuario debe presentar sus credenciales y la respuesta de un dispositivo que genera un desafío de autenticación. Se recomienda una MFA resistente al phishing, como las llaves de acceso (passkeys) y las llaves de seguridad.
+- **Protege el usuario raíz** como protegerías cualquier información personal sensible.
+- **Evita las credenciales de largo plazo**. Cuando de verdad las necesites, por ejemplo claves de acceso para una carga que no puede usar roles, actualízalas cuando haga falta, como cuando un empleado se va de la empresa, y apóyate en la información de último uso para actualizar y quitar claves con seguridad.
+- **Aplica el mínimo privilegio**. Concede solo los permisos necesarios para una tarea, definiendo las acciones permitidas sobre recursos concretos y bajo condiciones concretas. Puedes empezar con permisos amplios mientras exploras lo que necesita tu carga de trabajo y reducirlos a medida que madura. Las políticas administradas de AWS son un buen punto de partida, aunque quizá no den el mínimo privilegio para tu caso.
+- **Revisa y limpia**: IAM Access Analyzer ayuda a generar políticas de mínimo privilegio a partir de la actividad real, y conviene quitar de forma periódica usuarios, roles, permisos y credenciales que ya no se usan. Las condiciones en las políticas restringen aún más el acceso.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Centraliza a las personas con"
+    service="AWS IAM Identity Center"
+    description="Es el servicio recomendado para administrar el acceso de las personas a tus cuentas y los permisos dentro de ellas, con identidades propias o de un proveedor externo."
+  />
+  <ConnectionCard
+    relation="Entrega credenciales temporales con"
+    service="AWS STS"
+    description="Al asumir un rol o federarte, obtienes credenciales temporales; los flujos con SAML o identidad web llaman a las API de STS."
+  />
+  <ConnectionCard
+    relation="Limita el máximo con"
+    service="AWS Organizations"
+    description="Las políticas de control de servicios fijan los permisos máximos de usuarios y roles de las cuentas de la organización, sin conceder permisos por sí solas."
+  />
+  <ConnectionCard
+    relation="Revisa y mejora con"
+    service="IAM Access Analyzer"
+    description="Genera políticas de mínimo privilegio según la actividad, valida las tuyas y verifica el acceso público y entre cuentas a tus recursos."
+  />
+</CardGrid>
+
+## Usuario de IAM o rol
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Prefiere roles cuando"
+    items={[
+      'Las personas acceden mediante federación y credenciales temporales.',
+      'La carga de trabajo corre en EC2, Lambda u otro servicio de AWS que entrega las credenciales del rol.',
+      'Quieres evitar contraseñas y claves de acceso de largo plazo.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Un usuario de IAM puede hacer falta cuando"
+    items={[
+      'Una carga fuera de AWS no puede usar roles, como un complemento de WordPress.',
+      'Usas clientes de terceros que no admiten IAM Identity Center.',
+      'En esos casos exige MFA a las personas y actualiza las claves de acceso cuando haga falta.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es IAM"
+  url="https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html"
+/>
+<OfficialSource
+  title="Identidades de IAM"
+  url="https://docs.aws.amazon.com/IAM/latest/UserGuide/id.html"
+/>
+<OfficialSource
+  title="Grupos de usuarios de IAM"
+  url="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_groups.html"
+/>
+<OfficialSource
+  title="Roles de IAM"
+  url="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html"
+/>
+<OfficialSource
+  title="Políticas y permisos en AWS Identity and Access Management"
+  url="https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html"
+/>
+<OfficialSource
+  title="Prácticas recomendadas de seguridad en IAM"
+  url="https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html"
+/>
