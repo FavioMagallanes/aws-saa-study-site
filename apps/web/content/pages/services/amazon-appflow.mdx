@@ -7,4 +7,91 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Amazon AppFlow es un servicio de integración totalmente administrado para intercambiar datos de forma segura entre aplicaciones de software como servicio (SaaS), como Salesforce, Slack o Zendesk, y servicios de AWS como Amazon S3 o Amazon Redshift. Defines un flujo con un origen y un destino, y AppFlow mueve los datos sin que escribas código.
+
+## Qué problema resuelve
+
+Llevar datos de una aplicación SaaS a AWS suele exigir escribir y mantener código que llame a la API del proveedor, programe las extracciones y gestione los errores. AppFlow sustituye ese código propio por flujos configurables que puedes crear en minutos, ejecutar cuando quieras o con una programación, y supervisar para saber qué datos se movieron, adónde y cuándo.
+
+## Conceptos clave
+
+### Flujos y desencadenadores
+
+Un flujo transfiere datos entre un origen y un destino. El desencadenador decide cuándo se ejecuta:
+
+- **Bajo demanda**: lo ejecutas manualmente cada vez que necesitas transferir datos.
+- **Por evento**: AppFlow lo ejecuta cuando ocurre un evento de cambio en la aplicación SaaS de origen. Solo está disponible para las aplicaciones que ofrecen esos eventos.
+- **Programado**: se ejecuta de forma periódica. Puedes elegir una transferencia **completa**, que copia todos los registros en cada ejecución, o **incremental**, que copia solo los registros nuevos o modificados desde la última ejecución correcta.
+
+### Seguridad y transferencia privada
+
+AppFlow cifra los datos en reposo y en tránsito. Con algunas aplicaciones SaaS integradas con AWS PrivateLink, como Salesforce o Snowflake, puedes crear **flujos privados**: los datos viajan por la infraestructura de AWS en lugar de por internet, y AppFlow crea por ti la configuración del servicio de punto de enlace de VPC. La cuenta SaaS debe tener habilitado el acceso por PrivateLink.
+
+### Preparar los datos para el análisis
+
+- Puedes catalogar en el AWS Glue Data Catalog los datos que transfieres a Amazon S3, para que los servicios de análisis y machine learning los encuentren con facilidad.
+- Puedes organizar los datos transferidos en particiones y archivos para mejorar el rendimiento de las consultas.
+- Si un origen no está integrado, puedes crear un conector personalizado con los SDK de AppFlow para APIs privadas, sistemas locales u otras nubes.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Deposita los datos en"
+    service="Amazon S3"
+    description="Destino habitual para guardar y analizar datos de aplicaciones SaaS, por ejemplo tickets de soporte."
+  />
+  <ConnectionCard
+    relation="Carga tablas de"
+    service="Amazon Redshift"
+    description="Un flujo puede llevar, por ejemplo, oportunidades de Salesforce a tablas de Redshift."
+  />
+  <ConnectionCard
+    relation="Cataloga los datos con"
+    service="AWS Glue"
+    description="Registra en el Data Catalog los datos que AppFlow escribe en S3 para descubrirlos y consultarlos."
+  />
+  <ConnectionCard
+    relation="Transfiere en privado con"
+    service="AWS PrivateLink"
+    description="Los flujos privados envían los datos por la infraestructura de AWS sin exponerlos a internet."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="AppFlow cuando"
+    items={[
+      'Necesitas mover datos entre aplicaciones SaaS y servicios de AWS sin escribir código.',
+      'Quieres mantener datos sincronizados con ejecuciones programadas o por evento.',
+      'Los datos de la aplicación SaaS no deben pasar por internet: flujo privado con PrivateLink.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Debes transformar datos ya almacenados en AWS con trabajos de ETL: AWS Glue.',
+      'Necesitas reaccionar a eventos de aplicaciones SaaS y enrutarlos a varios destinos: Amazon EventBridge.',
+      'Conectas un único origen de AWS, como una cola de SQS, con un único destino: EventBridge Pipes.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon AppFlow"
+  url="https://docs.aws.amazon.com/appflow/latest/userguide/what-is-appflow.html"
+/>
+<OfficialSource
+  title="Desencadenadores de flujos de Amazon AppFlow"
+  url="https://docs.aws.amazon.com/appflow/latest/userguide/flow-triggers.html"
+/>
+<OfficialSource
+  title="Flujos privados de Amazon AppFlow"
+  url="https://docs.aws.amazon.com/appflow/latest/userguide/private-flows.html"
+/>
