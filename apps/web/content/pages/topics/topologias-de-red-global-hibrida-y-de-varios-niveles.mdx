@@ -7,4 +7,160 @@ export const meta = {
   covers: ['3.4-s1', '3.4-s2', '3.4-s3'],
 };
 
-Contenido pendiente.
+Una topología de red describe cómo se conectan entre sí las piezas de una arquitectura: los niveles dentro de una VPC, las VPC entre sí, las regiones de AWS y tu red local. No existe una única topología correcta; cada arquitectura (de varios niveles, híbrida o global) exige decidir qué conectar, cómo y dónde colocar cada recurso para cumplir los requisitos de latencia, disponibilidad y normativa.
+
+## Qué problema resuelve
+
+Una aplicación pequeña cabe en una VPC con dos zonas de disponibilidad. Cuando crecen el número de VPC, de cuentas, de regiones o de centros de datos conectados, las conexiones punto a punto se multiplican y se vuelven difíciles de gestionar. Además, la ubicación de los recursos determina la latencia que perciben los usuarios y si cumples los requisitos legales sobre dónde se guardan los datos. Elegir la topología adecuada mantiene la red manejable a medida que escala.
+
+## Conceptos clave
+
+### Topología de varios niveles
+
+Dentro de una VPC, una arquitectura de varios niveles separa las capas en subredes distintas y repite el patrón en varias zonas de disponibilidad:
+
+- **Nivel público**: subredes con ruta a una puerta de enlace de internet, donde viven los nodos de un Application Load Balancer y las puertas de enlace NAT.
+- **Nivel de aplicación**: subredes privadas con los servidores, que reciben las solicitudes a través del balanceador y salen a internet por NAT.
+- **Nivel de datos**: subredes privadas o aisladas para las bases de datos, sin acceso directo desde fuera.
+
+Cada subred reside en una sola zona de disponibilidad, por eso cada nivel necesita al menos una subred por zona para resistir la caída de una de ellas. Los grupos de seguridad controlan qué nivel puede hablar con cuál; por ejemplo, el grupo de los servidores solo admite tráfico del grupo del balanceador.
+
+### Conectar VPC: emparejamiento frente a Transit Gateway
+
+- **Emparejamiento de VPC (VPC peering)**: conecta dos VPC, de la misma cuenta o de otra, en la misma región o en regiones distintas, para que se comuniquen con direcciones privadas como si estuvieran en la misma red. No es una puerta de enlace ni una VPN y no depende de hardware separado, así que no tiene un punto único de fallo ni un cuello de botella de ancho de banda. Pero **no es transitivo**: si A está emparejada con B y con C, B no puede llegar a C a través de A; hace falta una conexión directa entre B y C. Tampoco admite bloques CIDR solapados.
+- **AWS Transit Gateway**: es un centro de tránsito regional que interconecta VPC y redes locales. Escala de forma elástica según el tráfico y enruta en la capa 3 según la dirección de destino. Puedes conectarle VPC, conexiones Site-to-Site VPN, puertas de enlace de AWS Direct Connect y otros transit gateways. Sus tablas de enrutamiento permiten decidir qué conexiones se ven entre sí.
+
+Con pocas VPC, el emparejamiento es sencillo. Cuando el número de VPC crece, mantener una conexión por cada par se complica, y un transit gateway centraliza el enrutamiento. La propia documentación de emparejamiento sugiere un transit gateway en algunos casos en que el emparejamiento tiene limitaciones.
+
+### Topología híbrida
+
+Una arquitectura híbrida une tu red local con AWS. Las opciones de conexión, como AWS Site-to-Site VPN y AWS Direct Connect, se tratan en la página de conectividad híbrida; aquí importa dónde se conectan:
+
+- A una **puerta de enlace privada virtual** de una VPC, con subredes solo VPN que enrutan hacia la red local.
+- A un **transit gateway**, para que una sola conexión con la red local alcance muchas VPC. Las rutas de las VPN se propagan mediante BGP.
+
+Para ubicar recursos de AWS dentro de tus instalaciones, **AWS Outposts** lleva infraestructura y servicios de AWS a tu centro de datos para cargas que necesitan baja latencia o procesamiento local de datos. AWS opera esa capacidad como parte de una región, y las subredes del Outpost forman parte de la VPC.
+
+### Topología global
+
+Cuando los usuarios están en varias partes del mundo o necesitas recuperarte de la pérdida de una región, la arquitectura se extiende a varias regiones:
+
+- **Emparejamiento entre regiones**: tanto el emparejamiento de VPC como el de transit gateways funcionan entre regiones. El tráfico entre regiones viaja cifrado por la infraestructura de AWS.
+- **Dirigir a los usuarios**: Amazon Route 53 ofrece políticas de enrutamiento como la basada en latencia, que envía a cada usuario a la región con mejor latencia, o la de geolocalización, que decide según la ubicación del usuario.
+- **Servicios de periferia**: Amazon CloudFront y AWS Global Accelerator acercan la entrada a la red de AWS al usuario; se comparan en la página de periferia.
+
+### Ubicación de los recursos
+
+Dónde colocas cada recurso depende de los requisitos de la empresa:
+
+- **Región**: elige una que tenga los servicios y funciones que necesitas y que esté cerca de la mayoría de tus usuarios para reducir la latencia. La ubicación física de la región también ayuda a cumplir requisitos normativos, de cumplimiento y operativos, como mantener los datos en un país concreto.
+- **Zonas de disponibilidad**: cada región tiene al menos tres. Repartir los recursos entre varias permite diseñar aplicaciones de alta disponibilidad.
+- **AWS Local Zones**: llevan cómputo, almacenamiento, bases de datos y otros servicios cerca de grandes núcleos de población e industria, para aplicaciones de baja latencia o para cumplir requisitos de residencia de datos locales.
+- **AWS Wavelength**: despliega cómputo y almacenamiento en el borde de las redes de los operadores de telecomunicaciones, para aplicaciones que necesitan baja latencia hacia dispositivos móviles.
+- **AWS Outposts**: cuando los datos o el procesamiento deben quedarse en tus instalaciones.
+
+### Configuraciones que escalan
+
+- Planifica rangos CIDR que no se solapen entre VPC ni con la red local: el emparejamiento de VPC no admite rangos solapados, y el enrutamiento se decide por la dirección de destino.
+- Usa un transit gateway en lugar de una malla de emparejamientos cuando esperes que crezca el número de VPC o de conexiones locales.
+- Al conectar una VPC a un transit gateway, activa varias zonas de disponibilidad: solo los recursos de las zonas con conexión pueden alcanzarlo.
+- Repite el patrón de niveles en cada zona y en cada región que añadas.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Centraliza el enrutamiento con"
+    service="AWS Transit Gateway"
+    description="Conecta muchas VPC, VPN y puertas de enlace de Direct Connect en un concentrador regional, y se empareja con otros transit gateways entre regiones."
+  />
+  <ConnectionCard
+    relation="Dirige a los usuarios con"
+    service="Amazon Route 53"
+    description="Las políticas de latencia o de geolocalización envían cada solicitud a la región más adecuada."
+  />
+  <ConnectionCard
+    relation="Acerca los recursos con"
+    service="AWS Local Zones"
+    description="Ubica cómputo y almacenamiento cerca de los usuarios o dentro de una jurisdicción concreta."
+  />
+  <ConnectionCard
+    relation="Lleva AWS a tu centro de datos con"
+    service="AWS Outposts"
+    description="Ejecuta servicios de AWS en tus instalaciones para baja latencia o procesamiento local de datos."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Transit Gateway cuando"
+    items={[
+      'Conectas muchas VPC entre sí o esperas que su número crezca.',
+      'Varias VPC deben compartir una misma conexión con la red local.',
+      'Necesitas tráfico transitivo o tablas de enrutamiento que segmenten quién ve a quién.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Solo necesitas conectar unas pocas VPC entre sí: emparejamiento de VPC.',
+      'Los usuarios están repartidos por el mundo: varias regiones con Route 53, CloudFront o Global Accelerator.',
+      'Necesitas latencia muy baja o datos en una ubicación concreta: Local Zones, Wavelength u Outposts.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Ejemplo: VPC con servidores en subredes privadas y NAT"
+  url="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-example-private-subnets-nat.html"
+/>
+<OfficialSource
+  title="Qué es el emparejamiento de VPC"
+  url="https://docs.aws.amazon.com/vpc/latest/peering/what-is-vpc-peering.html"
+/>
+<OfficialSource
+  title="Cómo funcionan las conexiones de emparejamiento de VPC"
+  url="https://docs.aws.amazon.com/vpc/latest/peering/vpc-peering-basics.html"
+/>
+<OfficialSource
+  title="Qué es AWS Transit Gateway"
+  url="https://docs.aws.amazon.com/vpc/latest/tgw/what-is-transit-gateway.html"
+/>
+<OfficialSource
+  title="Cómo funciona AWS Transit Gateway"
+  url="https://docs.aws.amazon.com/vpc/latest/tgw/how-transit-gateways-work.html"
+/>
+<OfficialSource
+  title="Conexiones de emparejamiento de transit gateway"
+  url="https://docs.aws.amazon.com/vpc/latest/tgw/tgw-peering.html"
+/>
+<OfficialSource
+  title="Elegir una política de enrutamiento en Route 53"
+  url="https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-policy.html"
+/>
+<OfficialSource
+  title="Regiones de AWS"
+  url="https://docs.aws.amazon.com/global-infrastructure/latest/regions/aws-regions.html"
+/>
+<OfficialSource
+  title="Zonas de disponibilidad de AWS"
+  url="https://docs.aws.amazon.com/global-infrastructure/latest/regions/aws-availability-zones.html"
+/>
+<OfficialSource
+  title="Qué es AWS Local Zones"
+  url="https://docs.aws.amazon.com/local-zones/latest/ug/what-is-aws-local-zones.html"
+/>
+<OfficialSource
+  title="Qué es AWS Wavelength"
+  url="https://docs.aws.amazon.com/wavelength/latest/developerguide/what-is-wavelength.html"
+/>
+<OfficialSource
+  title="Qué es AWS Outposts"
+  url="https://docs.aws.amazon.com/outposts/latest/userguide/what-is-outposts.html"
+/>
