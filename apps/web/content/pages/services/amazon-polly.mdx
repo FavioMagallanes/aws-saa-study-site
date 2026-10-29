@@ -7,4 +7,87 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Amazon Polly es un servicio en la nube que convierte texto en voz realista. Admite varios idiomas y una variedad de voces, y sirve para crear aplicaciones habladas que mejoran la participación y la accesibilidad.
+
+## Qué problema resuelve
+
+Grabar locuciones para cada texto de una aplicación no escala: el contenido cambia y hay que cubrir varios idiomas. Polly genera el audio a partir del texto bajo demanda. Casos habituales: lectores de noticias, juegos, plataformas de aprendizaje en línea, aplicaciones de accesibilidad para personas con discapacidad visual y dispositivos de Internet de las cosas (IoT).
+
+## Conceptos clave
+
+- **Cómo funciona**: eliges un motor de voz, llamas al método de síntesis con el texto y el formato de salida, y Polly devuelve un flujo de audio casi en tiempo real.
+- **Síntesis asíncrona para textos largos**: con `StartSpeechSynthesisTask`, Polly encola la solicitud, la procesa en segundo plano, sube el audio a un bucket de Amazon S3 y, si lo configuras, avisa en un tema de Amazon SNS cuando termina.
+- **Motores de voz**: generativo, de formato largo, neuronal y estándar. El motor neuronal incluye además un estilo de presentador de noticias.
+- **No traduce**: la voz sintetizada está en el mismo idioma que el texto de entrada. Para otro idioma, traduces primero con Amazon Translate.
+- **SSML**: con el lenguaje de marcado de síntesis de voz (Speech Synthesis Markup Language) controlas la pronunciación, el volumen, el tono y la velocidad, o añades pausas, énfasis o susurros.
+- **Léxicos**: personalizan la pronunciación de palabras, por ejemplo para que un acrónimo se lea completo. Se guardan en una región y se aplican al sintetizar.
+- **Formatos de salida**: MP3 u Ogg Vorbis para aplicaciones web y móviles, PCM para dispositivos de AWS IoT y telefonía, y Mu-law o A-law para telefonía.
+- **Costo**: pagas solo por el texto que sintetizas y puedes guardar en caché y reproducir el audio generado sin costo adicional.
+- Está certificado para cargas reguladas por HIPAA y PCI DSS.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Pronuncia contenido traducido por"
+    service="Amazon Translate"
+    description="Translate traduce el texto y Polly lo convierte en voz en el idioma de destino."
+  />
+  <ConnectionCard
+    relation="Entrega los audios largos en"
+    service="Amazon S3"
+    description="La síntesis asíncrona deja el archivo de audio en un bucket de S3, que puedes cifrar con el cifrado de S3."
+  />
+  <ConnectionCard
+    relation="Avisa de que terminó con"
+    service="Amazon SNS"
+    description="Una tarea de síntesis asíncrona puede publicar un mensaje en un tema de SNS al completarse."
+  />
+  <ConnectionCard
+    relation="Es lo contrario de"
+    service="Amazon Transcribe"
+    description="Polly convierte texto en voz; Transcribe convierte voz en texto."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Amazon Polly cuando"
+    items={[
+      'Necesitas convertir texto en voz natural en una aplicación.',
+      'Quieres mejorar la accesibilidad leyendo el contenido en voz alta.',
+      'Debes controlar la pronunciación, el ritmo o el volumen con SSML o léxicos.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Necesitas convertir audio en texto: Amazon Transcribe.',
+      'Necesitas cambiar el idioma del texto: Amazon Translate, antes de Polly.',
+      'Necesitas un bot conversacional que entienda al usuario: Amazon Lex.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon Polly"
+  url="https://docs.aws.amazon.com/polly/latest/dg/what-is.html"
+/>
+<OfficialSource
+  title="Cómo funciona Amazon Polly"
+  url="https://docs.aws.amazon.com/polly/latest/dg/how-text-to-speech-works.html"
+/>
+<OfficialSource
+  title="Generar voz a partir de documentos SSML"
+  url="https://docs.aws.amazon.com/polly/latest/dg/ssml.html"
+/>
+<OfficialSource
+  title="Archivos de audio largos"
+  url="https://docs.aws.amazon.com/polly/latest/dg/asynchronous.html"
+/>
