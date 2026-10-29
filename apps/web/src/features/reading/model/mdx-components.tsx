@@ -14,8 +14,14 @@ export const SectionHeading = ({ children }: HeadingProps) => (
   <h2 id={headingIdFrom(children)}>{children}</h2>
 );
 
+// h3 ids let search results link straight to a subsection.
+export const SubsectionHeading = ({ children }: HeadingProps) => (
+  <h3 id={headingIdFrom(children)}>{children}</h3>
+);
+
 export const mdxComponents: Record<string, ElementType> = {
   h2: SectionHeading,
+  h3: SubsectionHeading,
   CardGrid,
   ConnectionCard,
   DecisionBox,

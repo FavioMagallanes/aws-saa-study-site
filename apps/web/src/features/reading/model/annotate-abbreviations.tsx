@@ -2,7 +2,7 @@ import { Children, cloneElement, isValidElement, type ReactElement, type ReactNo
 import type { GlossaryEntry } from '@arquitecto/contracts/glossary';
 import { findAbbreviations, type AbbreviationMatch } from '../../glossary/model/find-abbreviations';
 import { OfficialSource } from '../components/official-source/official-source';
-import { SectionHeading } from './mdx-components';
+import { SectionHeading, SubsectionHeading } from './mdx-components';
 
 export type RenderAbbreviation = (match: AbbreviationMatch) => ReactNode;
 
@@ -25,6 +25,7 @@ const SKIPPED_TYPES: ReadonlySet<unknown> = new Set([
   'h5',
   'h6',
   SectionHeading,
+  SubsectionHeading,
   OfficialSource,
 ]);
 

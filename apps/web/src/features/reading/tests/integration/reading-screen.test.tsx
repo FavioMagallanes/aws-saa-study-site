@@ -14,6 +14,15 @@ describe('reading page with the real content', () => {
     expect(screen.queryByText('Contenido pendiente.')).not.toBeInTheDocument();
   });
 
+  it('gives subsection headings an id so search results can link to them', async () => {
+    await renderAt('/lectura/aws-kms');
+    const heading = await screen.findByRole('heading', {
+      level: 3,
+      name: 'Cifrado de sobre con claves de datos',
+    });
+    expect(heading).toHaveAttribute('id', 'cifrado-de-sobre-con-claves-de-datos');
+  });
+
   it('marks the current page in the sidebar', async () => {
     await renderAt('/lectura/amazon-sqs');
     const nav = await screen.findByRole('navigation', { name: 'Páginas relacionadas' });
