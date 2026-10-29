@@ -7,4 +7,92 @@ export const meta = {
   covers: ['3.2-k1'],
 };
 
-Contenido pendiente.
+AWS Batch es un servicio totalmente administrado para ejecutar cargas de trabajo de cómputo por lotes de cualquier escala. Planifica y ejecuta trabajos en contenedores, como simulaciones, análisis o aprendizaje automático, sobre Amazon ECS o Amazon EKS, y aprovisiona por ti la capacidad en instancias EC2 (bajo demanda o Spot) o en Fargate.
+
+## Qué problema resuelve
+
+El cómputo por lotes consiste en ejecutar muchos trabajos sobre grandes volúmenes de datos: necesita mucha capacidad mientras corre y ninguna cuando termina. Montar esa infraestructura a mano obliga a instalar software de planificación, mantener servidores y adivinar cuánta capacidad hará falta. AWS Batch elimina ese trabajo: aprovisiona los recursos en respuesta a los trabajos enviados, reparte la carga según su cantidad y escala, y reduce la capacidad al terminar para no pagar recursos ociosos.
+
+## Conceptos clave
+
+### Los cuatro componentes
+
+- **Entorno de cómputo**: el conjunto de recursos donde corren los trabajos. En un entorno **administrado** eliges el tipo de cómputo (EC2, Fargate o Amazon ECS Managed Instances), el tamaño de instancia, el número mínimo, deseado y máximo de vCPU, el umbral de precio de Spot y las subredes. En uno **no administrado** tú configuras y escalas las instancias.
+- **Cola de trabajos**: donde espera cada trabajo hasta que se programa en un entorno de cómputo. Una cola puede asociarse a varios entornos con un orden de preferencia, y las colas pueden tener prioridades. Por ejemplo, una cola de alta prioridad para trabajos urgentes y otra de baja prioridad para trabajos que pueden esperar a que la capacidad sea más barata.
+- **Definición de trabajo**: la plantilla de cada trabajo. Indica la imagen de contenedor, la CPU y la memoria, las variables de entorno, el almacenamiento y un rol de IAM para acceder a otros recursos de AWS.
+- **Trabajo**: la unidad de trabajo que envías, por ejemplo un script o una imagen de contenedor. Un trabajo puede depender de que otros terminen correctamente.
+
+### Paralelismo y planificación
+
+- **Trabajos de matriz (array jobs)**: un solo envío genera muchos trabajos hijos que comparten la misma definición y pueden ejecutarse a la vez en varios hosts. Es la forma más eficiente de lanzar cargas muy paralelas, como simulaciones de Monte Carlo, barridos de parámetros o renderizados grandes.
+- **Políticas de programación**: por defecto el planificador sigue el orden de llegada (FIFO). Con políticas de reparto equitativo (fair-share) repartes la capacidad de una cola entre usuarios o cargas.
+- Batch ejecuta los trabajos en varias zonas de disponibilidad de una región, dentro de una VPC nueva o existente.
+
+Para comparar Batch con el resto de opciones de cómputo según su costo, consulta el tema "Cómputo rentable según la carga de trabajo".
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Orquesta contenedores con"
+    service="Amazon ECS y Amazon EKS"
+    description="Batch ejecuta los trabajos en contenedores sobre los servicios de orquestación administrados de AWS."
+  />
+  <ConnectionCard
+    relation="Ejecuta sin servidores con"
+    service="AWS Fargate"
+    description="Un entorno de cómputo de Fargate corre los trabajos sin que administres instancias."
+  />
+  <ConnectionCard
+    relation="Reduce costos con"
+    service="Amazon EC2"
+    description="Los entornos administrados lanzan instancias bajo demanda o Spot, con un umbral de precio para Spot."
+  />
+  <ConnectionCard
+    relation="Concede permisos con"
+    service="AWS IAM"
+    description="La definición de trabajo puede asignar un rol de IAM para que el trabajo acceda a otros recursos de AWS."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="AWS Batch cuando"
+    items={[
+      'Ejecutas muchos trabajos por lotes en contenedores, como simulaciones, renderizado o análisis.',
+      'Necesitas colas con prioridades y dependencias entre trabajos.',
+      'Quieres que la capacidad se aprovisione según los trabajos y se reduzca al terminar.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Procesas big data con Apache Hadoop o Apache Spark: Amazon EMR.',
+      'Cada tarea es corta (hasta 15 minutos) y responde a eventos: AWS Lambda.',
+      'El contenedor es un servicio que corre de forma continua, no un trabajo: Amazon ECS con Fargate.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Batch"
+  url="https://docs.aws.amazon.com/batch/latest/userguide/what-is-batch.html"
+/>
+<OfficialSource
+  title="Componentes de AWS Batch"
+  url="https://docs.aws.amazon.com/batch/latest/userguide/batch_components.html"
+/>
+<OfficialSource
+  title="Trabajos de matriz"
+  url="https://docs.aws.amazon.com/batch/latest/userguide/array_jobs.html"
+/>
+<OfficialSource
+  title="Elegir un servicio de cómputo de AWS"
+  url="https://docs.aws.amazon.com/decision-guides/latest/compute-on-aws-how-to-choose/choosing-aws-compute-service.html"
+/>
