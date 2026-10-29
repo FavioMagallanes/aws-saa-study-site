@@ -7,4 +7,95 @@ export const meta = {
   covers: ['2.1-k7'],
 };
 
-Contenido pendiente.
+Amazon CloudFront es la red de entrega de contenido (CDN) de AWS. Acelera la distribución de contenido web estático y dinámico, como archivos HTML, CSS, JavaScript e imágenes, a través de una red mundial de ubicaciones de borde, y guarda copias en caché cerca de los usuarios.
+
+## Qué problema resuelve
+
+Sin una CDN, cada solicitud de un usuario lejano atraviesa muchas redes de internet hasta llegar a tu servidor, y el origen atiende todo el tráfico. CloudFront lleva la solicitud por la red troncal de AWS hasta la ubicación de borde que mejor puede atenderla y, si el objeto ya está en caché, lo devuelve sin ir al origen. El resultado es menos latencia, mayores tasas de transferencia y más disponibilidad, porque hay copias de los archivos en muchas ubicaciones. En el examen, es el acelerador periférico para contenido que se puede almacenar en caché; la comparación detallada con Global Accelerator está en el tema "Periferia: CloudFront frente a Global Accelerator".
+
+## Conceptos clave
+
+### Distribución y origen
+
+- **Distribución**: es el recurso que creas para indicar desde dónde se entrega el contenido y cómo se gestiona su entrega.
+- **Origen**: guarda la versión definitiva de los objetos. Puede ser un bucket de Amazon S3, un servidor HTTP propio o recursos como Elastic Load Balancing o Amazon EC2 configurados como origen personalizado.
+- **Flujo de una solicitud**: el DNS la envía a la ubicación de borde más adecuada, normalmente la más cercana en latencia. Si el objeto no está en caché, CloudFront lo pide al origen, empieza a entregarlo en cuanto llega el primer byte y lo guarda para la siguiente solicitud.
+- **Cachés regionales de borde**: están entre el origen y las ubicaciones de borde, tienen más capacidad y conservan más tiempo el contenido que va perdiendo popularidad.
+
+### Seguridad y contenido privado
+
+- **Control de acceso de origen (OAC)**: restringe un bucket de S3 para que solo CloudFront lo lea. AWS lo recomienda frente a la antigua identidad de acceso de origen (OAI), entre otras cosas porque admite SSE-KMS.
+- **URL y cookies firmadas**: sirven contenido solo a usuarios autorizados, por ejemplo los que pagaron.
+- **AWS WAF**: puedes asociar una ACL web a la distribución para bloquear solicitudes antes de que lleguen a tus servidores.
+
+### Código en el borde
+
+- **CloudFront Functions**: funciones ligeras en JavaScript para personalizaciones de alta escala y sensibles a la latencia.
+- **Lambda@Edge**: extensión de AWS Lambda para lógica más compleja en Node.js o Python; la publicas en una región y CloudFront la replica por todo el mundo.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Usa como origen"
+    service="Amazon S3"
+    description="Un bucket de S3 es la forma sencilla de guardar y servir contenido estático; con OAC solo CloudFront puede leerlo."
+  />
+  <ConnectionCard
+    relation="Usa como origen personalizado"
+    service="Elastic Load Balancing"
+    description="Un balanceador de carga delante de tus servidores puede ser el origen del contenido dinámico."
+  />
+  <ConnectionCard
+    relation="Se protege con"
+    service="AWS WAF"
+    description="Una ACL web asociada a la distribución filtra amenazas web comunes antes de que lleguen al origen."
+  />
+  <ConnectionCard
+    relation="Ejecuta lógica en el borde con"
+    service="AWS Lambda"
+    description="Lambda@Edge personaliza solicitudes y respuestas cerca de los usuarios, por ejemplo para autorizar el acceso."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="CloudFront cuando"
+    items={[
+      'Entregas contenido web, imágenes o vídeo a usuarios repartidos por el mundo.',
+      'Quieres reducir la latencia y la carga del origen mediante caché en el borde.',
+      'Necesitas servir contenido privado con URL o cookies firmadas.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Aceleras tráfico TCP o UDP que no se puede almacenar en caché, o necesitas IP estáticas: AWS Global Accelerator.',
+      'Solo necesitas dirigir usuarios a la región o al punto de enlace adecuado por DNS: Amazon Route 53.',
+      'Repartes tráfico entre destinos dentro de una región: Elastic Load Balancing.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon CloudFront"
+  url="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Introduction.html"
+/>
+<OfficialSource
+  title="Cómo entrega CloudFront el contenido"
+  url="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/HowCloudFrontWorks.html"
+/>
+<OfficialSource
+  title="Restringir el acceso a un origen de Amazon S3"
+  url="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html"
+/>
+<OfficialSource
+  title="Personalizar en el borde con funciones"
+  url="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/edge-functions.html"
+/>
