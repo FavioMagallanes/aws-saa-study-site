@@ -7,4 +7,102 @@ export const meta = {
   covers: ['4.1-k4'],
 };
 
-Contenido pendiente.
+Amazon FSx es una familia de servicios de almacenamiento de archivos totalmente administrados, cada uno construido sobre un sistema de archivos conocido: Windows File Server, Lustre, NetApp ONTAP y OpenZFS. AWS se encarga de los servidores, los volúmenes, el software, los fallos de hardware y las copias de seguridad.
+
+## Qué problema resuelve
+
+Muchas aplicaciones dependen de un sistema de archivos concreto: una aplicación empresarial de Windows espera SMB y Active Directory, un clúster de HPC necesita un sistema de archivos paralelo y un equipo con NetApp o ZFS en local quiere las mismas funciones en la nube. FSx ofrece esos sistemas de archivos como servicio, así que puedes trasladar las aplicaciones a AWS sin cambiar su código ni la forma de gestionar los datos. La comparación de FSx con EBS, EFS y S3 está en el tema «Elegir almacenamiento por rendimiento y escala».
+
+## Conceptos clave
+
+### FSx for Windows File Server
+
+Servidores de archivos Windows totalmente administrados, con un sistema de archivos Windows nativo y acceso por SMB. Se integra con AWS Directory Service for Microsoft Active Directory y sirve para aplicaciones empresariales, directorios personales, servidores web, gestión de contenidos o compilación de software.
+
+- **Disponibilidad**: Single-AZ detecta y corrige fallos de componentes dentro de una zona; Multi-AZ mantiene un servidor de reserva en otra zona y hace conmutación por error.
+- **Costo y rendimiento**: almacenamiento HDD para directorios personales y recursos compartidos de departamentos, o SSD para las cargas más sensibles a la latencia, como bases de datos o procesamiento de medios.
+- **Copias**: las copias diarias automáticas están activadas por defecto y son incrementales.
+
+### FSx for Lustre
+
+Sistema de archivos de alto rendimiento para cargas donde la velocidad importa, como aprendizaje automático, HPC, procesamiento de video o modelado financiero. Es compatible con POSIX, así que las aplicaciones Linux funcionan sin cambios.
+
+- **Scratch o Persistent**: los sistemas scratch son para almacenamiento temporal y procesamiento a corto plazo, y sus datos no se replican; los persistentes replican los datos y reemplazan los servidores que fallan.
+- **Integración con S3**: vinculado a un bucket, presenta los objetos como archivos y puede escribir los resultados de vuelta en S3.
+- **Picos desde local**: puedes llevar a AWS cargas de cómputo intensivo importando los datos por Direct Connect o VPN.
+
+### FSx for NetApp ONTAP
+
+Almacenamiento de archivos con las funciones de NetApp ONTAP, accesible desde Linux, Windows y macOS con NFS, SMB, iSCSI y NVMe, en AWS o en local. Mueve automáticamente los datos poco usados a un nivel de menor costo, y comprime y deduplica para reducir el espacio ocupado. Es la opción natural si ya usas NetApp ONTAP en local y quieres migrar, respaldar o llevar picos de carga a AWS.
+
+### FSx for OpenZFS
+
+Facilita mover a AWS servidores de archivos ZFS u otros basados en Linux sin cambiar las aplicaciones. Se accede por NFS desde Linux, Windows y macOS, y ofrece instantáneas y clonación de datos de OpenZFS.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Se une al dominio con"
+    service="AWS Directory Service"
+    description="FSx for Windows File Server se integra con AWS Managed Microsoft AD para autenticar a los usuarios de los recursos compartidos."
+  />
+  <ConnectionCard
+    relation="Procesa datos de"
+    service="Amazon S3"
+    description="FSx for Lustre presenta los objetos de un bucket como archivos y puede devolver los resultados al bucket."
+  />
+  <ConnectionCard
+    relation="Cifra con"
+    service="AWS KMS"
+    description="Los sistemas de archivos de FSx se integran con KMS para el cifrado y con CloudTrail para la auditoría."
+  />
+  <ConnectionCard
+    relation="Se conecta desde local con"
+    service="AWS Direct Connect"
+    description="Con Direct Connect o VPN, las cargas locales pueden importar datos a FSx for Lustre para procesarlos en AWS."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Qué tipo de FSx usar"
+    items={[
+      'Aplicaciones Windows con SMB y Active Directory: FSx for Windows File Server.',
+      'HPC, aprendizaje automático o procesamiento rápido de datos de S3: FSx for Lustre.',
+      'Migrar desde NetApp ONTAP o necesitar NFS, SMB e iSCSI a la vez: FSx for NetApp ONTAP.',
+      'Migrar servidores ZFS o Linux sin cambiar las aplicaciones: FSx for OpenZFS.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Necesitas archivos compartidos para Linux sin aprovisionar capacidad: Amazon EFS.',
+      'Una sola instancia necesita un disco de bloques: Amazon EBS.',
+      'Guardas objetos a gran escala con acceso por API: Amazon S3.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es FSx for Windows File Server"
+  url="https://docs.aws.amazon.com/fsx/latest/WindowsGuide/what-is.html"
+/>
+<OfficialSource
+  title="Qué es Amazon FSx for Lustre"
+  url="https://docs.aws.amazon.com/fsx/latest/LustreGuide/what-is.html"
+/>
+<OfficialSource
+  title="Qué es Amazon FSx for NetApp ONTAP"
+  url="https://docs.aws.amazon.com/fsx/latest/ONTAPGuide/what-is-fsx-ontap.html"
+/>
+<OfficialSource
+  title="Qué es Amazon FSx for OpenZFS"
+  url="https://docs.aws.amazon.com/fsx/latest/OpenZFSGuide/what-is-fsx.html"
+/>
