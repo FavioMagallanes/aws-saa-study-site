@@ -7,4 +7,92 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Amazon Comprehend es un servicio de procesamiento de lenguaje natural (NLP) que extrae información del contenido de documentos de texto: entidades, frases clave, idioma, sentimiento, datos personales y sintaxis. No necesitas experiencia en aprendizaje automático: usas modelos ya entrenados o le pides al servicio que entrene uno con tus propios datos. El panorama de los servicios de IA está en el tema de servicios administrados para cada carga de trabajo.
+
+## Qué problema resuelve
+
+Entender grandes volúmenes de texto, como reseñas, publicaciones en redes sociales, correos o repositorios de documentos, a mano o con un modelo propio exige mucho esfuerzo. Comprehend analiza ese texto por API y devuelve resultados estructurados, por ejemplo para detectar menciones de un producto o el sentimiento de los clientes, o para localizar y ocultar información de identificación personal (PII).
+
+## Conceptos clave
+
+### Análisis con modelos preentrenados
+
+- **Entidades y frases clave**: personas, lugares, objetos y frases relevantes del documento.
+- **Idioma dominante** del documento.
+- **Sentimiento**: positivo, neutral, negativo o mixto; el sentimiento dirigido lo calcula para cada entidad.
+- **PII**: datos que identifican a una persona, como una dirección o un número de cuenta. Puedes localizarlos o, con un trabajo asíncrono, obtener una copia del texto con esos datos ocultos.
+- **Sintaxis**: la categoría gramatical de cada palabra.
+- **Modelado de temas**: agrupa un conjunto de documentos en temas según la frecuencia de las palabras.
+
+### Comprehend Custom
+
+Con AutoML, el servicio construye en tu nombre modelos de clasificación personalizada (para ordenar documentos en tus propias categorías) y de reconocimiento de entidades personalizadas (para tus términos específicos), a partir de datos que ya tienes.
+
+### Modos de procesamiento
+
+- **Síncrono de un documento**: la respuesta llega de inmediato; sirve para aplicaciones interactivas.
+- **Síncrono de varios documentos**: envías un pequeño lote en una sola solicitud.
+- **Asíncrono por lotes**: para colecciones grandes, dejas los documentos en un bucket de Amazon S3, inicias un trabajo y Comprehend guarda los resultados en la ubicación de S3 que indiques.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Lee y escribe lotes en"
+    service="Amazon S3"
+    description="Los trabajos asíncronos toman los documentos de un bucket de S3 y dejan allí los resultados del análisis."
+  />
+  <ConnectionCard
+    relation="Analiza el texto que produce"
+    service="Amazon Transcribe"
+    description="Una transcripción de audio se convierte en texto que Comprehend puede analizar para extraer entidades o sentimiento."
+  />
+  <ConnectionCard
+    relation="Analiza contenido traducido por"
+    service="Amazon Translate"
+    description="Translate puede integrarse con Comprehend para extraer entidades, sentimiento y frases clave de texto en varios idiomas."
+  />
+  <ConnectionCard
+    relation="Aporta comprensión del lenguaje a"
+    service="Amazon Lex"
+    description="Lex V2 se integra con Comprehend, entre otros servicios de AWS, dentro de sus bots conversacionales."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Amazon Comprehend cuando"
+    items={[
+      'Necesitas extraer entidades, frases clave, idioma o sentimiento de texto.',
+      'Debes detectar u ocultar PII en documentos de texto.',
+      'Quieres clasificar documentos en tus propias categorías sin crear un modelo desde cero.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'El texto está en imágenes o PDF escaneados y primero hay que extraerlo: Amazon Textract.',
+      'El origen es audio: Amazon Transcribe.',
+      'Necesitas un modelo propio con control total del entrenamiento: Amazon SageMaker AI.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon Comprehend"
+  url="https://docs.aws.amazon.com/comprehend/latest/dg/what-is.html"
+/>
+<OfficialSource
+  title="Modos de procesamiento de documentos"
+  url="https://docs.aws.amazon.com/comprehend/latest/dg/concepts-processing-modes.html"
+/>
+<OfficialSource
+  title="Detectar entidades PII"
+  url="https://docs.aws.amazon.com/comprehend/latest/dg/how-pii.html"
+/>
