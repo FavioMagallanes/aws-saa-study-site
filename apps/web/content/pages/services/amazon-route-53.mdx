@@ -7,4 +7,104 @@ export const meta = {
   covers: ['2.2-k1', '4.4-k7'],
 };
 
-Contenido pendiente.
+Amazon Route 53 es un servicio web de DNS (sistema de nombres de dominio) de alta disponibilidad y escalable. Cumple tres funciones que puedes combinar: registrar nombres de dominio, enrutar el tráfico de internet hacia los recursos de tu dominio y comprobar el estado de esos recursos.
+
+## Qué problema resuelve
+
+Los usuarios recuerdan nombres como example.com, no direcciones IP, y las aplicaciones suelen repartirse entre varias zonas de disponibilidad y regiones. Route 53 traduce los nombres en las direcciones de tus recursos y, además, decide a cuál enviar a cada usuario: el de menor latencia, el más cercano, el que está sano o el que corresponde según un reparto por pesos. Por eso es la pieza de DNS que une la infraestructura global de AWS con tus usuarios.
+
+## Conceptos clave
+
+### Infraestructura global: regiones y zonas de disponibilidad
+
+- **Regiones**: eliges una o varias según tus necesidades, por ejemplo una región con los servicios que necesitas, una cercana a la mayoría de tus usuarios para reducir la latencia o una que cumpla requisitos legales.
+- **Zonas de disponibilidad**: cada región tiene al menos tres, lo que permite diseñar aplicaciones de alta disponibilidad. Las aplicaciones multi-AZ y multirregión se tratan en el tema "Alta disponibilidad multi-AZ y multirregión".
+- Route 53 dirige a los usuarios hacia los recursos de esas zonas y regiones, y los aparta de los que fallan.
+
+### Zonas alojadas y registros
+
+- **Zona alojada**: contenedor de registros para un dominio y sus subdominios. Las **públicas** enrutan tráfico en internet; las **privadas**, dentro de una Amazon VPC.
+- **Registros de alias**: extensión de Route 53 que apunta a recursos de AWS como distribuciones de CloudFront, balanceadores de Elastic Load Balancing, aceleradores de Global Accelerator o buckets de S3 configurados como sitio web. A diferencia de un CNAME, puedes crearlos en el vértice de la zona (example.com) y siguen solos los cambios de IP del recurso.
+
+### Políticas de enrutamiento
+
+- **Sencilla**: un único recurso.
+- **Conmutación por error**: configuración activo-pasivo.
+- **Geolocalización** e **IP**: según la ubicación de los usuarios o las direcciones IP de origen.
+- **Geoproximidad**: según la ubicación de tus recursos, con opción de desplazar tráfico entre ubicaciones.
+- **Latencia**: con recursos en varias regiones, responde con la región de menor latencia para el usuario.
+- **Respuesta multivalor**: hasta ocho registros sanos elegidos al azar.
+- **Ponderada**: reparte el tráfico en las proporciones que indiques.
+
+### Comprobaciones de estado y resolución híbrida
+
+- Una comprobación de estado vigila un recurso, otras comprobaciones o una alarma de Amazon CloudWatch. Con ella, la conmutación por error por DNS desvía el tráfico de un recurso en mal estado a uno sano.
+- **Route 53 VPC Resolver** responde a las consultas DNS dentro de cada VPC. Con puntos de enlace de entrada y salida y reglas de reenvío, resuelve nombres entre tus VPC y tu red local a través de VPN o Direct Connect.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Apunta con alias a"
+    service="Elastic Load Balancing"
+    description="Un registro de alias responde con las IP del balanceador y se actualiza solo si estas cambian."
+  />
+  <ConnectionCard
+    relation="Apunta con alias a"
+    service="Amazon CloudFront"
+    description="Responde con las IP de las ubicaciones de borde que pueden servir tu contenido."
+  />
+  <ConnectionCard
+    relation="Vigila alarmas de"
+    service="Amazon CloudWatch"
+    description="Una comprobación de estado puede basarse en una alarma, y otra alarma te avisa cuando cambia el estado."
+  />
+  <ConnectionCard
+    relation="Resuelve nombres privados en"
+    service="Amazon VPC"
+    description="Las zonas alojadas privadas y VPC Resolver dan DNS dentro de las VPC y hacia la red local."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Route 53 cuando"
+    items={[
+      'Necesitas registrar un dominio o alojar su DNS.',
+      'Debes dirigir a los usuarios por latencia, ubicación, pesos o estado de los recursos.',
+      'Quieres conmutación por error activo-pasivo entre regiones mediante DNS.',
+      'Resuelves nombres entre tus VPC y tu red local.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Necesitas IP estáticas y llevar el tráfico por la red de AWS: AWS Global Accelerator.',
+      'Quieres almacenar contenido en caché cerca de los usuarios: Amazon CloudFront.',
+      'Repartes tráfico entre destinos dentro de una región: Elastic Load Balancing.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon Route 53"
+  url="https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/Welcome.html"
+/>
+<OfficialSource
+  title="Elegir una política de enrutamiento"
+  url="https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-policy.html"
+/>
+<OfficialSource
+  title="Elegir entre registros de alias y sin alias"
+  url="https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/resource-record-sets-choosing-alias-non-alias.html"
+/>
+<OfficialSource
+  title="Zonas de disponibilidad de AWS"
+  url="https://docs.aws.amazon.com/global-infrastructure/latest/regions/aws-availability-zones.html"
+/>
