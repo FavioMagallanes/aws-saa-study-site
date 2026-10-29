@@ -7,4 +7,93 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+AWS Firewall Manager centraliza la administración de protecciones de red y de aplicación en varias cuentas y recursos de una organización. Configuras la protección una sola vez y el servicio la aplica de forma automática en tus cuentas y recursos, incluso cuando agregas cuentas y recursos nuevos.
+
+## Qué problema resuelve
+
+Con muchas cuentas, configurar AWS WAF, AWS Shield Advanced, grupos de seguridad o firewalls de red cuenta por cuenta es lento y deja huecos: basta un recurso nuevo sin proteger. Firewall Manager te permite definir una línea base y aplicarla a toda la organización, a todos los recursos de un tipo (por ejemplo, todas las distribuciones de Amazon CloudFront) o a los que tengan ciertas etiquetas. Es especialmente útil cuando quieres proteger toda la organización y no solo unas pocas cuentas, o cuando agregas recursos con frecuencia.
+
+## Conceptos clave
+
+### Requisitos
+
+- Funciona con AWS Organizations: una cuenta de administrador de Firewall Manager gestiona todas las políticas de seguridad de la organización.
+- Necesita AWS Config habilitado en cada cuenta miembro, incluida la de administrador, y en cada región con recursos que quieras proteger.
+- Los cargos corresponden a los servicios subyacentes, como AWS WAF y AWS Config.
+
+### Tipos de política
+
+Cada política es de un solo tipo, y puedes crear varias:
+
+- **AWS WAF**: define grupos de reglas que se ejecutan primero y al final en la lista de control de acceso web; el dueño de cada cuenta puede añadir sus reglas entre ambos.
+- **Shield Advanced**: aplica sus protecciones a los tipos de recurso que elijas en toda la organización, y puede suscribir a Shield Advanced a todas las cuentas miembro.
+- **Grupos de seguridad y ACL de red de Amazon VPC**: impone un conjunto base de reglas en toda la organización.
+- **AWS Network Firewall** y **Route 53 Resolver DNS Firewall**: aplican esas protecciones a las VPC de la organización.
+- **Firewalls de terceros**, contratados mediante AWS Marketplace.
+
+### Cumplimiento y corrección
+
+En cada política defines el alcance, con etiquetas si quieres, y eliges si solo ver las cuentas y recursos que no cumplen o corregirlos de forma automática. Cuando una cuenta nueva se une a la organización, Firewall Manager le aplica las políticas que correspondan. También ofrece supervisión centralizada de ataques DDoS en la organización.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Gobierna las cuentas de"
+    service="AWS Organizations"
+    description="Las políticas se aplican a las cuentas miembro de la organización, incluidas las que se unen después."
+  />
+  <ConnectionCard
+    relation="Despliega reglas de"
+    service="AWS WAF"
+    description="Aplica de forma central grupos de reglas a los recursos protegidos de todas las cuentas."
+  />
+  <ConnectionCard
+    relation="Extiende la protección de"
+    service="AWS Shield"
+    description="Aplica Shield Advanced a los tipos de recurso que indiques en toda la organización."
+  />
+  <ConnectionCard
+    relation="Evalúa los recursos con"
+    service="AWS Config"
+    description="Firewall Manager requiere AWS Config habilitado para poder administrar las políticas en las cuentas."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Firewall Manager cuando"
+    items={[
+      'Debes aplicar las mismas reglas de WAF, Shield Advanced o grupos de seguridad en muchas cuentas.',
+      'Quieres que los recursos y cuentas nuevos queden protegidos de forma automática.',
+      'Necesitas ver y corregir de forma central los recursos que no cumplen.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Proteges unos pocos recursos de una sola cuenta: configura AWS WAF directamente.',
+      'Necesitas filtrar el tráfico en el perímetro de una VPC: AWS Network Firewall.',
+      'Quieres fijar los permisos máximos de las cuentas: las SCP de AWS Organizations.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="AWS Firewall Manager"
+  url="https://docs.aws.amazon.com/waf/latest/developerguide/fms-chapter.html"
+/>
+<OfficialSource
+  title="Requisitos previos de AWS Firewall Manager"
+  url="https://docs.aws.amazon.com/waf/latest/developerguide/fms-prereq.html"
+/>
+<OfficialSource
+  title="Usar políticas de AWS Firewall Manager"
+  url="https://docs.aws.amazon.com/waf/latest/developerguide/working-with-policies.html"
+/>
