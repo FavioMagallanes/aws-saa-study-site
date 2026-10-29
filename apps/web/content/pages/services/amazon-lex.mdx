@@ -7,4 +7,73 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Amazon Lex V2 es un servicio para crear interfaces conversacionales, de voz y de texto, para aplicaciones. Combina reconocimiento automático de voz (ASR) y comprensión del lenguaje natural (NLU) para que puedas crear bots de chat sin experiencia en aprendizaje profundo.
+
+## Qué problema resuelve
+
+Construir un asistente que entienda lo que pide una persona, le haga preguntas para completar la información y ejecute la tarea exige resolver reconocimiento de voz y comprensión del lenguaje, dos problemas difíciles. Con Lex defines el flujo básico de la conversación, el servicio administra el diálogo y escala automáticamente, sin que aprovisiones hardware ni infraestructura. Casos típicos: atención al cliente, preguntas frecuentes o reserva de citas.
+
+## Conceptos clave
+
+- **Bot**: realiza tareas automatizadas, como pedir una pizza o reservar un hotel. Puede conversar en uno o más idiomas, cada uno configurado de forma independiente.
+- **Intención (intent)**: la acción que el usuario quiere realizar. Para cada una defines un nombre, enunciados de ejemplo que indican cómo podría expresarla el usuario y cómo cumplirla. Lex siempre incluye una intención alternativa (fallback) para cuando no deduce lo que pide el usuario.
+- **Slot**: los parámetros que la intención necesita; en tiempo de ejecución, Lex le pide al usuario los valores que faltan.
+- **Cumplimiento**: AWS recomienda una función de AWS Lambda para cumplir la intención; también puede devolver la información a la aplicación cliente para que ella la cumpla.
+- **Versiones y alias**: pruebas el bot, publicas una versión y creas un alias para desplegarlo en tus aplicaciones o en plataformas de mensajería.
+- **Bifurcación condicional**: controla el flujo de conversaciones complejas sin escribir código de Lambda.
+- **Replicación multirregión**: despliega los bots en varias regiones para mejorar la disponibilidad y la recuperación ante desastres.
+- Sin costos iniciales ni cuotas mínimas: pagas por las solicitudes de texto o voz.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Cumple las intenciones con"
+    service="AWS Lambda"
+    description="Una función de Lambda ejecuta la lógica de negocio cuando el bot ya reunió los datos que necesita."
+  />
+  <ConnectionCard
+    relation="Se supervisa con"
+    service="Amazon CloudWatch"
+    description="Lex V2 se integra de forma nativa con CloudWatch para el monitoreo de los bots."
+  />
+  <ConnectionCard
+    relation="Se integra con"
+    service="Amazon Comprehend"
+    description="Lex V2 puede integrarse con Comprehend y otros servicios de AWS para enriquecer las conversaciones."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Amazon Lex cuando"
+    items={[
+      'Necesitas un chatbot o una interfaz de voz que entienda la intención del usuario.',
+      'El bot debe pedir datos al usuario y ejecutar una tarea, como una reserva.',
+      'Quieres desplegarlo en aplicaciones web, móviles o plataformas de chat.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Solo necesitas convertir texto en voz: Amazon Polly.',
+      'Solo necesitas convertir audio en texto: Amazon Transcribe.',
+      'Necesitas analizar el sentimiento o las entidades de un texto: Amazon Comprehend.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon Lex V2"
+  url="https://docs.aws.amazon.com/lexv2/latest/dg/what-is.html"
+/>
+<OfficialSource
+  title="Conceptos básicos de Amazon Lex V2"
+  url="https://docs.aws.amazon.com/lexv2/latest/dg/how-it-works.html"
+/>
