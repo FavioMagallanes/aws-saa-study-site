@@ -7,4 +7,86 @@ export const meta = {
   covers: ['3.5-k1'],
 };
 
-Contenido pendiente.
+AWS Lake Formation es el servicio para gobernar, proteger y compartir de forma centralizada los datos que usan el análisis y el aprendizaje automático. Administra el control de acceso de grano fino sobre los datos del lago en Amazon S3 y sobre sus metadatos en el AWS Glue Data Catalog, y ayuda a llevar al lago datos de bases de datos existentes. El tema «Lagos de datos» explica cómo se construye y protege un lago completo; aquí ves el servicio en sí.
+
+## Qué problema resuelve
+
+Cuando varios equipos analizan los mismos datos en S3 con servicios distintos, controlar quién ve qué con políticas de bucket y de IAM se vuelve complejo: esas políticas trabajan con buckets y prefijos, no con tablas, columnas ni filas. Lake Formation ofrece su propio modelo de permisos, parecido al de una base de datos relacional: concedes o revocas permisos sobre bases de datos, tablas y columnas del catálogo, y esos permisos se aplican en todos los servicios de análisis integrados. Así sustituye las combinaciones complejas de políticas de bucket y de IAM.
+
+## Conceptos clave
+
+- **Permisos de grano fino**: se aplican a nivel de columna, fila y celda en servicios como Amazon Athena, Amazon Quick, Amazon Redshift Spectrum, Amazon EMR y AWS Glue. Dos analistas pueden consultar la misma tabla y obtener solo los datos que tienen permitidos.
+- **Entrega de credenciales temporales (credential vending)**: cuando un usuario consulta una tabla registrada, el Data Catalog comprueba sus permisos en Lake Formation. Si está autorizado, Lake Formation da al motor de análisis un acceso temporal a S3, y el motor filtra columnas, filas o celdas antes de devolver el resultado.
+- **Registro de ubicaciones**: para que Lake Formation gestione el acceso a los datos, registras en él la ubicación de S3 de las tablas.
+- **Control basado en etiquetas (LF-Tags)**: asignas etiquetas clave-valor, como `department=sales`, a bases de datos, tablas o columnas, y concedes permisos sobre las etiquetas. Es el método recomendado cuando hay muchos objetos en el catálogo. Las LF-Tags no son lo mismo que las etiquetas de IAM.
+- **Compartir entre cuentas**: puedes compartir bases de datos y tablas con otras cuentas, organizaciones o entidades de IAM de otra cuenta. Lake Formation usa AWS Resource Access Manager para hacerlo.
+- **Modo de acceso híbrido**: permite activar los permisos de Lake Formation de forma gradual, para ciertos usuarios o tablas, sin interrumpir las políticas de IAM que usan otras cargas de trabajo.
+- **Ingesta**: puede importar datos y su esquema desde MySQL, PostgreSQL, SQL Server, MariaDB y Oracle en Amazon RDS o Amazon EC2, con cargas masivas o incrementales.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Gobierna datos en"
+    service="Amazon S3"
+    description="Las ubicaciones de S3 registradas forman el almacenamiento del lago y reciben acceso temporal controlado."
+  />
+  <ConnectionCard
+    relation="Protege el catálogo de"
+    service="AWS Glue"
+    description="Los permisos se conceden sobre las bases de datos, tablas y columnas del Data Catalog."
+  />
+  <ConnectionCard
+    relation="Aplica permisos en"
+    service="Amazon Athena"
+    description="Athena, Redshift Spectrum, EMR y Amazon Quick devuelven solo las columnas, filas y celdas permitidas."
+  />
+  <ConnectionCard
+    relation="Comparte recursos con"
+    service="AWS Resource Access Manager (AWS RAM)"
+    description="Las concesiones entre cuentas se comparten mediante AWS RAM."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Lake Formation cuando"
+    items={[
+      'Necesitas permisos por columna, fila o celda sobre datos del lago en S3.',
+      'Varios servicios de análisis deben aplicar los mismos permisos centrales.',
+      'Gobiernas muchas tablas y prefieres concederlas mediante etiquetas.',
+      'Compartes datos del lago con otras cuentas de forma controlada.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Solo necesitas acceso en el nivel de bucket o prefijo: políticas de bucket de S3 y de IAM.',
+      'Solo quieres descubrir esquemas y catalogar los datos: rastreadores de AWS Glue.',
+      'Intercambias o vendes datos a otras organizaciones: AWS Data Exchange.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Lake Formation"
+  url="https://docs.aws.amazon.com/lake-formation/latest/dg/what-is-lake-formation.html"
+/>
+<OfficialSource
+  title="Cómo funciona AWS Lake Formation"
+  url="https://docs.aws.amazon.com/lake-formation/latest/dg/how-it-works.html"
+/>
+<OfficialSource
+  title="Control de acceso basado en etiquetas en Lake Formation"
+  url="https://docs.aws.amazon.com/lake-formation/latest/dg/tag-based-access-control.html"
+/>
+<OfficialSource
+  title="Compartir datos entre cuentas en Lake Formation"
+  url="https://docs.aws.amazon.com/lake-formation/latest/dg/cross-account-permissions.html"
+/>
