@@ -7,4 +7,101 @@ export const meta = {
   covers: ['1.1-s5'],
 };
 
-Contenido pendiente.
+Hay dos maneras de escribir permisos en AWS: asociarlos a quien actúa, o asociarlos al recurso al que se quiere acceder. Las políticas basadas en recursos son la segunda: viven en el propio recurso y dicen quién puede usarlo y para qué. Saber cuándo usarlas, y cuándo bastan los permisos de identidad, es la decisión que plantea este tema.
+
+## Qué problema resuelve
+
+A veces el permiso natural no pertenece a una persona sino a un recurso: un bucket que varias cuentas deben leer, una cola a la que un servicio de otra cuenta debe escribir, una clave de cifrado que solo ciertos roles pueden usar. Con una política en el recurso, concentras ahí la regla de acceso y puedes conceder acceso a entidades de la misma cuenta o de otra, sin crear roles intermedios para cada caso.
+
+## Conceptos clave
+
+### Basadas en identidad y basadas en recursos
+
+- Una política **basada en identidad** se asocia a un usuario, grupo o rol de IAM y define lo que esa identidad puede hacer. Por ejemplo, permitir a un usuario ejecutar `RunInstances` en EC2 y leer elementos de una tabla de DynamoDB. Pueden ser administradas o insertadas.
+- Una política **basada en recursos** se asocia al recurso y especifica qué entidad principal tiene acceso a él y qué acciones puede realizar. Solo son insertadas, no administradas.
+
+Algunos recursos que admiten políticas basadas en recursos son los buckets de Amazon S3, las colas de Amazon SQS, los puntos de enlace de VPC, las claves de cifrado de AWS KMS y las tablas y flujos de Amazon DynamoDB. No todos los servicios las admiten; conviene consultar qué servicios las soportan.
+
+Los dos ejemplos más comunes son las políticas de bucket de S3 y las políticas de confianza de los roles de IAM. Esta última es la que decide quién puede asumir un rol.
+
+No confundas las políticas basadas en recursos con los permisos a nivel de recurso: estos últimos son la capacidad de indicar recursos individuales, con su ARN, dentro de una política de identidad.
+
+### Cómo se evalúan dentro de una misma cuenta
+
+Las políticas de identidad y de recursos son políticas de permisos y se evalúan juntas. AWS comprueba primero si alguna contiene un `Deny`; si existe, la solicitud se deniega. Después busca algún `Allow`: basta con que una sola instrucción permita la acción, y no importa si está en la política de identidad o en la del recurso. Un `Deny` explícito siempre prevalece sobre un `Allow`.
+
+Por eso una persona sin ninguna política de identidad puede tener acceso completo a un recurso si la política del recurso se lo concede, dentro de la misma cuenta.
+
+### Acceso entre cuentas
+
+Para compartir un recurso con otra cuenta tienes dos caminos:
+
+- **Política en el recurso**: adjuntas la política directamente al recurso que quieres compartir, que debe admitir políticas basadas en recursos. A diferencia de la política de identidad de un rol, especifica quién, es decir qué entidad principal, puede acceder.
+- **Un rol como intermediario**: úsalo cuando el recurso no admite políticas basadas en recursos. Un rol entre cuentas incluye una política de confianza que permite a entidades de otra cuenta asumirlo.
+
+Entre cuentas, la regla anterior cambia: la persona de la cuenta A debe tener una política de identidad que le permita hacer la solicitud al recurso de la cuenta B, y además la política del recurso en la cuenta B debe permitir al solicitante de la cuenta A acceder. Se necesitan políticas que lo permitan en ambas cuentas.
+
+Los roles y las políticas basadas en recursos delegan acceso entre cuentas solo dentro de una misma partición de AWS: por ejemplo, una política de recursos en una cuenta de China no permite el acceso a usuarios de tu cuenta de la partición estándar. En situaciones con varios clientes, se recomienda además usar un ID externo.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Concede acceso a buckets de"
+    service="Amazon S3"
+    description="Una política de bucket indica qué entidades pueden acceder al bucket y qué acciones pueden realizar, incluso desde otras cuentas."
+  />
+  <ConnectionCard
+    relation="Controla el uso de claves de"
+    service="AWS KMS"
+    description="Las claves de cifrado admiten políticas basadas en recursos que definen quién puede usarlas."
+  />
+  <ConnectionCard
+    relation="Decide quién asume roles con"
+    service="Políticas de confianza de IAM"
+    description="La política de confianza de un rol es una política basada en recursos que permite a entidades de otra cuenta asumirlo."
+  />
+  <ConnectionCard
+    relation="Revisa quién tiene acceso con"
+    service="IAM Access Analyzer"
+    description="Ayuda a saber si entidades fuera de tu zona de confianza, como otras cuentas, pueden acceder a tus recursos."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Política de recursos cuando"
+    items={[
+      'El recurso admite políticas basadas en recursos y quieres compartirlo directamente.',
+      'Quieres concentrar en el recurso la regla de quién puede usarlo.',
+      'Necesitas dar acceso a entidades de otra cuenta sin crear un rol intermedio.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'El servicio no admite políticas basadas en recursos: un rol entre cuentas actúa como intermediario.',
+      'Quieres definir lo que una identidad puede hacer en general: una política basada en identidad.',
+      'Recuerda que un Deny explícito, en cualquiera de las dos, prevalece sobre un Allow.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Políticas basadas en identidad y políticas basadas en recursos"
+  url="https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_identity-vs-resource.html"
+/>
+<OfficialSource
+  title="Acceso a recursos entre cuentas en IAM"
+  url="https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies-cross-account-resource-access.html"
+/>
+<OfficialSource
+  title="Políticas y permisos en AWS Identity and Access Management"
+  url="https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html"
+/>
