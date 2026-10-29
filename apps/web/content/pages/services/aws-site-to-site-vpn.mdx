@@ -7,4 +7,94 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+AWS Site-to-Site VPN crea conexiones VPN IPsec seguras entre tu red local y tus VPC a través de internet. De forma predeterminada, una instancia de una VPC no puede comunicarse con tu red local; con una conexión Site-to-Site VPN y el enrutamiento adecuado, el tráfico pasa por un enlace cifrado.
+
+## Qué problema resuelve
+
+Una empresa que mantiene sistemas en su centro de datos o en una sucursal necesita que se comuniquen con sus recursos de AWS sin exponer el tráfico sin cifrar en internet. Site-to-Site VPN ofrece esa conexión cifrada usando internet como transporte, sin necesidad de una línea privada dedicada. Cuándo conviene frente a Direct Connect o PrivateLink, y cómo sumar ancho de banda, se explica en el tema "Conectividad híbrida: VPN, Direct Connect y PrivateLink".
+
+## Conceptos clave
+
+### Componentes
+
+- **Conexión VPN**: el enlace seguro entre tu equipo local y tus VPC.
+- **Túneles**: cada conexión incluye dos túneles VPN cifrados que puedes usar a la vez para alta disponibilidad.
+- **Dispositivo de puerta de enlace de cliente**: el equipo físico o la aplicación de software en tu lado. La **puerta de enlace de cliente** es el recurso de AWS que describe ese dispositivo.
+- **Lado de AWS**: una **puerta de enlace privada virtual**, que se asocia a una sola VPC, o un **transit gateway**, que interconecta varias VPC y redes locales. Puedes cambiar el destino de una puerta de enlace privada virtual a un transit gateway.
+
+### Enrutamiento
+
+Al crear la conexión eliges enrutamiento **estático** o **dinámico** con BGP, y actualizas las tablas de enrutamiento de las subredes. Si hay rutas idénticas, las estáticas tienen preferencia sobre las anunciadas por BGP.
+
+### Ancho de banda y aceleración
+
+- Un túnel estándar admite hasta 1,25 Gbps. La opción de túnel de gran ancho de banda, de hasta 5 Gbps, está disponible para conexiones asociadas a un transit gateway o a AWS Cloud WAN.
+- **VPN acelerada**: opcional y solo en conexiones sobre un transit gateway. Usa AWS Global Accelerator para llevar el tráfico a la ubicación de borde más cercana a tu dispositivo y evitar interrupciones de la internet pública.
+- IPv6 no se admite en conexiones sobre una puerta de enlace privada virtual; para IPv6 usa un transit gateway o Cloud WAN.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Termina en una VPC de"
+    service="Amazon VPC"
+    description="Una puerta de enlace privada virtual asociada a la VPC es el extremo de AWS de la conexión."
+  />
+  <ConnectionCard
+    relation="Llega a muchas VPC con"
+    service="AWS Transit Gateway"
+    description="La conexión VPN se crea como adjunto del transit gateway, que interconecta tus VPC y tus redes locales."
+  />
+  <ConnectionCard
+    relation="Se acelera con"
+    service="AWS Global Accelerator"
+    description="La VPN acelerada usa dos aceleradores administrados por AWS, uno por túnel."
+  />
+  <ConnectionCard
+    relation="Cifra el tráfico de"
+    service="AWS Direct Connect"
+    description="Combinada con Direct Connect, da una conexión privada cifrada con IPsec."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Site-to-Site VPN cuando"
+    items={[
+      'Necesitas conectar una red local con AWS de forma cifrada y rápida de implantar.',
+      'El volumen de tráfico cabe en los túneles disponibles.',
+      'Quieres cifrar con IPsec el tráfico que va por Direct Connect.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Necesitas una línea privada dedicada y una experiencia de red más coherente: AWS Direct Connect.',
+      'Se conectan usuarios individuales desde cualquier lugar: AWS Client VPN.',
+      'Debes interconectar muchas VPC y redes locales en un punto central: AWS Transit Gateway.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Site-to-Site VPN"
+  url="https://docs.aws.amazon.com/vpn/latest/s2svpn/VPC_VPN.html"
+/>
+<OfficialSource
+  title="Cómo funciona AWS Site-to-Site VPN"
+  url="https://docs.aws.amazon.com/vpn/latest/s2svpn/how_it_works.html"
+/>
+<OfficialSource
+  title="Conexiones Site-to-Site VPN aceleradas"
+  url="https://docs.aws.amazon.com/vpn/latest/s2svpn/accelerated-vpn.html"
+/>
+<OfficialSource
+  title="Opciones de enrutamiento de Site-to-Site VPN"
+  url="https://docs.aws.amazon.com/vpn/latest/s2svpn/VPNRoutingTypes.html"
+/>
