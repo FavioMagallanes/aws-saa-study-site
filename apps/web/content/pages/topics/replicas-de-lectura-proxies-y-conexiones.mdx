@@ -7,4 +7,149 @@ export const meta = {
   covers: ['2.1-k15', '2.2-k9', '3.3-k5', '3.3-k7', '3.3-s1', '4.3-k6', '4.3-k8'],
 };
 
-Contenido pendiente.
+Una base de datos relacional suele llegar a su límite por dos caminos: demasiadas lecturas para una sola instancia o demasiadas conexiones abiertas a la vez. Las réplicas de lectura atacan el primero, repartiendo las consultas entre varias copias. Amazon RDS Proxy ataca el segundo, agrupando y reutilizando conexiones. Saber cuál aplicar, y cuánto cuesta cada una, es una pregunta frecuente del examen.
+
+## Qué problema resuelve
+
+Una sola instancia de base de datos tiene una capacidad de cómputo y de E/S limitada. Si la carga es sobre todo de lectura, puedes desviar parte de esas consultas a copias de solo lectura y crecer de forma horizontal. Por otro lado, abrir una conexión nueva consume memoria y CPU en la base de datos; cuando muchas aplicaciones o funciones abren y cierran conexiones sin parar, la base de datos se satura aunque las consultas sean sencillas. Un proxy mantiene un grupo de conexiones abiertas y las comparte entre los clientes.
+
+## Conceptos clave
+
+### Réplicas de lectura de Amazon RDS
+
+Una réplica de lectura es una copia de solo lectura de una instancia de base de datos. Para crearla, Amazon RDS toma una instantánea de la instancia de origen, crea la réplica a partir de ella y después usa la replicación nativa del motor para enviarle los cambios de forma **asíncrona**. La instancia de origen pasa a ser la instancia principal; los clientes leen y escriben en ella y solo leen en la réplica.
+
+- **Cuándo usarlas**: para escalar más allá de la capacidad de cómputo o de E/S de una instancia en cargas con muchas lecturas; para atender lecturas mientras la principal no acepta E/S, por ejemplo durante copias de seguridad o mantenimiento; para ejecutar consultas de informes o de análisis sin cargar la base de producción; y como parte de la recuperación ante desastres.
+- **Datos posiblemente desactualizados**: como la replicación es asíncrona, la réplica puede ir por detrás de la principal. Puedes vigilar ese retraso con la métrica `ReplicaLag` de Amazon CloudWatch.
+- **Conexión**: las aplicaciones se conectan a una réplica igual que a cualquier instancia, con su propio punto de enlace. La aplicación decide qué consultas envía a la réplica.
+- **Creación manual**: en Amazon RDS las réplicas se crean y se eliminan a mano; el servicio no ajusta de forma automática su número según la demanda de lectura.
+- **Promoción**: puedes promover una réplica a instancia independiente, por ejemplo si falla la principal. RDS la reinicia antes de dejarla disponible y el proceso puede tardar varios minutos o más. Promover una réplica no afecta a las demás.
+- **Réplica de una réplica**: RDS for MySQL, RDS for MariaDB y algunas versiones de RDS for PostgreSQL permiten crear una réplica a partir de otra réplica; RDS for Oracle, RDS for SQL Server y RDS for Db2 no.
+
+### Réplicas de lectura frente a Multi-AZ
+
+Una implementación Multi-AZ mantiene una réplica en espera que se actualiza de forma **síncrona** y que **no** atiende lecturas: existe para la alta disponibilidad. Una réplica de lectura se actualiza de forma asíncrona y sí atiende lecturas. Puedes combinar las dos: una instancia principal con réplica en espera en otra zona de disponibilidad y, además, una o varias réplicas de lectura.
+
+### Réplicas entre regiones
+
+Puedes crear una réplica de lectura en una región de AWS distinta de la de origen para mejorar la recuperación ante desastres, para servir lecturas desde una región más cercana a los usuarios o para facilitar una migración entre regiones. Espera más retraso de replicación que dentro de la misma región, por la mayor distancia de red. Para crear una réplica cifrada en otra región, la instancia de origen debe estar cifrada.
+
+### Réplicas de Aurora
+
+En un clúster de Amazon Aurora, cada instancia que añades después de la de escritura es una réplica de Aurora: una instancia de solo lectura. Todas comparten el mismo volumen de almacenamiento del clúster, por lo que replicar los datos casi no requiere trabajo adicional y el retraso suele ser muy inferior a 100 milisegundos, aunque puede crecer cuando hay muchas escrituras.
+
+- Un clúster puede tener hasta 15 réplicas de Aurora repartidas entre las zonas de disponibilidad de la región.
+- El **punto de enlace de lectura** del clúster reparte las conexiones de solo lectura entre las réplicas disponibles.
+- Las réplicas también sirven como destino de conmutación por error: si falla la instancia de escritura, Aurora promueve una réplica, lo que es mucho más rápido que recrear la instancia principal.
+- **Aurora Auto Scaling** ajusta el número de réplicas según una política de seguimiento de destino basada en métricas de CloudWatch, con un mínimo y un máximo. Solo actúa sobre las réplicas, no sobre la instancia de escritura.
+- Para replicar entre regiones, Aurora ofrece las bases de datos globales de Aurora.
+
+### Amazon RDS Proxy
+
+RDS Proxy permite que las aplicaciones agrupen y compartan conexiones a la base de datos para escalar mejor.
+
+- **Grupo de conexiones**: el proxy mantiene un grupo de conexiones con la base de datos y las reutiliza, lo que evita el costo de memoria y CPU de abrir una conexión nueva cada vez. Los clientes pueden abrir muchas conexiones contra el proxy mientras este mantiene un número menor de conexiones de larga duración con la base de datos.
+- **Picos impredecibles**: puedes limitar cuántas conexiones crea el proxy. Las que no puede atender de inmediato las pone en cola o las limita; la latencia puede subir, pero la aplicación sigue escalando sin saturar la base de datos. Si se superan los límites configurados, rechaza conexiones.
+- **Conmutación por error más transparente**: el proxy se conecta de forma automática a la instancia en espera y conserva las conexiones de la aplicación. Según la documentación, reduce el tiempo de conmutación por error en implementaciones Multi-AZ porque evita las cachés de DNS.
+- **Seguridad**: puede exigir autenticación de IAM a los clientes y conectarse a la base de datos con autenticación de base de datos de IAM o con credenciales guardadas en AWS Secrets Manager.
+- **Requisitos de red**: el proxy debe estar en la misma VPC que la base de datos y no puede ser de acceso público. En instancias de RDS con réplicas, el proxy se asocia a la instancia de escritura, no a una réplica de lectura.
+- **Sin cambios de código** en la mayoría de las aplicaciones, porque el proxy es compatible con las versiones de motor que admite.
+
+### Cuándo conviene un proxy
+
+- Instancias que devuelven errores de "too many connections".
+- Funciones de AWS Lambda, que abren muchas conexiones cortas y se benefician del grupo de conexiones; además pueden usar la autenticación de IAM en lugar de guardar credenciales en el código.
+- Aplicaciones que abren y cierran muchas conexiones sin un mecanismo propio de agrupación.
+- Aplicaciones que mantienen muchas conexiones abiertas durante largo tiempo.
+- Instancias con clases pequeñas, como T2 o T3, donde el proxy ayuda a evitar quedarse sin memoria y reduce la CPU dedicada a establecer conexiones.
+
+### Costos de replicar y de conectar
+
+- **Réplicas**: cada réplica de lectura se factura como una instancia estándar, con la tarifa de su clase de instancia. Más réplicas significa más instancias que pagar, por eso conviene eliminar las que ya no necesitas.
+- **Transferencia de datos**: no se cobra la transferencia de replicación entre el origen y una réplica en la misma región. La replicación entre regiones sí genera cargos por la transferencia de datos que sale de la región de origen, tanto por la instantánea inicial como por cada cambio.
+- **Encadenar réplicas entre regiones**: en MySQL y MariaDB puedes crear una sola réplica en la región de destino y crear las demás a partir de ella; así solo pagas la transferencia del origen a esa primera réplica.
+- **Ajuste automático**: con Aurora Auto Scaling, cuando baja la carga se eliminan las réplicas innecesarias y no pagas por instancias que no usas.
+- **Proxy con instancias pequeñas**: en clases como T2 o T3, el proxy ayuda a evitar que la gestión de muchas conexiones agote la memoria o consuma CPU al establecer conexiones.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Mide el retraso con"
+    service="Amazon CloudWatch"
+    description="La métrica ReplicaLag muestra cuánto va por detrás una réplica, y Aurora Auto Scaling usa métricas de CloudWatch para añadir o quitar réplicas."
+  />
+  <ConnectionCard
+    relation="Guarda credenciales en"
+    service="AWS Secrets Manager"
+    description="RDS Proxy puede conectarse a la base de datos con credenciales guardadas en Secrets Manager."
+  />
+  <ConnectionCard
+    relation="Autentica clientes con"
+    service="AWS IAM"
+    description="RDS Proxy puede exigir autenticación de IAM a las aplicaciones, por ejemplo a funciones de Lambda, sin credenciales en el código."
+  />
+  <ConnectionCard
+    relation="Agrupa conexiones de"
+    service="AWS Lambda"
+    description="Las funciones abren muchas conexiones cortas; el proxy las reutiliza para no saturar la base de datos."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Réplicas de lectura cuando"
+    items={[
+      'La carga es sobre todo de lectura y supera la capacidad de una instancia.',
+      'Quieres separar informes o análisis de la base de producción.',
+      'Necesitas lecturas cerca de usuarios de otra región o una copia para recuperación ante desastres.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'El problema es la cantidad de conexiones, no las lecturas: RDS Proxy.',
+      'Necesitas alta disponibilidad con réplica síncrona: Multi-AZ.',
+      'Necesitas que el número de réplicas siga a la demanda: réplicas de Aurora con Aurora Auto Scaling.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Trabajar con réplicas de lectura de instancias de base de datos"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ReadRepl.html"
+/>
+<OfficialSource
+  title="Crear una réplica de lectura en otra región de AWS"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ReadRepl.XRgn.html"
+/>
+<OfficialSource
+  title="Promover una réplica de lectura a instancia independiente"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ReadRepl.Promote.html"
+/>
+<OfficialSource
+  title="Supervisar la replicación de lectura"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ReadRepl.Monitoring.html"
+/>
+<OfficialSource
+  title="Replicación con Amazon Aurora"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.Replication.html"
+/>
+<OfficialSource
+  title="Aurora Auto Scaling con réplicas de Aurora"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.Integrating.AutoScaling.html"
+/>
+<OfficialSource
+  title="Amazon RDS Proxy"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-proxy.html"
+/>
+<OfficialSource
+  title="Planificar dónde usar RDS Proxy"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-proxy-planning.html"
+/>
