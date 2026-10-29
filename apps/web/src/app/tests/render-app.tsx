@@ -9,19 +9,21 @@ import { routeTree } from '../../routeTree.gen';
 export const renderApp = async (
   path: string,
   progress: readonly ProgressEntry[] | 'unavailable' = [],
+  fetchOverride?: (input: string, init?: RequestInit) => Promise<Response>,
 ) => {
   vi.stubGlobal(
     'fetch',
-    vi.fn(() =>
-      progress === 'unavailable'
-        ? Promise.reject(new TypeError('Failed to fetch'))
-        : Promise.resolve(
-            new Response(JSON.stringify({ entries: progress }), {
-              status: 200,
-              headers: { 'content-type': 'application/json' },
-            }),
-          ),
-    ),
+    fetchOverride ??
+      vi.fn(() =>
+        progress === 'unavailable'
+          ? Promise.reject(new TypeError('Failed to fetch'))
+          : Promise.resolve(
+              new Response(JSON.stringify({ entries: progress }), {
+                status: 200,
+                headers: { 'content-type': 'application/json' },
+              }),
+            ),
+      ),
   );
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   const router = createRouter({

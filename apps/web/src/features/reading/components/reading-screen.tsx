@@ -3,6 +3,7 @@ import { useRef } from 'react';
 import type { PageMeta } from '@arquitecto/contracts/content';
 import { ButtonLink } from '../../../shared/ui/button/button-link';
 import { TextLink } from '../../../shared/ui/text-link/text-link';
+import { MarkReadControl } from '../../progress/components/mark-read-control';
 import { mdxComponents } from '../model/mdx-components';
 import type { PageContent } from '../model/page-content';
 import type { ReadingContext } from '../model/reading-context';
@@ -57,6 +58,10 @@ export const ReadingScreen = ({ page, Content, context }: ReadingScreenProps) =>
       <aside className={styles.reading__toc}>
         <ReadingToc articleRef={articleRef} pageId={page.id} />
       </aside>
+
+      <div className={styles.reading__actions}>
+        <MarkReadControl pageId={page.id} />
+      </div>
     </div>
   );
 };
