@@ -7,4 +7,96 @@ export const meta = {
   covers: ['1.2-k4', '1.2-k5'],
 };
 
-Contenido pendiente.
+Amazon Cognito es una plataforma de identidad para aplicaciones web y móviles. Funciona como directorio de usuarios, como servidor de autenticación y como servicio de autorización que entrega tokens de acceso de OAuth 2.0 y credenciales de AWS. Es la respuesta habitual cuando el examen habla de los usuarios finales de una aplicación, no de las personas que administran AWS.
+
+## Qué problema resuelve
+
+Dar acceso seguro a una aplicación exige registrar usuarios, iniciar su sesión, emitir tokens y, a veces, dejar que la aplicación use recursos de AWS en nombre de cada usuario. Construir todo eso a mano es costoso y arriesgado. Con Cognito autenticas y autorizas usuarios de su propio directorio, de un directorio empresarial o de proveedores de consumo como Google y Facebook, sin incrustar credenciales de AWS en la aplicación.
+
+## Conceptos clave
+
+Cognito responde dos preguntas distintas, con dos componentes que funcionan por separado o juntos.
+
+### Grupos de usuarios: quién es el usuario
+
+Un grupo de usuarios (user pool) es un directorio que actúa como proveedor de identidades OIDC: autentica a los usuarios y entrega JSON Web Tokens (JWT) a tu aplicación o API.
+
+- Los usuarios se registran e inician sesión con usuario y contraseña, claves de acceso (passkeys) o contraseñas de un solo uso por correo o SMS, y puedes exigir MFA.
+- Admite inicio de sesión social con Google, Facebook, Amazon y Apple, y con cualquier proveedor SAML u OIDC.
+- Ofrece páginas de inicio de sesión administradas, alojadas por Cognito.
+- La protección contra amenazas (en el plan Plus) detecta credenciales filtradas y actividad sospechosa, y puede bloquear el inicio de sesión.
+
+### Grupos de identidades: a qué recursos de AWS llega
+
+Un grupo de identidades (identity pool) cambia un token de confianza, de un grupo de usuarios, de un proveedor social o de un proveedor SAML u OIDC, por credenciales de AWS temporales y de privilegios limitados. Los permisos se definen con roles y políticas de IAM, y también puede dar credenciales a invitados que no iniciaron sesión. La federación en general se explica en el tema de federación de identidades y servicios de directorio.
+
+### Juntos
+
+Cuando la aplicación inicia la sesión del usuario y además necesita acceso directo a servicios como Amazon S3 o Amazon DynamoDB, autenticas con el grupo de usuarios y cambias su token en el grupo de identidades por credenciales de AWS.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Autoriza solicitudes a la API en"
+    service="Amazon API Gateway"
+    description="API Gateway puede validar el token del grupo de usuarios y controlar el acceso a una función de Lambda o a tu propia API."
+  />
+  <ConnectionCard
+    relation="Autentica en el balanceador con"
+    service="Elastic Load Balancing"
+    description="Un Application Load Balancer puede autenticar a los usuarios mediante grupos de usuarios de Cognito y liberar de ese trabajo a la aplicación."
+  />
+  <ConnectionCard
+    relation="Entrega permisos mediante"
+    service="AWS IAM"
+    description="Los roles y políticas de IAM definen qué puede hacer cada usuario con las credenciales temporales del grupo de identidades."
+  />
+  <ConnectionCard
+    relation="Se protege con"
+    service="AWS WAF"
+    description="AWS WAF puede proteger un grupo de usuarios de Cognito frente a solicitudes web no deseadas."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Amazon Cognito cuando"
+    items={[
+      'Necesitas registro e inicio de sesión para los usuarios de una aplicación web o móvil.',
+      'Quieres inicio de sesión con Google, Apple u otro proveedor SAML u OIDC.',
+      'La aplicación debe llamar a S3 o DynamoDB en nombre del usuario con credenciales temporales.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Son las personas de tu empresa que acceden a varias cuentas de AWS: AWS IAM Identity Center.',
+      'Necesitas detectar amenazas en tus cuentas y cargas de trabajo: Amazon GuardDuty.',
+      'Necesitas descubrir datos sensibles en Amazon S3: Amazon Macie.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon Cognito"
+  url="https://docs.aws.amazon.com/cognito/latest/developerguide/what-is-amazon-cognito.html"
+/>
+<OfficialSource
+  title="Grupos de usuarios de Amazon Cognito"
+  url="https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools.html"
+/>
+<OfficialSource
+  title="Grupos de identidades de Amazon Cognito"
+  url="https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-identity.html"
+/>
+<OfficialSource
+  title="Autenticar usuarios con un Application Load Balancer"
+  url="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/listener-authenticate-users.html"
+/>
