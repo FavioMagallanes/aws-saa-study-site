@@ -7,4 +7,84 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+VMware Cloud on AWS es una oferta de nube integrada, desarrollada en conjunto por AWS y VMware, que permite migrar y ampliar entornos locales basados en VMware vSphere a la nube de AWS. Se ejecuta sobre infraestructura bare metal de Amazon EC2 y la entregan, venden y respaldan VMware y sus socios.
+
+## Qué problema resuelve
+
+Muchas empresas tienen sus servidores virtualizados con vSphere y su operación construida alrededor de VMware. Cambiar de plataforma al migrar puede obligar a cambiar también herramientas y procesos. VMware Cloud on AWS permite llevar esas cargas a AWS manteniendo la plataforma de virtualización de VMware, y acceder desde ellas a los servicios de AWS.
+
+## Conceptos clave
+
+### Casos de uso
+
+AWS describe VMware Cloud on AWS como una opción pensada para organizaciones de infraestructura y operaciones de TI que quieren:
+
+- **Migrar** a la nube pública cargas de trabajo locales basadas en vSphere.
+- **Consolidar y ampliar** la capacidad de sus centros de datos.
+- **Optimizar, simplificar y modernizar** sus soluciones de recuperación ante desastres.
+
+### Relación con la estrategia de migración
+
+Llevar servidores de una plataforma local a la versión en la nube de esa misma plataforma corresponde a la estrategia de migración de reubicación (relocate). Esta estrategia no requiere comprar hardware nuevo, reescribir aplicaciones ni cambiar la operación existente, y es la forma más rápida de migrar porque no cambia la arquitectura de la aplicación.
+
+### VMware en tus instalaciones
+
+AWS Outposts tiene una variante, VMware Cloud on AWS Outposts, que permite usar en tus instalaciones el mismo plano de control y las mismas API de VMware con las que ya administras tu infraestructura. La variante nativa de Outposts, en cambio, usa las API y el plano de control de AWS.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Se ejecuta sobre"
+    service="Amazon EC2"
+    description="Usa infraestructura bare metal de Amazon EC2."
+  />
+  <ConnectionCard
+    relation="Lleva VMware a tu sitio con"
+    service="AWS Outposts"
+    description="La variante VMware Cloud on AWS Outposts usa el plano de control y las API de VMware en tus instalaciones."
+  />
+  <ConnectionCard
+    relation="Se compara con"
+    service="AWS Application Migration Service"
+    description="Replica servidores físicos, virtuales o de otras nubes y los convierte para lanzarlos como instancias en AWS."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="VMware Cloud on AWS cuando"
+    items={[
+      'Migras cargas de trabajo basadas en vSphere sin cambiar la plataforma de virtualización.',
+      'Quieres ampliar la capacidad de tu centro de datos de VMware en AWS.',
+      'Buscas modernizar la recuperación ante desastres de un entorno VMware.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Quieres replicar los servidores y convertirlos para ejecutarlos de forma nativa en AWS: AWS Application Migration Service.',
+      'Necesitas las API de AWS en tu propio centro de datos: AWS Outposts en su variante nativa.',
+      'No dependes de VMware y buscas control de servidores virtuales: Amazon EC2.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Servicios de cómputo de AWS: VMware Cloud on AWS"
+  url="https://docs.aws.amazon.com/whitepapers/latest/aws-overview/compute-services.html"
+/>
+<OfficialSource
+  title="Estrategias de migración"
+  url="https://docs.aws.amazon.com/prescriptive-guidance/latest/large-migration-guide/migration-strategies.html"
+/>
+<OfficialSource
+  title="Qué es AWS Application Migration Service"
+  url="https://docs.aws.amazon.com/mgn/latest/ug/what-is-application-migration-service.html"
+/>
