@@ -17,4 +17,167 @@ export const meta = {
   ],
 };
 
-Contenido pendiente.
+Elegir almacenamiento en AWS empieza por una pregunta sencilla: ¿cómo accede la aplicación a los datos? A partir de ahí se decide entre almacenamiento de bloques, de archivos o de objetos, y luego se ajusta el rendimiento, la durabilidad, la capacidad de crecer y el costo. El examen suele plantear un requisito (latencia, acceso compartido, crecimiento impredecible, presupuesto) y espera que reconozcas el servicio que lo cumple.
+
+## Qué problema resuelve
+
+No existe un único almacenamiento ideal para todo. Una base de datos en una sola instancia necesita latencia baja y constante; varios servidores que comparten archivos necesitan un sistema de archivos común; un sitio web con millones de imágenes necesita guardar y servir objetos a gran escala. Si eliges mal, pagas capacidad que no usas, te quedas sin rendimiento o tienes que migrar los datos más adelante. Las arquitecturas bien diseñadas suelen combinar varios servicios de almacenamiento, cada uno para lo que mejor hace.
+
+## Conceptos clave
+
+### Bloques, archivos y objetos
+
+- **Bloques**: divide los datos en bloques del mismo tamaño y los guarda de forma optimizada para un acceso rápido. Se conecta a una instancia de cómputo con acceso de baja latencia, por lo que encaja con aplicaciones que necesitan operaciones de E/S rápidas y constantes, como las bases de datos. Servicios: Amazon EBS y el almacén de instancia (instance store) de Amazon EC2.
+- **Archivos**: organiza los datos en una jerarquía de carpetas y archivos, y se monta con protocolos estándar como NFS y SMB. Sirve cuando varias instancias, contenedores o servidores locales necesitan leer y escribir los mismos datos. Servicios: Amazon EFS y la familia Amazon FSx.
+- **Objetos**: guarda los datos como objetos con un identificador único y metadatos, y se accede a ellos mediante una API por Internet. Es adecuado para cargas con muchas lecturas, como distribución de contenido, alojamiento web, análisis de big data y flujos de aprendizaje automático. Servicio: Amazon S3.
+
+### Amazon EBS
+
+Amazon EBS ofrece volúmenes de bloques persistentes para instancias EC2. Cada volumen se replica automáticamente dentro de su zona de disponibilidad para protegerte de fallos de componentes. AWS lo recomienda para datos que deben estar disponibles rápidamente y que necesitan persistir a largo plazo.
+
+- **Tipos de volumen**: los volúmenes SSD (General Purpose `gp3` y `gp2`, Provisioned IOPS `io2 Block Express` e `io1`) están optimizados para cargas transaccionales en las que domina el IOPS. Los Provisioned IOPS son para cargas que necesitan IOPS sostenidos o bases de datos con mucha E/S. Los volúmenes HDD están pensados para cargas en las que domina el rendimiento de transferencia (throughput).
+- **Durabilidad**: no todos los tipos ofrecen la misma; `io2 Block Express` está diseñado para una durabilidad mayor que `gp3`, `gp2` e `io1`.
+- **Instancias optimizadas para EBS**: para aprovechar todo el IOPS aprovisionado en un volumen, AWS recomienda usar instancias optimizadas para EBS.
+
+### Almacén de instancia
+
+El almacén de instancia ofrece almacenamiento de bloques temporal en discos conectados físicamente al servidor que aloja la instancia. Es ideal para datos que cambian con frecuencia y que puedes perder, como búferes, cachés y datos de trabajo, o datos que ya replicas en una flota de instancias. No tiene costo adicional: va incluido en el precio de la instancia. Su tamaño y cantidad de volúmenes dependen del tipo y tamaño de instancia, y no todos los tipos lo incluyen.
+
+### Amazon EFS
+
+Amazon EFS es almacenamiento de archivos sin servidor y totalmente elástico para cargas Linux, accesible con NFS desde EC2, ECS, EKS, Lambda y Fargate, y desde servidores locales mediante Direct Connect o Site-to-Site VPN. Permite que miles de instancias accedan en paralelo a los mismos datos.
+
+- **Tipos de sistema de archivos**: Regional (recomendado) guarda los datos de forma redundante en varias zonas de disponibilidad; One Zone los guarda en una sola zona, por lo que podrías perderlos si esa zona sufre daños.
+- **Modo de rendimiento**: General Purpose tiene la menor latencia por operación y es el que AWS recomienda; Max I/O es de una generación anterior y tiene más latencia.
+- **Modo de throughput**: Elastic (recomendado) escala el throughput automáticamente y conviene para cargas impredecibles o con picos; Provisioned sirve cuando conoces los requisitos de rendimiento; Bursting hace que el throughput crezca con la cantidad de datos almacenados.
+
+### Amazon FSx
+
+La familia Amazon FSx ofrece sistemas de archivos administrados que se alinean con sistemas y protocolos muy usados:
+
+- **FSx for Windows File Server**: sistema de archivos Windows nativo con soporte completo de SMB e integración con Active Directory, para aplicaciones Windows que necesitan almacenamiento compartido.
+- **FSx for Lustre**: sistema de archivos paralelo para cargas donde la velocidad importa, como HPC, aprendizaje automático, procesamiento de video y modelado financiero. Se integra con Amazon S3 para procesar los datos y devolver los resultados al bucket.
+- **FSx for NetApp ONTAP**: acceso con NFS, SMB e iSCSI desde Linux, Windows y macOS; útil para entornos mixtos o para migrar desde equipos NetApp locales.
+- **FSx for OpenZFS**: para trasladar a AWS servidores de archivos ZFS u otros basados en Linux sin cambiar las aplicaciones.
+
+### Amazon S3
+
+Amazon S3 es almacenamiento de objetos diseñado para una durabilidad de 99,999999999 % (11 nueves) y para guardar cualquier cantidad de datos. Escala automáticamente a tasas de solicitudes altas: cada prefijo admite miles de solicitudes por segundo y no hay límite en el número de prefijos de un bucket, así que puedes repartir y paralelizar las lecturas y escrituras entre prefijos. Ese escalado es gradual y, mientras ocurre, pueden aparecer errores 503 (Slow Down). Para más velocidad puedes añadir caché con CloudFront o ElastiCache, o usar S3 Transfer Acceleration para transferencias a larga distancia. Las clases de almacenamiento de S3 permiten ajustar el costo al patrón de acceso.
+
+### Durabilidad y replicación
+
+- **EBS**: replicado dentro de una sola zona de disponibilidad.
+- **EFS**: los sistemas Regional guardan los datos en varias zonas de disponibilidad; los One Zone, en una sola zona.
+- **S3**: todas las clases de almacenamiento, salvo S3 One Zone-IA y S3 Express One Zone, están diseñadas para resistir la pérdida física de una zona de disponibilidad. S3 One Zone-IA cuesta menos que S3 Standard-IA, pero solo conviene para datos que puedes volver a crear si la zona falla.
+- **Almacén de instancia**: temporal; no lo uses para datos que no puedes perder.
+- Para continuidad del negocio, puedes complementar con AWS Backup (incluida la replicación de copias entre regiones) y con funciones como el versionado y la replicación entre regiones de S3.
+
+### Rendimiento: qué medir
+
+Al evaluar el rendimiento, fíjate en las IOPS, el throughput, la latencia y el patrón de acceso. Pregúntate si la carga es sensible a la latencia, si la limita más el IOPS o el throughput, y si es de lectura o de escritura intensiva. Cada servicio tiene un techo de rendimiento distinto, y en EBS el techo depende del tipo de volumen y de la instancia.
+
+### Tamaño correcto y escalado del almacenamiento
+
+- **Pagas lo aprovisionado (EBS)**: en EBS pagas por la capacidad y el rendimiento que aprovisionas. Con Elastic Volumes puedes aumentar el tamaño, cambiar el tipo o ajustar el rendimiento de un volumen, normalmente sin desconectarlo ni reiniciar la instancia, pero no puedes reducirlo: para achicarlo tienes que crear un volumen más pequeño y migrar los datos. Por eso conviene empezar con un tamaño ajustado y crecer cuando haga falta.
+- **Crece solo (EFS y S3)**: EFS crece y se reduce automáticamente a medida que agregas y eliminas archivos, sin aprovisionar capacidad. S3 guarda cualquier cantidad de datos sin que tengas que reservar espacio. Son buenas opciones cuando el volumen futuro es incierto.
+- **Escalado automático del almacenamiento en bases de datos**: si la carga es impredecible, Amazon RDS storage autoscaling amplía el almacenamiento cuando detecta que se está quedando sin espacio libre, hasta un umbral máximo que tú defines. Evita tener que ampliarlo a mano, por ejemplo en una aplicación que gana usuarios rápidamente.
+
+### Costo
+
+Además del precio base del almacenamiento, influyen la capacidad, la transferencia de datos y la disponibilidad elegida. Para reducir el costo, AWS recomienda usar el servicio adecuado para el tipo de carga, entender cómo se usan los datos y aprovechar clases y niveles que se ajusten al patrón de acceso: S3 Intelligent-Tiering para objetos, las clases EFS Infrequent Access y EFS Archive para archivos fríos, o la clase FSx Intelligent-Tiering. Para estimar el costo antes de decidir, usa AWS Pricing Calculator.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Se conecta a"
+    service="Amazon EC2"
+    description="EBS y el almacén de instancia ofrecen bloques a una instancia; EFS y FSx ofrecen archivos compartidos entre muchas instancias."
+  />
+  <ConnectionCard
+    relation="Se acelera con"
+    service="Amazon CloudFront"
+    description="Guarda en caché el contenido de S3 cerca de los usuarios para reducir la latencia y la carga sobre el bucket."
+  />
+  <ConnectionCard
+    relation="Se protege con"
+    service="AWS Backup"
+    description="Centraliza las copias de seguridad de EBS, EFS, FSx y otros servicios, con replicación de copias entre regiones."
+  />
+  <ConnectionCard
+    relation="Se vigila con"
+    service="Amazon CloudWatch"
+    description="Las métricas de uso, como el espacio libre o el uso de throughput, indican cuándo ajustar el tamaño o el modo de rendimiento."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Amazon EBS cuando"
+    items={[
+      'Una sola instancia necesita almacenamiento persistente de baja latencia, como una base de datos.',
+      'Necesitas IOPS sostenidos y predecibles: volúmenes Provisioned IOPS.',
+      'Quieres elegir con precisión la capacidad y el rendimiento que pagas.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Varias instancias Linux comparten archivos y el tamaño es impredecible: Amazon EFS.',
+      'Necesitas SMB y Windows, Lustre para HPC, o compatibilidad con NetApp u OpenZFS: Amazon FSx.',
+      'Guardas objetos a gran escala con muchas lecturas o acceso desde Internet: Amazon S3.',
+      'Son datos temporales que puedes perder, como cachés o datos de trabajo: almacén de instancia.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Elegir un servicio de almacenamiento de AWS"
+  url="https://docs.aws.amazon.com/decision-guides/latest/storage-on-aws-how-to-choose/choosing-aws-storage-service.html"
+/>
+<OfficialSource
+  title="Servicios de almacenamiento de AWS"
+  url="https://docs.aws.amazon.com/whitepapers/latest/aws-overview/storage-services.html"
+/>
+<OfficialSource
+  title="Tipos de volúmenes de Amazon EBS"
+  url="https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html"
+/>
+<OfficialSource
+  title="Modificar un volumen de EBS con Elastic Volumes"
+  url="https://docs.aws.amazon.com/ebs/latest/userguide/ebs-modify-volume.html"
+/>
+<OfficialSource
+  title="Almacén de instancia de EC2"
+  url="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/InstanceStorage.html"
+/>
+<OfficialSource
+  title="Qué es Amazon EFS"
+  url="https://docs.aws.amazon.com/efs/latest/ug/whatisefs.html"
+/>
+<OfficialSource
+  title="Especificaciones de rendimiento de Amazon EFS"
+  url="https://docs.aws.amazon.com/efs/latest/ug/performance.html"
+/>
+<OfficialSource
+  title="Qué es Amazon FSx for Lustre"
+  url="https://docs.aws.amazon.com/fsx/latest/LustreGuide/what-is.html"
+/>
+<OfficialSource
+  title="Clases de almacenamiento de Amazon S3"
+  url="https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html"
+/>
+<OfficialSource
+  title="Optimizar el rendimiento de Amazon S3"
+  url="https://docs.aws.amazon.com/AmazonS3/latest/userguide/optimizing-performance.html"
+/>
+<OfficialSource
+  title="Escalado automático del almacenamiento de Amazon RDS"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_PIOPS.Autoscaling.html"
+/>
