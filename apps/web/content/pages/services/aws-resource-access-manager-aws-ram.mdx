@@ -7,4 +7,102 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+AWS Resource Access Manager (AWS RAM) te permite compartir recursos de forma segura con otras cuentas de AWS, con toda tu organización o con unidades organizativas (OU) de AWS Organizations y, para algunos tipos de recurso, con roles y usuarios de IAM. Creas el recurso una vez y lo pones a disposición de las demás cuentas.
+
+## Qué problema resuelve
+
+En un entorno de varias cuentas, duplicar el mismo recurso en cada cuenta multiplica el trabajo y obliga a mantener idénticas sus políticas y permisos. Con AWS RAM el recurso vive en una sola cuenta, se gestiona con un único conjunto de políticas y permisos, y las demás cuentas lo usan como si fuera propio. La estrategia de varias cuentas se explica en el tema «Estrategia de varias cuentas: Organizations, SCP y Control Tower».
+
+## Conceptos clave
+
+### Recurso compartido
+
+Para compartir creas un recurso compartido (resource share) en el que indicas:
+
+- **Los recursos**: deben estar en la misma región que el recurso compartido. AWS RAM es un servicio regional y las cuentas consumidoras acceden a los recursos regionales solo en la región donde se crearon.
+- **Las entidades principales**: cuentas individuales, toda la organización, una OU o, si el tipo lo admite, roles y usuarios de IAM.
+- **Un permiso administrado por tipo de recurso**: define qué pueden hacer las otras cuentas. Para cuentas distintas de la propietaria es el máximo; el administrador de cada cuenta concede después el acceso a sus roles y usuarios con políticas de IAM que no pueden superarlo.
+
+La cuenta propietaria conserva la propiedad total. En la cuenta consumidora siguen aplicándose sus políticas de IAM y sus políticas de control de servicios (SCP).
+
+### Dentro y fuera de la organización
+
+- Si activas el uso compartido con AWS Organizations, compartes con la organización o con una OU sin enumerar cuentas y sin invitaciones. Por defecto, una cuenta que sale de la organización pierde el acceso.
+- Si compartes con una cuenta fuera de tu organización, esa cuenta recibe una invitación que debe aceptar. Algunos tipos de recurso solo se pueden compartir dentro de la organización.
+
+### Frente a las políticas basadas en recursos
+
+Algunos recursos se pueden compartir entre cuentas con una política basada en recursos, pero así no aprovechas lo que añade AWS RAM: compartir con una OU sin listar cuentas, que el recurso aparezca en la consola y la API del servicio en la cuenta consumidora, y que el propietario vea quién tiene acceso a cada recurso.
+
+### Ejemplos que aparecen en arquitecturas
+
+- **Subredes de una VPC**: la cuenta propietaria comparte subredes con cuentas de la misma organización, que lanzan en ellas instancias de EC2, bases de datos de RDS o funciones de Lambda. Reduce el número de VPC que creas y administras.
+- **Transit gateways**: varias cuentas enrutan el tráfico entre sus VPC y las redes locales por un transit gateway central.
+- **Listas de prefijos y reglas de Resolver de Route 53**: se definen una vez y las usan varias cuentas.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Comparte dentro de"
+    service="AWS Organizations"
+    description="Comparte con toda la organización o con una OU sin invitaciones ni listas de cuentas."
+  />
+  <ConnectionCard
+    relation="Comparte subredes de"
+    service="Amazon VPC"
+    description="Varias cuentas despliegan sus recursos en una VPC administrada de forma central."
+  />
+  <ConnectionCard
+    relation="Centraliza la red con"
+    service="AWS Transit Gateway"
+    description="Un solo transit gateway compartido conecta las VPC de varias cuentas y las redes locales."
+  />
+  <ConnectionCard
+    relation="Se audita con"
+    service="AWS CloudTrail y Amazon CloudWatch"
+    description="Dan visibilidad sobre el uso de los recursos compartidos."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="AWS RAM cuando"
+    items={[
+      'Quieres crear un recurso una vez y usarlo desde varias cuentas, como subredes o un transit gateway.',
+      'Necesitas compartir con toda la organización o con una OU sin enumerar cuentas.',
+      'Quieres que el recurso compartido aparezca en la consola de la cuenta consumidora.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Solo necesitas dar acceso a entidades de IAM de otra cuenta y el recurso admite una política basada en recursos: esa política.',
+      'Necesitas que una identidad actúe en otra cuenta: un rol de IAM que asume con AWS STS.',
+      'Quieres conectar dos VPC sin compartir subredes: interconexión de VPC o AWS Transit Gateway.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Resource Access Manager"
+  url="https://docs.aws.amazon.com/ram/latest/userguide/what-is.html"
+/>
+<OfficialSource
+  title="Compartir tus recursos de AWS"
+  url="https://docs.aws.amazon.com/ram/latest/userguide/getting-started-sharing.html"
+/>
+<OfficialSource
+  title="Recursos de AWS que se pueden compartir"
+  url="https://docs.aws.amazon.com/ram/latest/userguide/shareable.html"
+/>
+<OfficialSource
+  title="Compartir subredes de una VPC con otras cuentas"
+  url="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-sharing.html"
+/>
