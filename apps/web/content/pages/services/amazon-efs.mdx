@@ -7,4 +7,97 @@ export const meta = {
   covers: ['3.1-k2'],
 };
 
-Contenido pendiente.
+Amazon EFS (Elastic File System) es almacenamiento de archivos sin servidor y totalmente elástico. Permite compartir archivos entre muchos clientes sin aprovisionar ni administrar la capacidad ni el rendimiento: el sistema de archivos crece y se reduce solo a medida que agregas y eliminas archivos.
+
+## Qué problema resuelve
+
+Cuando varias instancias, contenedores o funciones necesitan leer y escribir los mismos archivos, un disco conectado a una sola instancia no sirve, y montar un servidor de archivos propio obliga a desplegarlo, parchearlo y mantenerlo. EFS ofrece un sistema de archivos compartido, administrado por AWS, al que se accede con el protocolo NFS (versiones 4.0 y 4.1), así que las aplicaciones y herramientas existentes funcionan sin cambios. Dentro de los servicios de almacenamiento, EFS es la opción de **archivos compartidos para Linux**; la comparación con bloques y objetos está en el tema «Elegir almacenamiento por rendimiento y escala».
+
+## Conceptos clave
+
+### Quién puede montarlo
+
+Se puede usar desde Amazon EC2, Amazon ECS, Amazon EKS, AWS Lambda y AWS Fargate, con acceso masivamente paralelo a los mismos datos. Los servidores locales con Linux también pueden montarlo a través de AWS Direct Connect o una VPN administrada de AWS. **No** se admite con instancias EC2 con Windows.
+
+### Tipos de sistema de archivos
+
+- **Regional (recomendado)**: guarda los datos de forma redundante en varias zonas de disponibilidad de la región y sigue disponible aunque una zona falle.
+- **One Zone**: guarda los datos en una sola zona; si esa zona sufre daños, podrías perderlos.
+
+En la VPC creas **destinos de montaje** (mount targets), que dan una dirección IP para montar el sistema por NFS. AWS recomienda montar desde el destino de la misma zona que la instancia, por rendimiento y costo.
+
+### Rendimiento
+
+Para la mayoría de las cargas, AWS recomienda los modos por defecto: el modo de rendimiento **General Purpose**, ideal para aplicaciones sensibles a la latencia como servidores web, gestores de contenido o directorios personales, y el modo de throughput **Elastic**, que sube y baja el throughput automáticamente según la actividad.
+
+### Clases de almacenamiento y ciclo de vida
+
+La administración del ciclo de vida mueve los archivos según su último acceso entre las clases **Standard**, **Infrequent Access (IA)**, para datos que se leen pocas veces al trimestre, y **Archive**, para datos que se leen pocas veces al año o menos. También puedes hacer que un archivo vuelva a Standard cuando se accede a él.
+
+### Seguridad
+
+EFS admite cifrado en reposo, que activas al crear el sistema de archivos, y cifrado en tránsito, que activas al montarlo. El acceso de los clientes NFS se controla con políticas de IAM y con reglas de red como los grupos de seguridad, y los permisos de archivo siguen el modelo POSIX.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Se monta desde"
+    service="Amazon EC2"
+    description="Muchas instancias Linux de distintas zonas montan el mismo sistema de archivos mediante sus destinos de montaje."
+  />
+  <ConnectionCard
+    relation="Da archivos compartidos a"
+    service="AWS Lambda"
+    description="Las funciones, igual que las tareas de ECS, EKS y Fargate, pueden leer y escribir en un sistema de archivos EFS."
+  />
+  <ConnectionCard
+    relation="Se respalda con"
+    service="AWS Backup"
+    description="AWS Backup centraliza las copias de los sistemas de archivos; EFS prioriza siempre las operaciones de archivos sobre las de copia."
+  />
+  <ConnectionCard
+    relation="Se monta desde local con"
+    service="AWS Direct Connect"
+    description="Los servidores Linux locales montan EFS por Direct Connect o VPN para migrar datos o procesarlos en EC2."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Amazon EFS cuando"
+    items={[
+      'Varias instancias o contenedores Linux deben compartir los mismos archivos con NFS.',
+      'El volumen de datos es impredecible y no quieres aprovisionar capacidad.',
+      'Necesitas que los archivos sigan disponibles aunque falle una zona: sistema Regional.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Las aplicaciones son Windows y necesitan SMB: Amazon FSx for Windows File Server.',
+      'Una sola instancia necesita un disco de baja latencia, como una base de datos: Amazon EBS.',
+      'Guardas objetos accesibles por API o desde internet a gran escala: Amazon S3.',
+      'Cargas de HPC que necesitan un sistema de archivos paralelo: Amazon FSx for Lustre.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon EFS"
+  url="https://docs.aws.amazon.com/efs/latest/ug/whatisefs.html"
+/>
+<OfficialSource
+  title="Cómo funciona Amazon EFS"
+  url="https://docs.aws.amazon.com/efs/latest/ug/how-it-works.html"
+/>
+<OfficialSource
+  title="Administrar el ciclo de vida del almacenamiento en Amazon EFS"
+  url="https://docs.aws.amazon.com/efs/latest/ug/lifecycle-management-efs.html"
+/>
