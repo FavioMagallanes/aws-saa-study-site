@@ -7,4 +7,80 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Amazon Managed Grafana es un servicio de visualización de datos totalmente administrado basado en Grafana, una herramienta de código abierto muy extendida. Sirve para consultar, correlacionar y visualizar métricas, registros y trazas operativas que vienen de varias fuentes, sin operar tus propios servidores de Grafana.
+
+## Qué problema resuelve
+
+Montar Grafana por tu cuenta implica aprovisionar servidores, configurarlos, escalarlos y mantenerlos, además de resolver la autenticación de los usuarios y el acceso a cada fuente de datos. Amazon Managed Grafana se encarga del aprovisionamiento, la configuración, el escalado y el mantenimiento, y añade funciones de seguridad para cumplir requisitos de gobierno corporativo, como inicio de sesión único, control de acceso a los datos e informes de auditoría.
+
+## Conceptos clave
+
+- **Espacios de trabajo (workspaces)**: son servidores de Grafana lógicamente aislados. Dentro de cada uno creas paneles y visualizaciones sin construir ni desplegar hardware.
+- **Fuentes de datos**: son los almacenes que consultas desde Grafana. Se integra con fuentes de AWS que recogen datos operativos, como Amazon CloudWatch, Amazon OpenSearch Service, AWS X-Ray, Amazon Timestream y Amazon Managed Service para Prometheus, y también con muchas fuentes de código abierto, de terceros y de otras nubes.
+- **Varias fuentes en un panel**: puedes combinar datos de varias fuentes en un mismo panel de control.
+- **Permisos para fuentes de AWS**: incluye una función de aprovisionamiento de permisos para agregar servicios de AWS compatibles como fuentes de datos.
+- **Autenticación**: los usuarios inician sesión mediante proveedores de identidad compatibles con SAML 2.0 o mediante AWS IAM Identity Center.
+- **Precio por usuario**: se cobra por usuario activo en cada espacio de trabajo.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Visualiza métricas de"
+    service="Amazon Managed Service para Prometheus"
+    description="Consulta las métricas de contenedores que guarda el espacio de trabajo de Prometheus para mostrarlas en paneles."
+  />
+  <ConnectionCard
+    relation="Lee métricas y registros de"
+    service="Amazon CloudWatch"
+    description="Usa CloudWatch como fuente de datos para combinar sus métricas con las de otras herramientas."
+  />
+  <ConnectionCard
+    relation="Muestra trazas de"
+    service="AWS X-Ray"
+    description="Incorpora los datos de rastreo de las solicitudes junto a las métricas y los registros."
+  />
+  <ConnectionCard
+    relation="Autentica usuarios con"
+    service="AWS IAM Identity Center"
+    description="Permite que los usuarios entren a los espacios de trabajo con su identidad de la organización."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Managed Grafana cuando"
+    items={[
+      'Ya usas paneles de Grafana y no quieres operar sus servidores.',
+      'Necesitas correlacionar métricas, registros y trazas de varias fuentes en un mismo panel.',
+      'Debes combinar datos de AWS con fuentes de código abierto o de otras nubes.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Te bastan métricas, alarmas y paneles de los servicios de AWS: Amazon CloudWatch.',
+      'Buscas visualización de datos e inteligencia de negocio para usuarios de negocio: Amazon Quick, con su función Quick Sight.',
+      'Necesitas seguir una solicitud entre servicios: AWS X-Ray.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon Managed Grafana"
+  url="https://docs.aws.amazon.com/grafana/latest/userguide/what-is-Amazon-Managed-Service-Grafana.html"
+/>
+<OfficialSource
+  title="Conectar fuentes de datos"
+  url="https://docs.aws.amazon.com/grafana/latest/userguide/AMG-data-sources.html"
+/>
+<OfficialSource
+  title="Qué es Amazon Quick"
+  url="https://docs.aws.amazon.com/quick/latest/userguide/what-is.html"
+/>
