@@ -7,4 +7,162 @@ export const meta = {
   covers: ['2.1-k3', '3.3-k2', '3.3-s5', '4.3-k3'],
 };
 
-Contenido pendiente.
+Una caché guarda una copia de datos que se consultan a menudo en un lugar más rápido que su origen, normalmente la memoria. Bien usada, reduce la latencia, quita carga a la base de datos o al servidor de origen y puede bajar costos. Mal usada, sirve datos desactualizados o desperdicia recursos. En AWS hay cachés en varias capas, y el examen espera que sepas cuál integrar según el requisito.
+
+## Qué problema resuelve
+
+Consultar una base de datos siempre es más lento y más caro que leer una clave de una caché en memoria, y algunas consultas, como las que unen varias tablas o hacen cálculos intensivos, son especialmente costosas. Si guardas el resultado en caché, pagas el precio de la consulta una vez y lo reutilizas muchas veces. Poner una caché entre los servidores de aplicación y la base de datos reduce la carga de lectura sobre la base de datos, lo que puede liberar recursos para más escrituras, y además mejora la latencia.
+
+## Conceptos clave
+
+### Qué conviene almacenar en caché
+
+Considera guardar un dato en caché cuando:
+
+- Es lento o caro de obtener en comparación con leerlo de la caché.
+- Los usuarios lo consultan con frecuencia.
+- Cambia poco o, si cambia rápido, que esté algo desactualizado no es un problema grave.
+
+No tiene sentido almacenar en caché datos que cambian rápidamente o que casi nunca se consultan, ni resultados que suelen ser únicos, como los de una búsqueda. Y recuerda que los datos en caché deben tratarse siempre como potencialmente desactualizados: decide cuánta antigüedad tolera cada caso de uso.
+
+### Estrategias para llenar y mantener la caché
+
+- **Carga diferida (lazy loading)**: la aplicación pide el dato a la caché; si está y no ha caducado (acierto), lo usa. Si no está (fallo), lo lee de la base de datos y lo escribe en la caché para la próxima vez. Solo se guarda lo que se pide, y si falla un nodo de la caché la aplicación sigue funcionando, aunque con más latencia. Los inconvenientes: cada fallo cuesta tres viajes (caché, base de datos y escritura en la caché) y los datos pueden quedar desactualizados porque la caché no se entera de los cambios en la base de datos.
+- **Escritura simultánea (write-through)**: cada vez que se escribe en la base de datos, también se escribe en la caché. Los datos de la caché nunca están desactualizados, a cambio de una penalización en cada escritura. Los inconvenientes: un nodo nuevo empieza sin datos hasta que se escriben, y se llena la caché de datos que quizá nunca se lean.
+- **Tiempo de vida (TTL)**: un valor que indica cuántos segundos faltan para que una clave caduque. Al leer una clave caducada, se trata como si no existiera, se consulta la base de datos y se actualiza la caché. Combinar TTL con carga diferida o con escritura simultánea aprovecha lo mejor de cada estrategia y evita que la caché se llene de datos innecesarios.
+
+La documentación de ElastiCache sugiere combinar carga diferida con escritura simultánea para reducir los datos ausentes, y añadir un TTL a cada escritura.
+
+### Amazon ElastiCache
+
+ElastiCache es un servicio administrado para configurar, operar y escalar un almacén de datos en memoria o una caché distribuida. Funciona con los motores Valkey, Memcached y Redis OSS, y se puede usar de dos formas:
+
+- **Sin servidor**: creas una caché de alta disponibilidad en menos de un minuto sin aprovisionar nodos ni planificar capacidad; ElastiCache escala según lo que use la aplicación.
+- **Clústeres basados en nodos**: eliges el tipo y número de nodos y su ubicación en zonas de disponibilidad, para tener más control. Eres responsable de dimensionar la capacidad.
+
+Para elegir el motor:
+
+- **Memcached**: el modelo más simple, nodos grandes con varios núcleos o hilos, y capacidad de añadir y quitar nodos según la demanda. No ofrece replicación ni conmutación por error automática.
+- **Valkey o Redis OSS**: tipos de datos complejos (como conjuntos ordenados, útiles para tablas de clasificación), replicación para alta disponibilidad, conmutación por error automática, publicación/suscripción y copias de seguridad.
+
+ElastiCache también sirve para guardar datos de sesión fuera de los servidores de aplicación, lo que ayuda a que la aplicación sea sin estado.
+
+### DynamoDB Accelerator (DAX)
+
+DAX es una caché en memoria compatible con la API de DynamoDB. Reduce el tiempo de respuesta de las lecturas de consistencia final de milisegundos de un solo dígito a microsegundos, y requiere cambios mínimos en una aplicación existente. Es ideal para aplicaciones que necesitan la respuesta de lectura más rápida posible, para claves muy consultadas (claves "calientes"), por ejemplo un producto en oferta durante un día, y para cargas con muchas lecturas sensibles al costo.
+
+### Caché en el borde y en la API
+
+- **Amazon CloudFront**: guarda copias del contenido en ubicaciones de borde de todo el mundo. Si el contenido está en la ubicación más cercana al usuario, lo entrega de inmediato; si no, lo pide al origen, como un bucket de S3 o un servidor HTTP. Controlas cuánto tiempo permanece cada objeto con los valores de TTL de la política de caché o con los encabezados `Cache-Control` y `Expires`. Una duración más larga mejora el rendimiento y reduce la carga del origen; una más corta permite servir contenido dinámico. Aumentar la proporción de aciertos de caché (cache hit ratio) evita peticiones al origen, y Origin Shield añade una capa de caché adicional delante del origen.
+- **Amazon API Gateway**: puedes habilitar caché en una etapa de una API REST para guardar las respuestas del backend durante un TTL (300 segundos por defecto, máximo 3.600). Reduce las llamadas al backend y mejora la latencia. Por defecto solo se almacenan en caché los métodos GET.
+
+### Caché y costos
+
+La caché también es una herramienta de optimización de costos de las bases de datos:
+
+- Una caché delante de la base de datos reduce su carga de lectura, y una consulta costosa se paga una sola vez aunque su resultado se lea muchas veces.
+- Con DynamoDB, en lugar de aumentar la capacidad de lectura aprovisionada (con costo adicional), puedes descargar las lecturas a DAX y comprar menos unidades de capacidad de lectura.
+- Con CloudFront, cada acierto en el borde es una petición que no llega al origen.
+- La caché tiene su propio costo: la de API Gateway se cobra por hora según su tamaño y no entra en la capa gratuita, y en un clúster de ElastiCache basado en nodos eliges el tipo y el número de nodos. Compara ese costo con el ahorro que obtienes.
+
+Como alternativa para escalar lecturas sin caché, las réplicas de lectura de Amazon RDS son copias de solo lectura a las que puedes enviar consultas para quitar carga a la instancia principal.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Descarga lecturas de"
+    service="Amazon RDS y Amazon Aurora"
+    description="ElastiCache se coloca entre la aplicación y la base de datos para servir desde memoria los datos más consultados."
+  />
+  <ConnectionCard
+    relation="Acelera las lecturas de"
+    service="Amazon DynamoDB"
+    description="DAX es compatible con la API de DynamoDB y responde en microsegundos a lecturas de consistencia final."
+  />
+  <ConnectionCard
+    relation="Entrega contenido desde el borde con"
+    service="Amazon CloudFront"
+    description="Guarda en caché objetos de S3 o de servidores HTTP cerca de los usuarios y reduce la carga del origen."
+  />
+  <ConnectionCard
+    relation="Guarda respuestas de la API con"
+    service="Amazon API Gateway"
+    description="La caché de etapa responde sin llamar al backend durante el TTL configurado."
+  />
+  <ConnectionCard
+    relation="Supervisa los aciertos con"
+    service="Amazon CloudWatch"
+    description="API Gateway publica las métricas CacheHitCount y CacheMissCount para medir cuánto sirve la caché."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Integra una caché cuando"
+    items={[
+      'Los mismos datos se leen muchas veces y cambian poco.',
+      'Una consulta es lenta o costosa y su resultado se puede reutilizar.',
+      'Quieres reducir la latencia o la carga de la base de datos o del origen sin escalar la base de datos.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Qué caché usar"
+    items={[
+      'Base de datos relacional o datos de sesión: Amazon ElastiCache; Memcached si basta lo simple, Valkey o Redis OSS si necesitas replicación o datos complejos.',
+      'Tablas de DynamoDB con lecturas en microsegundos o claves calientes: DAX.',
+      'Contenido web estático o dinámico para usuarios en todo el mundo: CloudFront; respuestas de una API REST: caché de API Gateway.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon ElastiCache"
+  url="https://docs.aws.amazon.com/AmazonElastiCache/latest/dg/WhatIs.html"
+/>
+<OfficialSource
+  title="Estrategias de caché"
+  url="https://docs.aws.amazon.com/AmazonElastiCache/latest/dg/Strategies.html"
+/>
+<OfficialSource
+  title="Casos de uso comunes de ElastiCache"
+  url="https://docs.aws.amazon.com/AmazonElastiCache/latest/dg/elasticache-use-cases.html"
+/>
+<OfficialSource
+  title="Comparar los motores Valkey, Memcached y Redis OSS"
+  url="https://docs.aws.amazon.com/AmazonElastiCache/latest/dg/SelectEngine.html"
+/>
+<OfficialSource
+  title="Aceleración en memoria con DynamoDB Accelerator (DAX)"
+  url="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DAX.html"
+/>
+<OfficialSource
+  title="Qué es Amazon CloudFront"
+  url="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Introduction.html"
+/>
+<OfficialSource
+  title="Cuánto tiempo permanece el contenido en la caché de CloudFront"
+  url="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Expiration.html"
+/>
+<OfficialSource
+  title="Aumentar la proporción de aciertos de caché en CloudFront"
+  url="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/cache-hit-ratio.html"
+/>
+<OfficialSource
+  title="Configuración de caché para API REST en API Gateway"
+  url="https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-caching.html"
+/>
+<OfficialSource
+  title="Almacén de datos de los microservicios"
+  url="https://docs.aws.amazon.com/whitepapers/latest/microservices-on-aws/data-store.html"
+/>
+<OfficialSource
+  title="Réplicas de lectura de Amazon RDS"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ReadRepl.html"
+/>
