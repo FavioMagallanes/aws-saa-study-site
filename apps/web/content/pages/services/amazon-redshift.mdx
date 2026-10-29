@@ -7,4 +7,86 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Amazon Redshift es un servicio de almacén de datos (data warehouse) totalmente administrado y a escala de petabytes en la nube. Consultas los datos con SQL y con las herramientas de inteligencia de negocio (BI) que ya usas. Puedes crear clústeres aprovisionados o usar Amazon Redshift Serverless, que aprovisiona los recursos y escala la capacidad automáticamente.
+
+## Qué problema resuelve
+
+Las bases de datos transaccionales están pensadas para leer y escribir pocos registros completos a la vez. Los informes analíticos hacen lo contrario: leen unas pocas columnas de millones de filas y unen tablas muy grandes. Un almacén de datos como Redshift es la mejor opción cuando necesitas reunir datos de muchos orígenes, como inventario, finanzas y ventas, en un formato común, conservarlos mucho tiempo y crear informes complejos sobre el historial. Su motor está optimizado para consultas con muchas uniones entre tablas muy grandes.
+
+## Conceptos clave
+
+- **Clúster y nodos**: un clúster aprovisionado tiene un nodo líder y uno o más nodos de cómputo. El líder recibe las consultas, crea el plan de ejecución y coordina su ejecución en paralelo en los nodos de cómputo, que devuelven los resultados intermedios al líder.
+- **Almacenamiento columnar y MPP**: Redshift combina procesamiento masivamente paralelo, almacenamiento por columnas y compresión elegida para cada tipo de dato. Como las consultas analíticas suelen leer pocas columnas, leer por columnas reduce mucho la E/S de disco.
+- **Almacenamiento administrado**: con los tipos de nodo RG y RA3 escalas y pagas el cómputo y el almacenamiento por separado; los datos que no caben en los SSD locales se descargan automáticamente a Amazon S3.
+- **Redshift Serverless**: analizas datos sin configurar un almacén aprovisionado. Los recursos se aprovisionan solos, la capacidad escala para cargas exigentes o impredecibles y no pagas mientras el almacén está inactivo.
+- **Carga con COPY**: el comando `COPY` carga datos en paralelo desde archivos en S3, desde una tabla de DynamoDB o desde hosts remotos. AWS recomienda usarlo para grandes volúmenes en lugar de sentencias `INSERT` individuales.
+- **Redshift Spectrum**: consulta datos estructurados y semiestructurados en archivos de S3 sin cargarlos en tablas de Redshift. Varios clústeres pueden consultar los mismos datos de S3 sin copiarlos.
+- **Uso compartido de datos (data sharing)**: comparte datos en vivo, sin copiarlos ni moverlos, entre clústeres, grupos de trabajo sin servidor, cuentas y regiones. Un caso típico es un clúster central de ETL que comparte datos con varios clústeres de BI, aislando cada carga.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Carga y consulta datos de"
+    service="Amazon S3"
+    description="COPY carga archivos de S3 en paralelo y Redshift Spectrum los consulta sin cargarlos."
+  />
+  <ConnectionCard
+    relation="Recibe flujos de"
+    service="Amazon Data Firehose"
+    description="Firehose deja los datos en S3 y ejecuta COPY para cargarlos en Redshift."
+  />
+  <ConnectionCard
+    relation="Se visualiza con"
+    service="Amazon Quick"
+    description="Redshift y Redshift Spectrum son orígenes de datos para los paneles de Quick Sight."
+  />
+  <ConnectionCard
+    relation="Publica datos en"
+    service="AWS Data Exchange"
+    description="Puedes listar conjuntos de datos de Redshift en el catálogo de Data Exchange para que otros se suscriban y los consulten."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Amazon Redshift cuando"
+    items={[
+      'Reúnes datos de muchos orígenes en un almacén para informes de BI sobre el historial.',
+      'Tus consultas unen muchas tablas muy grandes.',
+      'Necesitas compartir datos en vivo entre equipos o cuentas sin copiarlos.',
+      'Las cargas son impredecibles y no quieres administrar capacidad: Redshift Serverless.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Solo haces consultas ad hoc sobre datos en S3, sin cargarlos: Amazon Athena.',
+      'Procesas datos con código propio en Spark o Hadoop: Amazon EMR.',
+      'La carga es transaccional (OLTP) y lee y escribe registros completos de pocos en pocos: una base de datos relacional como Amazon RDS o Amazon Aurora.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon Redshift"
+  url="https://docs.aws.amazon.com/redshift/latest/mgmt/welcome.html"
+/>
+<OfficialSource
+  title="Clústeres aprovisionados de Amazon Redshift"
+  url="https://docs.aws.amazon.com/redshift/latest/mgmt/working-with-clusters.html"
+/>
+<OfficialSource
+  title="Amazon Redshift Spectrum"
+  url="https://docs.aws.amazon.com/redshift/latest/dg/c-using-spectrum.html"
+/>
+<OfficialSource
+  title="Uso compartido de datos en Amazon Redshift"
+  url="https://docs.aws.amazon.com/redshift/latest/dg/datashare-overview.html"
+/>
