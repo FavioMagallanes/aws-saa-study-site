@@ -7,4 +7,163 @@ export const meta = {
   covers: ['1.2-s4', '3.4-k4', '4.4-k5', '4.4-s2', '4.4-s7'],
 };
 
-Contenido pendiente.
+Por defecto, una instancia de una VPC no puede comunicarse con tu red local. Para unir ambos mundos, AWS ofrece conexiones cifradas sobre internet con AWS Site-to-Site VPN, líneas privadas dedicadas con AWS Direct Connect y acceso privado a servicios con AWS PrivateLink. Elegir entre ellas, y dimensionar su ancho de banda, depende de cuánto tráfico mueves, cuánta coherencia necesitas en la red, qué seguridad exiges y cuánto quieres gastar.
+
+## Qué problema resuelve
+
+Muchas empresas mantienen sistemas en su centro de datos mientras migran o amplían su carga en AWS. Enviar ese tráfico sin protección por internet no es aceptable, y una conexión por internet está sujeta a las variaciones de la red pública. Además, los recursos de subredes privadas a menudo necesitan llegar a servicios de AWS o de terceros sin pasar por internet. Estas opciones resuelven cada caso con distinto equilibrio entre costo, rendimiento y tiempo de implantación.
+
+## Conceptos clave
+
+### AWS Site-to-Site VPN
+
+Una conexión Site-to-Site VPN es una conexión IPsec segura entre tu equipo local y tus VPC que viaja por internet.
+
+- **Componentes**: en el lado de AWS, una puerta de enlace privada virtual (asociada a una sola VPC) o un transit gateway (para muchas VPC); en tu lado, un dispositivo de puerta de enlace de cliente, físico o de software, representado en AWS por un recurso de puerta de enlace de cliente.
+- **Dos túneles**: cada conexión incluye dos túneles VPN cifrados que puedes usar a la vez para alta disponibilidad.
+- **Ancho de banda**: un túnel estándar admite hasta 1,25 Gbps. En conexiones asociadas a un transit gateway existe la opción de túnel de gran ancho de banda, de hasta 5 Gbps. El rendimiento real depende de factores como el tamaño de los paquetes, la mezcla de tráfico y el estado de internet.
+- **Varias VPN para más ancho de banda**: en un transit gateway puedes usar ECMP (enrutamiento multiruta de igual costo) para sumar el ancho de banda de varios túneles. Requiere enrutamiento dinámico con BGP; no funciona con rutas estáticas.
+- **VPN acelerada**: opcionalmente, en conexiones sobre un transit gateway, usa AWS Global Accelerator para llevar el tráfico a la ubicación de borde más cercana a tu dispositivo y evitar interrupciones de la internet pública.
+- **Una o varias VPC**: una puerta de enlace privada virtual se asocia a una sola VPC. Para que una misma conexión VPN llegue a varias VPC, AWS recomienda un transit gateway.
+
+Para usuarios individuales que se conectan desde cualquier lugar, **AWS Client VPN** es un servicio VPN administrado basado en clientes OpenVPN, con conexiones TLS cifradas.
+
+### AWS Direct Connect
+
+Direct Connect enlaza tu red interna con una ubicación de Direct Connect mediante un cable de fibra óptica Ethernet estándar. El tráfico no pasa por los proveedores de internet de tu ruta de red.
+
+- **Interfaces virtuales**: una interfaz virtual **privada** da acceso a una VPC; una **pública** da acceso a servicios públicos de AWS, como Amazon S3; una de **tránsito** da acceso a uno o varios transit gateways asociados a un Direct Connect gateway.
+- **Conexión dedicada**: una conexión Ethernet física asociada a un solo cliente, con velocidades de puerto de 1, 10, 100 o 400 Gbps. La velocidad no se puede cambiar después; para cambiarla creas una conexión nueva.
+- **Conexión alojada**: la aprovisiona un socio de AWS Direct Connect en tu nombre, con velocidades desde 50 Mbps hasta 25 Gbps. AWS limita el tráfico al máximo configurado y descarta el exceso.
+- **Más ancho de banda**: un grupo de agregación de enlaces (LAG) combina varias conexiones dedicadas de la misma velocidad en una misma ubicación para tratarlas como una sola.
+- **Direct Connect gateway**: es un recurso global que permite llegar a VPC de cualquier región. Se asocia a un transit gateway, a una puerta de enlace privada virtual o a una red central de AWS Cloud WAN.
+- **Cifrado**: Direct Connect **no cifra** el tráfico en tránsito de forma predeterminada. Puedes combinarlo con Site-to-Site VPN para obtener una conexión privada cifrada con IPsec, o usar MACsec en las conexiones que lo admiten para cifrar entre tu router y la ubicación de Direct Connect.
+- **Resiliencia**: el kit de herramientas de resiliencia de Direct Connect propone modelos con conexiones en dispositivos y ubicaciones distintas. La resiliencia máxima usa conexiones independientes que terminan en dispositivos separados en más de una ubicación.
+- **Requisitos de implantación**: tu red debe estar en una ubicación de Direct Connect o debes trabajar con un socio o un proveedor que lleve el circuito hasta ella. En una conexión dedicada, AWS emite además una carta de autorización (LOA-CFA) que tu proveedor necesita para pedir la conexión cruzada.
+
+### AWS PrivateLink
+
+PrivateLink conecta de forma privada tu VPC con servicios y recursos como si estuvieran dentro de ella, sin puerta de enlace de internet, dispositivo NAT, dirección IP pública, Direct Connect ni VPN.
+
+- **Punto de enlace de VPC de interfaz**: crea interfaces de red en tus subredes para acceder a servicios de AWS, a servicios de otras cuentas (servicios de punto de enlace de VPC) o a productos SaaS de socios.
+- **Publicar tus propios servicios**: puedes crear un servicio de punto de enlace y ofrecerlo a otras cuentas.
+- **Costo**: se cobra cada hora que el punto de enlace de interfaz está aprovisionado en cada zona de disponibilidad y por cada GB de datos procesados.
+- **Puntos de enlace de puerta de enlace**: para Amazon S3 y DynamoDB existen además puntos de enlace de tipo puerta de enlace, que no usan PrivateLink, se configuran como rutas en las tablas de enrutamiento y no tienen cargo adicional.
+
+### Direct Connect frente a VPN frente a internet
+
+- **Internet**: no requiere una conexión adicional, pero el tráfico atraviesa las redes de los proveedores de internet y queda expuesto a sus interrupciones.
+- **Site-to-Site VPN**: cifra el tráfico con IPsec, pero sigue viajando por internet, con un ancho de banda máximo por túnel y un rendimiento que depende, entre otros factores, del estado de internet.
+- **Direct Connect**: línea privada dedicada que evita internet. Según la documentación, combinada con VPN ofrece una conexión cifrada que reduce los costos de red, aumenta el rendimiento de ancho de banda y da una experiencia de red más coherente que las VPN por internet.
+
+### Elegir el ancho de banda
+
+- **Una sola VPN**: suficiente si el tráfico cabe en un túnel; los dos túneles aportan redundancia.
+- **Varias VPN con ECMP en un transit gateway**: cuando una sola conexión no alcanza, sumas túneles con enrutamiento dinámico.
+- **Velocidad de Direct Connect**: eliges la velocidad del puerto según el volumen de tráfico. Las conexiones alojadas ofrecen velocidades más pequeñas, desde 50 Mbps; las dedicadas llegan a 400 Gbps y los LAG suman varias conexiones dedicadas.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Concentra conexiones en"
+    service="AWS Transit Gateway"
+    description="Recibe VPN y Direct Connect gateways, y permite sumar ancho de banda de varias VPN con ECMP."
+  />
+  <ConnectionCard
+    relation="Acelera la VPN con"
+    service="AWS Global Accelerator"
+    description="Una VPN acelerada entra en la red global de AWS por la ubicación de borde más cercana a tu dispositivo."
+  />
+  <ConnectionCard
+    relation="Accede de forma privada a"
+    service="Amazon S3"
+    description="Desde subredes privadas puedes llegar a S3 con un punto de enlace de puerta de enlace o de interfaz, sin pasar por internet."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Direct Connect cuando"
+    items={[
+      'Necesitas más ancho de banda o una ruta que no pase por los proveedores de internet.',
+      'Necesitas una experiencia de red más coherente que la que ofrece internet.',
+      'Puedes esperar el aprovisionamiento del circuito; añade VPN o MACsec si necesitas cifrado.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Necesitas una conexión cifrada por internet y el tráfico cabe en los túneles: Site-to-Site VPN.',
+      'Necesitas más ancho de banda por VPN: varias VPN con ECMP en un transit gateway.',
+      'Solo necesitas llegar a un servicio concreto sin exponer la VPC: AWS PrivateLink.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Site-to-Site VPN"
+  url="https://docs.aws.amazon.com/vpn/latest/s2svpn/VPC_VPN.html"
+/>
+<OfficialSource
+  title="Cómo funciona AWS Site-to-Site VPN"
+  url="https://docs.aws.amazon.com/vpn/latest/s2svpn/how_it_works.html"
+/>
+<OfficialSource
+  title="Cuotas de AWS Site-to-Site VPN"
+  url="https://docs.aws.amazon.com/vpn/latest/s2svpn/vpn-limits.html"
+/>
+<OfficialSource
+  title="Conexiones Site-to-Site VPN aceleradas"
+  url="https://docs.aws.amazon.com/vpn/latest/s2svpn/accelerated-vpn.html"
+/>
+<OfficialSource
+  title="Qué es AWS Client VPN"
+  url="https://docs.aws.amazon.com/vpn/latest/clientvpn-admin/what-is.html"
+/>
+<OfficialSource
+  title="Qué es Direct Connect"
+  url="https://docs.aws.amazon.com/directconnect/latest/UserGuide/Welcome.html"
+/>
+<OfficialSource
+  title="Conexiones dedicadas de Direct Connect"
+  url="https://docs.aws.amazon.com/directconnect/latest/UserGuide/dedicated_connection.html"
+/>
+<OfficialSource
+  title="Conexiones alojadas de Direct Connect"
+  url="https://docs.aws.amazon.com/directconnect/latest/UserGuide/hosted_connection.html"
+/>
+<OfficialSource
+  title="Grupos de agregación de enlaces de Direct Connect"
+  url="https://docs.aws.amazon.com/directconnect/latest/UserGuide/lags.html"
+/>
+<OfficialSource
+  title="Direct Connect gateways"
+  url="https://docs.aws.amazon.com/directconnect/latest/UserGuide/direct-connect-gateways-intro.html"
+/>
+<OfficialSource
+  title="Cifrado en AWS Direct Connect"
+  url="https://docs.aws.amazon.com/directconnect/latest/UserGuide/encryption-in-transit.html"
+/>
+<OfficialSource
+  title="Kit de herramientas de resiliencia de Direct Connect"
+  url="https://docs.aws.amazon.com/directconnect/latest/UserGuide/resiliency_toolkit.html"
+/>
+<OfficialSource
+  title="Qué es AWS PrivateLink"
+  url="https://docs.aws.amazon.com/vpc/latest/privatelink/what-is-privatelink.html"
+/>
+<OfficialSource
+  title="Acceder a servicios de AWS con AWS PrivateLink"
+  url="https://docs.aws.amazon.com/vpc/latest/privatelink/privatelink-access-aws-services.html"
+/>
+<OfficialSource
+  title="Puntos de enlace de puerta de enlace"
+  url="https://docs.aws.amazon.com/vpc/latest/privatelink/gateway-endpoints.html"
+/>
