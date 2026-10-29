@@ -7,4 +7,97 @@ export const meta = {
   covers: ['2.1-k1'],
 };
 
-Contenido pendiente.
+Amazon API Gateway es un servicio para crear, publicar, mantener, supervisar y proteger API REST, HTTP y WebSocket a cualquier escala. Funciona como la "puerta de entrada" por la que las aplicaciones acceden a datos, lógica de negocio o funciones de los servicios de backend, como cargas en Amazon EC2, código en AWS Lambda o cualquier aplicación web.
+
+## Qué problema resuelve
+
+Exponer un backend directamente a los clientes obliga a resolver en cada servicio la autorización, el control del tráfico, el monitoreo y las versiones de la API. API Gateway asume esas tareas y procesa hasta cientos de miles de llamadas simultáneas, de modo que el backend se concentra en la lógica. Su papel en arquitecturas sin servidor y de microservicios está en los temas de patrones sin servidor y de microservicios.
+
+## Conceptos clave
+
+### Tipos de API
+
+- **API REST**: más funciones, como claves de API, limitación por cliente, validación de solicitudes, integración con AWS WAF, caché y endpoints privados.
+- **API HTTP**: funciones mínimas para ofrecerse a menor precio. Elígela si no necesitas lo anterior.
+- **API WebSocket**: comunicación con estado y bidireccional entre cliente y servidor, con enrutamiento según el contenido de los mensajes.
+
+### Tipos de endpoint (API REST)
+
+- **Optimizado para la periferia** (el predeterminado): enruta las solicitudes al punto de presencia de CloudFront más cercano; útil para clientes repartidos geográficamente.
+- **Regional**: para clientes en la misma región; con dominios personalizados y Route 53 puedes hacer, por ejemplo, enrutamiento basado en latencia entre regiones.
+- **Privado**: solo accesible desde tu VPC mediante un punto de enlace de VPC de interfaz.
+
+### Crear y administrar la API
+
+- **Recursos, métodos e integraciones**: cada método se integra con un endpoint HTTP, una función de Lambda u otro servicio de AWS. En una integración de proxy, API Gateway pasa la solicitud completa al backend.
+- **Integraciones privadas**: conectan con backends privados mediante un Network Load Balancer o un Application Load Balancer.
+- **Despliegues y etapas**: un despliegue es una instantánea de la API que se publica en una etapa, como `dev` o `prod`. Los despliegues canary permiten introducir cambios de forma segura.
+- **Autorización**: políticas de IAM, grupos de usuarios de Amazon Cognito, autorizadores de Lambda y, en API REST, políticas de recursos.
+- **Planes de uso y claves de API**: dan acceso a clientes concretos y aplican limitación y cuotas a cada clave. Los niveles de limitación se explican en el tema de Service Quotas y limitación, y la caché de API REST, en el de estrategias de caché.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Invoca la lógica de"
+    service="AWS Lambda"
+    description="Con una integración de proxy de Lambda, API Gateway envía la solicitud completa a la función y convierte su salida en la respuesta HTTP."
+  />
+  <ConnectionCard
+    relation="Autentica a los usuarios con"
+    service="Amazon Cognito"
+    description="Un grupo de usuarios de Cognito puede autorizar las solicitudes a la API."
+  />
+  <ConnectionCard
+    relation="Se protege con"
+    service="AWS WAF"
+    description="AWS WAF protege las API REST frente a ataques web comunes."
+  />
+  <ConnectionCard
+    relation="Se supervisa con"
+    service="Amazon CloudWatch"
+    description="Registros de acceso y de ejecución, métricas y alarmas; AWS CloudTrail registra los cambios y AWS X-Ray ayuda a analizar la latencia."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Amazon API Gateway cuando"
+    items={[
+      'Necesitas exponer funciones de Lambda u otros backends como una API REST, HTTP o WebSocket.',
+      'Quieres autorización, limitación, claves de API o caché administradas en un solo punto.',
+      'Necesitas una API privada accesible solo desde tu VPC.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Solo distribuyes tráfico HTTP entre instancias o contenedores: Elastic Load Balancing.',
+      'Los componentes deben comunicarse de forma asíncrona: Amazon SQS, Amazon SNS o Amazon EventBridge.',
+      'Necesitas conectar tu VPC de forma privada a un servicio de otra VPC o cuenta: AWS PrivateLink.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon API Gateway"
+  url="https://docs.aws.amazon.com/apigateway/latest/developerguide/welcome.html"
+/>
+<OfficialSource
+  title="Elegir entre API REST y API HTTP"
+  url="https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-vs-rest.html"
+/>
+<OfficialSource
+  title="Tipos de endpoint para API REST"
+  url="https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-api-endpoint-types.html"
+/>
+<OfficialSource
+  title="Conceptos de Amazon API Gateway"
+  url="https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-basic-concept.html"
+/>
