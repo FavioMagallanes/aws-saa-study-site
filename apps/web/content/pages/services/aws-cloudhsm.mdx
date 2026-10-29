@@ -7,4 +7,89 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+AWS CloudHSM te da módulos de seguridad de hardware (HSM) en la nube de AWS. Un HSM es un dispositivo que ejecuta operaciones criptográficas y guarda claves de forma segura; con CloudHSM tienes control total sobre esos HSM, mientras AWS automatiza tareas como el aprovisionamiento, las copias de seguridad y el mantenimiento.
+
+## Qué problema resuelve
+
+Algunas organizaciones deben cumplir estándares que exigen guardar sus claves en HSM dedicados, con algoritmos y operaciones que ellas controlan. Los servicios de cifrado totalmente administrados usan algoritmos y longitudes de clave predeterminados; CloudHSM ofrece HSM de propósito general, de un solo inquilino, para quienes necesitan más flexibilidad y control. A cambio, asumes más responsabilidad que con un servicio administrado.
+
+## Conceptos clave
+
+### Control exclusivo de las claves
+
+- Generas, guardas, importas, exportas, administras y usas tus propias claves: simétricas, pares asimétricos, claves de sesión y otras.
+- El plano de datos está cifrado de extremo a extremo y no es visible para AWS. Por eso administras tú a los usuarios del HSM, fuera de los roles de IAM.
+- Las aplicaciones que usan interfaces estándar como PKCS #11, JCE o CNG/KSP pueden migrar a CloudHSM con menos cambios.
+
+### Clústeres y modos
+
+Los HSM se agrupan en clústeres que CloudHSM mantiene sincronizados. Repartir los HSM del clúster entre varias zonas de disponibilidad de una región da redundancia y alta disponibilidad, y añadir HSM da más rendimiento. Hay dos modos de clúster: en modo FIPS solo puedes usar claves y algoritmos validados por FIPS, con HSM validados FIPS 140-2 o FIPS 140-3 de nivel 3; el modo no FIPS ofrece todos los algoritmos compatibles.
+
+### Casos de uso
+
+- Cumplimiento normativo: gestionar claves privadas que protegen datos muy confidenciales.
+- Descargar el procesamiento SSL/TLS de los servidores web en el clúster.
+- Guardar la clave maestra del cifrado de datos transparente (TDE) de una base de datos, como Oracle.
+- Proteger la clave privada de una autoridad de certificación emisora y firmar documentos.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Respalda un almacén de claves personalizado de"
+    service="AWS KMS"
+    description="Un almacén de claves de CloudHSM genera y guarda el material de las claves de KMS en tu clúster, y las operaciones se hacen en tus HSM."
+  />
+  <ConnectionCard
+    relation="Se usa desde servicios integrados con"
+    service="AWS KMS"
+    description="Las claves de KMS de ese almacén se usan con los servicios de AWS compatibles con claves administradas por el cliente."
+  />
+  <ConnectionCard
+    relation="Complementa los certificados de"
+    service="AWS Certificate Manager"
+    description="ACM administra certificados TLS para servicios integrados; CloudHSM puede asumir el procesamiento TLS de tus propios servidores web."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="CloudHSM cuando"
+    items={[
+      'Necesitas HSM de un solo inquilino bajo tu control exclusivo.',
+      'Un requisito de cumplimiento exige HSM validados FIPS de nivel 3.',
+      'Tus aplicaciones usan PKCS #11, JCE o CNG/KSP, o necesitas TDE con la clave en un HSM.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Quieres un servicio administrado para crear y controlar claves sin operar HSM: AWS KMS.',
+      'Quieres la integración de KMS con el material de las claves en tu HSM: un almacén de claves de CloudHSM en KMS.',
+      'Solo necesitas certificados TLS para un balanceador o CloudFront: AWS Certificate Manager.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS CloudHSM"
+  url="https://docs.aws.amazon.com/cloudhsm/latest/userguide/introduction.html"
+/>
+<OfficialSource
+  title="Casos de uso de AWS CloudHSM"
+  url="https://docs.aws.amazon.com/cloudhsm/latest/userguide/use-cases.html"
+/>
+<OfficialSource
+  title="Clústeres de AWS CloudHSM"
+  url="https://docs.aws.amazon.com/cloudhsm/latest/userguide/clusters.html"
+/>
+<OfficialSource
+  title="Almacenes de claves de AWS CloudHSM en AWS KMS"
+  url="https://docs.aws.amazon.com/kms/latest/developerguide/keystore-cloudhsm.html"
+/>
