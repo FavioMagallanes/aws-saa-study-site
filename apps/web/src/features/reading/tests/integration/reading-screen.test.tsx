@@ -5,12 +5,20 @@ import { renderApp } from '../../../../app/tests/render-app';
 const renderAt = (path: string) => renderApp(path);
 
 describe('reading page with the real content', () => {
-  it('shows the page title, its exam tasks and the pending body', async () => {
+  it('shows the page title, its exam tasks and its written body', async () => {
     await renderAt('/lectura/amazon-sqs');
     expect(
       await screen.findByRole('heading', { level: 1, name: 'Amazon SQS' }),
     ).toBeInTheDocument();
     expect(screen.getByRole('region', { name: 'En el examen' })).toBeInTheDocument();
+    expect(screen.queryByText('Contenido pendiente.')).not.toBeInTheDocument();
+  });
+
+  it('shows the pending body for a page that is not written yet', async () => {
+    await renderAt('/lectura/amazon-elastic-transcoder');
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Amazon Elastic Transcoder' }),
+    ).toBeInTheDocument();
     expect(screen.getByText('Contenido pendiente.')).toBeInTheDocument();
   });
 
