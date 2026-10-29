@@ -7,4 +7,92 @@ export const meta = {
   covers: ['1.2-k5'],
 };
 
-Contenido pendiente.
+Amazon GuardDuty es un servicio de detección de amenazas que supervisa, analiza y procesa de forma continua fuentes de datos y registros de tu entorno de AWS. Combina fuentes de inteligencia de amenazas, como listas de direcciones IP y dominios maliciosos, con modelos de aprendizaje automático para identificar actividad sospechosa o potencialmente maliciosa.
+
+## Qué problema resuelve
+
+Revisar a mano los registros de API, de red y de DNS de varias cuentas para encontrar un ataque es inviable. GuardDuty hace ese análisis por ti y genera hallazgos cuando detecta, por ejemplo, credenciales de AWS comprometidas o filtradas, minería de criptomonedas no autorizada en instancias de EC2 o contenedores, malware en instancias o en objetos nuevos de Amazon S3, intentos de exfiltrar o destruir datos, o patrones de inicio de sesión inusuales en bases de datos de Amazon Aurora y Amazon RDS compatibles. En el examen, es el servicio que responde a "detectar amenazas y actividad maliciosa".
+
+## Conceptos clave
+
+### Fuentes de datos fundamentales
+
+Al habilitar GuardDuty en una cuenta, empieza solo a analizar los eventos de administración de AWS CloudTrail, los registros de flujo de VPC de las instancias de EC2 y los registros de consultas DNS. No tienes que activar ni configurar esos registros por separado, y no hay costo adicional por el acceso de GuardDuty a ellos. GuardDuty extrae lo que necesita y luego descarta los registros. Además, la detección ampliada de amenazas identifica ataques de varias etapas que combinan eventos que, por separado, no parecen una amenaza.
+
+### Planes de protección
+
+Puedes habilitar planes dedicados que añaden más fuentes: S3 Protection (exfiltración o destrucción de datos en buckets), EKS Protection (registros de auditoría de Kubernetes), Runtime Monitoring (eventos del sistema operativo en EKS, EC2 y ECS, incluido Fargate), Malware Protection para EC2, S3 y AWS Backup, RDS Protection (actividad de inicio de sesión) y Lambda Protection (actividad de red de las funciones).
+
+### Hallazgos y varias cuentas
+
+- Cada amenaza detectada genera un hallazgo con detalles sobre el recurso posiblemente comprometido.
+- Con AWS Organizations, la opción recomendada, administras GuardDuty de forma central en varias cuentas mediante una cuenta de administrador delegado.
+- GuardDuty detecta y notifica; la respuesta la automatizas tú con otros servicios.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Analiza los registros de"
+    service="AWS CloudTrail y Amazon VPC"
+    description="Los eventos de administración de CloudTrail, los registros de flujo de VPC y los de DNS son sus fuentes fundamentales."
+  />
+  <ConnectionCard
+    relation="Automatiza la respuesta con"
+    service="Amazon EventBridge"
+    description="GuardDuty publica sus hallazgos como eventos, que puedes enviar a una función de Lambda o a un tema de Amazon SNS."
+  />
+  <ConnectionCard
+    relation="Centraliza los hallazgos en"
+    service="AWS Security Hub"
+    description="Security Hub CSPM recibe hallazgos de GuardDuty, Inspector y Macie para dar una vista única de la seguridad."
+  />
+  <ConnectionCard
+    relation="Investiga la causa raíz con"
+    service="Amazon Detective"
+    description="Detective toma los hallazgos de GuardDuty y los relaciona con la actividad de los recursos para analizar qué pasó."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="GuardDuty cuando"
+    items={[
+      'Necesitas detectar de forma continua amenazas y actividad maliciosa en tus cuentas.',
+      'Sospechas de credenciales comprometidas, minería de criptomonedas o malware.',
+      'Quieres detección sin desplegar ni ajustar tu propia infraestructura de análisis de registros.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Buscas vulnerabilidades de software en EC2, ECR o Lambda: Amazon Inspector.',
+      'Necesitas descubrir datos sensibles en Amazon S3: Amazon Macie.',
+      'Debes investigar la causa raíz de un hallazgo: Amazon Detective.',
+      'Autenticas a los usuarios de una aplicación: Amazon Cognito.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon GuardDuty"
+  url="https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html"
+/>
+<OfficialSource
+  title="Fuentes de datos fundamentales de GuardDuty"
+  url="https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_data-sources.html"
+/>
+<OfficialSource
+  title="Procesar hallazgos de GuardDuty con Amazon EventBridge"
+  url="https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_findings_eventbridge.html"
+/>
+<OfficialSource
+  title="Qué es Amazon Macie"
+  url="https://docs.aws.amazon.com/macie/latest/user/what-is-macie.html"
+/>
