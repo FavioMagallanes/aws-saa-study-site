@@ -7,4 +7,150 @@ export const meta = {
   covers: ['3.5-k1', '3.5-s4'],
 };
 
-Contenido pendiente.
+Una vez que los datos están en el lago y en un formato adecuado, falta lo que le interesa al negocio: consultarlos y convertirlos en informes y paneles. En AWS, Amazon Athena consulta los datos directamente en Amazon S3, AWS Lake Formation controla quién puede ver qué datos y Amazon Quick los visualiza. El examen espera que distingas estos servicios de Amazon Redshift, Amazon EMR y Amazon OpenSearch Service, y que sepas diseñar una estrategia de visualización.
+
+## Qué problema resuelve
+
+Para analizar datos no siempre hace falta cargarlos en una base de datos ni administrar servidores. A veces basta con una consulta puntual sobre registros en S3; otras veces necesitas informes complejos sobre años de historial, o paneles que muchas personas consultan a diario. Elegir el servicio correcto evita pagar por infraestructura que no usas, acelera las consultas y garantiza que cada usuario vea solo los datos que le corresponden.
+
+## Conceptos clave
+
+### Amazon Athena
+
+Athena es un servicio de consultas interactivas que analiza datos directamente en S3 con SQL estándar. Es sin servidor: no hay infraestructura que configurar ni administrar, pagas solo por las consultas que ejecutas y escala automáticamente ejecutando las consultas en paralelo.
+
+- **Datos de cualquier estructura**: consulta datos no estructurados, semiestructurados y estructurados, como CSV, JSON, Parquet u ORC, sin necesidad de cargarlos antes en Athena.
+- **Consultas ad hoc**: es la opción más sencilla para consultas puntuales sobre S3, por ejemplo revisar registros web para diagnosticar un problema de rendimiento. Solo defines una tabla y empiezas a consultar.
+- **Catálogo**: usa el AWS Glue Data Catalog como almacén persistente de metadatos, así que comparte las tablas con las funciones de ETL y descubrimiento de Glue.
+- **Apache Spark**: también puedes ejecutar análisis interactivos con Spark sin planificar ni administrar recursos.
+
+### Optimizar el costo y el rendimiento de Athena
+
+Como Athena cobra por consulta y lee los datos de S3, la forma en que los guardas influye directamente en el costo y la velocidad:
+
+- **Particiones**: dividir los datos, por ejemplo por año, mes, día y hora, limita la cantidad de datos que lee cada consulta, lo que mejora el rendimiento y reduce el costo. Puedes particionar por cualquier clave.
+- **Formatos columnares**: convertir los datos a Parquet u ORC mejora el rendimiento y reduce el costo de las consultas.
+
+### AWS Lake Formation en el análisis
+
+Lake Formation aplica permisos de grano fino a nivel de columna, fila y celda en los servicios de análisis integrados, como Athena, Amazon Quick, Amazon Redshift Spectrum, Amazon EMR y AWS Glue. Así, analistas distintos pueden consultar la misma tabla y obtener solo los datos que tienen permitidos. Además, registra en AWS CloudTrail qué usuario accedió a qué datos y con qué servicio.
+
+### Amazon Quick
+
+Amazon Quick es un servicio con IA para analizar datos, automatizar tareas, crear aplicaciones web e investigar. Evolucionó a partir de Amazon QuickSight, que continúa como Amazon Quick Sight, la función de visualización interactiva y de inteligencia de negocio (BI) dentro de Quick. Es totalmente administrado.
+
+- **Orígenes de datos**: Quick Sight se conecta, entre otros, a Athena, Amazon Aurora, Amazon Redshift, Redshift Spectrum, Amazon S3, Amazon OpenSearch Service y bases de datos como MySQL, PostgreSQL, SQL Server u Oracle.
+- **SPICE o consulta directa**: al crear un conjunto de datos eliges entre consultar el origen directamente o importar los datos a SPICE, el motor de cálculo en memoria de Quick Sight. Con SPICE las consultas analíticas son más rápidas y reutilizas los datos sin costos adicionales; si el origen cobra por consulta, solo pagas al crear el conjunto de datos y al actualizarlo. La capacidad de SPICE se asigna por región.
+- **Análisis y paneles**: un panel (dashboard) es una instantánea de solo lectura de un análisis que compartes con otros usuarios. Conserva filtros, parámetros, controles y orden, pero siempre muestra los datos actuales del conjunto de datos. En la edición Enterprise puedes insertar paneles en un sitio web o una aplicación.
+- **Seguridad por fila**: en la edición Enterprise puedes restringir qué filas ve cada usuario o grupo con reglas de seguridad por fila (RLS), basadas en el usuario o en etiquetas para paneles insertados.
+
+### Estrategia de visualización
+
+Una estrategia de visualización combina las piezas anteriores según el caso:
+
+- **Consultas ad hoc sobre el lago**: Athena directamente sobre S3, con datos particionados y en formato columnar.
+- **Paneles de BI**: Quick Sight conectado a Athena o a Redshift, con SPICE cuando muchas personas consultan los mismos datos y quieres respuestas rápidas sin pagar cada consulta al origen.
+- **Control de acceso**: Lake Formation para limitar columnas y filas en el origen, y RLS en Quick Sight para limitar lo que ve cada lector del panel.
+- **Paneles insertados**: paneles de Quick Sight dentro de tu aplicación para usuarios externos.
+
+### Cuándo usar otros servicios de análisis
+
+- **Amazon Redshift**: un almacén de datos es la mejor opción cuando necesitas reunir datos de muchos orígenes en un formato común, guardarlos mucho tiempo y crear informes complejos sobre datos históricos. Su motor está optimizado para consultas que unen muchas tablas muy grandes.
+- **Amazon EMR**: cuando procesas conjuntos de datos muy grandes con código propio y marcos como Spark, Hadoop o Presto, y quieres control total sobre el clúster.
+- **Amazon OpenSearch Service**: un servicio administrado para desplegar y escalar clústeres de OpenSearch, un motor de búsqueda y análisis para casos como análisis de registros, supervisión de aplicaciones en tiempo real y análisis de flujos de clics.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Consulta datos en"
+    service="Amazon S3"
+    description="Athena lee los datos directamente en S3 sin cargarlos en otro sistema."
+  />
+  <ConnectionCard
+    relation="Lee metadatos de"
+    service="AWS Glue Data Catalog"
+    description="Athena y Redshift Spectrum usan el catálogo para conocer el esquema y la ubicación de las tablas."
+  />
+  <ConnectionCard
+    relation="Visualiza resultados con"
+    service="Amazon Quick"
+    description="Quick Sight se conecta a Athena, Redshift y otros orígenes para crear análisis y paneles."
+  />
+  <ConnectionCard
+    relation="Protege el acceso con"
+    service="AWS Lake Formation"
+    description="Aplica permisos por columna, fila y celda en Athena, Quick, Redshift Spectrum y EMR."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Athena y Quick cuando"
+    items={[
+      'Quieres consultas SQL ad hoc sobre datos en S3 sin administrar servidores.',
+      'Pagas solo por las consultas que ejecutas.',
+      'Necesitas paneles de BI compartidos o insertados en una aplicación.',
+      'Cada usuario debe ver solo ciertas filas o columnas.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Necesitas informes complejos sobre datos históricos con muchas uniones de tablas grandes: Amazon Redshift.',
+      'Procesas datos muy grandes con código propio y control del clúster: Amazon EMR.',
+      'Necesitas búsqueda y análisis de registros o supervisión en tiempo real: Amazon OpenSearch Service.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon Athena"
+  url="https://docs.aws.amazon.com/athena/latest/ug/what-is.html"
+/>
+<OfficialSource
+  title="Cuándo usar Athena"
+  url="https://docs.aws.amazon.com/athena/latest/ug/when-should-i-use-ate.html"
+/>
+<OfficialSource
+  title="Particionar los datos en Athena"
+  url="https://docs.aws.amazon.com/athena/latest/ug/partitions.html"
+/>
+<OfficialSource
+  title="Usar formatos de almacenamiento columnar en Athena"
+  url="https://docs.aws.amazon.com/athena/latest/ug/columnar-storage.html"
+/>
+<OfficialSource
+  title="Qué es AWS Lake Formation"
+  url="https://docs.aws.amazon.com/lake-formation/latest/dg/what-is-lake-formation.html"
+/>
+<OfficialSource
+  title="Qué es Amazon Quick"
+  url="https://docs.aws.amazon.com/quick/latest/userguide/what-is.html"
+/>
+<OfficialSource
+  title="Orígenes de datos compatibles con Amazon Quick Sight"
+  url="https://docs.aws.amazon.com/quick/latest/userguide/supported-data-sources.html"
+/>
+<OfficialSource
+  title="Importar datos a SPICE"
+  url="https://docs.aws.amazon.com/quick/latest/userguide/spice.html"
+/>
+<OfficialSource
+  title="Compartir datos con paneles e informes en Quick Sight"
+  url="https://docs.aws.amazon.com/quick/latest/userguide/working-with-dashboards.html"
+/>
+<OfficialSource
+  title="Seguridad por fila en Amazon Quick"
+  url="https://docs.aws.amazon.com/quick/latest/userguide/row-level-security.html"
+/>
+<OfficialSource
+  title="Qué es Amazon OpenSearch Service"
+  url="https://docs.aws.amazon.com/opensearch-service/latest/developerguide/what-is.html"
+/>
