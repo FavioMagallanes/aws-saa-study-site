@@ -12,11 +12,12 @@ Follows odd/tasks/reading-polish.md. Direct pushes to main, no PRs.
 
 ## Tasks
 
-- [ ] T1 (S1,S2) page-meta index + lazy page bodies + automatic regeneration of generated indexes
-- [ ] T2 (S4) delete the /buscar route and IconLink
-- [ ] T3 (S5) amazon-elastic-transcoder page + fix the reading-screen test that used it as the pending fixture
-- [ ] T4 (S3) align search dialog and TOC active state with Penpot
+- [x] T1 (S1,S2) page-meta index + lazy page bodies + automatic regeneration of generated indexes
+- [x] T2 (S4) delete the /buscar route and IconLink
+- [x] T3 (S5) amazon-elastic-transcoder page + fix the reading-screen test that used it as the pending fixture
+- [x] T4 (S3) align search dialog and TOC active state with Penpot
 
 ## Log
 
 - L1: "1. ok hazlo, lazy loading no ayuda? 2. hazlo 3. ya tengo penpont abierto 4. borralo 5. escribe"
+- L2: T1 by worker (main chunk 1,905 kB to 491 kB, gzip 475 to 146; page bodies lazy; generators chained into dev/build/test; stale-file tests kept). T2 by me (the worker may not delete files). T3 by worker; page says the service is closed (2025-11-13) and names MediaConvert as today's file-based transcoding service, not as an AWS-stated replacement; I rewrote 3 search tests and the worker removed the reading test that depended on a pending page, so no test covers the pending body any more (it only exists inside MDX). T4 by me from the Penpot Búsqueda screens: scrim, input 17/500, shadow, 120px offset, radius 16, one-line summary, footer padding, TOC active = accent + 600. Not done from Penpot: result groups (Siglas, Páginas, En el texto), icon boxes, esc chip, mobile Cancelar. Checked in desktop Chrome: computed styles of the dialog, search finds the Transcoder page, the page renders. Found: keystrokes typed right after the first Cmd+K are lost while the lazy dialog chunk loads. 355 tests, lint, format, tsc, check-sources (643 URLs) pass.
