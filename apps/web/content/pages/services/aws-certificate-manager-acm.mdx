@@ -7,4 +7,96 @@ export const meta = {
   covers: ['1.3-s3'],
 };
 
-Contenido pendiente.
+AWS Certificate Manager (ACM) crea, guarda y renueva certificados SSL/TLS X.509, públicos y privados, junto con sus claves, para proteger tus sitios web y aplicaciones en AWS. Es la pieza que permite cifrar datos en tránsito con TLS sin administrar certificados a mano.
+
+## Qué problema resuelve
+
+Para servir contenido por HTTPS necesitas un certificado instalado en el punto donde termina la conexión TLS. Conseguirlo, instalarlo y acordarte de renovarlo antes de que venza es trabajo manual y propenso a errores: un certificado vencido corta el acceso seguro. ACM emite los certificados o importa los de terceros, los despliega en los servicios integrados y se encarga de la renovación. El tema de cifrado en reposo y en tránsito explica dónde encaja TLS frente al cifrado con claves de KMS; aquí ves la vista del servicio.
+
+## Conceptos clave
+
+### Emitir o importar
+
+- Puedes emitir certificados con ACM o importar certificados de terceros. Un certificado puede cubrir un dominio, varios dominios concretos, dominios con comodín o combinaciones de ellos.
+- Antes de emitir un certificado público, ACM debe comprobar que controlas los dominios: por DNS, por correo electrónico o por HTTP. AWS recomienda la validación por DNS.
+- Los certificados SSL/TLS que administras con ACM no tienen cargo adicional; pagas los recursos que usas para tu aplicación.
+
+### Servicios integrados
+
+ACM despliega los certificados directamente en servicios como Elastic Load Balancing, Amazon CloudFront, Amazon API Gateway (para dominios personalizados) y AWS Elastic Beanstalk, que usa un balanceador de carga. Asociar un certificado administrado por ACM directamente a una instancia de Amazon EC2 requiere Nitro Enclaves; para certificados públicos en instancias, AWS recomienda el protocolo ACME.
+
+### Regiones
+
+- Los certificados de ACM son recursos regionales y no se pueden copiar entre regiones. Para usar el mismo dominio con Elastic Load Balancing en varias regiones, solicitas o importas un certificado en cada una.
+- Para CloudFront, el certificado debe estar en la región Este de EE. UU. (Norte de Virginia).
+
+### Renovación administrada
+
+ACM renueva de forma automática los certificados emitidos por Amazon si usas validación por DNS y el registro DNS sigue en su lugar; con validación por correo, el propietario del dominio debe actuar. Un certificado asociado a otro servicio, como Elastic Load Balancing o CloudFront, es elegible. Los certificados importados y los ya vencidos no lo son, así que renovar los importados es tarea tuya. Al renovarse, el ARN del certificado no cambia.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Termina TLS en"
+    service="Elastic Load Balancing"
+    description="ACM despliega el certificado en el balanceador, que sirve el contenido por HTTPS a los clientes."
+  />
+  <ConnectionCard
+    relation="Protege la distribución de"
+    service="Amazon CloudFront"
+    description="El certificado debe estar en Norte de Virginia y se distribuye a las ubicaciones configuradas en la distribución."
+  />
+  <ConnectionCard
+    relation="Da dominio personalizado a"
+    service="Amazon API Gateway"
+    description="Un dominio personalizado para tu API necesita un certificado SSL/TLS, que puedes generar o importar con ACM."
+  />
+  <ConnectionCard
+    relation="Valida dominios con"
+    service="Amazon Route 53"
+    description="Si administras tu DNS público en Route 53, puedes crear los registros de validación desde ACM."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="ACM cuando"
+    items={[
+      'Debes cifrar en tránsito con TLS frente a un balanceador, CloudFront o API Gateway.',
+      'Quieres que los certificados se renueven solos, con validación por DNS.',
+      'No quieres pagar por los certificados que administras en AWS.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Necesitas crear y controlar claves para cifrar los datos en reposo: AWS KMS.',
+      'Necesitas claves en un HSM dedicado bajo tu control exclusivo: AWS CloudHSM.',
+      'Guardas credenciales de bases de datos o claves de API: AWS Secrets Manager.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Certificate Manager"
+  url="https://docs.aws.amazon.com/acm/latest/userguide/acm-overview.html"
+/>
+<OfficialSource
+  title="Servicios integrados con ACM"
+  url="https://docs.aws.amazon.com/acm/latest/userguide/acm-services.html"
+/>
+<OfficialSource
+  title="Renovación administrada de certificados en ACM"
+  url="https://docs.aws.amazon.com/acm/latest/userguide/acm-renewal.html"
+/>
+<OfficialSource
+  title="Validar la propiedad del dominio en ACM"
+  url="https://docs.aws.amazon.com/acm/latest/userguide/domain-ownership-validation.html"
+/>
