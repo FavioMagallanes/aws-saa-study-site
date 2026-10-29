@@ -7,4 +7,100 @@ export const meta = {
   covers: ['3.2-s4'],
 };
 
-Contenido pendiente.
+AWS Lambda es un servicio de cómputo sin servidor: ejecuta tu código sin que aprovisiones ni administres servidores. Lambda se encarga del mantenimiento de los servidores, el aprovisionamiento de capacidad, el escalado y los parches. Conectas una función a un desencadenador, como Amazon API Gateway, Amazon S3, Amazon SQS o Amazon EventBridge, y pagas solo por los recursos que usas, sin compromisos por adelantado.
+
+## Qué problema resuelve
+
+Un servidor que espera eventos ocasionales pasa la mayor parte del tiempo encendido sin trabajo, y aun así hay que parchearlo y escalarlo para los picos. Con Lambda cada invocación se ejecuta de forma independiente y el servicio añade entornos de ejecución a medida que llegan más solicitudes, así que no pagas capacidad ociosa. Los patrones de arquitectura con Lambda se explican en el tema "Patrones sin servidor".
+
+## Conceptos clave
+
+### Memoria: el tamaño de una función
+
+En Lambda no eliges un tipo de instancia: eliges la **memoria**, entre 128 MB y 10.240 MB en incrementos de 1 MB. Lambda asigna CPU en proporción a la memoria; con 1.769 MB la función tiene el equivalente a una vCPU. La memoria es la palanca principal del rendimiento.
+
+- **128 MB** es el valor predeterminado y el mínimo. AWS lo recomienda solo para funciones simples, como las que transforman y enrutan eventos a otros servicios.
+- **Más memoria** mejora el rendimiento de funciones que usan bibliotecas importadas, capas de Lambda, Amazon S3 o Amazon EFS. Si una función está limitada por CPU, red o memoria, aumentarla puede mejorar mucho su rendimiento, porque también aumenta la CPU.
+- **Cómo medir**: supervisa con Amazon CloudWatch el consumo de memoria (con alarmas cuando se acerca al máximo) y la duración. La herramienta de código abierto AWS Lambda Power Tuning ejecuta la función con distintas memorias y mide el rendimiento.
+- **Recomendaciones**: si te registras en AWS Compute Optimizer, ves y aceptas recomendaciones de memoria en la consola de Lambda (solo para funciones con arquitectura x86_64).
+
+Cómo se relaciona este dimensionamiento con el de las instancias EC2 se explica en el tema "Elegir instancias: familias, tipos y tamaños".
+
+### Otros ajustes de recursos
+
+- **Tiempo de espera (timeout)**: el máximo que puede ejecutarse una invocación. El valor predeterminado es 3 segundos y el máximo, 900 segundos (15 minutos), salvo algunas invocaciones en Lambda Managed Instances. Si se acerca a la duración media, aumenta el riesgo de que la función se corte.
+- **Almacenamiento efímero**: el directorio `/tmp`, temporal y propio de cada entorno de ejecución, configurable entre 512 MB y 10.240 MB y cifrado en reposo. Útil para ETL o para inferencia con modelos grandes.
+
+### Concurrencia
+
+La concurrencia es el número de solicitudes que una función atiende a la vez; cada una usa un entorno de ejecución distinto. De forma predeterminada, una cuenta tiene un límite de 1.000 ejecuciones simultáneas por región, compartido entre todas sus funciones, que se puede aumentar con una solicitud de cuota. Si se agota, las funciones sufren limitación (throttling).
+
+- **Concurrencia reservada**: reserva una parte de la concurrencia de la cuenta para una función y a la vez fija su máximo. No tiene cargo.
+- **Concurrencia aprovisionada**: inicializa por adelantado un número de entornos para reducir la latencia de los arranques en frío.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Se invoca desde"
+    service="Amazon API Gateway"
+    description="Invoca la función cuando llega una llamada a la API."
+  />
+  <ConnectionCard
+    relation="Reacciona a eventos de"
+    service="Amazon S3, Amazon SQS y Amazon EventBridge"
+    description="Lambda ejecuta la función cuando llega un objeto, un mensaje o un evento."
+  />
+  <ConnectionCard
+    relation="Mide memoria y duración con"
+    service="Amazon CloudWatch"
+    description="Las métricas indican si la función necesita más o menos memoria."
+  />
+  <ConnectionCard
+    relation="Recibe recomendaciones de"
+    service="AWS Compute Optimizer"
+    description="Sugiere la memoria adecuada para las funciones que cumplen sus requisitos."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="AWS Lambda cuando"
+    items={[
+      'Ejecutas código en respuesta a eventos o llamadas a una API sin administrar servidores.',
+      'Cada invocación termina dentro del tiempo de espera máximo de 15 minutos.',
+      'La carga es variable y no quieres pagar capacidad ociosa.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'La carga ya está empaquetada en contenedores y no quieres administrar servidores: AWS Fargate.',
+      'Procesas grandes volúmenes de trabajos por lotes: AWS Batch.',
+      'Necesitas control total del servidor o hardware específico: Amazon EC2.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Lambda"
+  url="https://docs.aws.amazon.com/lambda/latest/dg/welcome.html"
+/>
+<OfficialSource
+  title="Configurar la memoria de una función de Lambda"
+  url="https://docs.aws.amazon.com/lambda/latest/dg/configuration-memory.html"
+/>
+<OfficialSource
+  title="Configurar el tiempo de espera de una función de Lambda"
+  url="https://docs.aws.amazon.com/lambda/latest/dg/configuration-timeout.html"
+/>
+<OfficialSource
+  title="Escalado y concurrencia de Lambda"
+  url="https://docs.aws.amazon.com/lambda/latest/dg/lambda-concurrency.html"
+/>
