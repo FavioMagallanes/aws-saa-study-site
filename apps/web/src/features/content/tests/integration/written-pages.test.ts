@@ -36,6 +36,13 @@ describe('written pages', () => {
     expect(missing).toEqual([]);
   });
 
+  it('does not use Markdown tables, which MDX renders as plain text here', () => {
+    const withTables = written
+      .filter(([, source]) => /^\|.*\|\s*$/m.test(source))
+      .map(([path]) => path);
+    expect(withTables).toEqual([]);
+  });
+
   it('does not link to anything outside docs.aws.amazon.com', () => {
     const offenders = written.flatMap(([path, source]) =>
       [...source.matchAll(/https?:\/\/[^\s"')]+/g)]
