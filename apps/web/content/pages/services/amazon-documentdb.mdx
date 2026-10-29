@@ -7,4 +7,74 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Amazon DocumentDB (compatible con MongoDB) es un servicio de base de datos de documentos totalmente administrado. Facilita configurar, operar y escalar bases de datos compatibles con MongoDB en la nube, y te permite usar el mismo código de aplicación, los mismos controladores y las mismas herramientas que usas con MongoDB.
+
+## Qué problema resuelve
+
+Algunos datos no encajan bien en tablas con columnas fijas: perfiles de usuario en los que cada persona aporta información distinta, o contenidos de tipos muy variados. Una base de documentos guarda cada registro como un documento con esquema flexible, de modo que cada uno tiene solo los atributos que necesita, lo que acelera el desarrollo iterativo. DocumentDB ofrece ese modelo sin que tengas que operar tú los servidores, la replicación ni las copias de seguridad.
+
+## Conceptos clave
+
+- **Esquema flexible**: los documentos de una misma colección pueden tener atributos distintos. Es útil para perfiles de usuario, gestión de contenidos y datos operativos que se consultan en tiempo real.
+- **Dos tipos de clúster**: los clústeres basados en instancias y los clústeres elásticos. Los elásticos admiten cargas con millones de lecturas y escrituras por segundo y petabytes de almacenamiento.
+- **Arquitectura de clúster**: un clúster basado en instancias tiene una instancia principal, que recibe todas las escrituras, y hasta 15 réplicas que también atienden lecturas. Todas comparten un volumen de almacenamiento con copias en tres zonas de disponibilidad, que crece automáticamente sin que aprovisiones espacio de antemano.
+- **Punto de enlace de lectura**: la aplicación se conecta a él sin tener que seguir qué réplicas se añaden o se eliminan.
+- **Conmutación por error**: si falla una instancia, DocumentDB pasa automáticamente a una de las réplicas creadas en otras zonas de disponibilidad. Si no hay réplicas, intenta crear una instancia nueva.
+- **Copias de seguridad**: automáticas, incrementales y continuas, guardadas en Amazon S3, con restauración a un momento dado dentro del periodo de retención.
+- **Seguridad**: se ejecuta solo dentro de Amazon VPC y puede cifrar los datos en reposo con claves de AWS KMS; las copias de seguridad, las instantáneas y las réplicas del clúster también quedan cifradas.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Se aísla en"
+    service="Amazon VPC"
+    description="Las instancias de DocumentDB solo se ejecutan dentro de una VPC, donde controlas el acceso de red al clúster."
+  />
+  <ConnectionCard
+    relation="Cifra los datos con"
+    service="AWS KMS"
+    description="Cifra el almacenamiento, las copias de seguridad, las instantáneas y las réplicas con claves que creas y controlas."
+  />
+  <ConnectionCard
+    relation="Guarda las copias en"
+    service="Amazon S3"
+    description="Las copias de seguridad automáticas se almacenan en S3 y permiten restaurar a un momento dado."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+El tema «Elegir base de datos: tipo y motor» compara todos los modelos de datos. Desde la vista del servicio:
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="DocumentDB cuando"
+    items={[
+      'Los datos son documentos tipo JSON con un esquema flexible.',
+      'Tu aplicación ya usa MongoDB y quieres conservar el código, los controladores y las herramientas.',
+      'Quieres escalar las lecturas con réplicas sin administrar servidores.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Accedes por clave con un volumen de solicitudes muy alto y quieres un servicio sin servidor: Amazon DynamoDB.',
+      'Los datos son relacionales y necesitas uniones y transacciones SQL: Amazon Aurora o Amazon RDS.',
+      'Lo importante son las relaciones entre los datos: Amazon Neptune.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon DocumentDB"
+  url="https://docs.aws.amazon.com/documentdb/latest/developerguide/what-is.html"
+/>
+<OfficialSource
+  title="Casos de uso de las bases de datos de documentos"
+  url="https://docs.aws.amazon.com/documentdb/latest/developerguide/document-database-use-cases.html"
+/>
