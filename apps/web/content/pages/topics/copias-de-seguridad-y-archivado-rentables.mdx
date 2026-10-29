@@ -7,4 +7,130 @@ export const meta = {
   covers: ['4.1-k5', '4.1-s6'],
 };
 
-Contenido pendiente.
+Las copias de seguridad y los archivos crecen en silencio: cada instantánea, cada copia diaria y cada dato que se guarda "por si acaso" ocupa almacenamiento que se paga mes a mes. Una estrategia rentable protege lo que el negocio necesita recuperar, durante el tiempo que lo necesita, en el nivel de almacenamiento más barato que todavía permite recuperarlo a tiempo.
+
+## Qué problema resuelve
+
+Sin una estrategia, las copias se acumulan sin fecha de caducidad, se guardan en niveles caros aunque nadie las consulte y se crean con scripts distintos para cada servicio. El resultado es pagar de más y, a la vez, no tener claro si se puede restaurar. Esta página se centra en el costo de las copias y el archivado. Cómo funcionan las copias de cada servicio se explica en la página de copias de seguridad y replicación, la retención de las bases de datos en la de bases de datos rentables y las clases de Amazon S3 en la de clases de almacenamiento y ciclo de vida.
+
+## Conceptos clave
+
+### Copia de seguridad o archivo
+
+- **Copia de seguridad**: sirve para restaurar datos tras una pérdida, una corrupción o un desastre. Lo importante es poder restaurar hasta el punto que exige el objetivo de punto de recuperación (RPO) y dentro del tiempo que exige el objetivo de tiempo de recuperación (RTO).
+- **Archivo**: conserva durante mucho tiempo datos que casi nunca se consultan, a menudo por cumplimiento normativo. Lo importante es el costo de almacenamiento a largo plazo, y se acepta que recuperarlos tarde.
+
+La estrategia combina ambas cosas: copias recientes en un nivel de acceso rápido y copias antiguas en un nivel de archivo más barato.
+
+### Frecuencia y retención: las dos palancas del costo
+
+La frecuencia de las copias determina el punto de recuperación que puedes lograr, que debe ajustarse a tu RPO. Copias más frecuentes y retenciones más largas significan más almacenamiento. Por eso conviene definir ambas a partir de los requisitos del negocio y de cumplimiento, y eliminar automáticamente lo que ya no se necesita.
+
+- **AWS Backup**: centraliza y automatiza la protección de datos de muchos servicios de AWS con políticas llamadas planes de copia de seguridad, que puedes aplicar a los recursos mediante etiquetas. En cada regla del plan defines la frecuencia y el periodo total de retención; al terminar ese periodo, la copia deja de estar disponible. Así sustituyes scripts y procesos manuales servicio por servicio.
+- **Amazon Data Lifecycle Manager**: automatiza la creación, la retención y la eliminación de instantáneas de EBS y de AMI respaldadas por EBS. Ayuda a reducir costos de almacenamiento eliminando copias desactualizadas, y no tiene costo adicional.
+
+### Niveles de almacenamiento para copias antiguas
+
+- **Almacenamiento en frío de AWS Backup**: cada copia se crea en almacenamiento templado (warm), y para los tipos de recurso que lo admiten puedes pasarla a un almacenamiento en frío de menor costo. La copia debe permanecer al menos 90 días en frío, así que el periodo total de retención tiene que ser 90 días más largo que el momento de la transición. AWS Backup recomienda no mover las copias a frío antes de 8 días.
+- **Amazon EBS Snapshots Archive**: un nivel de bajo costo para guardar a largo plazo instantáneas de EBS que rara vez se consultan. Al archivarla, la instantánea incremental se convierte en completa, y para usarla primero hay que restaurarla al nivel estándar. Tiene un periodo mínimo de archivo de 90 días: si la borras o la restauras de forma permanente antes, pagas los días restantes. Encaja con la instantánea final de un proyecto o con instantáneas mensuales, trimestrales o anuales que se guardan por cumplimiento.
+- **Clases S3 Glacier**: ofrecen almacenamiento de menor costo para datos de larga duración a los que se accede poco, con la misma durabilidad que S3 Standard. Cuanto menos frecuente es el acceso y más larga la recuperación, menor es el costo de almacenamiento. Cada una tiene una duración mínima de almacenamiento, y si borras o mueves el objeto antes, pagas el resto de ese periodo.
+
+### Elegir la clase S3 Glacier para archivar
+
+- **S3 Glacier Instant Retrieval**: para datos de larga duración que se consultan una vez por trimestre y necesitan recuperarse en milisegundos. Duración mínima de 90 días.
+- **S3 Glacier Flexible Retrieval**: para archivos que se consultan una o dos veces al año y no necesitan acceso inmediato; es ideal para copias de seguridad y recuperación ante desastres. Los objetos se archivan y hay que restaurarlos antes de leerlos, con tiempos de minutos a horas y recuperaciones masivas gratuitas. Duración mínima de 90 días.
+- **S3 Glacier Deep Archive**: para datos que se consultan menos de una vez al año, como conjuntos de datos que se retienen varios años por cumplimiento. Es la opción de almacenamiento de menor costo de AWS, a cambio de recuperaciones que de media tardan de 9 a 48 horas. Duración mínima de 180 días.
+
+Para mover las copias guardadas en S3 a estas clases de forma automática, usa reglas de ciclo de vida de S3.
+
+### Sustituir las cintas físicas
+
+Tape Gateway, de AWS Storage Gateway, ofrece una infraestructura de cintas virtuales respaldada por la nube. Permite archivar las copias de seguridad en S3 Glacier Flexible Retrieval o S3 Glacier Deep Archive de forma rentable y duradera, y elimina la carga de aprovisionar, escalar y mantener una infraestructura de cintas física.
+
+### La copia de seguridad como estrategia de recuperación ante desastres
+
+De las cuatro estrategias de recuperación ante desastres, copia de seguridad y restauración es la de menor costo y complejidad. Protege frente a la pérdida o corrupción de datos y, si replicas las copias a otra región, también frente a un desastre regional. Además de los datos, debes poder volver a desplegar la infraestructura, la configuración y el código, por ejemplo con infraestructura como código. Si necesitas recuperarte más rápido de lo que permite restaurar todo desde las copias, o tu definición de desastre incluye perder una región entera, considera estrategias más complejas como luz piloto (pilot light) o espera en caliente (warm standby), que se explican en la página de recuperación ante desastres.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Centraliza las copias con"
+    service="AWS Backup"
+    description="Planes de copia con frecuencia, retención y paso a almacenamiento en frío para muchos servicios desde un solo lugar."
+  />
+  <ConnectionCard
+    relation="Automatiza las instantáneas con"
+    service="Amazon Data Lifecycle Manager"
+    description="Crea, retiene y elimina instantáneas de EBS y AMI según una programación, sin costo adicional."
+  />
+  <ConnectionCard
+    relation="Archiva en"
+    service="Amazon S3 Glacier"
+    description="Las clases Instant Retrieval, Flexible Retrieval y Deep Archive guardan datos de larga duración con menor costo de almacenamiento."
+  />
+  <ConnectionCard
+    relation="Reemplaza las cintas con"
+    service="AWS Storage Gateway"
+    description="Tape Gateway ofrece almacenamiento de cintas virtuales respaldado por la nube y archiva las copias en S3 Glacier."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Copia de seguridad cuando"
+    items={[
+      'Necesitas restaurar datos recientes dentro de tu RPO y RTO: copias en almacenamiento estándar o templado.',
+      'Quieres una política única para varios servicios: AWS Backup.',
+      'Solo gestionas instantáneas de EBS y AMI: Amazon Data Lifecycle Manager.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Archivado cuando"
+    items={[
+      'Guardas copias más de 90 días y casi nunca las restauras: almacenamiento en frío de AWS Backup o EBS Snapshots Archive.',
+      'Consultas el archivo una vez por trimestre y lo necesitas al instante: S3 Glacier Instant Retrieval.',
+      'Lo consultas una o dos veces al año: S3 Glacier Flexible Retrieval. Menos de una vez al año: S3 Glacier Deep Archive.',
+      'Hoy usas cintas físicas: Tape Gateway.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Backup"
+  url="https://docs.aws.amazon.com/aws-backup/latest/devguide/whatisbackup.html"
+/>
+<OfficialSource
+  title="Opciones y configuración de los planes de AWS Backup"
+  url="https://docs.aws.amazon.com/aws-backup/latest/devguide/plan-options-and-configuration.html"
+/>
+<OfficialSource
+  title="Automatizar copias con Amazon Data Lifecycle Manager"
+  url="https://docs.aws.amazon.com/ebs/latest/userguide/snapshot-lifecycle.html"
+/>
+<OfficialSource
+  title="Archivar instantáneas de Amazon EBS"
+  url="https://docs.aws.amazon.com/ebs/latest/userguide/snapshot-archive.html"
+/>
+<OfficialSource
+  title="Precios y facturación del archivado de instantáneas de EBS"
+  url="https://docs.aws.amazon.com/ebs/latest/userguide/snapshot-archive-pricing.html"
+/>
+<OfficialSource
+  title="Clases de almacenamiento S3 Glacier"
+  url="https://docs.aws.amazon.com/AmazonS3/latest/userguide/glacier-storage-classes.html"
+/>
+<OfficialSource
+  title="Qué es Tape Gateway"
+  url="https://docs.aws.amazon.com/storagegateway/latest/tgw/WhatIsStorageGateway.html"
+/>
+<OfficialSource
+  title="Opciones de recuperación ante desastres en la nube"
+  url="https://docs.aws.amazon.com/whitepapers/latest/disaster-recovery-workloads-on-aws/disaster-recovery-options-in-the-cloud.html"
+/>
