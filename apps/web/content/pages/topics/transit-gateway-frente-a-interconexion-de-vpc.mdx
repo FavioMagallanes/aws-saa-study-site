@@ -7,4 +7,124 @@ export const meta = {
   covers: ['4.4-k6'],
 };
 
-Contenido pendiente.
+Cuando una organización tiene varias VPC, tarde o temprano necesita que se comuniquen entre sí y con la red local. Las dos herramientas principales son la interconexión de VPC (VPC peering) y AWS Transit Gateway. Las dos funcionan, pero se cobran de forma distinta y escalan de forma distinta, así que la topología que elijas define buena parte del costo de la red.
+
+## Qué problema resuelve
+
+Hay dos patrones para conectar varias VPC. En el patrón de muchos a muchos, el tráfico entre cada par de VPC se gestiona por separado. En el patrón de concentrador y radios (hub and spoke), todo el tráfico entre VPC pasa por un recurso central que lo enruta según reglas. El primero es más barato con pocas VPC; el segundo simplifica la gestión cuando son muchas. Esta página se centra en el costo; las diferencias técnicas de cada opción se explican en la página de topologías de red.
+
+## Conceptos clave
+
+### Cómo se cobra cada opción
+
+- **Interconexión de VPC**: el costo está en la transferencia de datos. La transferencia de datos que se queda dentro de una misma zona de disponibilidad es gratuita; la que cruza zonas de disponibilidad se cobra a la tarifa estándar de transferencia dentro de la región, y entre regiones se aplican los cargos estándar de transferencia entre regiones.
+- **AWS Transit Gateway**: se cobra por hora por cada adjunto (attachment) del transit gateway, como cada VPC o VPN conectada, y por la cantidad de tráfico que procesa. De forma predeterminada, el cargo por procesamiento de datos se asigna a la cuenta propietaria del adjunto de origen, aunque puedes personalizar ese reparto con la asignación flexible de costos.
+
+Según la documentación de AWS, la interconexión de VPC ofrece el menor costo total y el mayor rendimiento agregado frente a las demás opciones para conectar VPC.
+
+### El límite del peering: crece como una malla
+
+Una interconexión de VPC es una relación uno a uno entre dos VPC y no es transitiva: si A está conectada con B y con C, B no puede llegar a C a través de A. Para que todas se comuniquen hace falta una conexión por cada par, y el número de conexiones crece muy rápido con el número de VPC. Además, cada VPC tiene una cuota de conexiones de interconexión activas.
+
+La conectividad híbrida tampoco se comparte: si usas peering, cada VPC necesita su propia conexión VPN o Direct Connect hacia la red local, porque una VPC no puede usar la conexión híbrida de otra VPC con la que está interconectada.
+
+La documentación de AWS sugiere el peering cuando los recursos de una VPC deben comunicarse con los de otra, los entornos de ambas están controlados y el número de VPC es pequeño (menos de 10), de modo que cada conexión se pueda gestionar por separado.
+
+### El concentrador central: Transit Gateway
+
+AWS Transit Gateway es un centro de tránsito regional que interconecta VPC y redes locales. Es un servicio totalmente administrado: AWS gestiona su alta disponibilidad y escalabilidad, y no necesitas aparatos virtuales de terceros. Puedes conectarle VPC, conexiones VPN, puertas de enlace de Direct Connect y otros transit gateways, y controlar con sus tablas de enrutamiento qué redes se ven entre sí.
+
+Con este modelo, cada VPC solo se conecta al transit gateway para llegar a las demás redes, lo que simplifica la gestión y reduce los costos operativos. También puedes conectar toda la conectividad híbrida a un único transit gateway en lugar de a cada VPC. A cambio, pagas el cargo por adjunto y por los datos que procesa.
+
+Para no pagar de más:
+
+- No necesitas transit gateways adicionales para tener alta disponibilidad, porque ya son altamente disponibles por diseño. Para redundancia, la recomendación es usar uno solo en cada región.
+- Normalmente basta con un transit gateway por región para todas las VPC, usando sus tablas de enrutamiento para aislarlas donde haga falta. Puede haber motivos para crear varios, como limitar el alcance de un error de configuración.
+- Para conectar VPC de varias cuentas de la organización, puedes compartir un transit gateway con AWS Resource Access Manager en lugar de crear uno por cuenta.
+
+### Centralizar la salida a internet
+
+Desplegar una NAT gateway en cada VPC puede salir muy caro, porque cada una tiene un cargo por hora. Una opción para reducirlo es centralizar las NAT gateways en una VPC de salida y enrutar hacia ella, a través del transit gateway, el tráfico de internet de las demás VPC. Ten en cuenta que así pagas además el procesamiento de datos del transit gateway; si una VPC envía volúmenes muy grandes a internet, mantener una NAT gateway local en esa VPC puede salir más barato. La comparación entre NAT gateway e instancia NAT se trata en su propia página.
+
+### Menos VPC que conectar: VPC compartidas
+
+Otra forma de reducir la cantidad de conexiones es compartir subredes de una VPC con otras cuentas de la organización. Así creas y gestionas menos VPC, y no hay cargos de transferencia de datos entre instancias de distintas cuentas que estén en la misma zona de disponibilidad. Las VPC compartidas se pueden conectar entre sí con Transit Gateway o con peering.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Conecta la red local con"
+    service="AWS Direct Connect y Site-to-Site VPN"
+    description="Se adjuntan una sola vez al transit gateway en lugar de a cada VPC, lo que no es posible con peering."
+  />
+  <ConnectionCard
+    relation="Centraliza la salida con"
+    service="NAT gateway"
+    description="Una VPC de salida con NAT gateways puede dar internet a varias VPC a través del transit gateway, a cambio del cargo por procesamiento."
+  />
+  <ConnectionCard
+    relation="Se comparte entre cuentas con"
+    service="AWS Resource Access Manager"
+    description="Permite que varias cuentas de la organización usen el mismo transit gateway en lugar de crear uno por cuenta."
+  />
+  <ConnectionCard
+    relation="Se une a otras regiones con"
+    service="Interconexión de transit gateways"
+    description="Los transit gateways de la misma región o de regiones distintas se pueden interconectar para enrutar tráfico entre ellos."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Interconexión de VPC cuando"
+    items={[
+      'Conectas pocas VPC y puedes gestionar cada conexión por separado.',
+      'Buscas el menor costo y el mayor rendimiento entre VPC.',
+      'No necesitas enrutamiento transitivo ni compartir la conexión híbrida.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Transit Gateway cuando"
+    items={[
+      'Son muchas VPC y la malla de conexiones se vuelve difícil de gestionar.',
+      'Quieres compartir VPN o Direct Connect y centralizar el enrutamiento.',
+      'Quieres centralizar la salida a internet, sabiendo que pagas el procesamiento de datos.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Interconexión de VPC (documento técnico sobre redes de varias VPC)"
+  url="https://docs.aws.amazon.com/whitepapers/latest/building-scalable-secure-multi-vpc-network-infrastructure/vpc-peering.html"
+/>
+<OfficialSource
+  title="AWS Transit Gateway (documento técnico sobre redes de varias VPC)"
+  url="https://docs.aws.amazon.com/whitepapers/latest/building-scalable-secure-multi-vpc-network-infrastructure/transit-gateway.html"
+/>
+<OfficialSource
+  title="Qué es AWS Transit Gateway"
+  url="https://docs.aws.amazon.com/vpc/latest/tgw/what-is-transit-gateway.html"
+/>
+<OfficialSource
+  title="Prácticas recomendadas de diseño de AWS Transit Gateway"
+  url="https://docs.aws.amazon.com/vpc/latest/tgw/tgw-best-design-practices.html"
+/>
+<OfficialSource
+  title="Cómo funcionan las interconexiones de VPC"
+  url="https://docs.aws.amazon.com/vpc/latest/peering/vpc-peering-basics.html"
+/>
+<OfficialSource
+  title="Salida a internet centralizada con NAT gateway"
+  url="https://docs.aws.amazon.com/whitepapers/latest/building-scalable-secure-multi-vpc-network-infrastructure/using-nat-gateway-for-centralized-egress.html"
+/>
+<OfficialSource
+  title="VPC compartidas"
+  url="https://docs.aws.amazon.com/whitepapers/latest/building-scalable-secure-multi-vpc-network-infrastructure/amazon-vpc-sharing.html"
+/>
