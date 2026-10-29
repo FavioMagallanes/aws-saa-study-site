@@ -7,4 +7,134 @@ export const meta = {
   covers: ['1.3-k4', '1.3-s2', '1.3-s3', '1.3-s4', '1.3-s7'],
 };
 
-Contenido pendiente.
+El cifrado protege los datos aunque alguien consiga acceder a ellos: sin la clave, el contenido es ilegible. En AWS se aplica en dos momentos, cuando los datos están guardados (en reposo) y cuando viajan por la red (en tránsito), y se apoya en dos servicios principales: AWS KMS para las claves y AWS Certificate Manager (ACM) para los certificados.
+
+## Qué problema resuelve
+
+Los datos pueden quedar expuestos en un disco comprometido o interceptarse mientras se transmiten. Cifrarlos reduce ese riesgo, pero introduce otro: proteger las claves. Si cifras los datos, debes proteger la clave; si cifras esa clave, debes proteger la que la cifra, hasta llegar a una clave raíz. AWS KMS protege esas claves por ti, y ACM se encarga de crear y renovar los certificados que cifran las comunicaciones.
+
+## Conceptos clave
+
+### Cifrar datos en reposo
+
+Para proteger los datos guardados en Amazon S3, el cifrado del lado del servidor cifra los objetos antes de guardarlos en los discos de los centros de datos de AWS y los descifra al descargarlos. Todos los buckets de S3 tienen el cifrado configurado de forma predeterminada, con claves administradas por S3 (SSE-S3). Si quieres otro tipo, puedes indicar en la solicitud, o configurar como predeterminado en el bucket, el cifrado con claves de AWS KMS (SSE-KMS); también existen el cifrado de doble capa con claves de KMS (DSSE-KMS) y el cifrado con claves que tú proporcionas (SSE-C) como opción por solicitud. Si cambias el cifrado predeterminado del bucket a SSE-KMS, los objetos que ya existían conservan su tipo de cifrado.
+
+Los volúmenes y las instantáneas de Amazon EBS también admiten cifrado. Las operaciones de cifrado ocurren en los servidores que alojan las instancias de EC2, lo que protege los datos en reposo y los que viajan entre una instancia y su volumen conectado.
+
+### Cifrar datos en tránsito
+
+Puedes proteger los datos en tránsito mediante SSL/TLS o con cifrado del lado del cliente. Los certificados que habilitan TLS se administran con AWS Certificate Manager.
+
+### AWS KMS y la administración de claves
+
+AWS Key Management Service (AWS KMS) es un servicio administrado que facilita crear y controlar las claves que se usan para cifrar y firmar datos. Las claves de KMS están protegidas por módulos de seguridad de hardware validados con FIPS 140-3 nivel de seguridad 3 y nunca salen de AWS KMS sin cifrar. Hay tres tipos:
+
+- **Claves administradas por el cliente**: las creas y administras tú. Se recomiendan si quieres control total sobre su ciclo de vida y uso. Tienen un costo mensual y las solicitudes de uso también generan costo.
+- **Claves administradas por AWS**: existen en tu cuenta, pero solo se pueden usar dentro del servicio de AWS correspondiente y no puedes administrar su ciclo de vida ni sus permisos. Llevan un alias del tipo `aws/<código del servicio>`, como `aws/ebs`.
+- **Claves propiedad de AWS**: están en una cuenta que administra el servicio y se usan para cifrar datos de forma predeterminada. No se cobran y no puedes cambiar sus políticas.
+
+### Políticas de acceso para las claves
+
+Una política de clave es una política de recursos para una clave de KMS y es la forma principal de controlar el acceso a ella. Toda clave debe tener exactamente una política de clave, y sus instrucciones determinan quién puede usar la clave y cómo. Ninguna entidad de AWS, ni siquiera el usuario raíz o quien creó la clave, tiene permisos sobre ella a menos que se los permita de forma explícita, y nunca se los deniegue, una política de clave, una política de IAM o una concesión.
+
+Las políticas de IAM solo permiten acceder a una clave si la política de la clave lo habilita; la política de clave predeterminada habilita las políticas de IAM. Las políticas de clave son regionales: controlan solo las claves de la misma región.
+
+### Rotación de claves
+
+Con la rotación automática, AWS KMS genera de forma predeterminada nuevo material criptográfico para la clave cada año. Puedes definir un periodo de rotación personalizado, o ejecutar una rotación bajo demanda sin importar si la automática está activa. Puedes seguir las rotaciones en Amazon CloudWatch, AWS CloudTrail y la consola de KMS.
+
+- La rotación cambia solo el material criptográfico actual. Para descifrar, KMS elige de forma automática el material con el que se cifró, así que puedes usar una clave rotada en tus aplicaciones sin cambiar el código.
+- No rota las claves de datos que la clave generó ni vuelve a cifrar los datos, y no mitiga el efecto de una clave de datos comprometida.
+- La rotación manual, es decir, crear una clave nueva y usarla en lugar de la anterior, es buena opción para claves que no admiten rotación automática ni bajo demanda, como las asimétricas, las HMAC y las de almacenes de claves personalizados.
+
+### Certificados con AWS Certificate Manager
+
+ACM se encarga de crear, guardar y renovar certificados SSL/TLS X.509 públicos y privados que protegen tus sitios web y aplicaciones en AWS. Puedes emitirlos con ACM o importar certificados de terceros, y cubren un dominio, varios, o dominios con comodín. Los certificados que administra ACM no tienen cargo adicional.
+
+- Los certificados de ACM son recursos regionales: para usar el mismo dominio con Elastic Load Balancing en más de una región, debes solicitar o importar un certificado en cada una.
+- Para usar un certificado de ACM con Amazon CloudFront, debes solicitarlo o importarlo en la región Este de EE. UU. (Norte de Virginia).
+- **Renovación administrada**: ACM renueva de forma automática los certificados emitidos por Amazon si usas validación por DNS, o te envía avisos por correo cuando se acerca el vencimiento. Un certificado es elegible si está asociado a otro servicio de AWS, como Elastic Load Balancing o CloudFront. No lo es si lo importaste ni si ya venció, por lo que renovar los certificados importados es tarea tuya.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Cifra datos de"
+    service="Amazon S3 y Amazon EBS"
+    description="S3 cifra por defecto con SSE-S3 y admite SSE-KMS; EBS cifra volúmenes e instantáneas."
+  />
+  <ConnectionCard
+    relation="Protege las claves con"
+    service="AWS KMS"
+    description="Crea y controla las claves de cifrado, que nunca salen sin cifrar, y define con políticas quién puede usarlas."
+  />
+  <ConnectionCard
+    relation="Habilita TLS con"
+    service="AWS Certificate Manager"
+    description="Crea, guarda y renueva los certificados que cifran los datos en tránsito de tus sitios y aplicaciones."
+  />
+  <ConnectionCard
+    relation="Se integra con"
+    service="Elastic Load Balancing y Amazon CloudFront"
+    description="Los certificados de ACM asociados a estos servicios son elegibles para la renovación administrada."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Qué usar para cada necesidad"
+    items={[
+      'Cifrar datos en reposo con claves que controlas: SSE-KMS con una clave administrada por el cliente.',
+      'Cifrar datos en tránsito: TLS con certificados de ACM.',
+      'Controlar quién usa una clave: la política de clave de KMS.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Detalles que conviene recordar"
+    items={[
+      'Rotar una clave no vuelve a cifrar los datos ni rota las claves de datos.',
+      'Los certificados importados a ACM no se renuevan solos.',
+      'Un certificado para CloudFront debe estar en Norte de Virginia.',
+      'Las políticas de clave de KMS y los certificados de ACM son regionales.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Proteger los datos con cifrado en Amazon S3"
+  url="https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingEncryption.html"
+/>
+<OfficialSource
+  title="Qué es Amazon Elastic Block Store"
+  url="https://docs.aws.amazon.com/ebs/latest/userguide/what-is-ebs.html"
+/>
+<OfficialSource
+  title="AWS Key Management Service"
+  url="https://docs.aws.amazon.com/kms/latest/developerguide/overview.html"
+/>
+<OfficialSource
+  title="Claves de AWS KMS"
+  url="https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html"
+/>
+<OfficialSource
+  title="Políticas de clave en AWS KMS"
+  url="https://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html"
+/>
+<OfficialSource
+  title="Rotar claves de AWS KMS"
+  url="https://docs.aws.amazon.com/kms/latest/developerguide/rotate-keys.html"
+/>
+<OfficialSource
+  title="Qué es AWS Certificate Manager"
+  url="https://docs.aws.amazon.com/acm/latest/userguide/acm-overview.html"
+/>
+<OfficialSource
+  title="Renovación administrada de certificados en ACM"
+  url="https://docs.aws.amazon.com/acm/latest/userguide/acm-renewal.html"
+/>
