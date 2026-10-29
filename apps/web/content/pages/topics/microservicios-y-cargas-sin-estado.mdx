@@ -7,4 +7,151 @@ export const meta = {
   covers: ['2.1-k4', '2.1-s1'],
 };
 
-Contenido pendiente.
+Una arquitectura de microservicios divide la aplicación en servicios pequeños y débilmente acoplados que se comunican mediante API bien definidas y que gestionan equipos autónomos. Para que esos servicios escalen y se recuperen de fallos con facilidad, la regla de diseño más importante es que no guarden estado propio entre solicitudes.
+
+## Qué problema resuelve
+
+En una aplicación monolítica, todos los componentes suelen compartir una base de datos y un mismo despliegue, así que cambiar o escalar una parte obliga a tocar el conjunto. Los microservicios buscan mejorar la escalabilidad, la resiliencia, la flexibilidad y la velocidad de desarrollo. Y si además cada servicio es sin estado, cualquier servidor se puede reemplazar sin afectar a la disponibilidad, y cualquier recurso de cómputo disponible puede atender cualquier solicitud.
+
+## Conceptos clave
+
+### Principios de diseño de microservicios
+
+- **Servicios pequeños e independientes**: cada uno hace una cosa bien y lo mantiene un equipo pequeño que se responsabiliza de él de principio a fin, desde la creación hasta el despliegue y el mantenimiento.
+- **Organizados por dominio**: un monolito típico se divide en capas técnicas (presentación, aplicación y datos); los microservicios separan la funcionalidad en verticales cohesivas según el dominio de negocio.
+- **API como puerta de entrada**: las API, normalmente REST o GraphQL, son el punto de entrada a la lógica de cada servicio y se encargan de la gestión del tráfico, el filtrado y enrutamiento de solicitudes, la caché, la autenticación y la autorización.
+- **Datos propios**: en lugar de compartir una única base de datos, cada microservicio mantiene sus propios datos. Compartir datos mediante una base de datos común es un antipatrón porque vuelve a acoplar los componentes.
+- **No siempre son la respuesta**: según la guía de AWS, un monolito u otro enfoque puede ser más adecuado en algunos casos. La decisión se toma caso por caso, según la escala, la complejidad y el caso de uso.
+
+### Cargas sin estado frente a cargas con estado
+
+Una sesión es el conjunto de datos únicos de un usuario que se conserva entre solicitudes mientras usa la aplicación. Una aplicación **sin estado** no necesita conocer interacciones anteriores ni guarda información de sesión: entre solicitudes no depende de datos guardados localmente en disco o en memoria. Una aplicación **con estado**, en cambio, depende de datos guardados localmente en el servidor, así que ese servidor no se puede reemplazar libremente sin afectar a los usuarios.
+
+Hacer los sistemas sin estado siempre que sea posible tiene ventajas claras:
+
+- Los servidores se pueden reemplazar cuando sea necesario sin afectar a la disponibilidad.
+- La aplicación escala horizontalmente: puedes añadir o quitar capacidad según el tráfico, porque cualquier instancia de EC2 o función de Lambda puede atender cualquier solicitud.
+- Toleran el fallo de un nodo individual.
+- Una vez que el diseño es sin estado, puedes usar servicios de cómputo sin servidor como AWS Lambda o AWS Fargate.
+
+### Cómo sacar el estado de la aplicación
+
+El estado no desaparece: se traslada fuera del cómputo. Primero identifica qué componentes guardan estado y luego sepáralo de la lógica de la aplicación:
+
+- **Datos de sesión**: llévalos a una base de datos, una caché o archivos externos, por ejemplo con Amazon ElastiCache, Amazon DynamoDB o Amazon EFS.
+- **Datos de usuario**: Amazon Cognito separa la información de los usuarios del código de la aplicación con grupos de usuarios y grupos de identidades.
+- **Datos grandes no estructurados**: guarda imágenes y documentos en Amazon S3 y recupéralos cuando hagan falta, en lugar de mantenerlos en memoria.
+- **Perfiles y datos de consulta frecuente**: Amazon DynamoDB permite consultarlos casi en tiempo real.
+- **Secretos**: AWS Secrets Manager los guarda en un lugar centralizado y seguro, de modo que el código no tenga que almacenarlos.
+
+### Dónde ejecutar los microservicios
+
+AWS ofrece varias opciones de alojamiento; la elección depende de cuánta infraestructura subyacente quieras administrar:
+
+- **AWS Lambda**: subes el código y Lambda lo ejecuta, escala y administra con alta disponibilidad, sin gestionar infraestructura. Lo pueden activar otros servicios de AWS o llamarlo directamente aplicaciones web o móviles. En arquitecturas basadas en eventos, lo recomendable es asignar una función a una tarea concreta y bien definida, y evitar una sola función que contenga toda la lógica.
+- **Amazon ECS y Amazon EKS**: orquestan contenedores. ECS es un servicio de orquestación totalmente administrado; EKS es Kubernetes administrado, que permite usar las herramientas de la comunidad de Kubernetes.
+- **AWS Fargate o Amazon EC2**: son las opciones de alojamiento de los contenedores. Fargate es un motor de cómputo sin servidor que funciona con ECS y con EKS y administra automáticamente los recursos de cómputo.
+- **Amazon ECR**: registro de contenedores totalmente administrado para guardar las imágenes de la aplicación.
+
+### Comunicación y datos distribuidos
+
+Los microservicios se comunican por la red. Para llamadas síncronas, API Gateway ofrece un punto de acceso centralizado a los servicios de backend. Para llamadas asíncronas, Amazon SQS, Amazon SNS y Amazon EventBridge desacoplan a quien envía de quien recibe. Cuando varios servicios deben coordinarse, AWS desaconseja incrustar el código de orquestación en los servicios, porque aumenta el acoplamiento; AWS Step Functions actúa como motor de flujo de trabajo para esa coordinación.
+
+Repartir los datos entre servicios trae nuevos retos:
+
+- **Consistencia final**: a menudo es más práctico aceptar pequeños retrasos en las actualizaciones que exigir que todo se actualice al instante.
+- **Patrón Saga**: si una operación de negocio implica a varios servicios y una parte falla, coordina una serie de acciones de compensación para deshacer lo ya completado.
+- **Eventos duplicados**: en sistemas distribuidos, un evento puede entregarse varias veces por los reintentos, así que la aplicación debe estar preparada para ello.
+- **Modelo de datos simple**: como cada servicio hace una sola cosa, su modelo de datos suele ser sencillo y puede encajar en una base de datos NoSQL como DynamoDB. Ten en cuenta que en NoSQL no puedes unir tablas: si lo necesitas, esa lógica va en la aplicación.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Expone los servicios con"
+    service="Amazon API Gateway"
+    description="Ofrece un punto de acceso centralizado a los microservicios y gestiona el tráfico, la autorización, la supervisión y las versiones."
+  />
+  <ConnectionCard
+    relation="Ejecuta contenedores con"
+    service="Amazon ECS, Amazon EKS y AWS Fargate"
+    description="ECS y EKS orquestan los contenedores; Fargate los ejecuta sin que administres servidores."
+  />
+  <ConnectionCard
+    relation="Guarda la sesión fuera del servidor con"
+    service="Amazon ElastiCache o Amazon DynamoDB"
+    description="Sacar los datos de sesión del cómputo permite que cualquier instancia atienda cualquier solicitud."
+  />
+  <ConnectionCard
+    relation="Desacopla la comunicación con"
+    service="Amazon SQS, Amazon SNS y Amazon EventBridge"
+    description="Permiten que los servicios se comuniquen de forma asíncrona sin depender directamente unos de otros."
+  />
+  <ConnectionCard
+    relation="Coordina varios servicios con"
+    service="AWS Step Functions"
+    description="Gestiona la orquestación, el manejo de errores y los reintentos sin añadir código de coordinación a cada servicio."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Microservicios sin estado cuando"
+    items={[
+      'Necesitas escalar partes de la aplicación de forma independiente.',
+      'Equipos pequeños y autónomos deben crear, desplegar y mantener sus propios servicios.',
+      'Quieres reemplazar servidores o escalar horizontalmente sin perder sesiones de usuario.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'La escala y la complejidad no justifican el costo de un sistema distribuido: un monolito u otro enfoque.',
+      'La aplicación encaja en capas técnicas claras: arquitectura de varios niveles.',
+      'Un componente necesita estado: guárdalo en ElastiCache, DynamoDB, Amazon EFS o Amazon S3, no en el servidor.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Implementar microservicios en AWS"
+  url="https://docs.aws.amazon.com/whitepapers/latest/microservices-on-aws/microservices-on-aws.html"
+/>
+<OfficialSource
+  title="Arquitectura de microservicios sencilla en AWS"
+  url="https://docs.aws.amazon.com/whitepapers/latest/microservices-on-aws/simple-microservices-architecture-on-aws.html"
+/>
+<OfficialSource
+  title="Microservicios: implementaciones en AWS"
+  url="https://docs.aws.amazon.com/whitepapers/latest/microservices-on-aws/microservices.html"
+/>
+<OfficialSource
+  title="Almacén de datos de los microservicios"
+  url="https://docs.aws.amazon.com/whitepapers/latest/microservices-on-aws/data-store.html"
+/>
+<OfficialSource
+  title="Gestión de datos distribuidos"
+  url="https://docs.aws.amazon.com/whitepapers/latest/microservices-on-aws/distributed-data-management.html"
+/>
+<OfficialSource
+  title="Mecanismos de comunicación"
+  url="https://docs.aws.amazon.com/whitepapers/latest/microservices-on-aws/communication-mechanisms.html"
+/>
+<OfficialSource
+  title="REL05-BP06 Hacer los sistemas sin estado siempre que sea posible"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/reliability-pillar/rel_mitigate_interaction_failure_stateless.html"
+/>
+<OfficialSource
+  title="REL04-BP02 Implementar dependencias débilmente acopladas"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/reliability-pillar/rel_prevent_interaction_failure_loosely_coupled_system.html"
+/>
+<OfficialSource
+  title="Crear arquitecturas basadas en eventos con Lambda"
+  url="https://docs.aws.amazon.com/lambda/latest/dg/concepts-event-driven-architectures.html"
+/>
