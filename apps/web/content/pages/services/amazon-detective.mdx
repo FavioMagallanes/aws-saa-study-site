@@ -7,4 +7,86 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Amazon Detective te ayuda a analizar e investigar hallazgos de seguridad o actividad sospechosa, y a identificar rápido su causa raíz. Recopila de forma automática datos de registro de tus recursos de AWS y, con aprendizaje automático, análisis estadístico y teoría de grafos, genera visualizaciones para que la investigación sea más rápida y eficiente.
+
+## Qué problema resuelve
+
+Un servicio de detección te avisa de que algo raro pasó, pero no te dice todo el alcance: qué otras acciones hizo el atacante, qué recursos tocó y desde cuándo. Responder a eso a mano exige reunir registros, cruzarlos y escribir tus propias consultas. Detective lo hace por ti: no tienes que organizar datos ni desarrollar, configurar o ajustar consultas y algoritmos, y pagas solo por los eventos analizados.
+
+## Conceptos clave
+
+### Grafo de comportamiento
+
+Detective extrae eventos con marca de tiempo, como intentos de inicio de sesión, llamadas a la API y tráfico de red, de AWS CloudTrail y de los registros de flujo de Amazon VPC, e incorpora los hallazgos de Amazon GuardDuty. Con eso arma un grafo de comportamiento: una vista unificada e interactiva de cómo se comportan tus recursos y cómo interactúan con el tiempo. Te ayuda a responder preguntas como si una llamada a la API es inusual para un rol o si un pico de tráfico de una instancia es esperado. Puedes consultar hasta un año de datos de eventos históricos.
+
+### Grupos de hallazgos e investigaciones
+
+- **Grupos de hallazgos**: reúnen varias actividades relacionadas con un posible evento de seguridad, porque un atacante suele hacer una secuencia de acciones que genera varios hallazgos. Sirven para analizar la causa raíz de hallazgos de GuardDuty de gravedad alta.
+- **Detective Investigation**: investiga usuarios y roles de IAM mediante indicadores de compromiso, para saber si un recurso está implicado en un incidente.
+
+### Varias cuentas
+
+La cuenta que habilita Detective es la administradora del grafo de comportamiento e invita a cuentas miembro a aportar sus datos. Con AWS Organizations, la cuenta de administración designa una cuenta administradora de Detective para la organización.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Investiga los hallazgos de"
+    service="Amazon GuardDuty"
+    description="Detective incorpora los hallazgos de GuardDuty y puedes pasar de un hallazgo directamente a la consola de Detective."
+  />
+  <ConnectionCard
+    relation="Obtiene eventos de"
+    service="AWS CloudTrail"
+    description="Las llamadas a la API y los intentos de inicio de sesión registrados son parte de la materia prima del grafo de comportamiento."
+  />
+  <ConnectionCard
+    relation="Analiza el tráfico con"
+    service="Amazon VPC"
+    description="Detective recopila los registros de flujo de VPC y muestra el volumen de tráfico de instancias de EC2 y pods de Kubernetes."
+  />
+  <ConnectionCard
+    relation="Se integra con"
+    service="AWS Security Hub"
+    description="Security Hub CSPM reúne hallazgos de varios servicios y permite pasar a Detective para investigarlos."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Amazon Detective cuando"
+    items={[
+      'Ya tienes un hallazgo y necesitas su causa raíz y su alcance.',
+      'Quieres ver la actividad histórica de un rol, un usuario o una instancia.',
+      'Prefieres investigar sin construir tus propias consultas sobre los registros.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Necesitas detectar amenazas de forma continua: Amazon GuardDuty.',
+      'Buscas vulnerabilidades de software en tus cargas de trabajo: Amazon Inspector.',
+      'Quieres una vista única del estado de seguridad frente a estándares: AWS Security Hub.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon Detective"
+  url="https://docs.aws.amazon.com/detective/latest/userguide/what-is-detective.html"
+/>
+<OfficialSource
+  title="Qué es Amazon GuardDuty"
+  url="https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html"
+/>
+<OfficialSource
+  title="Introducción a AWS Security Hub CSPM"
+  url="https://docs.aws.amazon.com/securityhub/latest/userguide/what-is-securityhub.html"
+/>
