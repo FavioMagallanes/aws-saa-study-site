@@ -6,4 +6,108 @@ export const meta = {
   covers: ['3.3-k8', '4.3-k9', '4.3-s4'],
 };
 
-Contenido pendiente.
+AWS ofrece más de quince servicios de bases de datos, con modelos de datos distintos: relacional, clave-valor, documento, en memoria, grafo, serie temporal, vectorial y de columnas anchas. Elegir bien significa entender qué tipo de datos tienes, cómo los consultas y cuánto quieres administrar tú mismo.
+
+## Qué problema resuelve
+
+Una sola base de datos rara vez es la mejor opción para todo. Un catálogo de productos, un carrito de compras, el inventario y las métricas de un sensor tienen formas y patrones de acceso muy distintos. Los servicios de AWS están diseñados para modelos de datos concretos, y con frecuencia una aplicación cubre mejor sus requisitos combinando varias bases de datos, cada una con sus puntos fuertes.
+
+## Conceptos clave
+
+### Relacionales y no relacionales
+
+Las bases de datos para aplicaciones transaccionales (OLTP) se dividen en dos grandes categorías: relacionales y no relacionales.
+
+Las **relacionales** guardan datos estructurados en tablas, filas y columnas, y admiten consultas complejas mediante uniones. La familia incluye nueve motores populares en Amazon Aurora y Amazon RDS:
+
+- **Amazon Aurora** es compatible con MySQL y PostgreSQL y ofrece hasta cinco veces el rendimiento de MySQL estándar. Conviene al migrar o modernizar una carga relacional local, o cuando los patrones de consulta son poco predecibles. Aurora DSQL es una variante distribuida y sin servidor, compatible con PostgreSQL.
+- **Amazon RDS** es una base relacional totalmente administrada con seis motores a elegir: PostgreSQL, MySQL, MariaDB, SQL Server, Oracle y Db2. Incluye copias de seguridad automáticas, parches de software e implementaciones Multi-AZ para la alta disponibilidad.
+
+Las **no relacionales** están pensadas para modelos de datos específicos:
+
+- **Clave-valor — Amazon DynamoDB**: base de datos NoSQL sin servidor y totalmente administrada, con rendimiento de milisegundos de un solo dígito a cualquier escala. Sirve para cargas como almacenes de sesiones o carritos de compras.
+- **Documento — Amazon DocumentDB (con compatibilidad con MongoDB)**: guarda documentos semiestructurados tipo JSON y permite consultar por los campos de cada documento.
+- **Columnas anchas — Amazon Keyspaces (para Apache Cassandra)**: para migrar cargas de Cassandra o procesar datos a gran velocidad con latencia de milisegundos de un solo dígito.
+- **Grafo — Amazon Neptune**: modela redes complejas de objetos, como redes sociales, detección de fraude o recomendaciones, y recorre grandes cantidades de relaciones con latencia mínima.
+- **Serie temporal — Amazon Timestream**: guarda y consulta grandes volúmenes de datos con marcas de tiempo, como los de IoT, métricas de aplicaciones o seguimiento de activos.
+
+### En memoria
+
+Las bases de datos en memoria responden en microsegundos. **Amazon ElastiCache** (compatible con Valkey, Memcached y Redis OSS) funciona como una caché efímera para datos de acceso frecuente y mejora el rendimiento de lectura. **Amazon MemoryDB** es una base de datos en memoria duradera, con persistencia completa y durabilidad Multi-AZ, que puede ser la base principal de una arquitectura de microservicios. Si tu carga exige lecturas en microsegundos en lugar de milisegundos de un solo dígito, considera una caché en memoria junto a tu base de datos o una base en memoria duradera.
+
+### Sin servidor
+
+Las bases de datos sin servidor escalan según la demanda de la aplicación, tienen un modelo de precios por uso y alta disponibilidad integrada, así que ayudan a ganar agilidad y optimizar costos. Entre ellas están Amazon Aurora DSQL, Amazon Aurora Serverless, Amazon DynamoDB, Amazon ElastiCache, Amazon Keyspaces, Amazon Timestream y Amazon Neptune Serverless. Aurora Serverless v2 es adecuado para cargas muy variables, por ejemplo con picos de uso breves seguidos de largos periodos de poca actividad.
+
+### Analíticas: almacenamiento en columnas
+
+Las bases anteriores atienden aplicaciones transaccionales. Para almacenar y analizar enormes volúmenes de datos con rapidez, que es lo habitual en aplicaciones analíticas (OLAP), AWS ofrece **Amazon Redshift**, un servicio de almacenamiento de datos totalmente administrado en la nube.
+
+Redshift guarda los datos por columnas. En el almacenamiento por filas, cada bloque contiene los valores de registros completos, lo que es lo ideal para las aplicaciones transaccionales, que leen y escriben registros enteros de uno en uno. En cambio, el almacenamiento en columnas reduce de forma drástica la lectura de disco que necesita una consulta analítica, porque reduce la cantidad de datos que hay que cargar desde el disco.
+
+### Autoadministrada o totalmente administrada
+
+Si alojas tú mismo una base de datos, por ejemplo instalando el motor en EC2, sigues a cargo del mantenimiento diario, la supervisión, los parches, las copias de seguridad y la planificación de capacidad. Una base totalmente administrada elimina esas tareas para que tu equipo se concentre en el diseño del esquema y en optimizar las consultas.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Migra datos con"
+    service="AWS Database Migration Service"
+    description="Mueve datos hacia Amazon Aurora cuando migras una base de datos que ya tienes."
+  />
+  <ConnectionCard
+    relation="Se acelera con"
+    service="Amazon ElastiCache"
+    description="Se coloca junto a la base de datos como capa de caché cuando necesitas lecturas en microsegundos."
+  />
+  <ConnectionCard
+    relation="Se analiza con"
+    service="Amazon Redshift"
+    description="Cuando la necesidad es analizar grandes volúmenes de datos y no procesar transacciones, el almacén de datos en columnas es la opción."
+  />
+  <ConnectionCard
+    relation="Se hospeda manualmente en"
+    service="Amazon EC2"
+    description="Instalar el motor en una instancia permite administrar la base como en un entorno local, pero te deja todas las tareas operativas."
+  />
+</CardGrid>
+
+## Cómo elegir según el costo y el patrón de uso
+
+Pregúntate primero por tus datos: si el modelo es relacional, semiestructurado, de serie temporal, vectorial o muy conectado; cómo vas a acceder a ellos; cuánto necesitas la información en tiempo real y qué tamaño tiene cada registro. Después, decide si quieres una base autoadministrada o administrada, y si la necesitas sin servidor o aprovisionada.
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Elige por el tipo de datos"
+    items={[
+      'Datos estructurados con uniones y transacciones: relacional, con Aurora o RDS.',
+      'Sesiones, carritos o acceso por clave a gran escala: DynamoDB.',
+      'Datos con marcas de tiempo, como métricas o IoT: Timestream.',
+      'Análisis de grandes volúmenes: almacenamiento en columnas con Redshift.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Pistas para ahorrar"
+    items={[
+      'Usa una base sin servidor si la carga es variable: pagas por uso y escalas con la demanda.',
+      'Usa un servicio administrado para evitar las tareas operativas de parchear y respaldar tú mismo.',
+      'Combina bases de datos: cada una con el modelo que mejor encaja con su parte de la aplicación.',
+      'Reserva las bases en memoria para donde de verdad necesitas microsegundos.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Elegir un servicio de base de datos de AWS"
+  url="https://docs.aws.amazon.com/decision-guides/latest/databases-on-aws-how-to-choose/databases-on-aws-how-to-choose.html"
+/>
+<OfficialSource
+  title="Almacenamiento en columnas · Amazon Redshift"
+  url="https://docs.aws.amazon.com/redshift/latest/dg/c_columnar_storage_disk_mem_mgmnt.html"
+/>
