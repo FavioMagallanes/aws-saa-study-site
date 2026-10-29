@@ -7,4 +7,94 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+AWS Client VPN es un servicio VPN administrado de acceso remoto basado en clientes. Permite que cada persona, desde cualquier lugar y con un cliente VPN basado en OpenVPN, acceda de forma segura a recursos de AWS y de tu red local.
+
+## Qué problema resuelve
+
+Los empleados que trabajan fuera de la oficina necesitan llegar a recursos privados de una VPC o del centro de datos sin exponerlos a internet. Montar y mantener una solución VPN de acceso remoto de terceros exige servidores, parches y capacidad. Client VPN elimina esa carga: AWS administra el servicio, que escala solo según el número de usuarios conectados, y cada usuario entra por un único túnel cifrado.
+
+## Conceptos clave
+
+### Punto de enlace y red de destino
+
+- **Punto de enlace de Client VPN**: es el recurso que creas y configuras; todas las sesiones VPN de los clientes terminan en él.
+- **Red de destino**: asocias el punto de enlace a subredes de una VPC o lo adjuntas directamente a un AWS Transit Gateway. Al asociar una subred se crean en ella interfaces de red por las que pasa el tráfico hacia la VPC.
+- **Rango CIDR de clientes**: cada conexión recibe una dirección IP única de ese rango, que no debe solaparse con el CIDR de la VPC.
+- **Conexiones cifradas**: el cliente establece conexiones TLS cifradas. Admite IPv4, IPv6 o pila doble.
+
+### Autenticación y autorización
+
+- **Autenticación**: con Active Directory, mutua basada en certificados o federada con SAML (inicio de sesión único). Puedes combinar la mutua con uno de los métodos basados en usuarios. En todos los casos necesitas un certificado de servidor en AWS Certificate Manager.
+- **Reglas de autorización**: indican qué grupo de Active Directory o del proveedor de identidad puede acceder a cada red. De forma predeterminada no hay ninguna, así que debes crearlas para dar acceso.
+- **Grupos de seguridad**: el acceso a los recursos también se controla con grupos de seguridad aplicados a la asociación de la subred.
+
+### Túnel completo o dividido
+
+De forma predeterminada, todo el tráfico del cliente pasa por el túnel VPN. Con el túnel dividido (split-tunnel), solo pasa por el túnel el tráfico destinado a las redes de la tabla de rutas del punto de enlace. Así optimizas el enrutamiento y reduces el tráfico de salida de AWS y su costo de transferencia de datos.
+
+### Registro de conexiones
+
+Puedes registrar los eventos de conexión para análisis forense, para entender el uso o para depurar problemas, y también supervisar y terminar conexiones activas.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Da acceso a recursos de"
+    service="Amazon VPC"
+    description="El punto de enlace se asocia a subredes de una VPC; desde ahí los clientes pueden llegar a VPC interconectadas, a la red local o a internet si configuras rutas y reglas."
+  />
+  <ConnectionCard
+    relation="Se adjunta directamente a"
+    service="AWS Transit Gateway"
+    description="Como red de destino alternativa a las subredes, para llegar a varias VPC conectadas al transit gateway."
+  />
+  <ConnectionCard
+    relation="Autentica a los usuarios con"
+    service="AWS Directory Service"
+    description="Integra Active Directory para autenticar y para definir reglas de autorización por grupo."
+  />
+  <ConnectionCard
+    relation="Guarda el certificado de servidor en"
+    service="AWS Certificate Manager"
+    description="Todo punto de enlace necesita un certificado de servidor aprovisionado en ACM, sea cual sea el método de autenticación."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Client VPN cuando"
+    items={[
+      'Usuarios individuales necesitan acceso remoto seguro desde cualquier lugar.',
+      'Quieres una VPN de acceso remoto administrada que escale sola.',
+      'Debes controlar el acceso por grupo de Active Directory o del proveedor de identidad.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Conectas toda una red local, no usuarios sueltos, por internet: AWS Site-to-Site VPN.',
+      'Necesitas una línea privada dedicada entre tu centro de datos y AWS: AWS Direct Connect.',
+      'Solo quieres consumir de forma privada un servicio concreto desde tu VPC: AWS PrivateLink.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Client VPN"
+  url="https://docs.aws.amazon.com/vpn/latest/clientvpn-admin/what-is.html"
+/>
+<OfficialSource
+  title="Autenticación de clientes en AWS Client VPN"
+  url="https://docs.aws.amazon.com/vpn/latest/clientvpn-admin/client-authentication.html"
+/>
+<OfficialSource
+  title="Túnel dividido en puntos de enlace de Client VPN"
+  url="https://docs.aws.amazon.com/vpn/latest/clientvpn-admin/split-tunnel-vpn.html"
+/>
