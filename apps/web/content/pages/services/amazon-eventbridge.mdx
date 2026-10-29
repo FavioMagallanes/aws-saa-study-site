@@ -7,4 +7,95 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Amazon EventBridge es un servicio sin servidor que conecta los componentes de una aplicación mediante eventos. Recibe eventos de servicios de AWS, de tus propias aplicaciones y de aplicaciones SaaS de socios, los filtra, los transforma si hace falta y los entrega a los destinos que correspondan. El patrón general se explica en el tema «Arquitecturas basadas en eventos».
+
+## Qué problema resuelve
+
+En una arquitectura basada en eventos, los componentes emiten eventos y reaccionan a ellos sin llamarse directamente, lo que los mantiene poco acoplados. Construir a mano el enrutamiento de esos eventos entre muchos orígenes y muchos destinos es costoso. EventBridge ofrece una forma sencilla y coherente de ingerir, filtrar, transformar y entregar eventos, sin servidores que administrar.
+
+## Conceptos clave
+
+### Buses de eventos y reglas
+
+- **Bus de eventos**: un enrutador que recibe eventos y los entrega a cero o más destinos. Cada cuenta tiene un **bus predeterminado** que recibe automáticamente eventos de los servicios de AWS, y puedes crear buses personalizados. Es adecuado para enrutar eventos de muchos orígenes a muchos destinos.
+- **Regla**: asociada a un bus, compara cada evento con un **patrón de eventos** (un JSON con los campos y valores que debe tener) y, si coincide, lo envía a sus destinos. Una regla puede tener hasta cinco destinos, que se ejecutan en paralelo, y un evento puede coincidir con varias reglas.
+- **Ejemplo típico**: una regla en el bus predeterminado detecta que una instancia de EC2 pasó al estado `running` e invoca una función de Lambda.
+- **Eventos de socios SaaS**: aplicaciones como Zendesk, Shopify u Okta pueden enviar eventos a tu cuenta mediante una fuente de eventos de socio asociada a un bus.
+
+AWS recomienda empezar las aplicaciones nuevas con el tipo de bus **Custom Event Bus**, que retiene eventos para volver a reproducirlos; el bus clásico, basado en reglas y destinos, sigue disponible.
+
+### EventBridge Pipes
+
+Una canalización (pipe) conecta **un solo origen con un solo destino**, con filtrado opcional y un paso de enriquecimiento antes de la entrega. Solo pagas por los eventos que pasan el filtro. Por ejemplo, mensajes de una cola de Amazon SQS se enriquecen con datos de una API y se entregan a una máquina de estado de AWS Step Functions.
+
+### EventBridge Scheduler y archivos
+
+- **EventBridge Scheduler**: programador sin servidor para invocar destinos con expresiones cron o de frecuencia, o una sola vez, con reintentos configurables. AWS lo recomienda en lugar de las reglas programadas, que son una función heredada.
+- **Archivo y reproducción**: puedes archivar los eventos de un bus y reenviarlos más tarde, por ejemplo para recuperarte de errores o probar funciones nuevas.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Invoca"
+    service="AWS Lambda"
+    description="Una regla que coincide con un evento puede invocar una función que reacciona a él."
+  />
+  <ConnectionCard
+    relation="Inicia flujos de"
+    service="AWS Step Functions"
+    description="Un evento o una canalización pueden poner en marcha una máquina de estado que coordina varios pasos."
+  />
+  <ConnectionCard
+    relation="Lee mensajes de"
+    service="Amazon SQS"
+    description="Una canalización de EventBridge Pipes puede tomar una cola de SQS como origen."
+  />
+  <ConnectionCard
+    relation="Recibe eventos de"
+    service="Amazon EC2 y otros servicios de AWS"
+    description="Los servicios de AWS envían sus eventos, como los cambios de estado de una instancia, al bus predeterminado."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="EventBridge cuando"
+    items={[
+      'Necesitas enrutar eventos de muchos orígenes, incluidos servicios de AWS y socios SaaS, a muchos destinos.',
+      'Quieres filtrar eventos por su contenido con patrones, sin código de enrutamiento.',
+      'Necesitas invocar destinos según una programación: EventBridge Scheduler.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Un consumidor debe procesar mensajes a su ritmo y absorber picos: una cola de Amazon SQS.',
+      'Quieres difundir un mensaje a suscriptores como correo, SMS o notificaciones móviles: Amazon SNS.',
+      'Necesitas coordinar varios pasos en orden con reintentos: AWS Step Functions.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon EventBridge"
+  url="https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-what-is.html"
+/>
+<OfficialSource
+  title="Buses de eventos de Amazon EventBridge"
+  url="https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-event-bus.html"
+/>
+<OfficialSource
+  title="Reglas de Amazon EventBridge"
+  url="https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-rules.html"
+/>
+<OfficialSource
+  title="Amazon EventBridge Pipes"
+  url="https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-pipes.html"
+/>
