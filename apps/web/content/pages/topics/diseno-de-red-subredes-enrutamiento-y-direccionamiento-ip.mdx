@@ -7,4 +7,151 @@ export const meta = {
   covers: ['1.2-s2', '2.1-s6', '3.4-k2', '3.4-s2'],
 };
 
-Contenido pendiente.
+Una VPC es la red virtual donde viven tus recursos. Su diseño se decide con tres piezas: los rangos de direcciones IP, las subredes en que los divides y las tablas de enrutamiento que dicen hacia dónde va el tráfico de cada subred. Un buen diseño separa lo que debe ser público de lo que no, resiste la caída de una zona de disponibilidad y deja espacio para crecer.
+
+## Qué problema resuelve
+
+Si pones todos los recursos en una misma subred con acceso directo a internet, cualquier error de configuración los expone. Si eliges un rango de direcciones demasiado pequeño o que se solapa con otras redes, más adelante no podrás añadir recursos ni conectar esa VPC con otras o con tu centro de datos. Planificar el direccionamiento, segmentar en niveles de subred y controlar las rutas evita esos problemas antes de que existan.
+
+## Conceptos clave
+
+### Direccionamiento IP y bloques CIDR
+
+Las direcciones de una VPC se expresan en notación CIDR: una dirección seguida de una barra y la longitud del prefijo. Por ejemplo, `10.0.0.0/16` representa 65.536 direcciones IPv4.
+
+- **Bloque IPv4 de la VPC**: es obligatorio y su tamaño va de `/16` (65.536 direcciones) a `/28` (16 direcciones). AWS recomienda usar rangos privados de la RFC 1918, como `10.0.0.0/8`, `172.16.0.0/12` o `192.168.0.0/16`.
+- **Bloques adicionales**: después de crear la VPC puedes asociar bloques IPv4 secundarios, siempre que no se solapen con los existentes. No puedes ampliar ni reducir un bloque ya creado; para crecer, añades otro bloque.
+- **IPv6**: puedes asociar a la VPC uno o varios bloques IPv6, por ejemplo uno proporcionado por Amazon. Las subredes pueden ser solo IPv4, de pila doble (IPv4 e IPv6) o solo IPv6.
+- **Direcciones privadas y públicas**: las direcciones IPv4 privadas no son accesibles desde internet. Una subred puede asignar de forma automática direcciones IPv4 públicas a las interfaces que se crean en ella. Si necesitas una dirección pública persistente, usa una dirección IP elástica. AWS cobra todas las direcciones IPv4 públicas, incluidas las direcciones IP elásticas.
+- **Gestión a escala**: Amazon VPC IP Address Manager (IPAM) te ayuda a planificar, rastrear y supervisar las direcciones IP de tus cargas, y puede asignar CIDR a las VPC de forma automática según reglas de negocio.
+
+### Subredes y tamaño
+
+Una subred es un rango de direcciones dentro de la VPC y reside por completo en una sola zona de disponibilidad. Si repartes los recursos en subredes de varias zonas, proteges la aplicación ante el fallo de una zona.
+
+- Un bloque IPv4 de subred va de `/28` a `/16`, y los bloques de las subredes de una VPC no pueden solaparse.
+- En cada subred AWS reserva cinco direcciones: las cuatro primeras y la última. En una subred `/24`, por ejemplo, quedan 251 direcciones utilizables.
+- Puedes dividir el bloque de la VPC: un `/24` se puede partir en dos subredes `/25` de 128 direcciones cada una.
+
+### Tipos de subred y segmentación
+
+El tipo de una subred lo determina su enrutamiento:
+
+- **Pública**: tiene una ruta directa a una puerta de enlace de internet; sus recursos pueden acceder a internet.
+- **Privada**: no tiene ruta directa a una puerta de enlace de internet; sus recursos necesitan un dispositivo NAT para salir a internet.
+- **Solo VPN**: tiene una ruta hacia una conexión de AWS Site-to-Site VPN a través de una puerta de enlace privada virtual, sin ruta a internet.
+- **Aislada**: no tiene rutas a destinos fuera de la VPC.
+
+AWS recomienda usar subredes privadas para proteger los recursos. Un patrón habitual de varios niveles coloca en subredes públicas solo lo que debe recibir tráfico de internet, como los nodos de un Application Load Balancer y las puertas de enlace NAT, y deja los servidores de aplicación y las bases de datos en subredes privadas. Así los servidores reciben solicitudes a través del balanceador y pueden salir a internet mediante NAT, pero nadie de fuera puede iniciar una conexión con ellos. La seguridad se refuerza con grupos de seguridad en los recursos y, si quieres una capa adicional, con listas de control de acceso de red (ACL) a nivel de subred.
+
+### Enrutamiento
+
+Una tabla de enrutamiento contiene rutas, cada una con un destino (un bloque CIDR o una lista de prefijos) y un objetivo (una puerta de enlace de internet, una puerta de enlace NAT, una conexión de emparejamiento, una conexión VPN, etc.).
+
+- Cada subred se asocia a una tabla. Si no eliges una, usa la **tabla principal** de la VPC; puedes crear **tablas personalizadas** para controlar las rutas con más detalle, por ejemplo una para las subredes públicas y otra para las privadas.
+- Toda tabla incluye una **ruta local** para la comunicación dentro de la VPC.
+- Cuando varias rutas coinciden, gana la más específica: la **coincidencia de prefijo más largo**. Por ejemplo, el tráfico hacia `172.31.0.0/16` sigue una ruta de emparejamiento aunque exista una ruta `0.0.0.0/0` hacia internet.
+- Con una puerta de enlace privada virtual puedes activar la **propagación de rutas** para que las rutas de la VPN se añadan solas a las tablas de las subredes.
+
+### Elegir la tecnología de red según el requisito
+
+- **Recibir y enviar tráfico de internet**: puerta de enlace de internet en una subred pública.
+- **Salida a internet sin aceptar conexiones entrantes (IPv4)**: puerta de enlace NAT. Una NAT pública se crea en una subred pública con una dirección IP elástica; una NAT privada sirve para llegar a otras VPC o a la red local.
+- **Salida solo por IPv6**: puerta de enlace de internet de solo salida.
+- **Acceso privado a Amazon S3 desde subredes privadas**: punto de enlace de VPC de tipo puerta de enlace.
+- **Conexión con la red local**: puerta de enlace privada virtual con Site-to-Site VPN o con AWS Direct Connect.
+
+### Diseñar para crecer
+
+- Elige un bloque CIDR con margen para futuras subredes y recursos, sabiendo que podrás añadir bloques secundarios pero no ampliar los existentes.
+- Evita rangos que se solapen con otras VPC o con tu red local: el emparejamiento de VPC no admite bloques CIDR solapados, y los bloques secundarios tampoco pueden solaparse con los de una VPC emparejada.
+- Evita el rango `172.17.0.0/16`, que algunos servicios de AWS usan y puede causar conflictos de direcciones.
+- Cada puerta de enlace NAT se crea en una zona concreta. Si varias zonas comparten una sola y esa zona falla, las demás pierden la salida a internet; crea una por zona y enruta cada subred privada a la de su zona. Si necesitas más ancho de banda del que admite una NAT, reparte los recursos en varias subredes con una NAT cada una.
+- Ten en cuenta las cuotas de bloques CIDR por VPC y de rutas por tabla.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Da salida a subredes privadas con"
+    service="NAT gateway"
+    description="Permite que los recursos privados inicien conexiones hacia fuera de la VPC sin aceptar conexiones entrantes no solicitadas."
+  />
+  <ConnectionCard
+    relation="Reparte tráfico entre zonas con"
+    service="Elastic Load Balancing"
+    description="Los nodos del balanceador viven en subredes públicas y envían las solicitudes a servidores en subredes privadas de varias zonas."
+  />
+  <ConnectionCard
+    relation="Planifica direcciones con"
+    service="Amazon VPC IPAM"
+    description="Organiza el espacio de direcciones, supervisa su uso y asigna CIDR a las VPC según reglas."
+  />
+  <ConnectionCard
+    relation="Conecta con la red local mediante"
+    service="AWS Site-to-Site VPN"
+    description="Las subredes solo VPN enrutan hacia la red local a través de una puerta de enlace privada virtual."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Subred privada cuando"
+    items={[
+      'El recurso no necesita recibir conexiones desde internet, como servidores de aplicación o bases de datos.',
+      'Solo necesita salir a internet: añade una puerta de enlace NAT.',
+      'Recibe tráfico a través de un balanceador ubicado en una subred pública.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'El recurso debe ser accesible desde internet, como un balanceador: subred pública.',
+      'El recurso solo debe hablar con la red local: subred solo VPN.',
+      'El recurso no debe salir de la VPC: subred aislada.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Subredes de tu VPC"
+  url="https://docs.aws.amazon.com/vpc/latest/userguide/configure-subnets.html"
+/>
+<OfficialSource
+  title="Direccionamiento IP de VPC y subredes"
+  url="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-ip-addressing.html"
+/>
+<OfficialSource
+  title="Bloques CIDR de VPC"
+  url="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-cidr-blocks.html"
+/>
+<OfficialSource
+  title="Bloques CIDR de subred"
+  url="https://docs.aws.amazon.com/vpc/latest/userguide/subnet-sizing.html"
+/>
+<OfficialSource
+  title="Conceptos de tablas de enrutamiento"
+  url="https://docs.aws.amazon.com/vpc/latest/userguide/RouteTables.html"
+/>
+<OfficialSource
+  title="Cómo funciona la prioridad de rutas"
+  url="https://docs.aws.amazon.com/vpc/latest/userguide/route-tables-priority.html"
+/>
+<OfficialSource
+  title="Conceptos básicos de las puertas de enlace NAT"
+  url="https://docs.aws.amazon.com/vpc/latest/userguide/nat-gateway-basics.html"
+/>
+<OfficialSource
+  title="Ejemplo: VPC con servidores en subredes privadas y NAT"
+  url="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-example-private-subnets-nat.html"
+/>
+<OfficialSource
+  title="Qué es IPAM"
+  url="https://docs.aws.amazon.com/vpc/latest/ipam/what-it-is-ipam.html"
+/>
