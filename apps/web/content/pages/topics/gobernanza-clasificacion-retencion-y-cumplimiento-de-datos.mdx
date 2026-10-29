@@ -7,4 +7,113 @@ export const meta = {
   covers: ['1.3-k1', '1.3-k3', '1.3-s1', '1.3-s6', '4.3-k4'],
 };
 
-Contenido pendiente.
+Proteger los datos no es solo cifrarlos. También hay que saber qué datos tienes y cuáles son sensibles, quién puede acceder a ellos, cuánto tiempo debes conservarlos, cuándo deben borrarse y cómo demuestras que cumples las normas que te aplican. Este tema reúne las herramientas de AWS para gobernar los datos a lo largo de su ciclo de vida.
+
+## Qué problema resuelve
+
+Sin gobernanza, los datos se acumulan sin control: nadie sabe cuáles contienen información sensible, se borran antes de lo que exige una norma o se conservan para siempre sin necesidad, y es difícil probar el cumplimiento ante un auditor. Las herramientas de esta página ayudan a clasificar los datos, a aplicar reglas de retención y de acceso y a obtener evidencia de cumplimiento.
+
+## Conceptos clave
+
+### Acceso a los datos y gobernanza
+
+El acceso a los datos se controla con las políticas que ya conoces: políticas de IAM, políticas basadas en recursos, como las de los buckets de S3, y, en varias cuentas, las políticas de la organización. A eso se suma la clasificación y el seguimiento de los recursos: AWS Organizations ofrece políticas de etiquetas para clasificar o rastrear recursos en toda la organización.
+
+### Clasificación de datos con Amazon Macie
+
+Amazon Macie es un servicio de seguridad de datos que descubre datos sensibles mediante aprendizaje automático y coincidencia de patrones, da visibilidad sobre los riesgos de seguridad de los datos y permite proteger de forma automatizada frente a ellos. Se centra en los datos de Amazon S3:
+
+- Ofrece un inventario de tus buckets de uso general y evalúa y supervisa su seguridad y su control de acceso. Si detecta un posible problema, como un bucket que pasa a ser de acceso público, genera un hallazgo para que lo revises.
+- Automatiza el descubrimiento y el informe de datos sensibles, con criterios integrados, criterios personalizados que tú defines o ambos. Si detecta datos sensibles en un objeto, genera un hallazgo con un informe detallado.
+- Se integra con Amazon EventBridge y con AWS Security Hub CSPM para supervisar, procesar y corregir los hallazgos con otros servicios.
+
+### Retención de datos
+
+La retención define cuánto tiempo se conservan los datos y cuándo deben eliminarse.
+
+- **Ciclo de vida de S3 (S3 Lifecycle)**: una configuración de reglas que ayuda a almacenar los objetos de forma rentable durante su ciclo de vida. Las acciones de transición los pasan a clases de almacenamiento más baratas, por ejemplo a S3 Standard-IA a los 30 días de crearlos o a S3 Glacier Flexible Retrieval al año. Las acciones de caducidad definen cuándo caducan los objetos y S3 los elimina por ti, por ejemplo tras un periodo de cumplimiento normativo. Las reglas se aplican a los objetos existentes y a los que añadas después, y no puedes usar una política de bucket para impedir que una regla de ciclo de vida elimine o haga transiciones.
+- **Bloqueo de objetos de S3 (Object Lock)**: ayuda a evitar que los objetos se eliminen o se sobrescriban durante un tiempo fijo o variable, o de forma indefinida. Usa un modelo de escritura única y lectura múltiple (WORM), útil para requisitos normativos que exigen almacenamiento WORM. Ofrece dos mecanismos: el **periodo de retención** y la **retención legal**, que no tiene fecha de caducidad y se mantiene hasta que la quitas de forma explícita. Solo funciona en buckets con el control de versiones habilitado y protege únicamente la versión del objeto indicada.
+
+### Cumplimiento
+
+- **AWS Artifact** ofrece descargas bajo demanda de documentos de seguridad y cumplimiento de AWS, como informes sobre estándares ISO y PCI o informes SOC, y certificaciones de organismos de acreditación. Puedes presentarlos a tus auditores como evidencia y usarlos como guía para evaluar tu propia arquitectura. También permite revisar, aceptar y seguir acuerdos con AWS. La responsabilidad de contar con los documentos que demuestren el cumplimiento de tu empresa sigue siendo tuya.
+- **AWS Config** da una vista detallada de la configuración de tus recursos de AWS, de cómo se relacionan y de cómo estaban configurados en el pasado. Te avisa cuando se crean, modifican o eliminan recursos, y sus reglas evalúan la configuración de los recursos frente a las condiciones que defines.
+- **La región también cuenta**: el cumplimiento y la residencia de datos son factores al elegir dónde colocar los recursos.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Clasifica datos de"
+    service="Amazon Macie"
+    description="Descubre datos sensibles en S3 y avisa con hallazgos, también de buckets que se vuelven públicos."
+  />
+  <ConnectionCard
+    relation="Retiene objetos en"
+    service="Amazon S3"
+    description="Object Lock impide borrados y sobrescrituras durante un periodo, y S3 Lifecycle mueve o elimina objetos según reglas."
+  />
+  <ConnectionCard
+    relation="Aporta evidencia con"
+    service="AWS Artifact"
+    description="Descarga informes y certificaciones de cumplimiento de AWS para tus auditores o para evaluar tu arquitectura."
+  />
+  <ConnectionCard
+    relation="Vigila la configuración con"
+    service="AWS Config"
+    description="Registra cómo cambian tus recursos y evalúa su configuración con reglas."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Qué herramienta para cada necesidad"
+    items={[
+      'Encontrar datos sensibles en S3: Amazon Macie.',
+      'Bajar a clases más baratas o borrar tras un plazo: S3 Lifecycle.',
+      'Impedir borrados y sobrescrituras por requisitos normativos: S3 Object Lock.',
+      'Evidencia del cumplimiento de AWS para auditorías: AWS Artifact.',
+      'Seguir y evaluar la configuración de tus recursos: AWS Config.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Detalles que conviene recordar"
+    items={[
+      'Object Lock requiere un bucket con control de versiones y protege solo la versión indicada.',
+      'Una retención legal no caduca hasta que la quitas.',
+      'Una política de bucket no frena a una regla de ciclo de vida.',
+      'AWS Artifact te da los documentos de AWS; los de tu empresa los obtienes tú.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon Macie"
+  url="https://docs.aws.amazon.com/macie/latest/user/what-is-macie.html"
+/>
+<OfficialSource
+  title="Bloquear objetos con S3 Object Lock"
+  url="https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock.html"
+/>
+<OfficialSource
+  title="Administrar el ciclo de vida de los objetos"
+  url="https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html"
+/>
+<OfficialSource
+  title="Qué es AWS Artifact"
+  url="https://docs.aws.amazon.com/artifact/latest/ug/what-is-aws-artifact.html"
+/>
+<OfficialSource
+  title="Qué es AWS Config"
+  url="https://docs.aws.amazon.com/config/latest/developerguide/WhatIsConfig.html"
+/>
+<OfficialSource
+  title="Qué es AWS Organizations"
+  url="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_introduction.html"
+/>
