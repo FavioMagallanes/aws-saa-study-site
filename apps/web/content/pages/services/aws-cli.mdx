@@ -7,4 +7,101 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+La AWS Command Line Interface (AWS CLI) es una herramienta de código abierto para trabajar con los servicios de AWS escribiendo comandos en la terminal, en lugar de hacer clic en la consola. Da acceso directo a las API públicas de los servicios y permite automatizar tareas con scripts.
+
+## Qué problema resuelve
+
+La consola de administración es cómoda para explorar, pero repetir a mano la misma tarea en varias cuentas o regiones es lento y propenso a errores. Con la AWS CLI ejecutas desde la terminal funciones equivalentes a las de la consola, las encadenas en scripts de shell y las repites de forma idéntica cada vez. Todas las funciones de administración de infraestructura (IaaS) de la consola están disponibles en la API y en la CLI.
+
+## Conceptos clave
+
+### Dónde se ejecuta
+
+- **Linux y macOS**: en shells como bash, zsh o tcsh.
+- **Windows**: en el símbolo del sistema o en PowerShell.
+- **De forma remota**: en instancias de Amazon EC2 mediante SSH o con AWS Systems Manager.
+
+Además de los comandos equivalentes a la API, algunos servicios añaden comandos de más alto nivel que simplifican las API complejas. La versión 2 es la versión principal más reciente.
+
+### Perfiles y configuración
+
+La CLI guarda la configuración y las credenciales en dos archivos, `config` y `credentials`, divididos en perfiles. Si no indicas otro, usa el perfil `default`; con `--profile` eliges otro, y cada perfil puede tener sus propias credenciales, región y formato de salida. Las opciones de la línea de comandos tienen prioridad sobre las variables de entorno, y estas sobre los archivos de configuración.
+
+### Credenciales: mejor temporales
+
+AWS ordena las formas de autenticar la CLI por recomendación, y prefiere siempre credenciales de corto plazo:
+
+- **Inicio de sesión con las credenciales de la consola**: la opción recomendada.
+- **AWS IAM Identity Center**: credenciales de corto plazo para los usuarios del personal; AWS recomienda combinarlo con AWS Organizations.
+- **Rol de la instancia EC2**: en una instancia, la CLI obtiene credenciales temporales del rol asignado mediante los metadatos de la instancia.
+- **Asumir un rol**: defines un perfil con el ARN del rol y la CLI pide credenciales temporales con `sts:AssumeRole`, también para acceder a otra cuenta.
+- **Claves de acceso de largo plazo de un usuario de IAM**: no recomendado, porque no caducan.
+
+Las prácticas de identidades y roles se explican en el tema "IAM: usuarios, grupos, roles, políticas y MFA".
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Autoriza con"
+    service="AWS IAM"
+    description="Cada comando solo puede hacer lo que permitan los permisos de la identidad o del rol que usa la CLI."
+  />
+  <ConnectionCard
+    relation="Inicia sesión con"
+    service="AWS IAM Identity Center"
+    description="Entrega credenciales de corto plazo a los usuarios del personal en varias cuentas."
+  />
+  <ConnectionCard
+    relation="Se ejecuta en"
+    service="Amazon EC2"
+    description="En una instancia usa las credenciales temporales del rol asignado, sin guardar claves en el servidor."
+  />
+  <ConnectionCard
+    relation="Se usa a distancia con"
+    service="AWS Systems Manager"
+    description="Permite ejecutar comandos en instancias EC2 sin abrir una terminal SSH."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="AWS CLI cuando"
+    items={[
+      'Quieres automatizar tareas de administración con scripts de shell.',
+      'Necesitas repetir la misma operación en varias cuentas o regiones.',
+      'Quieres explorar las capacidades de la API de un servicio desde la terminal.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Prefieres una interfaz gráfica para explorar o hacer cambios puntuales: la consola de administración de AWS.',
+      'Quieres describir y versionar toda la infraestructura de forma declarativa: AWS CloudFormation.',
+      'Integras AWS en el código de una aplicación: los SDK de AWS.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es la AWS CLI"
+  url="https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-welcome.html"
+/>
+<OfficialSource
+  title="Autenticación y credenciales de acceso de la AWS CLI"
+  url="https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-authentication.html"
+/>
+<OfficialSource
+  title="Archivos de configuración y credenciales de la AWS CLI"
+  url="https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html"
+/>
+<OfficialSource
+  title="Usar un rol de IAM en la AWS CLI"
+  url="https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-role.html"
+/>
