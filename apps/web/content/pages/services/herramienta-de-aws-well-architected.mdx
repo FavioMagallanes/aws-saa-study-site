@@ -7,4 +7,79 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+La herramienta de AWS Well-Architected (AWS Well-Architected Tool, o AWS WA Tool) es un servicio en la nube que ofrece un proceso consistente para medir tu arquitectura frente a las prácticas recomendadas de AWS. Te ayuda a documentar tus decisiones, a recibir recomendaciones para mejorar la carga de trabajo y a hacerla más fiable, segura, eficiente y rentable.
+
+## Qué problema resuelve
+
+Revisar arquitecturas sin un proceso consistente hace difícil compararlas con las prácticas recomendadas y seguir su evolución. La herramienta guía una autoevaluación con las preguntas del AWS Well-Architected Framework, identifica los riesgos según tus respuestas y genera un plan de mejora. Las organizaciones la usan para documentar sus arquitecturas, gobernar los lanzamientos de productos y entender los riesgos de su cartera tecnológica.
+
+## Conceptos clave
+
+- **AWS Well-Architected Framework**: un conjunto de preguntas básicas para saber cómo se alinea una arquitectura con las prácticas recomendadas en la nube. Se basa en seis pilares: excelencia operativa, seguridad, fiabilidad, eficiencia del rendimiento, optimización de costos y sostenibilidad. Al diseñar haces concesiones entre pilares según el negocio; la seguridad y la excelencia operativa no suelen sacrificarse frente a los demás.
+- **Carga de trabajo**: un conjunto de recursos y código que aporta valor al negocio, como una aplicación para clientes o un proceso de backend. Puede ocupar parte de una cuenta o abarcar varias.
+- **Riesgos altos y medios (HRI y MRI)**: los riesgos altos son decisiones de arquitectura u operación que pueden tener un impacto negativo significativo en el negocio; los medios también lo afectan, pero en menor medida. Se identifican a partir de tus respuestas.
+- **Lentes**: miden la carga de trabajo frente a un conjunto de prácticas. La lente del Framework se aplica de forma automática al definir la carga de trabajo. Hay lentes oficiales del catálogo de AWS y lentes personalizadas con tus propias preguntas.
+- **Hitos (milestones)**: registran el estado de una carga de trabajo en un momento dado. Se recomienda guardar uno cada vez que aplicas mejoras para medir el avance.
+- **Compartir**: puedes compartir cargas de trabajo con otras cuentas, usuarios, organizaciones u OU.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Obtiene datos para la revisión de"
+    service="AWS Trusted Advisor"
+    description="La integración ayuda a encontrar la información necesaria para responder las preguntas de la revisión."
+  />
+  <ConnectionCard
+    relation="Comparte cargas de trabajo con"
+    service="AWS Organizations"
+    description="Permite compartir las cargas de trabajo con toda la organización o con unidades organizativas."
+  />
+  <ConnectionCard
+    relation="Se integra con"
+    service="AWS Service Catalog"
+    description="La integración con Service Catalog AppRegistry ayuda a encontrar la información necesaria para responder las preguntas de la revisión."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Well-Architected Tool cuando"
+    items={[
+      'Quieres revisar una carga de trabajo frente a los seis pilares de forma estructurada.',
+      'Necesitas documentar decisiones de arquitectura y sus riesgos.',
+      'Debes medir el progreso de las mejoras con hitos a lo largo del tiempo.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Buscas comprobaciones automáticas sobre los recursos que ya tienes desplegados: AWS Trusted Advisor.',
+      'Necesitas evaluar la seguridad frente a estándares del sector: AWS Security Hub.',
+      'Quieres recomendaciones de tamaño adecuado para tus recursos: AWS Compute Optimizer.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Well-Architected Tool"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/userguide/tool.html"
+/>
+<OfficialSource
+  title="Qué es AWS Well-Architected Framework"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/userguide/waf.html"
+/>
+<OfficialSource
+  title="Cargas de trabajo en AWS WA Tool"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/userguide/workloads.html"
+/>
+<OfficialSource
+  title="Usar lentes en AWS WA Tool"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/userguide/lenses.html"
+/>
