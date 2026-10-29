@@ -6,4 +6,113 @@ export const meta = {
   covers: ['2.1-k13', '3.1-k3', '4.1-k11'],
 };
 
-Contenido pendiente.
+AWS ofrece servicios de almacenamiento de tres tipos principales: bloque, archivo y objeto. Cada tipo organiza los datos de una forma distinta, y de esa forma dependen el rendimiento, el costo y los casos de uso. Elegir bien empieza por entender qué es cada uno.
+
+## Qué problema resuelve
+
+Una aplicación puede necesitar un disco rápido para su base de datos, una carpeta compartida entre muchos servidores o un lugar casi ilimitado para guardar imágenes y copias de seguridad. Ningún formato sirve bien para todo, así que AWS ofrece una cartera amplia de servicios de almacenamiento para guardar, acceder, proteger y analizar los datos. Las cargas de trabajo bien diseñadas suelen combinar varios servicios.
+
+## Conceptos clave
+
+### Almacenamiento en bloques
+
+El almacenamiento en bloques divide cualquier dato, como un archivo o un registro de base de datos, en bloques del mismo tamaño y los guarda en el medio físico de forma optimizada para un acceso rápido. En AWS lo ofrece **Amazon EBS**: volúmenes de almacenamiento en bloques persistentes y de alto rendimiento que se conectan a instancias de EC2. Una vez conectado, un volumen se usa como un disco duro local, por ejemplo para guardar archivos o instalar aplicaciones.
+
+Algunas características de EBS:
+
+- Cada volumen se replica automáticamente dentro de su zona de disponibilidad para protegerlo del fallo de un componente.
+- Hay varios tipos de volumen en dos categorías: los respaldados por SSD, para cargas transaccionales, y los respaldados por HDD, para cargas que exigen mucho caudal.
+- Puedes aumentar la capacidad o ajustar el rendimiento sin tiempo de inactividad mediante operaciones de volúmenes elásticos.
+- Las instantáneas son copias de seguridad de un momento dado que persisten con independencia del volumen y permiten restaurar volúmenes nuevos.
+- Admite cifrado de volúmenes e instantáneas.
+
+### Almacenamiento de archivos
+
+El almacenamiento de archivos guarda los datos en una estructura jerárquica de archivos y carpetas. En entornos de red suele usar tecnología de almacenamiento conectado a la red (NAS), que permite acceder a los datos como a un disco local y facilita el uso compartido.
+
+- **Amazon EFS** ofrece almacenamiento de archivos elástico y sin servidor, que crece y se reduce automáticamente a medida que añades y quitas archivos, hasta petabytes. Es compatible con el protocolo NFS (versiones 4.1 y 4.0) y se puede acceder a él desde EC2, Amazon ECS, Amazon EKS, AWS Lambda y AWS Fargate. Un sistema de archivos regional guarda los datos de forma redundante en varias zonas de disponibilidad; uno de zona única los guarda en una sola, y si esa zona se daña por completo, los datos podrían perderse.
+- **Amazon FSx** reúne cuatro opciones que corresponden a sistemas de archivos conocidos: FSx for Windows File Server (servidores de archivos de Windows administrados), FSx for Lustre (Unix y Linux, optimizado para velocidad, como aprendizaje automático o computación de alto rendimiento), FSx for OpenZFS (para trasladar datos desde servidores ZFS o Linux locales) y FSx for NetApp ONTAP.
+
+### Almacenamiento de objetos
+
+El almacenamiento de objetos guarda y administra los datos sin estructura fija, como objetos. Cada objeto lleva un identificador único y metadatos que describen su contenido. **Amazon S3** es el servicio de almacenamiento de objetos de AWS: ofrece escalabilidad, disponibilidad, seguridad y rendimiento muy altos, y sirve para casos como lagos de datos, sitios web, aplicaciones móviles, copias de seguridad y restauración, archivado y análisis de macrodatos.
+
+### Otros tipos que conviene reconocer
+
+- **Caché**: una capa de almacenamiento de alta velocidad que guarda de forma temporal los datos de uso frecuente o reciente, cerca del punto de acceso, para mejorar el rendimiento y reducir la latencia.
+- **Híbrido y de borde**: combina la infraestructura local con servicios en la nube y permite mover los datos entre ambos según el rendimiento, el costo y el cumplimiento.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Se conecta a instancias de"
+    service="Amazon EC2"
+    description="Un volumen de EBS se conecta a una instancia y se usa como un disco local para guardar archivos o instalar aplicaciones."
+  />
+  <ConnectionCard
+    relation="Se comparte entre"
+    service="EC2, ECS, EKS, Lambda y Fargate"
+    description="Un sistema de archivos de EFS es accesible desde la mayoría de los tipos de cómputo de AWS, por lo que muchos servicios pueden leer los mismos datos."
+  />
+  <ConnectionCard
+    relation="Se protege con"
+    service="AWS Backup"
+    description="Centraliza y automatiza las copias de seguridad de volúmenes de EBS, sistemas de archivos de EFS, de FSx for Lustre y de FSx for Windows File Server, bases de datos y otros recursos."
+  />
+  <ConnectionCard
+    relation="Aloja datos de"
+    service="Amazon S3"
+    description="Almacena objetos para lagos de datos, sitios web, copias de seguridad y archivado, con clases de almacenamiento según la frecuencia de acceso."
+  />
+</CardGrid>
+
+## Cómo elegir según el acceso y el costo
+
+Elegir un servicio de almacenamiento empieza por alinearlo con tu patrón de acceso, porque de él dependen el rendimiento, el costo, la eficiencia, la seguridad y la resiliencia. También ayuda partir de lo que ya usas o conoces, porque facilita empezar y migrar los datos.
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Qué tipo para cada necesidad"
+    items={[
+      'Un disco para una instancia de EC2, con baja latencia: bloques, con EBS.',
+      'Una carpeta compartida entre varios servidores: archivos, con EFS o FSx.',
+      'Grandes volúmenes de datos no estructurados, sitios web o archivado: objetos, con S3.',
+      'Datos usados con frecuencia que deben responder más rápido: una capa de caché.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Pistas para reducir el costo"
+    items={[
+      'En S3, datos de acceso frecuente en S3 Standard y los poco usados en S3 Standard-IA o S3 One Zone-IA.',
+      'En S3, el archivado de menor costo en S3 Glacier Instant Retrieval, Flexible Retrieval o Deep Archive.',
+      'En S3, patrones de acceso cambiantes o desconocidos: S3 Intelligent-Tiering.',
+      'En EBS, volúmenes SSD para cargas transaccionales y HDD para cargas de mucho caudal.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Elegir un servicio de almacenamiento de AWS"
+  url="https://docs.aws.amazon.com/decision-guides/latest/storage-on-aws-how-to-choose/choosing-aws-storage-service.html"
+/>
+<OfficialSource
+  title="Qué es Amazon S3"
+  url="https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html"
+/>
+<OfficialSource
+  title="Qué es Amazon Elastic File System"
+  url="https://docs.aws.amazon.com/efs/latest/ug/whatisefs.html"
+/>
+<OfficialSource
+  title="Qué es Amazon Elastic Block Store"
+  url="https://docs.aws.amazon.com/ebs/latest/userguide/what-is-ebs.html"
+/>
+<OfficialSource
+  title="Servicios de almacenamiento · Información general de Amazon Web Services"
+  url="https://docs.aws.amazon.com/whitepapers/latest/aws-overview/storage-services.html"
+/>
