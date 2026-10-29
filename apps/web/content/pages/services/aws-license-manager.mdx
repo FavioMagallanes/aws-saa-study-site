@@ -7,4 +7,84 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+AWS License Manager facilita la administración de las licencias de software de proveedores como Microsoft, SAP, Oracle o IBM en varias regiones y cuentas de una organización. Ofrece una vista consolidada del uso de licencias e informes para comprobar que cumples los términos de tus contratos.
+
+## Qué problema resuelve
+
+Al llevar cargas de trabajo a AWS puedes ahorrar reutilizando las licencias que ya tienes, con el modelo de licencias propias (BYOL, Bring Your Own License). El riesgo es perder la cuenta: lanzar más servidores de los que permiten tus licencias trae excesos de uso, penalizaciones y problemas en las auditorías del proveedor. License Manager lleva un inventario de licencias ligado directamente a los servicios de AWS y puede detener el uso que no cumple antes de que ocurra.
+
+## Conceptos clave
+
+- **Licencias autoadministradas** (antes llamadas configuraciones de licencias): son el núcleo del servicio. Contienen reglas basadas en los términos de tus contratos empresariales, y esas reglas determinan cómo procesa AWS los comandos que consumen licencias.
+- **Límites estrictos o flexibles**: al llegar a un límite estricto, License Manager bloquea los lanzamientos adicionales de instancias; con un límite flexible, te avisa de ellos. Cuando una instancia rastreada termina, su licencia vuelve al grupo de licencias disponibles.
+- **Reglas asociadas a AMI**: si adjuntas las reglas a una AMI antes de publicarla, todos los despliegues desde esa AMI se rastrean sin que los usuarios hagan nada más.
+- **Responsabilidad del cliente**: AWS no participa en las auditorías con los proveedores. Tú debes entender tus contratos y traducirlos correctamente a reglas.
+- **Métricas de licencia**: rastrea software licenciado por vCPU, núcleos físicos, sockets o número de máquinas.
+- **Varias cuentas**: con AWS Organizations administras las licencias de forma central en todas las cuentas de la organización, y los grupos de activos de licencias permiten seguirlas en varias regiones y cuentas.
+- **Servidores fuera de AWS**: junto con AWS Systems Manager puedes administrar licencias de servidores físicos o virtuales alojados fuera de AWS, y descubrir aplicaciones locales con Systems Manager Inventory.
+- **Licencias concedidas**: gobiernas el uso de licencias compradas en AWS Marketplace o directamente a un proveedor que integró su software con el servicio, y repartes derechos de uso entre cuentas.
+- **Conversión del tipo de licencia**: cambias entre licencias provistas por AWS y BYOL sin volver a desplegar las cargas de trabajo.
+- **Paneles integrados**: dan visibilidad continua del uso y ayudan en las auditorías de los proveedores.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Aplica reglas de licencia en"
+    service="Amazon EC2"
+    description="Rastrea licencias y aplica reglas durante todo el ciclo de vida de instancias, instancias dedicadas, hosts dedicados e instancias de spot."
+  />
+  <ConnectionCard
+    relation="Centraliza las cuentas con"
+    service="AWS Organizations"
+    description="Permite administrar las licencias de todas las cuentas de la organización desde un solo lugar."
+  />
+  <ConnectionCard
+    relation="Llega a servidores locales con"
+    service="AWS Systems Manager"
+    description="Extiende el seguimiento de licencias a servidores físicos o virtuales fuera de AWS."
+  />
+  <ConnectionCard
+    relation="Mide el uso de BYOL en"
+    service="Amazon RDS"
+    description="Da visibilidad del uso de vCPU de las instancias de RDS for Oracle y RDS for Db2 con licencias propias."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="License Manager cuando"
+    items={[
+      'Llevas a AWS licencias propias (BYOL) de Microsoft, Oracle, SAP u otros proveedores.',
+      'Necesitas impedir que se lancen servidores que excedan tus licencias.',
+      'Debes informar del uso de licencias en varias cuentas y regiones para una auditoría.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Quieres ver el gasto y el uso general de la cuenta: AWS Cost Explorer.',
+      'Necesitas un inventario del software instalado en tus nodos sin reglas de licencia: Systems Manager Inventory.',
+      'Buscas evaluar la configuración de los recursos frente a reglas: AWS Config.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS License Manager"
+  url="https://docs.aws.amazon.com/license-manager/latest/userguide/license-manager.html"
+/>
+<OfficialSource
+  title="Licencias autoadministradas en License Manager"
+  url="https://docs.aws.amazon.com/license-manager/latest/userguide/license-configurations.html"
+/>
+<OfficialSource
+  title="Reglas de las licencias autoadministradas"
+  url="https://docs.aws.amazon.com/license-manager/latest/userguide/license-rules.html"
+/>
