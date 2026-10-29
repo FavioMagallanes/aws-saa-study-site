@@ -7,4 +7,77 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Amazon EKS Distro es la distribución de AWS de los componentes de Kubernetes sobre los que funcionan todas las ofertas de Amazon EKS. No es un servicio administrado: es el conjunto de piezas de software que puedes usar para montar y operar por tu cuenta clústeres de Kubernetes con las herramientas que prefieras.
+
+## Qué problema resuelve
+
+Para montar por tu cuenta un clúster de Kubernetes necesitas reunir sus componentes básicos. EKS Distro te da los mismos componentes básicos que usa Amazon EKS, de modo que tus clústeres autoadministrados parten de la misma base que las ofertas de EKS. A cambio, todo el trabajo de operación queda de tu lado.
+
+## Conceptos clave
+
+### Qué incluye
+
+EKS Distro contiene los componentes esenciales para que un clúster de Kubernetes funcione:
+
+- **Plano de control**: etcd, kube-apiserver, kube-scheduler y kube-controller-manager.
+- **Red**: CoreDNS, kube-proxy y complementos CNI.
+
+### Qué no incluye
+
+- **Administración**: no hay plano de control administrado por AWS ni automatización del ciclo de vida; tú instalas, actualizas y operas el clúster con las herramientas que elijas.
+- **Soporte**: los despliegues de EKS Distro no están cubiertos por los planes de AWS Support.
+
+### Dónde encaja en la familia EKS
+
+- **Amazon EKS**: AWS administra el plano de control y, con EKS Auto Mode, también los nodos.
+- **Amazon EKS Anywhere**: producto que administra el cliente y que automatiza la preparación de la infraestructura y el ciclo de vida del clúster en tus instalaciones, con soporte disponible mediante suscripción.
+- **Amazon EKS Distro**: solo los componentes; la administración y el soporte corren por tu cuenta.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Aporta los componentes de"
+    service="Amazon EKS"
+    description="Es la base de Kubernetes sobre la que funcionan todas las ofertas de EKS."
+  />
+  <ConnectionCard
+    relation="Se diferencia de"
+    service="Amazon EKS Anywhere"
+    description="EKS Anywhere añade automatización del ciclo de vida y soporte opcional para clústeres en tus instalaciones."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="EKS Distro cuando"
+    items={[
+      'Quieres autoadministrar Kubernetes con los mismos componentes que usa Amazon EKS.',
+      'Prefieres elegir tus propias herramientas para instalar y operar el clúster.',
+      'No necesitas que los planes de AWS Support cubran ese despliegue.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Quieres que AWS administre el plano de control: Amazon EKS.',
+      'Necesitas Kubernetes en tus instalaciones con gestión del ciclo de vida automatizada y soporte: Amazon EKS Anywhere.',
+      'Quieres usar tus servidores locales como nodos con el plano de control en AWS: Amazon EKS Hybrid Nodes.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Opciones de despliegue de Amazon EKS en la nube y en local"
+  url="https://docs.aws.amazon.com/eks/latest/userguide/eks-deployment-options.html"
+/>
+<OfficialSource
+  title="Qué es Amazon EKS"
+  url="https://docs.aws.amazon.com/eks/latest/userguide/what-is-eks.html"
+/>
