@@ -7,4 +7,97 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+El Explorador de costos de AWS (AWS Cost Explorer) es una herramienta para ver y analizar tus costos y tu uso de AWS con gráficos e informes. Muestra el historial reciente, pronostica el gasto futuro y recomienda compras de instancias reservadas y Savings Plans.
+
+## Qué problema resuelve
+
+Para reducir costos primero hay que saber dónde se van: qué servicio, qué cuenta o qué proyecto concentra el gasto y cómo evoluciona. Cost Explorer te deja filtrar y agrupar los datos para encontrar las áreas que merecen más análisis y las tendencias que explican tu factura. La comparación con las demás herramientas de costos está en el tema «Herramientas de costos y etiquetas».
+
+## Conceptos clave
+
+### Qué datos muestra
+
+- Hasta los últimos 13 meses de historial, el mes en curso y un pronóstico de los próximos 18 meses.
+- Usa el mismo conjunto de datos que el informe de costo y uso de AWS, y puedes descargar los datos en un archivo CSV.
+- Actualiza los datos al menos una vez cada 24 horas. Al activarlo, el mes en curso tarda unas 24 horas en aparecer y el resto, unos días más.
+
+### Formas de explorar
+
+- **Gráfico principal e informes de costo y uso**: filtras y agrupas, por ejemplo por servicio, cuenta vinculada, región, tipo de instancia u opción de compra, y combinas filtros para ver, por ejemplo, qué cuenta miembro gastó más en EC2.
+- **Vistas preconfiguradas**: un punto de partida para ver las tendencias de un vistazo.
+- **Informes de reservas**: muestran su utilización y cobertura, calculan recomendaciones de compra y pueden avisarte por correo antes de que venzan.
+
+### Pronósticos
+
+Un pronóstico predice tu uso en el periodo futuro que elijas a partir del uso pasado, con un intervalo de predicción del 80 %. Es una estimación y puede diferir del cargo real. Si no hay datos suficientes, algo habitual en cuentas con menos de un ciclo de facturación completo, no se muestra. Con la facturación consolidada de AWS Organizations, se calcula con los datos de todas las cuentas.
+
+### Costo
+
+Usar la interfaz es gratis. El acceso programático con la API de Cost Explorer tiene un cargo por cada solicitud paginada. Una vez activado, no se puede desactivar.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Recomienda compromisos de"
+    service="Savings Plans"
+    description="Sugiere el nivel de compromiso según tu historial de uso."
+  />
+  <ConnectionCard
+    relation="Comparte datos con"
+    service="Informe de costo y uso de AWS"
+    description="Ambos parten del mismo conjunto de datos; el informe da el detalle completo para procesarlo fuera."
+  />
+  <ConnectionCard
+    relation="Alimenta a"
+    service="AWS Cost Anomaly Detection"
+    description="La detección de anomalías usa los datos de Cost Explorer."
+  />
+  <ConnectionCard
+    relation="Consolida cuentas con"
+    service="AWS Organizations"
+    description="Con la facturación consolidada, ves y pronosticas el gasto de todas las cuentas."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Cost Explorer cuando"
+    items={[
+      'Quieres ver en qué se va el dinero y cómo evoluciona en los últimos meses.',
+      'Quieres un pronóstico del gasto futuro.',
+      'Buscas recomendaciones de instancias reservadas o Savings Plans.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Quieres un aviso o una acción al superar un importe: AWS Budgets.',
+      'Necesitas el detalle más completo, por hora y por recurso, para consultarlo con Athena: el informe de costo y uso de AWS.',
+      'Quieres detectar gastos inusuales de forma automática: AWS Cost Anomaly Detection.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Analizar costos y uso con AWS Cost Explorer"
+  url="https://docs.aws.amazon.com/cost-management/latest/userguide/ce-what-is.html"
+/>
+<OfficialSource
+  title="Pronósticos con Cost Explorer"
+  url="https://docs.aws.amazon.com/cost-management/latest/userguide/ce-forecast.html"
+/>
+<OfficialSource
+  title="Filtrar los datos en Cost Explorer"
+  url="https://docs.aws.amazon.com/cost-management/latest/userguide/ce-filtering.html"
+/>
+<OfficialSource
+  title="Detectar gastos inusuales con AWS Cost Anomaly Detection"
+  url="https://docs.aws.amazon.com/cost-management/latest/userguide/manage-ad.html"
+/>
