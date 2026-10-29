@@ -7,4 +7,122 @@ export const meta = {
   covers: ['2.1-k12', '2.1-s5', '3.2-k5'],
 };
 
-Contenido pendiente.
+Sin servidor (serverless) significa construir y ejecutar aplicaciones sin aprovisionar ni administrar servidores. Pagas solo por los recursos que consumes y los servicios escalan solos según la demanda. Las dos piezas de cómputo que el examen menciona son AWS Lambda, para código que responde a eventos, y AWS Fargate, para contenedores.
+
+## Qué problema resuelve
+
+Los marcos de aplicación tradicionales agrupan enrutamiento, acceso a datos e integraciones en una sola base de código que se escala y mantiene como una unidad. A medida que la aplicación crece, ese modelo monolítico dificulta escalar funciones concretas y ralentiza el desarrollo y la resolución de problemas. El enfoque sin servidor compone servicios independientes, cada uno con una función concreta, y delega en AWS el parcheo, el mantenimiento y la planificación de capacidad.
+
+## Conceptos clave
+
+### AWS Lambda
+
+Lambda es un servicio de cómputo sin servidor que ejecuta tu código sin aprovisionar ni administrar servidores. AWS se encarga del mantenimiento de los servidores, el aprovisionamiento de capacidad, el escalado y los parches.
+
+- **Basado en eventos**: escribes una función controladora y la conectas a un desencadenador, como Amazon API Gateway, Amazon S3, Amazon SQS o Amazon EventBridge. Cada invocación se ejecuta de forma independiente y sin estado compartido.
+- **Escalado automático**: Lambda crea y destruye entornos de ejecución según el tráfico, desde cero solicitudes al día hasta miles por segundo. Por defecto admite 1000 ejecuciones simultáneas, un límite que se puede aumentar.
+- **Duración limitada**: cada invocación dura como máximo 15 minutos, aunque la mayoría dura menos de un segundo. Una función que a veces supera los 15 minutos falla de forma impredecible y obliga a rediseñar. Para flujos largos, las funciones durables de Lambda guardan el progreso entre invocaciones y permiten flujos de hasta un año.
+- **Recursos**: hasta 10 GiB de memoria, con CPU proporcional a la memoria (hasta 6 vCPU).
+- **Sin estado**: los entornos de ejecución pueden reutilizarse, pero el estado puede no conservarse entre invocaciones; guárdalo fuera, por ejemplo en Amazon S3, DynamoDB o Amazon EFS.
+- **Pago por uso**: se cobra por número de solicitudes y por la duración de la ejecución, sin cargo cuando el código no se ejecuta.
+- **Arranques en frío**: se mitigan con la simultaneidad aprovisionada o con SnapStart (para Java, Python y .NET).
+
+### AWS Fargate
+
+Fargate es un motor de cómputo sin servidor para contenedores, que se usa sobre todo con Amazon ECS (también con Amazon EKS). Te encargas de la aplicación en contenedores sin administrar instancias.
+
+- **Procesos largos**: no tiene un límite de tiempo de ejecución, así que sirve para servicios de larga duración, conexiones persistentes o procesamiento por lotes.
+- **Control de recursos**: eliges la CPU y la memoria de cada tarea, hasta 32 vCPU y 244 GiB.
+- **Cualquier lenguaje**: todo lo que se pueda ejecutar en un contenedor.
+- **Escalado**: se ajusta el número deseado de tareas, con soporte de escalado predictivo.
+- **Pago**: por segundo según la vCPU y la memoria usadas; Fargate Spot ofrece descuento para cargas tolerantes a interrupciones.
+
+### Patrones sin servidor
+
+AWS recomienda no construir desde cero los patrones habituales de las arquitecturas distribuidas, sino usar el servicio diseñado para cada uno:
+
+- **Cola**: Amazon SQS, para desacoplar, amortiguar picos y procesar de forma asíncrona.
+- **Bus de eventos**: Amazon EventBridge, para enrutar eventos con reglas de filtrado por contenido.
+- **Publicación y suscripción (fan-out)**: Amazon SNS, cuando un evento debe disparar varias acciones.
+- **Orquestación**: AWS Step Functions, para procesos de varios pasos con ramificaciones y manejo de errores.
+- **API**: Amazon API Gateway; para una sola función sin necesidad de gestión de API, las URL de función de Lambda.
+- **Flujos de eventos**: Amazon Kinesis.
+- **Datos**: Amazon DynamoDB, Amazon S3 y Amazon Aurora Serverless.
+
+Un ejemplo típico: al subir una foto a Amazon S3, S3 publica un evento que activa una función de Lambda que genera la miniatura, sin que el servicio de subida sepa que existe el de miniaturas. Ese desacoplamiento permite que cada componente escale, se despliegue y evolucione de forma independiente.
+
+### Cuándo usar tecnologías sin servidor
+
+AWS agrupa las cargas sin servidor en patrones: procesamiento asíncrono (archivos, imágenes, webhooks), solicitud y respuesta síncrona (API web, backends móviles, microservicios), streaming (telemetría de IoT, análisis en tiempo real) y orquestación (aprobaciones, ETL, sagas). Para decidir:
+
+- **Duración**: tareas cortas y basadas en eventos encajan en Lambda; procesos que necesitan más de 15 minutos continuos o que corren de forma permanente encajan mejor en Fargate.
+- **Patrón de tráfico**: el pago por uso de Lambda favorece cargas impredecibles o con picos, en las que el tráfico puede caer a cero. Con cargas estables y predecibles, el precio basado en capacidad puede salir más económico.
+- **Empaquetado**: si la aplicación ya está en contenedores o necesita un entorno de ejecución propio, Fargate; si es código que reacciona a eventos de servicios de AWS, Lambda, que se integra de forma nativa con ellos.
+- Ambos reducen la carga operativa, ofrecen alta disponibilidad integrada y pueden combinarse en una arquitectura híbrida.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Expone APIs con"
+    service="Amazon API Gateway"
+    description="Recibe solicitudes HTTP y las envía a funciones de Lambda u otros backends."
+  />
+  <ConnectionCard
+    relation="Desacopla con"
+    service="Amazon SQS"
+    description="Una cola amortigua los picos y permite procesar los mensajes de forma asíncrona con Lambda."
+  />
+  <ConnectionCard
+    relation="Orquesta con"
+    service="AWS Step Functions"
+    description="Coordina varias funciones y servicios en flujos de trabajo con ramificaciones y manejo de errores."
+  />
+  <ConnectionCard
+    relation="Guarda el estado en"
+    service="Amazon DynamoDB"
+    description="Base de datos NoSQL sin servidor donde las funciones sin estado guardan sus datos."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Lambda cuando"
+    items={[
+      'El trabajo responde a eventos y cada ejecución dura menos de 15 minutos.',
+      'El tráfico es impredecible, con picos o periodos sin actividad.',
+      'Quieres integrarte de forma nativa con eventos de S3, SQS, EventBridge o API Gateway.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'El proceso es de larga duración o mantiene conexiones persistentes: Fargate.',
+      'Necesitas más memoria o CPU de lo que admite Lambda, o un entorno en contenedor propio: Fargate.',
+      'Necesitas elegir tipos de instancia concretos: Amazon EC2.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Lambda"
+  url="https://docs.aws.amazon.com/lambda/latest/dg/welcome.html"
+/>
+<OfficialSource
+  title="Elegir un servicio sin servidor de AWS"
+  url="https://docs.aws.amazon.com/serverless/latest/devguide/welcome.html"
+/>
+<OfficialSource
+  title="¿AWS Fargate o AWS Lambda?"
+  url="https://docs.aws.amazon.com/decision-guides/latest/decision-guides/fargate-or-lambda.html"
+/>
+<OfficialSource
+  title="AWS Fargate para Amazon ECS"
+  url="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/AWS_Fargate.html"
+/>
