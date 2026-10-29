@@ -7,4 +7,94 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Amazon ECS Anywhere es la función de Amazon ECS que permite registrar en un clúster de ECS una **instancia externa**, como un servidor local o una máquina virtual, y ejecutar en ella tareas y servicios. Así administras con Amazon ECS tanto los contenedores que se ejecutan en AWS como los de tus propias instalaciones.
+
+## Qué problema resuelve
+
+Algunas aplicaciones deben seguir ejecutándose fuera de AWS, por ejemplo junto a los datos o equipos de un centro de datos propio. Sin ECS Anywhere, tendrías que operar una herramienta de orquestación distinta para esos servidores. Con ECS Anywhere esos servidores pasan a formar parte de un clúster de ECS y reciben tareas como el resto de la capacidad. La guía de decisión de AWS la sitúa entre las opciones locales que dan flexibilidad sobre dónde ejecutar aplicaciones en contenedores.
+
+## Conceptos clave
+
+### Instancias externas y tipo de lanzamiento EXTERNAL
+
+- Registras el servidor o la máquina virtual en un clúster, y solo en uno a la vez. El servidor necesita un rol de IAM para comunicarse con las API de AWS.
+- Para crear servicios o ejecutar tareas en estas instancias usas el tipo de lanzamiento **EXTERNAL**; los proveedores de capacidad de ECS no se admiten.
+- El agente de AWS Systems Manager de la instancia mantiene credenciales de IAM que se rotan de forma periódica.
+- Admite arquitecturas x86_64 y ARM64 y varias distribuciones de Linux; consulta la documentación para la lista vigente.
+
+### Para qué cargas sirve
+
+Las instancias externas están optimizadas para aplicaciones que **generan tráfico de salida o procesan datos**. Como no admiten el balanceo de carga de servicios ni el descubrimiento de servicios, no son eficientes para cargas que reciben tráfico de entrada, como un servicio web.
+
+### Limitaciones a recordar
+
+- Las tareas usan los modos de red `bridge`, `host` o `none`; el modo `awsvpc` no se admite.
+- No se pueden usar volúmenes de Amazon EFS.
+- Para enviar los registros de los contenedores a CloudWatch Logs, la definición de tarea necesita un rol de ejecución de tareas.
+
+### Costo
+
+Según la guía de decisión de AWS, se cobra por el tiempo que las instancias registradas permanecen conectadas al plano de control de ECS.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Se administra desde"
+    service="Amazon ECS"
+    description="Las instancias externas forman parte de un clúster de ECS y reciben tareas como cualquier otra capacidad."
+  />
+  <ConnectionCard
+    relation="Mantiene credenciales con"
+    service="AWS Systems Manager"
+    description="El agente de SSM de la instancia refresca sus credenciales de IAM y las renueva al recuperar la conexión."
+  />
+  <ConnectionCard
+    relation="Se autentica con"
+    service="IAM"
+    description="Cada instancia externa usa un rol de IAM para llamar a las API de AWS."
+  />
+  <ConnectionCard
+    relation="Envía registros a"
+    service="Amazon CloudWatch"
+    description="Con un rol de ejecución de tareas, los registros de los contenedores llegan a CloudWatch Logs."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="ECS Anywhere cuando"
+    items={[
+      'Ya usas Amazon ECS y quieres ejecutar contenedores también en servidores locales o máquinas virtuales propias.',
+      'La carga procesa datos o genera tráfico de salida desde tus instalaciones.',
+      'Quieres administrar con el mismo servicio los contenedores de la nube y los de tus instalaciones.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'La aplicación recibe tráfico de entrada y necesita un balanceador de carga: ECS en AWS.',
+      'Usas Kubernetes en tus instalaciones: Amazon EKS Hybrid Nodes o Amazon EKS Anywhere.',
+      'Quieres infraestructura administrada por AWS dentro de tu centro de datos: AWS Outposts.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Clústeres de Amazon ECS para instancias externas"
+  url="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-anywhere.html"
+/>
+<OfficialSource
+  title="Qué es Amazon ECS"
+  url="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/Welcome.html"
+/>
+<OfficialSource
+  title="Elegir un servicio de contenedores de AWS"
+  url="https://docs.aws.amazon.com/decision-guides/latest/containers-on-aws-how-to-choose/choosing-aws-container-service.html"
+/>
