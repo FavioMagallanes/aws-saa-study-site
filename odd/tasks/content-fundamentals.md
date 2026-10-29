@@ -13,15 +13,16 @@ Writes the bodies of the 7 `fundamental` pages in apps/web/content/pages/fundame
 
 ## Tasks
 
-- [ ] C0 (S6) CardGrid MDX component + mapping; content integrity test (written pages need sources)
-- [ ] C1 (S1-S5) F1 Infraestructura global de AWS
-- [ ] C2 (S1-S5) F2 Modelo de responsabilidad compartida
-- [ ] C3 (S1-S5) F3 Marco AWS Well-Architected
-- [ ] C4 (S1-S5) F4 Fundamentos de redes
-- [ ] C5 (S1-S5) F5 Tipos de almacenamiento
-- [ ] C6 (S1-S5) F6 Tipos de bases de datos
-- [ ] C7 (S1-S5) F7 Modelos de cómputo
+- [x] C0 (S6) CardGrid MDX component + mapping; content integrity test (written pages need sources)
+- [x] C1 (S1-S5) F1 Infraestructura global de AWS
+- [x] C2 (S1-S5) F2 Modelo de responsabilidad compartida
+- [x] C3 (S1-S5) F3 Marco AWS Well-Architected
+- [x] C4 (S1-S5) F4 Fundamentos de redes
+- [x] C5 (S1-S5) F5 Tipos de almacenamiento
+- [x] C6 (S1-S5) F6 Tipos de bases de datos
+- [x] C7 (S1-S5) F7 Modelos de cómputo
 
 ## Log
 
 - L1: "si continua" (after proposing to start the content with the 7 Fundamentos pages, verified against AWS docs)
+- L2: All 7 pages written. Verified per page: claims re-read against the fetched docs (several statements softened or removed when they went beyond the sources), `node scripts/check-sources.mjs` (39 URLs answer), render test for every written page, and a browser pass over the 7 pages (sections, TOC, sources, zero console errors). Limits: definitions and explanations are my own wording, so they need the owner's review; the domain-to-pillar mapping in F3 is an observation, not a documented statement.
