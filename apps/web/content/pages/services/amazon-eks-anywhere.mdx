@@ -7,4 +7,89 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Amazon EKS Anywhere es un producto para crear y operar clústeres de Kubernetes en tus propias instalaciones y en entornos periféricos. Automatiza el trabajo pesado y repetitivo, como preparar la infraestructura y gestionar el ciclo de vida del clúster, pero a diferencia de Amazon EKS **lo administras tú**: el plano de control y los nodos se ejecutan en tu centro de datos.
+
+## Qué problema resuelve
+
+Hay cargas que no pueden depender de una conexión a una región de AWS, por ejemplo en entornos aislados (air-gapped) sin conexión exterior. Las opciones de EKS que dejan el plano de control en AWS, como EKS Hybrid Nodes o EKS en AWS Outposts, requieren una conexión fiable con la región. EKS Anywhere cubre ese hueco: ofrece clústeres de Kubernetes autónomos en tu propia infraestructura, que pueden funcionar sin esa conexión.
+
+## Conceptos clave
+
+### Quién administra qué
+
+- **Plano de control**: administrado por el cliente y ubicado en su centro de datos o entorno periférico.
+- **Nodos**: máquinas físicas o virtuales que administra el cliente, en el mismo entorno.
+- **Operaciones**: el cliente es responsable de las operaciones del ciclo de vida y del mantenimiento de los clústeres.
+
+### Infraestructura compatible
+
+EKS Anywhere se basa en Cluster API (CAPI), un subproyecto de Kubernetes, y admite infraestructura como VMware vSphere, servidores físicos (bare metal), Nutanix, Apache CloudStack y AWS Snow.
+
+### Integración con AWS y soporte
+
+- Puede funcionar en entornos aislados y ofrece integraciones opcionales con servicios regionales de AWS para observabilidad y gestión de identidades.
+- Para recibir soporte y acceder a complementos de Kubernetes distribuidos por AWS, se contratan las **EKS Anywhere Enterprise Subscriptions**.
+
+### Frente a otras opciones locales de EKS
+
+- **EKS Hybrid Nodes**: tus servidores locales actúan como nodos de un clúster de EKS cuyo plano de control administra AWS en la región.
+- **EKS en AWS Outposts**: infraestructura administrada por AWS que se instala en tu centro de datos.
+- **EKS Anywhere**: todo el clúster es tuyo y puede funcionar sin conexión con la región.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Forma parte de la familia de"
+    service="Amazon EKS"
+    description="Lleva Kubernetes a tus instalaciones como una de las opciones de despliegue de EKS fuera de la nube."
+  />
+  <ConnectionCard
+    relation="Se ejecuta sobre"
+    service="AWS Snow Family"
+    description="AWS Snow es una de las infraestructuras compatibles, junto con vSphere, bare metal, Nutanix y CloudStack."
+  />
+  <ConnectionCard
+    relation="Es alternativa a"
+    service="AWS Outposts"
+    description="Outposts lleva infraestructura administrada por AWS a tu centro de datos, pero requiere conexión con la región."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="EKS Anywhere cuando"
+    items={[
+      'Necesitas Kubernetes en un entorno aislado, sin conexión fiable con una región de AWS.',
+      'Ejecutas Kubernetes sobre vSphere, servidores físicos, Nutanix, CloudStack o AWS Snow.',
+      'Aceptas operar tú el ciclo de vida del clúster a cambio de independencia de la región.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Tienes conexión fiable con AWS y quieres que AWS administre el plano de control: Amazon EKS Hybrid Nodes.',
+      'Quieres infraestructura de AWS administrada dentro de tu centro de datos: Amazon EKS en AWS Outposts.',
+      'Usas Amazon ECS y no Kubernetes: Amazon ECS Anywhere.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Opciones de despliegue de Amazon EKS en la nube y en local"
+  url="https://docs.aws.amazon.com/eks/latest/userguide/eks-deployment-options.html"
+/>
+<OfficialSource
+  title="Información general de Amazon EKS Hybrid Nodes"
+  url="https://docs.aws.amazon.com/eks/latest/userguide/hybrid-nodes-overview.html"
+/>
+<OfficialSource
+  title="Elegir un servicio de contenedores de AWS"
+  url="https://docs.aws.amazon.com/decision-guides/latest/containers-on-aws-how-to-choose/choosing-aws-container-service.html"
+/>
