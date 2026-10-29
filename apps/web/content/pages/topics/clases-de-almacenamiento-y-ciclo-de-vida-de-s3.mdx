@@ -18,4 +18,142 @@ export const meta = {
   ],
 };
 
-Contenido pendiente.
+En Amazon S3 no pagas lo mismo por todos los datos: cada objeto tiene una clase de almacenamiento, y cada clase equilibra de forma distinta el precio de guardar, el costo de leer y la rapidez de acceso. Elegir la clase según cómo se usan los datos, y moverlos automáticamente a medida que envejecen, es la base del almacenamiento de objetos rentable.
+
+## Qué problema resuelve
+
+Los datos cambian de uso con el tiempo. Un registro o un documento se consulta mucho al principio, poco después y, al final, solo hay que conservarlo por obligación o borrarlo. Si todo se queda en la clase por defecto pagas de más por datos fríos; si los archivas sin pensar, pagas recuperaciones, duraciones mínimas y cargos por objeto que pueden superar el ahorro. Las clases de almacenamiento, S3 Lifecycle, S3 Intelligent-Tiering y las opciones de pago como Requester Pays te permiten ajustar el costo al patrón de acceso real. La protección y retención de los datos (control de versiones, Object Lock) se trata en la página de gobernanza; aquí nos centramos en el costo.
+
+## Conceptos clave
+
+### Clases según el patrón de acceso
+
+Todas las clases ofrecen alta durabilidad; cambian la disponibilidad, el número de zonas de disponibilidad, la duración mínima y los cargos de recuperación.
+
+- **Acceso frecuente**: S3 Standard es la clase por defecto, con acceso en milisegundos y sin duración mínima ni cargos por recuperación. S3 Express One Zone ofrece la latencia más baja guardando los datos en una sola zona de disponibilidad que eliges. AWS recomienda no usar Reduced Redundancy Storage, porque S3 Standard es más rentable.
+- **Acceso cambiante o desconocido**: S3 Intelligent-Tiering mueve cada objeto de forma automática al nivel de acceso más rentable según su uso, sin afectar al rendimiento y sin cargos por recuperación, a cambio de una pequeña tarifa mensual de monitoreo por objeto. Los objetos sin acceso durante 30 días consecutivos pasan al nivel Infrequent Access y, tras 90 días, al nivel Archive Instant Access. Puedes activar además los niveles opcionales Archive Access y Deep Archive Access para datos que se pueden leer de forma asíncrona. Los objetos de menos de 128 KB no se monitorean y se quedan en el nivel Frequent Access.
+- **Acceso poco frecuente**: S3 Standard-IA y S3 One Zone-IA son para datos de larga duración que se leen poco pero necesitan acceso en milisegundos, como copias de seguridad. Cobran por cada GB recuperado, tienen una duración mínima de 30 días y un tamaño mínimo facturable de 128 KB. Standard-IA guarda los datos en varias zonas de disponibilidad y es la opción para la copia principal o única de datos que no puedes volver a crear. One Zone-IA es más barata porque usa una sola zona y no resiste su pérdida física: úsala para datos que puedes recrear, como réplicas de Cross-Region Replication.
+- **Acceso raro (archivo)**: las clases S3 Glacier tienen duraciones mínimas y cargos por recuperación, así que convienen para datos que casi nunca se leen. S3 Glacier Instant Retrieval da acceso en milisegundos a datos que se leen muy de vez en cuando (duración mínima de 90 días). S3 Glacier Flexible Retrieval (90 días) y S3 Glacier Deep Archive (180 días) archivan los datos: no están disponibles en tiempo real y antes de leerlos hay que restaurar una copia temporal.
+
+### Clasificar los datos en frío
+
+Para un objeto archivado, el costo total no es solo el almacenamiento. Ten en cuenta estos factores:
+
+- **Recuperación**: al restaurar eliges la velocidad. Standard tarda horas y Bulk es la opción más barata, para grandes volúmenes sin prisa. Expedited, disponible para Glacier Flexible Retrieval, devuelve objetos en minutos con una tarifa superior. En Deep Archive las restauraciones tardan más que en Flexible Retrieval.
+- **Borrado anticipado**: si borras, sobrescribes o mueves un objeto antes de su duración mínima, pagas el resto de ese periodo.
+- **Sobrecarga por objeto**: cada objeto archivado en Glacier Flexible Retrieval o Deep Archive añade metadatos que se facturan, una parte de ellos a la tarifa de S3 Standard. Con muchos objetos pequeños, esa sobrecarga pesa.
+
+### S3 Lifecycle
+
+Una configuración de S3 Lifecycle es un conjunto de reglas que S3 aplica a un grupo de objetos, filtrados por ejemplo por prefijo, etiquetas o tamaño. Hay dos tipos de acción:
+
+- **Transición**: mueve los objetos a otra clase, por ejemplo a Standard-IA a los 30 días de crearlos y a Glacier Flexible Retrieval al año. Las transiciones siguen un modelo en cascada, de las clases más accesibles a las de archivo; para sacar un objeto de Glacier Flexible Retrieval o Deep Archive hacia otra clase hay que restaurarlo y copiarlo.
+- **Caducidad**: S3 elimina los objetos caducados por ti, por ejemplo cuando termina un periodo de retención normativo.
+
+Otras acciones útiles para no pagar por datos olvidados: borrar versiones no actuales en buckets con control de versiones, quitar marcadores de eliminación caducados y detener cargas multiparte incompletas, cuyas partes se siguen facturando mientras no se completen o se detengan.
+
+Las reglas se aplican a los objetos existentes y a los nuevos. Cada transición se cobra como una solicitud, y por defecto los objetos de menos de 128 KB no se transicionan, porque el costo de la transición puede superar el ahorro. No puedes encadenar en una sola regla transiciones que no respeten la duración mínima de la clase anterior. Una política de bucket no impide que una regla de ciclo de vida elimine o mueva objetos.
+
+### Elegir el ciclo de vida correcto
+
+Primero conoce el patrón de acceso. S3 Storage Class Analysis observa durante un tiempo el acceso a un bucket, o a un grupo de objetos por prefijo o etiquetas, y te ayuda a decidir cuándo pasar datos de Standard a Standard-IA (solo recomienda esa transición). Con un patrón conocido y predecible, una regla de ciclo de vida con fechas fijas es lo más directo. Si el patrón es desconocido o cambia, S3 Intelligent-Tiering ahorra sin que tengas que adivinar.
+
+### Cargas por lotes frente a cargas individuales
+
+Muchos cargos de S3 son por solicitud u objeto: las solicitudes de carga, las transiciones de ciclo de vida y la sobrecarga de metadatos de los objetos archivados. Por eso, para datos de archivo, AWS sugiere agrupar muchos objetos pequeños en menos objetos grandes y filtrar por tamaño los objetos pequeños de las reglas de transición. Para objetos grandes, la carga multiparte divide el objeto en partes que se suben en paralelo; AWS la recomienda a partir de 100 MB, y si falla una parte solo reintentas esa parte.
+
+### Requester Pays
+
+Por defecto, el propietario del bucket paga el almacenamiento, las solicitudes y la transferencia de datos. Si configuras un bucket de uso general como Requester Pays, quien hace la solicitud paga la solicitud y la descarga de los datos, y el propietario solo paga el almacenamiento. Encaja cuando compartes grandes conjuntos de datos sin querer asumir el costo de que otros los descarguen. Todas las solicitudes deben estar autenticadas, no se permite el acceso anónimo y el solicitante debe indicar en la solicitud que acepta el cargo.
+
+### S3 frente a otros servicios de almacenamiento
+
+Para datos de objetos de larga duración, S3 con su ciclo de vida suele ser la opción natural. Si la carga necesita un sistema de archivos compartido, Amazon EFS también tiene gestión del ciclo de vida, que mueve los archivos no accedidos a las clases Infrequent Access y Archive. Si necesita almacenamiento en bloque para una instancia, consulta la página sobre volúmenes de EBS.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Restaura datos archivados con"
+    service="S3 Batch Operations"
+    description="Permite lanzar restauraciones de muchos objetos de Glacier Flexible Retrieval o Deep Archive a gran escala."
+  />
+  <ConnectionCard
+    relation="Replica en otra clase con"
+    service="S3 Replication"
+    description="Las réplicas pueden guardarse en una clase más barata, como One Zone-IA, para datos que puedes recrear."
+  />
+  <ConnectionCard
+    relation="Aplica el ciclo de vida a"
+    service="Amazon EFS"
+    description="EFS mueve los archivos no accedidos a sus clases Infrequent Access y Archive con políticas de ciclo de vida."
+  />
+  <ConnectionCard
+    relation="Mide el gasto con"
+    service="AWS Cost Explorer"
+    description="Ayuda a ver la evolución del costo de S3 antes y después de cambiar clases o reglas de ciclo de vida."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Usa cada clase cuando"
+    items={[
+      'Los datos se leen con frecuencia: S3 Standard.',
+      'El patrón de acceso es desconocido o cambia: S3 Intelligent-Tiering.',
+      'Se leen poco pero necesitas milisegundos: Standard-IA, o One Zone-IA si puedes recrearlos.',
+      'Es un archivo que casi nunca se lee: Glacier Instant Retrieval si necesitas milisegundos; Flexible Retrieval o Deep Archive si puedes esperar la restauración.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Ten en cuenta que"
+    items={[
+      'Los objetos pequeños o de vida corta pueden costar más en clases con duración mínima y tamaño mínimo facturable.',
+      'Si otros descargan tus datos y quieres que paguen ellos: Requester Pays.',
+      'Si los datos tienen una fecha de caducidad conocida, añade una acción de caducidad en lugar de guardarlos para siempre.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Clases de almacenamiento de Amazon S3"
+  url="https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html"
+/>
+<OfficialSource
+  title="Administrar el ciclo de vida de los objetos"
+  url="https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html"
+/>
+<OfficialSource
+  title="Transiciones con S3 Lifecycle"
+  url="https://docs.aws.amazon.com/AmazonS3/latest/userguide/lifecycle-transition-general-considerations.html"
+/>
+<OfficialSource
+  title="Elementos de la configuración de ciclo de vida"
+  url="https://docs.aws.amazon.com/AmazonS3/latest/userguide/intro-lifecycle-rules.html"
+/>
+<OfficialSource
+  title="Opciones de recuperación de archivos"
+  url="https://docs.aws.amazon.com/AmazonS3/latest/userguide/restoring-objects-retrieval-options.html"
+/>
+<OfficialSource
+  title="S3 Storage Class Analysis"
+  url="https://docs.aws.amazon.com/AmazonS3/latest/userguide/analytics-storage-class.html"
+/>
+<OfficialSource
+  title="Carga multiparte en Amazon S3"
+  url="https://docs.aws.amazon.com/AmazonS3/latest/userguide/mpuoverview.html"
+/>
+<OfficialSource
+  title="Buckets con pago por el solicitante (Requester Pays)"
+  url="https://docs.aws.amazon.com/AmazonS3/latest/userguide/RequesterPaysBuckets.html"
+/>
+<OfficialSource
+  title="Ciclo de vida del almacenamiento en Amazon EFS"
+  url="https://docs.aws.amazon.com/efs/latest/ug/lifecycle-management-efs.html"
+/>
