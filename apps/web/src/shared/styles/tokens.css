@@ -1,0 +1,71 @@
+/* Design tokens mirrored from the Penpot library (sets Base, Color/Claro, Color/Oscuro). */
+
+:root {
+  --font-serif: 'Literata Variable', Georgia, serif;
+  --font-sans: 'Inter Variable', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --text-body-size: 19px;
+  --text-body-line: 1.7;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 14px;
+  --radius-2xl: 20px;
+  --radius-pill: 999px;
+
+  --layout-sidebar: 240px;
+  --layout-column: 680px;
+  --layout-toc: 220px;
+  --layout-gap: 72px;
+  --layout-margin-mobile: 20px;
+}
+
+@media (max-width: 767px) {
+  :root {
+    --text-body-size: 18px;
+  }
+}
+
+:root,
+[data-theme='light'] {
+  color-scheme: light;
+  --color-bg: #f6f1e8;
+  --color-surface: #fbf8f2;
+  --color-text: #2a2520;
+  --color-muted: #6f665c;
+  --color-faint: #9c9285;
+  --color-border: #e3dacb;
+  --color-accent: #a8502e;
+  --color-accent-soft: #f0e1d3;
+  --color-ok: #5d7748;
+  --color-ok-soft: #e4ead9;
+  --color-code: #efe7da;
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+  --color-bg: #1b1814;
+  --color-surface: #23201b;
+  --color-text: #e9e2d6;
+  --color-muted: #a89d8e;
+  --color-faint: #7d7366;
+  --color-border: #3a332b;
+  --color-accent: #e28c62;
+  --color-accent-soft: #3a2a20;
+  --color-ok: #9db585;
+  --color-ok-soft: #2a3122;
+  --color-code: #2c2822;
+}
