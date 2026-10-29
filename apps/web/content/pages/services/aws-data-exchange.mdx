@@ -7,4 +7,79 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+AWS Data Exchange es un servicio para compartir datos con otras organizaciones y administrar quién tiene derecho a usarlos, a escala. Quien envía los datos crea concesiones o publica productos de datos; quien los recibe gestiona en un solo lugar todas sus concesiones y suscripciones y analiza los datos con los servicios de análisis y aprendizaje automático que prefiera.
+
+## Qué problema resuelve
+
+Compartir datos con otra empresa suele obligar a construir y mantener una infraestructura propia de entrega y de control de derechos: exportar archivos, enviar credenciales, revocar accesos al vencer un contrato. Data Exchange elimina esa infraestructura. Cualquier titular de una cuenta de AWS puede enviar concesiones de datos, y también se pueden vender datos como producto en AWS Marketplace. Además, cualquiera, tenga o no cuenta de AWS, puede encontrar y usar los conjuntos de datos públicos del programa Open Data on AWS.
+
+## Conceptos clave
+
+- **Concesión de datos (data grant)**: es la unidad de intercambio. El emisor la crea para dar a un receptor acceso a un conjunto de datos; la solicitud llega a la cuenta de AWS del receptor, que la acepta para acceder. Incluye el conjunto de datos, una descripción y los datos de acceso del receptor: su ID de cuenta y durante cuánto tiempo tendrá acceso.
+- **Producto de datos de AWS Marketplace**: un producto que contiene conjuntos de datos de Data Exchange. AWS lo revisa antes de listarlo en el catálogo, y sus ofertas definen precio, duración y acuerdo de suscripción.
+- **Activos, revisiones y conjuntos de datos**: un activo es una pieza de datos; una revisión agrupa uno o varios activos; un conjunto de datos es una serie de revisiones.
+- **Tipos de conjunto de datos**:
+  - **Archivos**: archivos planos que el receptor exporta a su equipo o a su bucket de Amazon S3.
+  - **API**: el receptor llama a puntos de enlace administrados por Data Exchange, que redirigen las llamadas a una API del propietario creada en Amazon API Gateway.
+  - **Amazon Redshift**: mediante datashares, el receptor consulta en solo lectura esquemas, tablas y vistas en Redshift, sin procesos de ETL.
+  - **Acceso a datos de Amazon S3**: acceso de solo lectura a objetos que siguen en los buckets del proveedor, para usarlos directamente con otros servicios de AWS.
+  - **AWS Lake Formation**: acceso a bases de datos, tablas o columnas marcadas con una LF-Tag. La documentación lo indica como versión preliminar (Preview).
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Entrega archivos en"
+    service="Amazon S3"
+    description="Los receptores exportan los archivos a su bucket o leen objetos que siguen en el bucket del proveedor."
+  />
+  <ConnectionCard
+    relation="Comparte tablas de"
+    service="Amazon Redshift"
+    description="Los datashares dan acceso de solo lectura a los datos del proveedor sin copiarlos ni transformarlos."
+  />
+  <ConnectionCard
+    relation="Publica APIs con"
+    service="Amazon API Gateway"
+    description="Un conjunto de datos de tipo API expone una API REST del propietario creada en API Gateway."
+  />
+  <ConnectionCard
+    relation="Concede permisos con"
+    service="AWS Lake Formation"
+    description="Comparte tablas o columnas del lago de datos marcadas con LF-Tags (en versión preliminar)."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Data Exchange cuando"
+    items={[
+      'Recibes o compras datos de terceros y quieres gestionar las suscripciones en un solo lugar.',
+      'Compartes datos con otras organizaciones sin construir una infraestructura de entrega.',
+      'Quieres vender un producto de datos en AWS Marketplace.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Compartes datos del lago entre tus propias cuentas con permisos finos: AWS Lake Formation.',
+      'Solo transfieres archivos entre tu almacenamiento y AWS: AWS DataSync, o AWS Transfer Family si usas SFTP o FTPS.',
+      'Intercambias datos entre aplicaciones SaaS, como Salesforce, y servicios de AWS: Amazon AppFlow.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Data Exchange"
+  url="https://docs.aws.amazon.com/data-exchange/latest/userguide/what-is.html"
+/>
+<OfficialSource
+  title="Datos en AWS Data Exchange"
+  url="https://docs.aws.amazon.com/data-exchange/latest/userguide/data-sets.html"
+/>
