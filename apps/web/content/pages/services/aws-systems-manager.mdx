@@ -7,4 +7,84 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+AWS Systems Manager te ayuda a ver, administrar y operar nodos a escala de forma centralizada, tanto en AWS como en entornos locales y de varias nubes. Reúne varias herramientas para las tareas habituales sobre esos nodos, como aplicar parches, ejecutar comandos o abrir sesiones, en varias cuentas y regiones.
+
+## Qué problema resuelve
+
+Administrar una flota de servidores a mano obliga a entrar en cada uno, mantener hosts bastión, abrir puertos de entrada para SSH o PowerShell remoto y repartir claves. Eso consume tiempo y aumenta el riesgo de que alguien ejecute comandos no autorizados. Systems Manager permite administrar los nodos de forma remota y segura sin iniciar sesión en ellos, y automatizar tareas comunes de administración en grupos de nodos.
+
+## Conceptos clave
+
+- **Nodo administrado**: cualquier instancia de Amazon EC2 o máquina fuera de EC2 (servidor local, máquina virtual o dispositivo en la periferia) configurada para Systems Manager. Requiere tener instalado el SSM Agent, que recibe las solicitudes del servicio, las ejecuta y devuelve el resultado.
+- **Session Manager**: abre sesiones en los nodos desde el navegador o la AWS CLI sin abrir puertos de entrada, sin hosts bastión y sin administrar claves SSH. El acceso se controla solo con políticas de IAM, y la actividad puede registrarse en AWS CloudTrail, Amazon S3 o CloudWatch Logs.
+- **Run Command**: cambia de forma remota la configuración de los nodos y automatiza tareas administrativas puntuales a escala, como instalar aplicaciones o unir instancias a un dominio de Windows.
+- **Patch Manager**: automatiza la aplicación de parches de seguridad y de otro tipo. Las líneas base de parches definen qué parches se aprueban, y puedes solo revisar qué falta o revisar e instalar. No actualiza versiones principales del sistema operativo.
+- **Automation**: simplifica tareas de mantenimiento, despliegue y corrección en servicios como Amazon EC2, Amazon RDS o Amazon S3 mediante runbooks, predefinidos por AWS o propios. Se integra con Amazon EventBridge para reaccionar a eventos.
+- **Parameter Store**: almacén centralizado de datos de configuración con nombre. El tema «Secretos y credenciales de aplicaciones» explica cuándo usarlo frente a AWS Secrets Manager.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Administra los nodos de"
+    service="Amazon EC2"
+    description="Las instancias con SSM Agent se convierten en nodos administrados a los que puedes aplicar parches, comandos y sesiones."
+  />
+  <ConnectionCard
+    relation="Audita las sesiones con"
+    service="AWS CloudTrail"
+    description="Registra las llamadas a la API de Session Manager para auditar quién se conectó a cada nodo."
+  />
+  <ConnectionCard
+    relation="Aplica parches en toda la organización con"
+    service="AWS Organizations"
+    description="Las políticas de parches permiten definir el parcheo para todas las cuentas y regiones de la organización."
+  />
+  <ConnectionCard
+    relation="Reacciona a eventos con"
+    service="Amazon EventBridge"
+    description="Puede iniciar automatizaciones a partir de eventos y avisar cuando alguien abre o cierra una sesión."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Systems Manager cuando"
+    items={[
+      'Necesitas entrar a instancias sin abrir puertos SSH ni mantener hosts bastión.',
+      'Debes aplicar parches a una flota de nodos en AWS y en tus instalaciones.',
+      'Quieres ejecutar comandos o runbooks en muchos nodos a la vez.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Quieres describir y aprovisionar los recursos en una plantilla: AWS CloudFormation.',
+      'Guardas credenciales que requieren rotación automática: AWS Secrets Manager.',
+      'Necesitas ver la configuración de tus recursos de AWS y cómo cambia con el tiempo: AWS Config.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Systems Manager"
+  url="https://docs.aws.amazon.com/systems-manager/latest/userguide/what-is-systems-manager.html"
+/>
+<OfficialSource
+  title="AWS Systems Manager Session Manager"
+  url="https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html"
+/>
+<OfficialSource
+  title="AWS Systems Manager Patch Manager"
+  url="https://docs.aws.amazon.com/systems-manager/latest/userguide/patch-manager.html"
+/>
+<OfficialSource
+  title="AWS Systems Manager Automation"
+  url="https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-automation.html"
+/>
