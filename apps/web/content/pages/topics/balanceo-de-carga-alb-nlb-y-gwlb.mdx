@@ -7,4 +7,138 @@ export const meta = {
   covers: ['2.1-k9', '2.2-k8', '3.4-k3', '3.4-s4', '4.2-s1', '4.4-k3'],
 };
 
-Contenido pendiente.
+Un balanceador de carga es el punto de contacto único de los clientes: recibe el tráfico y lo reparte entre varios destinos, como instancias EC2, contenedores, direcciones IP o funciones de Lambda, en una o varias zonas de disponibilidad. Elastic Load Balancing ofrece tres tipos de generación actual, cada uno en una capa distinta del modelo OSI: Application Load Balancer (capa 7), Network Load Balancer (capa 4) y Gateway Load Balancer (capa 3).
+
+## Qué problema resuelve
+
+Si todos los clientes se conectan a un único servidor, ese servidor limita el rendimiento y es un punto único de fallo. Un balanceador reparte la carga entre varios recursos de cómputo, comprueba su estado y solo envía tráfico a los que están sanos, lo que aumenta la disponibilidad y la tolerancia a errores. Además, permite añadir o quitar destinos sin interrumpir el flujo de solicitudes, y Elastic Load Balancing escala la capacidad del propio balanceador automáticamente según cambia el tráfico.
+
+## Conceptos clave
+
+### Componentes comunes
+
+- **Agente de escucha (listener)**: un proceso que comprueba las solicitudes de conexión con el protocolo y el puerto que configuras.
+- **Grupo de destino**: enruta las solicitudes a los destinos registrados con un protocolo y un puerto. Un destino puede estar en varios grupos, y las comprobaciones de estado se configuran por grupo.
+- **Comprobaciones de estado**: cuando un destino falla, el balanceador deja de enviarle tráfico y lo reanuda cuando vuelve a estar sano.
+- **Esquema**: un balanceador expuesto a internet tiene nodos con IP públicas; uno interno solo tiene IP privadas y solo atiende a clientes con acceso a la VPC. En ambos casos los destinos se alcanzan por IP privadas, así que no necesitan IP públicas. En una aplicación de varios niveles puedes poner un balanceador público delante de los servidores web y uno interno delante de los servidores de aplicaciones.
+
+### Application Load Balancer (capa 7)
+
+Funciona en la capa de aplicación y entiende HTTP y HTTPS. Evalúa las reglas del listener por prioridad y envía cada solicitud al grupo de destino que corresponda según su contenido.
+
+- **Enrutamiento por contenido**: por ruta de la URL (para estructurar la aplicación en servicios más pequeños), por host (varios dominios con un solo balanceador), por encabezados y métodos HTTP, parámetros de consulta o IP de origen.
+- **Acciones**: redirigir a otra URL o devolver una respuesta HTTP personalizada.
+- **Destinos**: instancias, direcciones IP (incluso fuera de la VPC), funciones de Lambda y tareas de Amazon ECS, que se registran con un puerto dinámico. Puede enviar a varias aplicaciones en una misma instancia, cada una en un puerto.
+- **Seguridad**: un listener HTTPS descarga el cifrado y descifrado en el balanceador; también puede autenticar a los usuarios con identidades corporativas o sociales antes de enrutar.
+- **Protocolos**: HTTP/2 en el frontend con listeners HTTPS, WebSockets y gRPC hacia los destinos.
+- **Algoritmo**: por defecto round robin; también admite el de menos solicitudes pendientes.
+- **Zonas**: requiere habilitar al menos dos zonas de disponibilidad, y el balanceo entre zonas siempre está activo a nivel del balanceador.
+
+### Network Load Balancer (capa 4)
+
+Funciona en la capa de transporte y puede manejar millones de solicitudes por segundo. Sus grupos de destino admiten TCP, UDP, TCP_UDP, TLS, QUIC y TCP_QUIC.
+
+- **Por flujo**: elige el destino con un hash del flujo (protocolo, IP y puertos de origen y destino); cada conexión TCP va a un único destino durante toda su vida.
+- **IP estáticas**: cada nodo obtiene una IP estática por zona habilitada y, si es público, puedes asociar una Elastic IP por subred.
+- **Sin descifrar**: con un listener TCP en el puerto 443 pasa el tráfico cifrado a los destinos para que sean ellos quienes lo descifren.
+- **IP del cliente**: según el tipo de destino, puede conservar la IP de origen del cliente.
+- **Destinos**: instancias, direcciones IP o incluso un Application Load Balancer.
+- **Zonas**: el balanceo entre zonas está desactivado por defecto; puedes activarlo cuando quieras.
+
+### Gateway Load Balancer (capa 3)
+
+Sirve para desplegar, escalar y administrar dispositivos virtuales de red, como firewalls, sistemas de detección y prevención de intrusiones o de inspección profunda de paquetes.
+
+- Escucha todos los paquetes IP en todos los puertos y combina una puerta de enlace transparente (un único punto de entrada y salida) con el reparto de tráfico entre los dispositivos.
+- Mantiene cada flujo en el mismo dispositivo y se comunica con ellos mediante el protocolo GENEVE en el puerto 6081.
+- Usa puntos de enlace de Gateway Load Balancer (un tipo de punto de enlace de VPC) para llevar el tráfico entre la VPC de la aplicación y la de los dispositivos; el punto de enlace se configura como siguiente salto en las tablas de enrutamiento.
+
+### Alta disponibilidad y rendimiento
+
+- **Varias zonas**: AWS recomienda habilitar varias zonas de disponibilidad en todos los balanceadores, con al menos un destino en cada una. Si una zona deja de estar disponible o no tiene destinos sanos, el tráfico va a las otras.
+- **Balanceo entre zonas**: con él activado, cada nodo reparte el tráfico entre los destinos de todas las zonas habilitadas; sin él, solo entre los de su zona, lo que puede desequilibrar la carga si las zonas tienen distinto número de destinos.
+- **Cambio de zona (zonal shift)**: con Amazon Application Recovery Controller puedes apartar el tráfico de una zona dañada con una sola acción.
+- **Con Auto Scaling**: el grupo de Auto Scaling registra y elimina instancias del balanceador al escalar.
+
+### Balanceo y costos
+
+Un solo Application Load Balancer puede atender varios dominios mediante reglas de host, y varias aplicaciones en una misma instancia mediante grupos de destino en puertos distintos, en lugar de desplegar un balanceador para cada uno.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Escala los destinos con"
+    service="Amazon EC2 Auto Scaling"
+    description="Registra y elimina instancias del balanceador cuando el grupo escala hacia fuera o hacia dentro."
+  />
+  <ConnectionCard
+    relation="Gestiona certificados con"
+    service="AWS Certificate Manager"
+    description="AWS recomienda crear con ACM los certificados que necesitan los listeners HTTPS; ACM se integra con Elastic Load Balancing para desplegarlos."
+  />
+  <ConnectionCard
+    relation="Resuelve el nombre con"
+    service="Amazon Route 53"
+    description="Responde a los clientes con las direcciones de los nodos del balanceador en cada zona habilitada."
+  />
+  <ConnectionCard
+    relation="Se protege con"
+    service="AWS WAF"
+    description="Filtra solicitudes web antes de que lleguen a un Application Load Balancer."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Application Load Balancer cuando"
+    items={[
+      'El tráfico es HTTP o HTTPS y quieres enrutar por ruta, host o encabezados.',
+      'Tienes microservicios, contenedores de ECS o funciones de Lambda como destinos.',
+      'Quieres terminar TLS o autenticar usuarios en el balanceador.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Necesitas TCP, UDP o TLS, millones de solicitudes por segundo o IP estáticas: Network Load Balancer.',
+      'Los destinos deben descifrar el tráfico ellos mismos: Network Load Balancer con un listener TCP.',
+      'Debes insertar firewalls o dispositivos de inspección de terceros en el camino del tráfico: Gateway Load Balancer.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Elastic Load Balancing"
+  url="https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/what-is-load-balancing.html"
+/>
+<OfficialSource
+  title="Cómo funciona Elastic Load Balancing"
+  url="https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/how-elastic-load-balancing-works.html"
+/>
+<OfficialSource
+  title="Qué es un Application Load Balancer"
+  url="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html"
+/>
+<OfficialSource
+  title="Listeners de un Application Load Balancer"
+  url="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-listeners.html"
+/>
+<OfficialSource
+  title="Certificados SSL de un Application Load Balancer"
+  url="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/https-listener-certificates.html"
+/>
+<OfficialSource
+  title="Qué es un Network Load Balancer"
+  url="https://docs.aws.amazon.com/elasticloadbalancing/latest/network/introduction.html"
+/>
+<OfficialSource
+  title="Qué es un Gateway Load Balancer"
+  url="https://docs.aws.amazon.com/elasticloadbalancing/latest/gateway/introduction.html"
+/>
