@@ -7,4 +7,67 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Amazon Elastic Transcoder era el servicio de AWS para transcodificar archivos multimedia en la nube: convertía archivos de su formato de origen en versiones que se pueden reproducir en dispositivos como teléfonos inteligentes, tabletas y computadoras. Importante: según la documentación de AWS, el servicio está en **cierre total** desde el **13 de noviembre de 2025**, su fecha de fin de soporte; ya no está disponible ni tiene soporte de ningún tipo.
+
+## Qué problema resuelve
+
+Un mismo archivo de video tiene que reproducirse en dispositivos distintos, como teléfonos, tabletas y computadoras. Elastic Transcoder ofrecía esa conversión como servicio en la nube: AWS lo describía como una forma muy escalable, fácil de usar y rentable de transcodificar archivos multimedia para desarrolladores y empresas.
+
+## Conceptos clave
+
+### Transcodificar
+
+Transcodificar es convertir un archivo multimedia de su formato de origen a otro formato, para que se pueda reproducir en el dispositivo de destino.
+
+### Cierre total
+
+En el ciclo de vida de los servicios de AWS, el cierre total es la última etapa: el servicio se retira por completo del catálogo de AWS y deja de estar disponible y de tener soporte. Elastic Transcoder aparece en la lista de servicios en cierre total de la AWS General Reference.
+
+### El servicio actual de transcodificación de archivos
+
+La página de cierre no nombra un sustituto. Para transcodificar archivos de video, AWS ofrece hoy **AWS Elemental MediaConvert**, un servicio de procesamiento de video basado en archivos. Su unidad de trabajo es el **trabajo** (job), que convierte un archivo de entrada en uno o varios archivos de salida; los **ajustes preestablecidos** (presets) y las **plantillas de trabajo** (job templates) guardan configuraciones para reutilizarlas, y las **colas** (queues) administran el procesamiento en paralelo.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Cumple hoy la misma función"
+    service="AWS Elemental MediaConvert"
+    description="Servicio de transcodificación de video basado en archivos para crear contenido de video bajo demanda (VOD) a escala."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Elastic Transcoder cuando"
+    items={[
+      'Ya no es una opción: el servicio está en cierre total desde el 13 de noviembre de 2025.',
+      'En el examen, reconoce su nombre como el servicio de transcodificación de archivos multimedia.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Necesitas convertir archivos de video para que se reproduzcan en distintos dispositivos: AWS Elemental MediaConvert.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Servicios en cierre total (AWS General Reference)"
+  url="https://docs.aws.amazon.com/general/latest/gr/full_shutdown_services.html"
+/>
+<OfficialSource
+  title="Servicios multimedia de AWS (Overview of Amazon Web Services)"
+  url="https://docs.aws.amazon.com/whitepapers/latest/aws-overview/media-services.html"
+/>
+<OfficialSource
+  title="Qué es AWS Elemental MediaConvert"
+  url="https://docs.aws.amazon.com/mediaconvert/latest/ug/what-is.html"
+/>

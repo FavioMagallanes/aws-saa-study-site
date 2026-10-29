@@ -23,8 +23,8 @@ describe('generated page search text', () => {
     expect(pageSearchText).toEqual(expectedPageText());
   });
 
-  it('includes every written page and skips pending ones', () => {
+  it('includes the written pages', () => {
     expect(Object.keys(pageSearchText)).toContain('amazon-s3');
-    expect(Object.keys(pageSearchText)).not.toContain('amazon-elastic-transcoder');
+    expect(Object.keys(pageSearchText)).toContain('amazon-elastic-transcoder');
   });
 });

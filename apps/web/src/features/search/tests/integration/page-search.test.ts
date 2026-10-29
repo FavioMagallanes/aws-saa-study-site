@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { pageSearch } from '../../data/page-search';
+import { createPageSearch } from '../../model/page-search';
 
 const idsFor = (query: string) => pageSearch.search(query).map((hit) => hit.id);
 
@@ -47,17 +48,28 @@ describe('page search over the real content', () => {
     );
   });
 
-  it('keeps pending pages findable by title and category, without a summary', () => {
-    const hit = pageSearch
-      .search('Elastic Transcoder')
-      .find((candidate) => candidate.id === 'amazon-elastic-transcoder');
-    expect(hit).toEqual({
-      id: 'amazon-elastic-transcoder',
-      title: 'Amazon Elastic Transcoder',
-      category: 'Servicios multimedia',
-      summary: '',
-    });
-    expect(idsFor('servicios multimedia')).toContain('amazon-elastic-transcoder');
+  it('keeps a page without text findable by title and category, with an empty summary', () => {
+    const search = createPageSearch([
+      {
+        id: 'amazon-example',
+        title: 'Amazon Example',
+        category: 'Servicios de ejemplo',
+        headings: '',
+        summary: '',
+        bullets: '',
+        abbreviations: '',
+      },
+    ]);
+    const expected = [
+      {
+        id: 'amazon-example',
+        title: 'Amazon Example',
+        category: 'Servicios de ejemplo',
+        summary: '',
+      },
+    ];
+    expect(search.search('Example')).toEqual(expected);
+    expect(search.search('servicios de ejemplo')).toEqual(expected);
   });
 
   it('returns no results for an empty query or unknown words', () => {

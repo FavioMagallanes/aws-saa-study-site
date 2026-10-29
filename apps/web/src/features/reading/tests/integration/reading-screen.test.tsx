@@ -14,14 +14,6 @@ describe('reading page with the real content', () => {
     expect(screen.queryByText('Contenido pendiente.')).not.toBeInTheDocument();
   });
 
-  it('shows the pending body for a page that is not written yet', async () => {
-    await renderAt('/lectura/amazon-elastic-transcoder');
-    expect(
-      await screen.findByRole('heading', { level: 1, name: 'Amazon Elastic Transcoder' }),
-    ).toBeInTheDocument();
-    expect(screen.getByText('Contenido pendiente.')).toBeInTheDocument();
-  });
-
   it('marks the current page in the sidebar', async () => {
     await renderAt('/lectura/amazon-sqs');
     const nav = await screen.findByRole('navigation', { name: 'Páginas relacionadas' });

@@ -38,6 +38,14 @@ describe('extractPageText', () => {
   });
 
   it('returns nothing for a page that still says "Contenido pendiente."', () => {
-    expect(extractPageText(readPage('services/amazon-elastic-transcoder.mdx'))).toBeUndefined();
+    const pending = [
+      'export const meta = {',
+      "  id: 'amazon-example',",
+      '};',
+      '',
+      'Contenido pendiente.',
+      '',
+    ].join('\n');
+    expect(extractPageText(pending)).toBeUndefined();
   });
 });

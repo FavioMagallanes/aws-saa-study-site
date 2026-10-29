@@ -362,6 +362,18 @@
     ],
     "summary": "Amazon EKS (Elastic Kubernetes Service) es un servicio de Kubernetes totalmente administrado para desplegar, administrar y escalar aplicaciones en contenedores con Kubernetes, tanto en la nube de AWS como en tus propios centros de datos. Es una de las dos opciones de orquestación de contenedores que cita la guía del examen, junto con Amazon ECS."
   },
+  "amazon-elastic-transcoder": {
+    "headings": [
+      "Qué problema resuelve",
+      "Conceptos clave",
+      "Transcodificar",
+      "Cierre total",
+      "El servicio actual de transcodificación de archivos",
+      "Cómo se conecta con otros servicios",
+      "Cómo elegir"
+    ],
+    "summary": "Amazon Elastic Transcoder era el servicio de AWS para transcodificar archivos multimedia en la nube: convertía archivos de su formato de origen en versiones que se pueden reproducir en dispositivos como teléfonos inteligentes, tabletas y computadoras. Importante: según la documentación de AWS, el servicio está en cierre total desde el 13 de noviembre de 2025, su fecha de fin de soporte; ya no está disponible ni tiene soporte de ningún tipo."
+  },
   "amazon-elasticache": {
     "headings": [
       "Qué problema resuelve",
