@@ -7,4 +7,111 @@ export const meta = {
   covers: ['1.2-k4', '1.2-k6', '1.2-s3'],
 };
 
-Contenido pendiente.
+Una aplicación expuesta a internet recibe de todo: usuarios legítimos, pero también tráfico diseñado para saturarla o para engañarla. Dos de los vectores de amenaza externa más conocidos son los ataques de denegación de servicio distribuido (DDoS) y la inyección de código. AWS ofrece servicios que se integran para protegerte de ambos.
+
+## Qué problema resuelve
+
+Un ataque DDoS intenta inundar un destino con tráfico procedente de muchos sistemas comprometidos, para que los usuarios legítimos no puedan acceder o para que el objetivo se caiga por el volumen. En una inyección de código, el atacante inserta código malicioso en una solicitud web para alterar tu base de datos o extraer datos de ella, o para introducir scripts en otros navegadores. Si no filtras ese tráfico antes de que llegue a tu aplicación, tu disponibilidad y tus datos quedan en riesgo.
+
+## Conceptos clave
+
+### Ataques DDoS y AWS Shield
+
+AWS Shield protege los recursos de AWS contra ataques DDoS en las capas de red y transporte (capas 3 y 4) y en la capa de aplicación (capa 7). Cubre una amplia gama de vectores de ataque conocidos y también de día cero. Detecta tres clases de ataques:
+
+- **Volumétricos de red (capa 3)**: intentan saturar la capacidad de la red o del recurso atacado.
+- **De protocolo de red (capa 4)**: abusan de un protocolo para dejar sin servicio al recurso. Un ejemplo común es la inundación TCP SYN, que puede agotar el estado de las conexiones de servidores, balanceadores de carga o firewalls.
+- **De capa de aplicación (capa 7)**: inundan una aplicación con consultas válidas para el destino, como las inundaciones de solicitudes web.
+
+Hay dos niveles:
+
+- **AWS Shield Standard** se ofrece de forma automática y sin cargo adicional cuando usas AWS.
+- **AWS Shield Advanced** es un servicio administrado al que te suscribes para obtener niveles de protección más altos contra amenazas externas como los DDoS, los bots volumétricos y los intentos de explotar vulnerabilidades. Su suscripción cubre los costos de las capacidades estándar de AWS WAF para los recursos que protege, e incluye el acceso al grupo de reglas administrado Layer 7 Anti-DDoS.
+
+### Inyección de código y AWS WAF
+
+AWS WAF es un firewall de aplicaciones web que te permite supervisar las solicitudes HTTP(S) que se reenvían a tus recursos protegidos. Puede proteger, entre otros, una distribución de Amazon CloudFront, una API REST de Amazon API Gateway, un Application Load Balancer, una API GraphQL de AWS AppSync y un grupo de usuarios de Amazon Cognito. También protege aplicaciones en contenedores de Amazon ECS si configuras un Application Load Balancer con AWS WAF habilitado.
+
+Según los criterios que definas, como las direcciones IP de origen o los valores de las cadenas de consulta, el servicio asociado al recurso responde a cada solicitud con el contenido pedido, con un código de estado HTTP 403 (Prohibido) o con una respuesta personalizada. Las reglas se definen dentro de grupos de reglas o de paquetes de protección (listas de control de acceso web). Dos tipos de regla relevantes para este tema:
+
+- **Inyección de SQL**: inspecciona si hay código SQL malicioso, que los atacantes insertan en las solicitudes para modificar o extraer datos de tu base de datos.
+- **Secuencias de comandos entre sitios (XSS)**: inspecciona si hay scripts maliciosos en un componente de la solicitud; en un ataque XSS, el atacante aprovecha vulnerabilidades de un sitio inofensivo para inyectar scripts en los navegadores de otros usuarios legítimos.
+
+### Acceso seguro a las aplicaciones
+
+Proteger el tráfico es solo una parte. También debes controlar quién accede a la aplicación. Por ejemplo, un grupo de usuarios de Amazon Cognito puede protegerse con AWS WAF, y AWS IAM Identity Center ofrece inicio de sesión único a las personas autorizadas en aplicaciones compatibles con SAML.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Absorbe DDoS en"
+    service="AWS Shield"
+    description="Shield Standard protege sin costo extra; Shield Advanced añade protección ampliada para los recursos que elijas."
+  />
+  <ConnectionCard
+    relation="Filtra solicitudes con"
+    service="AWS WAF"
+    description="Inspecciona solicitudes HTTP(S) con reglas, como las de inyección de SQL y XSS, antes de que lleguen a tu aplicación."
+  />
+  <ConnectionCard
+    relation="Se coloca delante de"
+    service="Amazon CloudFront y Application Load Balancer"
+    description="Son recursos que AWS WAF puede proteger, junto con API Gateway, AppSync y los grupos de usuarios de Cognito."
+  />
+  <ConnectionCard
+    relation="Controla el acceso con"
+    service="AWS IAM Identity Center"
+    description="Da inicio de sesión único a las personas autorizadas, con aplicaciones compatibles con SAML."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Qué servicio para cada amenaza"
+    items={[
+      'Inundaciones de tráfico en las capas 3, 4 y 7: AWS Shield.',
+      'Inyección de SQL, XSS y solicitudes web maliciosas: AWS WAF.',
+      'Una protección DDoS más alta y reglas de capa 7 incluidas: Shield Advanced.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Tenlo presente"
+    items={[
+      'Shield Standard se aplica solo, sin cargo adicional; Advanced requiere suscripción.',
+      'AWS WAF protege recursos concretos, como CloudFront o un Application Load Balancer.',
+      'Un contenedor de ECS se protege con un Application Load Balancer que tenga AWS WAF habilitado.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Cómo funcionan AWS Shield Standard y Shield Advanced"
+  url="https://docs.aws.amazon.com/waf/latest/developerguide/ddos-overview.html"
+/>
+<OfficialSource
+  title="Introducción a AWS Shield Advanced"
+  url="https://docs.aws.amazon.com/waf/latest/developerguide/ddos-advanced-summary.html"
+/>
+<OfficialSource
+  title="AWS WAF"
+  url="https://docs.aws.amazon.com/waf/latest/developerguide/waf-chapter.html"
+/>
+<OfficialSource
+  title="Reglas de AWS WAF"
+  url="https://docs.aws.amazon.com/waf/latest/developerguide/waf-rules.html"
+/>
+<OfficialSource
+  title="Instrucción de regla de ataque de inyección de SQL"
+  url="https://docs.aws.amazon.com/waf/latest/developerguide/waf-rule-statement-type-sqli-match.html"
+/>
+<OfficialSource
+  title="Instrucción de regla de ataque de secuencias de comandos entre sitios"
+  url="https://docs.aws.amazon.com/waf/latest/developerguide/waf-rule-statement-type-xss-match.html"
+/>
