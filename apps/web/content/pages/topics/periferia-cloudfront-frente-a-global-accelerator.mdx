@@ -7,4 +7,150 @@ export const meta = {
   covers: ['2.1-k7', '3.4-k1', '4.4-s4'],
 };
 
-Contenido pendiente.
+Los servicios de periferia hacen que el tráfico de los usuarios entre en la red global de AWS lo más cerca posible de ellos, en lugar de recorrer internet hasta la región donde vive la aplicación. Amazon CloudFront y AWS Global Accelerator usan ambos las ubicaciones de borde de AWS, pero resuelven problemas distintos: CloudFront es una red de entrega de contenido (CDN) que guarda copias en caché, y Global Accelerator dirige conexiones hacia los puntos de enlace más adecuados a través de direcciones IP estáticas.
+
+## Qué problema resuelve
+
+Cuando un usuario lejano pide un archivo o abre una conexión con tu aplicación, la solicitud atraviesa muchas redes interconectadas hasta llegar al servidor, lo que añade latencia y variaciones. Si además todas las solicitudes llegan al origen, este carga con todo el tráfico. Los servicios de periferia reducen el número de redes que atraviesa la solicitud, la llevan por la red troncal de AWS y, en el caso de CloudFront, evitan ir al origen cuando el contenido ya está en caché.
+
+## Conceptos clave
+
+### Amazon CloudFront
+
+CloudFront acelera la distribución de contenido web estático y dinámico, como archivos HTML, CSS, JavaScript e imágenes, a través de una red mundial de ubicaciones de borde.
+
+- **Cómo entrega el contenido**: el DNS envía la solicitud a la ubicación de borde que mejor puede atenderla, normalmente la más cercana en latencia. Si el objeto está en caché, CloudFront lo devuelve de inmediato; si no, lo pide al origen que definiste, como un bucket de Amazon S3 o un servidor HTTP, lo entrega al usuario y lo guarda en caché para la siguiente solicitud.
+- **Cachés regionales de borde**: se sitúan entre el origen y las ubicaciones de borde y tienen más capacidad. Mantienen más tiempo el contenido que va perdiendo popularidad, lo que reduce las veces que CloudFront vuelve al origen.
+- **Tasa de aciertos de caché**: es la proporción de solicitudes que se sirven directamente desde la caché. Cuanto más alta, menos carga y menos latencia en el origen.
+- **Duración en caché (TTL)**: un TTL más largo mejora el rendimiento y reduce la carga del origen; uno más corto sirve para contenido dinámico. Lo controlas con la política de caché de la distribución o con los encabezados `Cache-Control` y `Expires` del origen.
+- **Retirar contenido antes de que caduque**: puedes invalidar archivos o usar nombres de archivo con versión. Si actualizas archivos con frecuencia, AWS recomienda sobre todo el versionado.
+- **Origin Shield**: es una capa de caché adicional delante del origen que mejora la tasa de aciertos y consolida solicitudes para el mismo objeto, lo que reduce la carga del origen. Tiene un cargo adicional.
+- **Conmutación por error de origen**: un grupo de orígenes con uno principal y uno secundario permite que CloudFront cambie al secundario si el principal no está disponible o devuelve ciertos códigos de error.
+- **Casos de uso**: acelerar sitios web estáticos, por ejemplo con un bucket de S3 como origen y control de acceso de origen (OAC); vídeo bajo demanda y en directo; personalizar en el borde con Lambda@Edge; y servir contenido privado con URL o cookies firmadas.
+
+### AWS Global Accelerator
+
+Global Accelerator mejora el rendimiento y la disponibilidad de aplicaciones para usuarios locales y globales. No guarda contenido en caché: dirige las conexiones.
+
+- **Direcciones IP estáticas anycast**: proporciona dos direcciones IPv4 estáticas (cuatro en pila doble, con dos IPv6) que se anuncian desde la red de borde de AWS. Actúan como puntos de entrada fijos para los clientes y se mantienen mientras exista el acelerador. También puedes usar tus propias direcciones (BYOIP).
+- **Cómo enruta**: el tráfico entra en la red global de AWS por la ubicación de borde más cercana al usuario y viaja por esa red hasta el punto de enlace regional óptimo, según la ubicación del usuario, el estado del punto de enlace y los pesos que configures.
+- **Protocolos**: los agentes de escucha admiten los protocolos TCP y UDP.
+- **Puntos de enlace**: en un acelerador estándar pueden ser Network Load Balancers, Application Load Balancers, instancias de Amazon EC2 o direcciones IP elásticas, en una o varias regiones.
+- **Disponibilidad**: reacciona a los cambios de estado de los puntos de enlace y, si detecta que falla el de la región principal, desvía el tráfico al de la siguiente región disponible más cercana.
+- **Protección**: oculta los orígenes detrás de las dos direcciones estáticas, que están protegidas de forma predeterminada contra ataques DDoS con AWS Shield.
+- **Aceleradores de enrutamiento personalizado**: asignan cada cliente a una instancia EC2 y un puerto concretos, útil en juegos multijugador o VoIP.
+
+### Diferencias clave
+
+- **Qué acelera**: CloudFront acelera la entrega de contenido web y lo guarda en caché en el borde; Global Accelerator acelera conexiones TCP y UDP hacia tus puntos de enlace sin caché.
+- **Punto de entrada**: CloudFront se usa a través de nombres DNS; Global Accelerator ofrece direcciones IP estáticas que puedes incluir una sola vez en listas de permitidos, cortafuegos o registros DNS.
+- **Efecto en el origen**: CloudFront reduce las solicitudes que llegan al origen gracias a la caché; Global Accelerator envía todas las conexiones a los puntos de enlace, pero por la red de AWS y al más adecuado.
+
+### Necesidades estratégicas de una CDN y del almacenamiento en caché periférico
+
+Antes de añadir una CDN conviene responder:
+
+- **¿El contenido se puede almacenar en caché?** Los archivos estáticos y los que muchos usuarios piden igual se benefician mucho; el contenido dinámico necesita duraciones en caché más cortas.
+- **¿Dónde están los usuarios?** Cuanto más repartidos y lejos del origen, mayor es el beneficio de servir desde el borde.
+- **¿Cuánto debe aliviarse el origen?** Una tasa de aciertos alta, las cachés regionales y Origin Shield reducen la carga y pueden reducir costos como la transferencia de datos de salida del origen.
+- **¿Con qué frecuencia cambia el contenido?** Define el TTL y si usarás invalidaciones o nombres con versión.
+- **¿Hay requisitos de seguridad?** Restringe el acceso al origen para que solo CloudFront lo alcance y usa URL o cookies firmadas para contenido privado.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Sirve contenido desde"
+    service="Amazon S3"
+    description="Un bucket de S3 es un origen habitual de CloudFront; el control de acceso de origen restringe el bucket para que solo CloudFront lo lea."
+  />
+  <ConnectionCard
+    relation="Personaliza en el borde con"
+    service="Lambda@Edge"
+    description="Ejecuta código cerca del usuario para personalizar respuestas o autorizar el acceso antes de ir al origen."
+  />
+  <ConnectionCard
+    relation="Envía tráfico a"
+    service="Elastic Load Balancing"
+    description="Los Application Load Balancers y Network Load Balancers pueden ser puntos de enlace de Global Accelerator, y un Application Load Balancer puede ser origen de CloudFront."
+  />
+  <ConnectionCard
+    relation="Se protege con"
+    service="AWS Shield"
+    description="Las direcciones estáticas de Global Accelerator están protegidas de forma predeterminada contra ataques DDoS."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="CloudFront cuando"
+    items={[
+      'Entregas contenido web estático o dinámico, o vídeo, a usuarios de todo el mundo.',
+      'Quieres reducir la carga y las solicitudes que llegan al origen mediante caché.',
+      'Necesitas personalizar en el borde o servir contenido privado con URL o cookies firmadas.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Global Accelerator cuando"
+    items={[
+      'La aplicación usa TCP o UDP y no se beneficia de la caché, como juegos, VoIP o IoT.',
+      'Necesitas direcciones IP estáticas fijas para listas de permitidos de los clientes.',
+      'Quieres que el tráfico pase de inmediato a otra región si falla el punto de enlace principal.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon CloudFront"
+  url="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Introduction.html"
+/>
+<OfficialSource
+  title="Cómo entrega CloudFront el contenido"
+  url="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/HowCloudFrontWorks.html"
+/>
+<OfficialSource
+  title="Formas de usar CloudFront"
+  url="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/IntroductionUseCases.html"
+/>
+<OfficialSource
+  title="Almacenamiento en caché y disponibilidad"
+  url="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/ConfiguringCaching.html"
+/>
+<OfficialSource
+  title="Gestionar cuánto tiempo permanece el contenido en caché"
+  url="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Expiration.html"
+/>
+<OfficialSource
+  title="Invalidar archivos para retirar contenido"
+  url="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Invalidation.html"
+/>
+<OfficialSource
+  title="Usar CloudFront Origin Shield"
+  url="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html"
+/>
+<OfficialSource
+  title="Conmutación por error de origen en CloudFront"
+  url="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/high_availability_origin_failover.html"
+/>
+<OfficialSource
+  title="Qué es AWS Global Accelerator"
+  url="https://docs.aws.amazon.com/global-accelerator/latest/dg/what-is-global-accelerator.html"
+/>
+<OfficialSource
+  title="Cómo funciona AWS Global Accelerator"
+  url="https://docs.aws.amazon.com/global-accelerator/latest/dg/introduction-how-it-works.html"
+/>
+<OfficialSource
+  title="Casos de uso de AWS Global Accelerator"
+  url="https://docs.aws.amazon.com/global-accelerator/latest/dg/introduction-benefits-of-migrating.html"
+/>
+<OfficialSource
+  title="Agentes de escucha de aceleradores estándar"
+  url="https://docs.aws.amazon.com/global-accelerator/latest/dg/about-listeners.html"
+/>
