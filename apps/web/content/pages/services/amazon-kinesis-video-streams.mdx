@@ -7,4 +7,80 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Amazon Kinesis Video Streams es un servicio de AWS totalmente administrado para transmitir video en directo desde dispositivos a la nube de AWS y crear aplicaciones que lo procesen en tiempo real o lo analicen por lotes. No es solo un almacén de video: también permite ver las transmisiones en directo a medida que llegan.
+
+## Qué problema resuelve
+
+Recibir video de miles o millones de cámaras, guardarlo de forma duradera y ponerlo a disposición de aplicaciones de análisis exige una infraestructura compleja de ingesta, almacenamiento e indexación. Kinesis Video Streams la ofrece como servicio: los dispositivos envían el video, el servicio lo almacena, lo cifra y lo indexa por tiempo, y tus aplicaciones lo consumen fotograma a fotograma con baja latencia o lo procesan más tarde.
+
+## Conceptos clave
+
+- **Productor**: cualquier fuente que envía datos a una transmisión, como una cámara de seguridad, una cámara corporal, la cámara de un teléfono o de un vehículo, o un dron. Además de video, puede enviar datos serializados en el tiempo que no son video, como audio, imágenes térmicas, datos de profundidad o de radar.
+- **Bibliotecas de productor**: software que instalas en los dispositivos para conectarlos de forma segura y transmitir en tiempo real, tras almacenar unos segundos en búfer o como cargas posteriores. El servicio no depende de la fuente: admite, por ejemplo, cámaras de red con RTSP.
+- **Transmisión de video (Kinesis video stream)**: el recurso que transporta los datos, los almacena opcionalmente y los pone a disposición en tiempo real o por lotes. Normalmente tiene un solo productor, y varias aplicaciones independientes pueden consumirla en paralelo.
+- **Consumidor**: la aplicación que obtiene fragmentos y fotogramas para verlos, procesarlos o analizarlos, por ejemplo en instancias de Amazon EC2.
+- **Retención y cifrado**: puedes guardar los datos durante un periodo de retención; el servicio los cifra en reposo y los indexa con las marcas de tiempo del productor y de la ingesta.
+- **Reproducción con HLS**: puedes ver una transmisión, en directo o archivada, con HTTP Live Streaming en un reproductor compatible.
+- **WebRTC**: una capacidad administrada para transmitir en directo o mantener interacción bidireccional de audio y video entre dispositivos con cámara y navegadores o aplicaciones móviles, sin operar servidores de señalización ni de retransmisión.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Ejecuta consumidores en"
+    service="Amazon EC2"
+    description="Las aplicaciones que procesan el video en tiempo real o por lotes pueden ejecutarse en instancias de EC2."
+  />
+  <ConnectionCard
+    relation="Analiza el video con"
+    service="Amazon Rekognition"
+    description="Rekognition Video usa Kinesis Video Streams para recibir video en streaming; ese análisis en streaming ya no está disponible para clientes nuevos."
+  />
+  <ConnectionCard
+    relation="Forma parte de"
+    service="Amazon Kinesis"
+    description="Es una de las piezas de la plataforma de streaming de Kinesis, junto con Kinesis Data Streams, Firehose y Managed Service for Apache Flink."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+El tema «Ingesta y streaming de datos» explica las opciones de streaming en general. Desde la vista del servicio:
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Kinesis Video Streams cuando"
+    items={[
+      'Transmites video en directo desde cámaras u otros dispositivos a la nube.',
+      'Necesitas guardar e indexar por tiempo el video para procesarlo en tiempo real o por lotes.',
+      'Quieres comunicación de video en tiempo real entre dispositivos y navegadores con WebRTC.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Recopilas y procesas en tiempo real grandes flujos de registros de datos, no video ni audio: Amazon Kinesis Data Streams.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon Kinesis Video Streams"
+  url="https://docs.aws.amazon.com/kinesisvideostreams/latest/dg/what-is-kinesis-video.html"
+/>
+<OfficialSource
+  title="Cómo funciona Kinesis Video Streams"
+  url="https://docs.aws.amazon.com/kinesisvideostreams/latest/dg/how-it-works.html"
+/>
+<OfficialSource
+  title="Reproducción de video con HLS"
+  url="https://docs.aws.amazon.com/kinesisvideostreams/latest/dg/hls-playback.html"
+/>
+<OfficialSource
+  title="Qué es Kinesis Video Streams con WebRTC"
+  url="https://docs.aws.amazon.com/kinesisvideostreams-webrtc-dg/latest/devguide/what-is-kvswebrtc.html"
+/>
