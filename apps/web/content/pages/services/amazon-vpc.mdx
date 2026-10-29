@@ -7,4 +7,106 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Amazon Virtual Private Cloud (Amazon VPC) te permite lanzar recursos de AWS en una red virtual aislada lógicamente que tú defines. Se parece mucho a una red tradicional de tu propio centro de datos, pero con la infraestructura escalable de AWS: eliges los rangos de direcciones IP, creas subredes, configuras tablas de enrutamiento y decides cómo se conecta con internet, con otras VPC y con tu red local.
+
+## Qué problema resuelve
+
+Las aplicaciones necesitan una red con límites claros: qué recursos son accesibles desde internet, cuáles solo desde dentro y cómo se comunican los niveles entre sí. Amazon VPC es esa base de red, en la que despliegas recursos como instancias EC2. Los detalles de diseño se tratan en los temas "Diseño de red: subredes, enrutamiento y direccionamiento IP" y "Seguridad de la VPC: grupos de seguridad, ACL de red y segmentación".
+
+## Conceptos clave
+
+### VPC y subredes
+
+- Una **VPC** está dedicada a tu cuenta y aislada lógicamente de otras redes virtuales. Tu cuenta incluye una VPC predeterminada en cada región, lista para lanzar instancias.
+- Una **subred** es un rango de direcciones IP de la VPC y reside por completo en una sola zona de disponibilidad. Repartir recursos en subredes de distintas zonas protege la aplicación ante el fallo de una zona.
+- Admite direcciones IPv4, IPv6 o ambas.
+
+### Tipos de subred según su enrutamiento
+
+- **Pública**: tiene una ruta directa a una puerta de enlace de internet.
+- **Privada**: no tiene esa ruta; sus recursos necesitan un dispositivo NAT para salir a internet.
+- **Solo VPN**: tiene una ruta a una conexión Site-to-Site VPN a través de una puerta de enlace privada virtual.
+- **Aislada**: no tiene rutas fuera de la VPC.
+
+### Enrutamiento, puertas de enlace y puntos de enlace
+
+- Las **tablas de enrutamiento** deciden adónde va el tráfico de cada subred o puerta de enlace.
+- Una **puerta de enlace de internet** conecta la VPC con internet, y una **puerta de enlace NAT** da salida a las subredes privadas.
+- Los **puntos de enlace de VPC** conectan con servicios de AWS de forma privada, sin puerta de enlace de internet ni NAT.
+
+### Control del tráfico
+
+- **Grupos de seguridad**: el mecanismo principal. Filtran con estado y sus reglas pueden hacer referencia a otros grupos de seguridad.
+- **ACL de red**: control sin estado y de grano grueso a nivel de subred, útil como segunda capa, por ejemplo para denegar un tráfico concreto.
+- **Registros de flujo de VPC**: capturan información del tráfico IP que entra y sale de las interfaces de red.
+
+### Conectar varias VPC
+
+Una **interconexión de VPC** (VPC peering) es una relación uno a uno entre dos VPC, de la misma o de otra cuenta y región, con tráfico por direcciones privadas. No es transitiva: una VPC no llega a las VPC con las que no está interconectada directamente. Para muchas VPC se usa un transit gateway como concentrador central.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Aloja recursos de"
+    service="Amazon EC2"
+    description="Las instancias se lanzan en subredes de la VPC y se protegen con grupos de seguridad."
+  />
+  <ConnectionCard
+    relation="Se interconecta mediante"
+    service="AWS Transit Gateway"
+    description="Un concentrador central enruta el tráfico entre muchas VPC, conexiones VPN y Direct Connect."
+  />
+  <ConnectionCard
+    relation="Se conecta a la red local con"
+    service="AWS Site-to-Site VPN"
+    description="Una conexión VPN une tus VPC con tu centro de datos a través de internet."
+  />
+  <ConnectionCard
+    relation="Accede a servicios en privado con"
+    service="AWS PrivateLink"
+    description="Los puntos de enlace de interfaz llevan el tráfico a servicios de AWS sin salir por internet."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Una VPC propia cuando"
+    items={[
+      'Necesitas controlar rangos de IP, subredes y enrutamiento de tu carga.',
+      'Debes separar niveles públicos y privados de una aplicación.',
+      'Quieres aislar cargas de trabajo o equipos en redes distintas.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Solo conectas dos VPC entre sí: interconexión de VPC.',
+      'Conectas muchas VPC y redes locales: AWS Transit Gateway.',
+      'Las subredes privadas deben llegar a servicios de AWS sin NAT: puntos de enlace de VPC con AWS PrivateLink.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon VPC"
+  url="https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html"
+/>
+<OfficialSource
+  title="Subredes de tu VPC"
+  url="https://docs.aws.amazon.com/vpc/latest/userguide/configure-subnets.html"
+/>
+<OfficialSource
+  title="Seguridad de la infraestructura en Amazon VPC"
+  url="https://docs.aws.amazon.com/vpc/latest/userguide/infrastructure-security.html"
+/>
+<OfficialSource
+  title="Qué es la interconexión de VPC"
+  url="https://docs.aws.amazon.com/vpc/latest/peering/what-is-vpc-peering.html"
+/>
