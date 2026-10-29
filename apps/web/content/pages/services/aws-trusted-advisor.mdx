@@ -7,4 +7,80 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+AWS Trusted Advisor inspecciona tu entorno de AWS y te hace recomendaciones cuando encuentra oportunidades para ahorrar dinero, mejorar la disponibilidad y el rendimiento de los sistemas o cerrar brechas de seguridad. Sus comprobaciones se basan en prácticas recomendadas aprendidas al atender a cientos de miles de clientes de AWS.
+
+## Qué problema resuelve
+
+Con el tiempo, una cuenta acumula configuraciones arriesgadas o costosas que nadie revisa: instantáneas públicas, grupos de seguridad con puertos abiertos, recursos infrautilizados o cuotas de servicio a punto de agotarse. Revisarlas a mano en cada cuenta no es práctico. Trusted Advisor ejecuta comprobaciones automáticas sobre tus recursos y te muestra qué conviene corregir y qué acción se recomienda.
+
+## Conceptos clave
+
+- **Categorías de comprobaciones**: optimización de costos, rendimiento, seguridad, tolerancia a fallos, límites de servicio y excelencia operativa.
+- **Depende del plan de soporte**: con el plan Basic Support accedes desde la consola a todas las comprobaciones de límites de servicio y a algunas de seguridad y tolerancia a fallos, como instantáneas públicas de Amazon EBS y Amazon RDS, permisos de buckets de Amazon S3, MFA en la cuenta raíz o grupos de seguridad con puertos sin restringir. Los planes superiores dan acceso a todas las comprobaciones y a la API de Trusted Advisor.
+- **Actualización de resultados**: con el plan Basic las comprobaciones de seguridad no se actualizan solas y debes refrescarlas manualmente.
+- **Vista organizativa**: con AWS Organizations, todas las funciones habilitadas y un plan de soporte adecuado en la cuenta de administración, creas informes que agregan los resultados de todas las cuentas miembro.
+- **Supervisión con eventos**: puedes vigilar el estado de las comprobaciones con Amazon EventBridge para reaccionar cuando cambian.
+- **Otras fuentes**: muestra comprobaciones basadas en AWS Config y controles de AWS Security Hub CSPM, y puede incorporar recomendaciones de AWS Compute Optimizer.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Agrega resultados con"
+    service="AWS Organizations"
+    description="La vista organizativa reúne en informes las comprobaciones de todas las cuentas de la organización."
+  />
+  <ConnectionCard
+    relation="Avisa de cambios con"
+    service="Amazon EventBridge"
+    description="Permite supervisar el estado de las comprobaciones y responder cuando cambia."
+  />
+  <ConnectionCard
+    relation="Muestra controles de"
+    service="AWS Security Hub"
+    description="Puedes ver los controles de Security Hub CSPM dentro de Trusted Advisor."
+  />
+  <ConnectionCard
+    relation="Ayuda a responder la revisión de"
+    service="Herramienta de AWS Well-Architected"
+    description="La integración con Trusted Advisor facilita encontrar la información para responder las preguntas de la revisión."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Trusted Advisor cuando"
+    items={[
+      'Quieres un chequeo amplio de costos, seguridad, rendimiento y tolerancia a fallos.',
+      'Necesitas saber qué cuotas de servicio estás cerca de agotar.',
+      'Debes revisar estas recomendaciones en todas las cuentas de una organización.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Buscas recomendaciones de tamaño adecuado y recursos inactivos: AWS Compute Optimizer.',
+      'Quieres evaluar tu postura de seguridad frente a estándares del sector: AWS Security Hub.',
+      'Necesitas revisar una carga de trabajo frente a los seis pilares: herramienta de AWS Well-Architected.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="AWS Trusted Advisor"
+  url="https://docs.aws.amazon.com/awssupport/latest/user/trusted-advisor.html"
+/>
+<OfficialSource
+  title="Referencia de comprobaciones de Trusted Advisor"
+  url="https://docs.aws.amazon.com/awssupport/latest/user/trusted-advisor-check-reference.html"
+/>
+<OfficialSource
+  title="Vista organizativa de AWS Trusted Advisor"
+  url="https://docs.aws.amazon.com/awssupport/latest/user/organizational-view.html"
+/>
