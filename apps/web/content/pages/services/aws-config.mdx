@@ -7,4 +7,96 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+AWS Config te da una vista detallada de la configuración de los recursos de tu cuenta de AWS: cómo están configurados, cómo se relacionan entre sí y cómo cambió esa configuración con el tiempo. Además, evalúa de forma continua si cumplen las reglas que defines.
+
+## Qué problema resuelve
+
+A medida que una aplicación crece, cuesta saber qué recursos existen, cómo están configurados y quién cambió qué. Una auditoría pide demostrar que la configuración cumplía las políticas en una fecha concreta, y un cambio en un recurso puede romper a otros que dependen de él. AWS Config registra el historial de configuración, avisa cuando se crean, modifican o eliminan recursos sin tener que sondearlos, y marca los que se salen de la norma. Su papel frente a las desviaciones de la infraestructura se explica en el tema "Infraestructura inmutable y automatización".
+
+## Conceptos clave
+
+### Registro de la configuración
+
+AWS Config registra los tipos de recursos que elijas, como instancias EC2, volúmenes de EBS, grupos de seguridad o VPC. Guarda instantáneas e historial de configuración en un bucket de S3 y envía notificaciones de cambios a un tema de Amazon SNS. Con ese historial puedes ver, por ejemplo, qué política de IAM tenía un usuario en una fecha o qué puertos abría un grupo de seguridad, y volver a la última configuración que funcionaba.
+
+### Reglas
+
+Una regla representa la configuración ideal de un recurso; si un recurso no la cumple, Config lo marca como no conforme y envía una notificación.
+
+- **Reglas administradas**: reglas predefinidas y personalizables que proporciona AWS, por ejemplo que exige volúmenes de EBS cifrados.
+- **Reglas personalizadas**: las escribes con una función de AWS Lambda o con Guard, un lenguaje de políticas como código.
+- **Disparadores**: la regla se evalúa cuando cambia la configuración de un recurso, con una frecuencia periódica que eliges, o de ambas formas.
+- **Modo de detección o proactivo**: el de detección evalúa recursos ya desplegados; el proactivo evalúa propiedades antes del despliegue, pero no impide desplegar ni corrige nada.
+
+### Corrección, paquetes y agregadores
+
+- **Corrección**: Config corrige recursos no conformes con documentos de automatización de AWS Systems Manager, de forma manual o automática.
+- **Paquetes de conformidad (conformance packs)**: colecciones de reglas y acciones de corrección, definidas en una plantilla YAML, que se despliegan como una unidad en una cuenta y región o en toda una organización de AWS Organizations.
+- **Agregadores**: reúnen los datos de configuración y conformidad de varias cuentas y regiones, o de toda una organización, en una vista de solo lectura.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Corrige recursos con"
+    service="AWS Systems Manager"
+    description="Las acciones de corrección ejecutan documentos de automatización sobre los recursos no conformes."
+  />
+  <ConnectionCard
+    relation="Evalúa reglas propias con"
+    service="AWS Lambda"
+    description="Una regla personalizada invoca una función que evalúa la configuración y devuelve el resultado."
+  />
+  <ConnectionCard
+    relation="Guarda el historial en"
+    service="Amazon S3"
+    description="Las instantáneas y el historial de configuración se entregan a un bucket de S3."
+  />
+  <ConnectionCard
+    relation="Gobierna varias cuentas con"
+    service="AWS Organizations"
+    description="Despliega paquetes de conformidad y agrega datos de todas las cuentas de la organización."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="AWS Config cuando"
+    items={[
+      'Necesitas el historial de configuración de tus recursos para auditar o solucionar problemas.',
+      'Quieres evaluar de forma continua si los recursos cumplen tus reglas y corregirlos.',
+      'Debes ver la conformidad de varias cuentas y regiones en un solo lugar.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Necesitas saber qué identidad hizo una llamada a la API: AWS CloudTrail.',
+      'Quieres impedir acciones antes de que ocurran en varias cuentas: SCP con AWS Organizations o controles preventivos de AWS Control Tower.',
+      'Necesitas métricas de rendimiento y alarmas: Amazon CloudWatch.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Config"
+  url="https://docs.aws.amazon.com/config/latest/developerguide/WhatIsConfig.html"
+/>
+<OfficialSource
+  title="Componentes de una regla de AWS Config"
+  url="https://docs.aws.amazon.com/config/latest/developerguide/evaluate-config_components.html"
+/>
+<OfficialSource
+  title="Corregir recursos no conformes con AWS Config"
+  url="https://docs.aws.amazon.com/config/latest/developerguide/remediation.html"
+/>
+<OfficialSource
+  title="Paquetes de conformidad de AWS Config"
+  url="https://docs.aws.amazon.com/config/latest/developerguide/conformance-packs.html"
+/>
