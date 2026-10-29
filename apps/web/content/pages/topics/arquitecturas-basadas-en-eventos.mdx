@@ -7,4 +7,139 @@ export const meta = {
   covers: ['2.1-k5', '2.1-s1', '2.1-s3', '3.2-s1'],
 };
 
-Contenido pendiente.
+Una arquitectura basada en eventos es una forma de construir sistemas débilmente acoplados en la que los componentes trabajan juntos emitiendo eventos y respondiendo a ellos. Un evento es algo que ocurre en el sistema, como que un usuario añada un producto al carrito, y suele indicar un cambio en un recurso o en el entorno. Quien produce el evento no sabe quién lo consumirá.
+
+## Qué problema resuelve
+
+Muchas arquitecturas tradicionales comunican el estado entre componentes mediante sondeo (polling) o webhooks. El sondeo es poco eficiente, porque hay un retraso entre que aparecen los datos nuevos y que los servicios siguientes se enteran; los webhooks no siempre están disponibles y pueden requerir autenticación propia. Ambos mecanismos cuestan escalar bajo demanda.
+
+Los eventos se pueden filtrar, enrutar y enviar a los microservicios que los consumen. Esto puede reducir el ancho de banda, el uso de CPU y potencialmente el costo, y permite que cada componente escale por su cuenta: si llega un pico de tráfico, la capa de cómputo que procesa los eventos crece con él.
+
+## Conceptos clave
+
+### Productores, enrutadores y consumidores
+
+- **Productor**: el componente que genera el evento cuando cambia algo. No conoce a los consumidores, lo que simplifica su lógica.
+- **Enrutador o intermediario**: recibe los eventos y los entrega a los destinos interesados. En AWS puede ser, por ejemplo, Amazon EventBridge, Amazon SNS o una cola de Amazon SQS.
+- **Consumidor**: el componente que reacciona al evento. Se pueden añadir consumidores nuevos sin modificar a los productores, lo que hace el sistema muy extensible: otros equipos pueden añadir funcionalidad sin afectar a los servicios existentes.
+
+### Amazon EventBridge
+
+EventBridge es un servicio sin servidor que usa eventos para conectar los componentes de una aplicación. Permite recibir, filtrar, transformar y entregar eventos. Ofrece dos formas de procesarlos:
+
+- **Buses de eventos**: enrutadores que reciben eventos y los entregan a cero o más destinos. Son adecuados para enrutar de muchos orígenes a muchos destinos. Tu cuenta incluye un bus predeterminado que recibe automáticamente eventos de los servicios de AWS, y puedes crear buses personalizados y buses de socios que reciben eventos de aplicaciones SaaS.
+- **Reglas**: cada regla compara los eventos con un patrón (por origen, cuenta, región o contenido del evento) y envía los que coinciden a sus destinos. Una regla puede enviar un evento a un máximo de cinco destinos.
+- **Pipes**: integraciones punto a punto, con un único origen y un único destino, que admiten filtrado, enriquecimiento y transformación del evento antes de entregarlo. Un caso común es un pipe cuyo destino es un bus de eventos, que luego reparte los eventos a varios destinos.
+- **Archivo y reproducción**: puedes archivar eventos y reproducirlos después, lo que sirve para pruebas, para poner en marcha un servicio nuevo y para dar más durabilidad a la aplicación.
+- **EventBridge Scheduler**: crea tareas programadas con expresiones cron o de frecuencia, o invocaciones únicas.
+
+### AWS Lambda como consumidor de eventos
+
+Lambda recibe eventos de dos maneras:
+
+- **Invocación directa (push)**: un servicio de AWS invoca la función, por ejemplo Amazon S3 al subirse un archivo o API Gateway al recibir una solicitud HTTP.
+- **Asignación de origen de eventos (pull)**: Lambda sondea una cola o un flujo e invoca la función, por ejemplo con mensajes de una cola de Amazon SQS o registros de un flujo de DynamoDB.
+
+En este estilo, cada función actúa como un microservicio responsable de un conjunto reducido de instrucciones. Evita una sola función con toda la lógica de la aplicación y evita los bucles recursivos, como una función que escribe en el mismo bucket de S3 que la invoca.
+
+### Desacoplar para escalar de forma independiente
+
+Los servicios de mensajería actúan como un búfer elástico entre microservicios y ayudan a absorber los aumentos de tráfico. Un ejemplo de la documentación de Lambda: un servicio de recepción de pedidos guarda grandes volúmenes de pedidos en una cola de Amazon SQS, y un servicio de pagos, más lento, consume un flujo constante de mensajes de esa cola. Cada uno procesa a su propio ritmo y escala por separado. Para orquestar reintentos y manejo de errores complejos se puede usar AWS Step Functions.
+
+Las buenas prácticas de fiabilidad recomiendan que las interacciones sean asíncronas siempre que no se necesite una respuesta inmediata y baste con confirmar que la solicitud se registró. Los componentes no se integran punto a punto, sino a través de una capa de almacenamiento intermedia y duradera.
+
+### Servicios para el acoplamiento débil
+
+- **Amazon EventBridge**: separa a los productores de los consumidores y enruta eventos de muchos orígenes a muchos destinos.
+- **Amazon SQS**: cola totalmente administrada para integrar y desacoplar sistemas distribuidos.
+- **Amazon SNS**: mensajería push de alto rendimiento de muchos a muchos; un tema reparte (fanout) los mensajes a muchos suscriptores para procesarlos en paralelo.
+- **Amazon Kinesis**: plataforma de transmisión de datos que también puede actuar como capa intermedia.
+- **AWS Step Functions**: flujos de trabajo que coordinan varios servicios.
+- **Balanceadores de carga**: también se consideran dependencias débilmente acopladas.
+
+### Inconvenientes que debes considerar
+
+- **Latencia variable**: los eventos viajan por la red. Las cargas que exigen latencia baja y constante, como el trading de alta frecuencia, no son buenas candidatas.
+- **Consistencia final**: con muchos eventos en circulación, el sistema suele ser de consistencia final, lo que complica procesar transacciones, manejar duplicados o conocer el estado global exacto. Si necesitas consistencia fuerte, DynamoDB ofrece lecturas fuertemente consistentes y transacciones, y Amazon RDS ofrece propiedades ACID.
+- **Devolver resultados**: al ser asíncrono, quien llama no espera la respuesta. Suele importar más si el evento se procesó bien; las colas de mensajes fallidos (DLQ) permiten identificar y reintentar los eventos que fallaron.
+- **Depuración**: cada servicio tiene sus propios registros. Hace falta un sistema de registros robusto, como Amazon CloudWatch, un identificador de transacción que se registre en cada paso y un servicio como AWS X-Ray que analice los registros de varias invocaciones y servicios.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Enruta eventos con"
+    service="Amazon EventBridge"
+    description="Recibe eventos de servicios de AWS, aplicaciones propias y socios SaaS, y los entrega a los destinos según reglas."
+  />
+  <ConnectionCard
+    relation="Amortigua picos con"
+    service="Amazon SQS"
+    description="La cola guarda los mensajes hasta que el consumidor puede procesarlos, de modo que productor y consumidor escalan por separado."
+  />
+  <ConnectionCard
+    relation="Reparte a varios suscriptores con"
+    service="Amazon SNS"
+    description="Un mensaje publicado en un tema se envía a muchos suscriptores para procesarlo en paralelo."
+  />
+  <ConnectionCard
+    relation="Procesa eventos con"
+    service="AWS Lambda"
+    description="Lo invocan directamente servicios como S3 o API Gateway, o lee de colas y flujos mediante asignaciones de origen de eventos."
+  />
+  <ConnectionCard
+    relation="Sigue los eventos con"
+    service="AWS X-Ray"
+    description="Analiza las solicitudes a través de varias invocaciones y servicios para encontrar el origen de un error."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Arquitectura basada en eventos cuando"
+    items={[
+      'El tráfico es impredecible y necesitas que cada componente escale por su cuenta.',
+      'Varios sistemas deben reaccionar al mismo cambio sin que el productor los conozca.',
+      'La operación no necesita una respuesta inmediata y basta con confirmar que se registró.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Necesitas latencia muy baja y constante: un diseño monolítico, que se optimiza para menor latencia a costa de escalabilidad y disponibilidad.',
+      'Un único origen debe llegar a un único destino con filtrado y enriquecimiento: EventBridge Pipes.',
+      'Los pasos deben ejecutarse en un orden definido con reintentos y compensaciones: AWS Step Functions.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon EventBridge"
+  url="https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-what-is.html"
+/>
+<OfficialSource
+  title="Conceptos de los buses de eventos de EventBridge"
+  url="https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-what-is-how-it-works-concepts.html"
+/>
+<OfficialSource
+  title="Amazon EventBridge Pipes"
+  url="https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-pipes.html"
+/>
+<OfficialSource
+  title="Crear arquitecturas basadas en eventos con Lambda"
+  url="https://docs.aws.amazon.com/lambda/latest/dg/concepts-event-driven-architectures.html"
+/>
+<OfficialSource
+  title="REL04-BP02 Implementar dependencias débilmente acopladas"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/reliability-pillar/rel_prevent_interaction_failure_loosely_coupled_system.html"
+/>
+<OfficialSource
+  title="Mecanismos de comunicación entre microservicios"
+  url="https://docs.aws.amazon.com/whitepapers/latest/microservices-on-aws/communication-mechanisms.html"
+/>
