@@ -7,4 +7,134 @@ export const meta = {
   covers: ['1.3-k2', '2.2-k4', '2.2-s6'],
 };
 
-Contenido pendiente.
+La recuperación ante desastres (DR) es la capacidad de restablecer una carga de trabajo y sus datos después de un evento grave: la pérdida de un centro de datos o de una región entera, la corrupción de datos o un borrado malicioso. En AWS hay cuatro estrategias, desde la más barata y sencilla (copias de seguridad) hasta la más compleja y costosa (varias regiones activas). Elegir bien depende de cuánto tiempo y cuántos datos puede perder el negocio.
+
+## Qué problema resuelve
+
+La alta disponibilidad protege frente a fallos de componentes o de una zona, pero no frente a todo: un error humano, un ataque o la pérdida de una región pueden dejar la carga sin servicio o los datos dañados. El plan de DR forma parte del plan de continuidad del negocio y fija, para cada carga, cuánto puede tardar en volver y cuántos datos se pueden perder. Con esos objetivos eliges la estrategia que los cumple al menor costo razonable.
+
+## Conceptos clave
+
+### RTO y RPO
+
+- **RTO (objetivo de tiempo de recuperación)**: el retraso máximo aceptable entre la interrupción del servicio y su restablecimiento. Define cuánto tiempo puede estar caído el servicio.
+- **RPO (objetivo de punto de recuperación)**: el tiempo máximo aceptable desde el último punto de recuperación de los datos. Define cuántos datos se pueden perder.
+- Ambos los define la organización a partir de un análisis de impacto en el negocio y de riesgos, que considera también la probabilidad del desastre y el costo de la recuperación. Si recuperar cuesta más que la propia pérdida, no conviene implantar esa opción salvo que lo exija otra razón, como la normativa.
+- Para cargas poco críticas puede ser válido no tener DR. Y como las zonas de disponibilidad de una región están separadas por una distancia significativa, una arquitectura multi-AZ puede cubrir ya buena parte de los riesgos.
+
+### Copia de seguridad y restauración
+
+Es la estrategia de menor costo y complejidad. Sirve para protegerse frente a la pérdida o corrupción de datos y, copiando los datos a otra región, también frente a un desastre regional.
+
+- **Datos**: la frecuencia de las copias determina el punto de recuperación alcanzable, que debe cumplir el RPO. Ofrecen recuperación a un momento concreto las instantáneas de EBS, RDS, Aurora, Redshift o Neptune y las copias de DynamoDB, entre otras.
+- **Infraestructura**: además de los datos, hay que volver a desplegar la infraestructura, la configuración y el código. AWS recomienda hacerlo siempre con infraestructura como código, como AWS CloudFormation; sin ella, la restauración es compleja, se alarga y puede superar el RTO. Las AMI de EC2 también deben respaldarse y pueden copiarse entre regiones.
+- **AWS Backup**: centraliza y automatiza las copias de EBS, EC2, RDS y Aurora, DynamoDB, EFS, Storage Gateway y FSx con planes de copia de seguridad, y puede copiarlas a otras regiones y a otras cuentas. Las copias entre cuentas protegen frente a amenazas internas o cuentas comprometidas. No restaura automáticamente: los datos deben restaurarse en el momento de la conmutación, aunque puedes programar restauraciones periódicas con el SDK.
+
+### Recuperación de datos
+
+Las estrategias de DR también deben cubrir los desastres de datos, no solo los de infraestructura.
+
+- **Versionado de S3**: conserva la versión original antes de un borrado o una modificación, útil frente a errores humanos.
+- **Replicación entre regiones de S3**: copia los objetos de forma continua y asíncrona a otra región. Por defecto, al borrar un objeto en el origen solo se añade un marcador de eliminación en el origen, lo que protege la copia de la región de DR frente a borrados maliciosos.
+- **Replicación continua frente a copias puntuales**: replicar da el tiempo de copia más corto (casi cero), pero puede no proteger frente a corrupción o borrado de datos tan bien como las copias a un momento concreto. Por eso se combinan.
+- **Probar las copias**: la estrategia de copias debe incluir pruebas periódicas de restauración.
+
+### Luz piloto (pilot light)
+
+Replicas los datos a otra región y aprovisionas una copia del núcleo de la infraestructura. Las bases de datos y el almacenamiento están siempre activos; los servidores de aplicaciones están preparados pero "apagados" y solo se encienden en pruebas o al conmutar.
+
+- Reduce el costo continuo y simplifica la recuperación, porque la infraestructura esencial ya existe.
+- Para un RPO bajo, usa replicación continua entre regiones: S3 Replication, réplicas de lectura de RDS, bases de datos globales de Aurora, tablas globales de DynamoDB, clústeres globales de DocumentDB o Global Datastore de ElastiCache.
+- Al conmutar debes promover la réplica de RDS a principal, lo que tarda unos minutos. Con una base de datos global de Aurora puedes promover una región secundaria a lectura y escritura en menos de un minuto.
+- AWS Elastic Disaster Recovery aplica esta estrategia: replica servidores de forma continua a nivel de bloque, desde local, otra nube o EC2, y lanza un despliegue de capacidad completa al conmutar.
+
+### Espera activa (warm standby)
+
+Mantienes en otra región una copia reducida pero totalmente funcional de producción. Amplía la luz piloto y reduce el tiempo de recuperación porque la carga ya está en ejecución.
+
+- La diferencia clave: la luz piloto no puede atender solicitudes sin una acción previa (encender servidores), mientras que la espera activa atiende tráfico de inmediato con capacidad reducida y solo necesita escalar.
+- Para escalar a capacidad de producción aumentas la capacidad deseada del grupo de Auto Scaling. Comprueba que las cuotas de servicio de la región de DR lo permitan.
+- Si aprovisionas desde el principio la capacidad completa, se llama espera en caliente (hot standby).
+
+### Multisitio activo-activo
+
+La carga se ejecuta a la vez en varias regiones y todas atienden tráfico. Es la opción más compleja y costosa, pero puede llevar el tiempo de recuperación casi a cero para la mayoría de los desastres. No hay conmutación como tal: las pruebas se centran en que el tráfico se aleje de la región caída y en que las demás aguanten toda la carga. Ante corrupción de datos sigue haciendo falta recurrir a copias, así que el punto de recuperación no será cero.
+
+- **Escrituras**: escribir siempre en una región (escritura global, con Aurora global database), escribir en la región más cercana (escritura local, con tablas globales de DynamoDB) o asignar cada escritura a una región según una clave de partición, como el ID de usuario (escritura particionada), para evitar conflictos.
+- **Tráfico**: Amazon Route 53 o AWS Global Accelerator reparten a los usuarios entre regiones.
+
+### Conmutación por error
+
+En las estrategias activo-pasivo todo el tráfico va a la región principal y pasa a la de DR si esta falla.
+
+- **Automática o manual**: la conmutación automática basada en alarmas debe usarse con cautela, porque una falsa alarma provoca pérdidas innecesarias; por eso suele iniciarse a mano, pero con los pasos automatizados.
+- **Plano de datos**: para la máxima resiliencia, la conmutación debe usar solo operaciones del plano de datos, que tienen objetivos de disponibilidad más altos que las del plano de control.
+- **Opciones**: comprobaciones de estado y conmutación de DNS de Route 53; controles de enrutamiento de Amazon Application Recovery Controller (ARC) como interruptores manuales; AWS Global Accelerator, con IP estáticas compartidas entre regiones; y la conmutación de origen de Amazon CloudFront, que se aplica en cada solicitud.
+- **Probar**: evalúa y prueba la estrategia con regularidad. AWS Resilience Hub ayuda a validar si es probable cumplir el RTO y el RPO.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Centraliza las copias con"
+    service="AWS Backup"
+    description="Automatiza los planes de copia de seguridad y copia las copias a otras regiones y cuentas."
+  />
+  <ConnectionCard
+    relation="Redespliega con"
+    service="AWS CloudFormation"
+    description="Define la infraestructura como código para recrearla de forma fiable en la región de recuperación."
+  />
+  <ConnectionCard
+    relation="Conmuta el tráfico con"
+    service="Amazon Route 53"
+    description="Sus comprobaciones de estado y la conmutación de DNS envían el tráfico solo a puntos de enlace sanos."
+  />
+  <ConnectionCard
+    relation="Replica servidores con"
+    service="AWS Elastic Disaster Recovery"
+    description="Replica servidores a nivel de bloque y lanza una copia de capacidad completa al conmutar."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Copia de seguridad y restauración cuando"
+    items={[
+      'Aceptas el RTO y el RPO más altos a cambio del menor costo y complejidad.',
+      'La carga ya es multi-AZ y el desastre a cubrir es la pérdida de datos o de un centro de datos.',
+      'Necesitas protegerte de corrupción, borrados o errores humanos.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra estrategia cuando"
+    items={[
+      'Necesitas un RPO bajo y una recuperación más rápida que restaurar copias, con el mínimo de recursos activos: luz piloto.',
+      'Necesitas atender tráfico de inmediato tras el desastre, aunque con capacidad reducida: espera activa.',
+      'Necesitas un tiempo de recuperación casi nulo y aceptas el mayor costo y complejidad: multisitio activo-activo.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Opciones de recuperación ante desastres en la nube"
+  url="https://docs.aws.amazon.com/whitepapers/latest/disaster-recovery-workloads-on-aws/disaster-recovery-options-in-the-cloud.html"
+/>
+<OfficialSource
+  title="Plan de continuidad del negocio: RTO y RPO"
+  url="https://docs.aws.amazon.com/whitepapers/latest/disaster-recovery-workloads-on-aws/business-continuity-plan-bcp.html"
+/>
+<OfficialSource
+  title="Qué es AWS Backup"
+  url="https://docs.aws.amazon.com/aws-backup/latest/devguide/whatisbackup.html"
+/>
+<OfficialSource
+  title="REL10-BP01 Desplegar la carga de trabajo en varias ubicaciones"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/reliability-pillar/rel_fault_isolation_multiaz_region_system.html"
+/>
