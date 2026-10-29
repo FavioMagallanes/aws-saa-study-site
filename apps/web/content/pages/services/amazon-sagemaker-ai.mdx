@@ -7,4 +7,89 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Amazon SageMaker AI es un servicio de aprendizaje automático (ML) totalmente administrado para crear, entrenar y desplegar modelos de ML en un entorno alojado listo para producción. Hasta diciembre de 2024 se llamaba Amazon SageMaker; ese nombre ahora corresponde a una plataforma unificada de datos, análisis e IA de la que SageMaker AI forma parte.
+
+## Qué problema resuelve
+
+Los servicios de IA como Rekognition o Comprehend resuelven tareas concretas con modelos ya entrenados. Cuando necesitas tu propio modelo, tendrías que montar y administrar servidores para preparar datos, entrenar y servir predicciones. SageMaker AI se encarga de esa infraestructura para que te concentres en desarrollar, entrenar y ajustar el modelo, y luego lo despliegues en un entorno seguro y escalable. El tema de servicios administrados para cada carga de trabajo compara ambos enfoques.
+
+## Conceptos clave
+
+### Entrenamiento
+
+SageMaker Training administra los recursos de cómputo y ejecuta los trabajos de entrenamiento en contenedores. Ofrece algoritmos administrados para grandes volúmenes de datos en un entorno distribuido y admite que traigas tus propios algoritmos y frameworks. Puedes trabajar en un entorno con poco o ningún código, o con código para tener más flexibilidad y control.
+
+### Opciones de inferencia
+
+Para desplegar sin configuraciones complejas, puedes usar modelos preentrenados de SageMaker JumpStart desde SageMaker Studio. Al desplegar un modelo eliges entre:
+
+- **En tiempo real**: un endpoint para cargas interactivas con requisitos de baja latencia.
+- **Sin servidor (Serverless Inference)**: no configuras ni administras infraestructura; ideal para tráfico con periodos de inactividad que tolera arranques en frío.
+- **Asíncrona**: pone las solicitudes en cola; para cargas útiles grandes, procesamientos largos y latencia casi en tiempo real.
+- **Transformación por lotes (batch transform)**: obtiene inferencias de conjuntos de datos grandes cuando no necesitas un endpoint persistente.
+
+### Costos
+
+El escalado automático ajusta los recursos de los endpoints al tráfico, para pagar solo por lo que usas en cada momento. SageMaker Neo optimiza los modelos para ejecutarlos con más eficiencia, por ejemplo en chips AWS Inferentia.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Lee datos de entrada de"
+    service="Amazon S3"
+    description="La transformación por lotes procesa conjuntos de datos guardados en un bucket de S3."
+  />
+  <ConnectionCard
+    relation="Se despliega a escala con"
+    service="AWS CloudFormation"
+    description="Para administrar modelos en producción de forma repetible, AWS recomienda infraestructura como código con CloudFormation."
+  />
+  <ConnectionCard
+    relation="Es la alternativa personalizada a"
+    service="Amazon Rekognition"
+    description="Rekognition y los demás servicios de IA usan modelos ya entrenados; SageMaker AI sirve cuando necesitas el tuyo."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Amazon SageMaker AI cuando"
+    items={[
+      'Necesitas crear, entrenar y desplegar tu propio modelo de ML.',
+      'Quieres infraestructura administrada para entrenamiento distribuido.',
+      'Debes elegir entre inferencia en tiempo real, sin servidor, asíncrona o por lotes.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'La tarea es análisis de imágenes o video: Amazon Rekognition.',
+      'La tarea es análisis de texto: Amazon Comprehend; extraer datos de documentos: Amazon Textract.',
+      'La tarea es voz, transcripción o traducción: Amazon Polly, Amazon Transcribe o Amazon Translate.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon SageMaker AI"
+  url="https://docs.aws.amazon.com/sagemaker/latest/dg/whatis.html"
+/>
+<OfficialSource
+  title="Entrenar un modelo con Amazon SageMaker"
+  url="https://docs.aws.amazon.com/sagemaker/latest/dg/how-it-works-training.html"
+/>
+<OfficialSource
+  title="Desplegar modelos para inferencia"
+  url="https://docs.aws.amazon.com/sagemaker/latest/dg/deploy-model.html"
+/>
+<OfficialSource
+  title="Transformación por lotes para inferencia"
+  url="https://docs.aws.amazon.com/sagemaker/latest/dg/batch-transform.html"
+/>
