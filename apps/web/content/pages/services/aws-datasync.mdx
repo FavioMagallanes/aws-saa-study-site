@@ -7,4 +7,96 @@ export const meta = {
   covers: ['3.5-k3'],
 };
 
-Contenido pendiente.
+AWS DataSync es un servicio de transferencia de archivos y objetos seguro, fiable y de alta velocidad. Mueve datos hacia, desde y entre servicios de almacenamiento de AWS, desde sistemas locales y desde el almacenamiento de otras nubes.
+
+## Qué problema resuelve
+
+Copiar muchos terabytes con scripts propios es lento, difícil de vigilar y propenso a errores: hay que reintentar fallos, comprobar que los datos llegaron intactos y mantener la infraestructura de copia. DataSync automatiza tanto el proceso de transferencia como la infraestructura necesaria, cifra los datos y valida su integridad. La comparación con Storage Gateway, Transfer Family y otras opciones está en el tema «Transferencia y migración de datos».
+
+## Conceptos clave
+
+### Orígenes y destinos
+
+- **En local**: NFS, SMB, HDFS y almacenamiento de objetos.
+- **En AWS**: Amazon S3, Amazon EFS y los sistemas Amazon FSx (Windows File Server, Lustre, OpenZFS y NetApp ONTAP).
+- **Otras nubes**: diversos servicios de almacenamiento de otros proveedores.
+
+### Casos de uso
+
+- **Migrar datos**: trasladar por la red conjuntos de datos activos a AWS.
+- **Archivar datos fríos**: moverlos directamente a S3 Glacier Flexible Retrieval o S3 Glacier Deep Archive para liberar almacenamiento local y retirar sistemas antiguos.
+- **Replicar datos**: copiarlos a la clase de S3 más rentable, o a EFS o FSx como sistema de archivos en espera.
+- **Procesar en la nube**: llevar datos a AWS, o sacarlos, para flujos híbridos como análisis o aprendizaje automático.
+
+### Cómo funciona
+
+- **Agente**: una máquina virtual que lee y escribe en el almacenamiento durante la transferencia. Se despliega en local sobre VMware ESXi, KVM, Nutanix AHV o Hyper-V, o como instancia EC2 para almacenamiento en una VPC. Entre servicios de AWS de la misma cuenta no hace falta agente y los datos no salen de la red de AWS.
+- **Ubicación (location)**: el origen o el destino de una copia.
+- **Tarea (task)**: describe la transferencia, con su origen, su destino y cómo tratar metadatos, archivos eliminados y permisos. Cada ejecución de la tarea prepara, transfiere y verifica los datos.
+
+### Velocidad y seguridad
+
+DataSync usa un protocolo de red propio y una arquitectura paralela y multihilo para acelerar las transferencias. Cifra los datos en tránsito con TLS, valida su integridad, accede al almacenamiento de AWS mediante roles de IAM y admite puntos de enlace de VPC para no pasar por la internet pública. La transferencia entre regiones se cobra como transferencia de datos saliente de la región de origen.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Copia datos a"
+    service="Amazon S3"
+    description="Escribe en la mayoría de las clases de S3, incluidas S3 Glacier Flexible Retrieval y S3 Glacier Deep Archive."
+  />
+  <ConnectionCard
+    relation="Copia archivos a"
+    service="Amazon EFS"
+    description="Migra o replica archivos a EFS y a los sistemas Amazon FSx, por ejemplo como sistema de archivos en espera."
+  />
+  <ConnectionCard
+    relation="Accede al almacenamiento con"
+    service="AWS IAM"
+    description="Usa roles de IAM para leer y escribir en los servicios de almacenamiento de AWS."
+  />
+  <ConnectionCard
+    relation="Evita internet con"
+    service="AWS PrivateLink"
+    description="Los puntos de enlace de servicio de VPC, que ofrece PrivateLink, mantienen la comunicación entre el agente y DataSync dentro de tu VPC."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="DataSync cuando"
+    items={[
+      'Migras o replicas archivos u objetos por la red hacia S3, EFS o FSx.',
+      'Quieres archivar datos fríos locales directamente en S3 Glacier.',
+      'Necesitas transferencias recurrentes, cifradas y con validación de integridad sin scripts propios.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Las aplicaciones locales deben seguir accediendo a los datos con NFS, SMB, iSCSI o cintas: AWS Storage Gateway.',
+      'Socios externos envían archivos por SFTP, FTPS, FTP o AS2: AWS Transfer Family.',
+      'Lo que migras es una base de datos: AWS DMS.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS DataSync"
+  url="https://docs.aws.amazon.com/datasync/latest/userguide/what-is-datasync.html"
+/>
+<OfficialSource
+  title="Cómo funciona AWS DataSync"
+  url="https://docs.aws.amazon.com/datasync/latest/userguide/how-datasync-transfer-works.html"
+/>
+<OfficialSource
+  title="Elegir un punto de enlace de servicio para el agente de DataSync"
+  url="https://docs.aws.amazon.com/datasync/latest/userguide/choose-service-endpoint.html"
+/>
