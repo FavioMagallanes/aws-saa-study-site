@@ -7,4 +7,94 @@ export const meta = {
   covers: ['1.2-s3'],
 };
 
-Contenido pendiente.
+AWS WAF es un firewall de aplicaciones web que supervisa las solicitudes HTTP(S) que llegan a tus recursos protegidos y decide, según tus reglas, si se atienden, se bloquean con un código HTTP 403 (Prohibido) o reciben una respuesta personalizada.
+
+## Qué problema resuelve
+
+Muchos ataques llegan como solicitudes web aparentemente normales: inyección de SQL, secuencias de comandos entre sitios (XSS), bots o una avalancha de peticiones desde unas pocas direcciones. AWS WAF los filtra antes de que alcancen tu aplicación, con reglas propias o administradas. Los tipos de ataque se explican en el tema «Amenazas externas: DDoS e inyección de código».
+
+## Conceptos clave
+
+### Qué puede proteger
+
+Se asocia, entre otros, a una distribución de Amazon CloudFront, una API REST de Amazon API Gateway, un Application Load Balancer, una API GraphQL de AWS AppSync, un grupo de usuarios de Amazon Cognito, un servicio de AWS App Runner o AWS Amplify. Para aplicaciones en contenedores de Amazon ECS, pones delante un Application Load Balancer con WAF habilitado.
+
+### Lista de control de acceso web y reglas
+
+- **Lista de control de acceso web (web ACL)**: el recurso central. Agrupa las reglas, se asocia a uno o varios recursos y tiene una acción predeterminada para las solicitudes que ninguna regla permitió o bloqueó. En la consola nueva aparece como paquete de protección (protection pack).
+- **Reglas**: cada una tiene un criterio de inspección y una acción: permitir, bloquear, contar o comprobar con CAPTCHA o un desafío que el cliente es una persona o un navegador estándar. Los criterios pueden ser, por ejemplo, la IP de origen o los valores de la cadena de consulta.
+- **Grupos de reglas**: conjuntos reutilizables, propios o administrados.
+- **Unidades de capacidad (WCU)**: AWS WAF las usa para calcular y controlar los recursos que necesitan las reglas, los grupos de reglas y las listas.
+
+### Reglas útiles para el examen
+
+- **Grupos de reglas administrados**: reglas listas para usar que AWS o vendedores de AWS Marketplace escriben y mantienen. Algunos cubren vulnerabilidades comunes, como varias del OWASP Top 10, y otros tipos concretos de aplicación. La mayoría de los de AWS no tienen costo adicional, salvo Bot Control y los de prevención de fraude.
+- **Reglas basadas en frecuencia**: cuentan las solicitudes agrupadas según tus criterios y limitan las que llegan demasiado rápido, útiles frente a inundaciones de solicitudes.
+- **Reglas de inyección de SQL y XSS**: inspeccionan componentes de la solicitud en busca de código malicioso.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Filtra en el borde con"
+    service="Amazon CloudFront"
+    description="Asociado a una distribución, decide qué solicitudes se atienden y cuáles se bloquean."
+  />
+  <ConnectionCard
+    relation="Protege aplicaciones detrás de"
+    service="Elastic Load Balancing"
+    description="Se asocia a un Application Load Balancer, que también puede enrutar y proteger el tráfico hacia las tareas de un servicio de ECS."
+  />
+  <ConnectionCard
+    relation="Protege APIs de"
+    service="Amazon API Gateway"
+    description="Inspecciona las solicitudes HTTP(S) que reciben las API REST."
+  />
+  <ConnectionCard
+    relation="Refuerza la protección DDoS con"
+    service="AWS Shield"
+    description="Shield Advanced usa las reglas de WAF en la capa 7 y cubre sus costos estándar para los recursos protegidos."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="AWS WAF cuando"
+    items={[
+      'Debes bloquear inyección de SQL, XSS u otras solicitudes web maliciosas.',
+      'Quieres limitar la frecuencia de solicitudes por IP u otro criterio.',
+      'Quieres permitir o bloquear tráfico HTTP(S) por IP de origen u otros atributos de la solicitud.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'La amenaza es un DDoS de red o transporte: AWS Shield.',
+      'Necesitas inspección profunda de paquetes o filtrado por dominio en el perímetro de la VPC: AWS Network Firewall.',
+      'Debes proteger las credenciales que usa la aplicación: AWS Secrets Manager; y el acceso de tu personal: IAM Identity Center.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="AWS WAF"
+  url="https://docs.aws.amazon.com/waf/latest/developerguide/waf-chapter.html"
+/>
+<OfficialSource
+  title="Cómo funciona AWS WAF"
+  url="https://docs.aws.amazon.com/waf/latest/developerguide/how-aws-waf-works.html"
+/>
+<OfficialSource
+  title="Grupos de reglas administrados en AWS WAF"
+  url="https://docs.aws.amazon.com/waf/latest/developerguide/waf-managed-rule-groups.html"
+/>
+<OfficialSource
+  title="Reglas basadas en frecuencia en AWS WAF"
+  url="https://docs.aws.amazon.com/waf/latest/developerguide/waf-rule-statement-type-rate-based.html"
+/>
