@@ -7,4 +7,91 @@ export const meta = {
   covers: ['4.2-k6'],
 };
 
-Contenido pendiente.
+AWS Outposts es un servicio totalmente administrado que lleva la infraestructura, los servicios, las API y las herramientas de AWS a tus propias instalaciones. Un Outpost es capacidad de cómputo y almacenamiento de AWS instalada en tu sitio, que AWS opera, supervisa y administra como parte de una región. El examen la cita como ejemplo de opción de cómputo híbrida.
+
+## Qué problema resuelve
+
+Algunas cargas no pueden moverse a una región: necesitan latencia muy baja hacia sistemas que siguen en el centro de datos o deben procesar los datos en el propio sitio. Mantener para ellas una infraestructura distinta obliga a usar otras herramientas y otro modelo operativo. Con Outposts ejecutas esas cargas en tu sitio con las mismas interfaces de programación que en una región de AWS. La comparación con Local Zones, Wavelength y el resto de opciones de borde está en el tema "Cómputo distribuido y en la periferia".
+
+## Conceptos clave
+
+### Formatos
+
+- **Racks de Outposts**: un rack estándar de 42U con servidores, conmutadores y alimentación. Para varios racks existe el rack ACE, que agrega la red entre ellos y tu red local.
+- **Servidores de Outposts**: un servidor estándar de 1U o 2U, para sitios con poco espacio o menos capacidad.
+
+El hardware es propiedad de AWS y AWS lo administra. Tú aportas el sitio, que debe cumplir los requisitos de instalaciones, red y energía.
+
+### Una extensión de la región
+
+- Cada Outpost es una extensión de una zona de disponibilidad y de su región. Creas subredes en el Outpost dentro de tu VPC y las indicas al crear recursos.
+- Las instancias del Outpost se comunican con las de la región por direcciones IP privadas, dentro de la misma VPC.
+- El **enlace de servicio (service link)** es la conexión necesaria entre el Outpost y su región: transporta la administración del Outpost y el tráfico de la VPC por un conjunto de conexiones VPN cifradas. Puede ir por AWS Direct Connect o por internet, y AWS exige conectividad redundante.
+- La **puerta de enlace local (local gateway)** conecta un rack de Outposts con tu red local.
+
+### Qué puedes ejecutar
+
+En los racks puedes crear, entre otros, instancias EC2, volúmenes de EBS, clústeres de ECS, nodos de EKS, instancias de RDS, nodos de ElastiCache, clústeres de EMR, buckets de S3 y Application Load Balancers. Los servidores admiten un conjunto menor, como instancias EC2 y clústeres de ECS. Los servicios disponibles dependen de la región a la que se asocia el Outpost.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Extiende la red de"
+    service="Amazon VPC"
+    description="Las subredes del Outpost forman parte de la misma VPC que las subredes de la región."
+  />
+  <ConnectionCard
+    relation="Ejecuta localmente"
+    service="Amazon EC2 y Amazon EBS"
+    description="Lanzas instancias y volúmenes en el Outpost con las mismas API que en la región."
+  />
+  <ConnectionCard
+    relation="Se conecta a la región con"
+    service="AWS Direct Connect"
+    description="El enlace de servicio puede usar Direct Connect o una conexión a internet."
+  />
+  <ConnectionCard
+    relation="Ejecuta contenedores con"
+    service="Amazon ECS y Amazon EKS"
+    description="Puedes crear clústeres de ECS y nodos de EKS dentro del Outpost."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="AWS Outposts cuando"
+    items={[
+      'Necesitas baja latencia hacia datos o aplicaciones que siguen en tus instalaciones.',
+      'Debes procesar los datos en tu propio sitio.',
+      'Quieres usar en tu sitio las mismas API, herramientas y servicios que en una región.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Quieres cómputo cerca de usuarios de una gran ciudad sin hardware propio: AWS Local Zones.',
+      'Ejecutas contenedores de ECS en servidores que ya tienes: Amazon ECS Anywhere.',
+      'Necesitas latencia mínima para dispositivos móviles en redes 5G: AWS Wavelength.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Outposts"
+  url="https://docs.aws.amazon.com/outposts/latest/userguide/what-is-outposts.html"
+/>
+<OfficialSource
+  title="Conectividad a través del enlace de servicio"
+  url="https://docs.aws.amazon.com/outposts/latest/userguide/service-links.html"
+/>
+<OfficialSource
+  title="Elegir un servicio de cómputo de AWS"
+  url="https://docs.aws.amazon.com/decision-guides/latest/compute-on-aws-how-to-choose/choosing-aws-compute-service.html"
+/>
