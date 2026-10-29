@@ -7,4 +7,97 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Elastic Load Balancing (ELB) distribuye automáticamente el tráfico entrante entre varios destinos, como instancias EC2, contenedores y direcciones IP, en una o varias zonas de disponibilidad. Supervisa el estado de los destinos registrados, envía tráfico solo a los que están en buen estado y escala su propia capacidad según cambia el tráfico.
+
+## Qué problema resuelve
+
+Si los clientes se conectan directamente a un único servidor, su caída o su saturación deja la aplicación sin servicio. Un balanceador de carga actúa como punto de contacto único: reparte el trabajo entre varios recursos de cómputo, aumenta la disponibilidad y la tolerancia a errores, y te permite añadir o quitar destinos sin interrumpir el flujo de solicitudes. También puede encargarse del cifrado y descifrado para que los destinos se centren en su trabajo. La comparación detallada de los tipos está en el tema "Balanceo de carga: ALB, NLB y GWLB".
+
+## Conceptos clave
+
+### Tipos de balanceador
+
+- **Application Load Balancer**: funciona en la capa 7 del modelo OSI y evalúa reglas de agente de escucha para enviar cada solicitud a un grupo de destino según el contenido del tráfico.
+- **Network Load Balancer**: funciona en la capa 4 y puede gestionar millones de solicitudes por segundo. Obtiene una dirección IP estática por zona y admite asociar una IP elástica a cada una.
+- **Gateway Load Balancer**: despliega, escala y administra dispositivos virtuales como cortafuegos o sistemas de detección y prevención de intrusiones.
+- **Classic Load Balancer**: es la generación anterior; AWS recomienda migrar a un tipo actual.
+
+### Agentes de escucha, destinos y comprobaciones de estado
+
+Un agente de escucha (listener) comprueba las solicitudes de conexión con un protocolo y un puerto. Los destinos se registran en grupos de destino y las comprobaciones de estado deciden cuáles reciben tráfico: si un destino falla, el balanceador deja de enviarle tráfico hasta que vuelve a estar sano.
+
+### Zonas de disponibilidad
+
+- ELB crea un nodo del balanceador en cada zona habilitada. AWS recomienda habilitar varias zonas, y el Application Load Balancer exige al menos dos.
+- **Balanceo entre zonas**: si está activado, cada nodo reparte el tráfico entre los destinos de todas las zonas habilitadas. Siempre está activo a nivel de balanceador en el Application Load Balancer, y desactivado de forma predeterminada en el Network y el Gateway Load Balancer.
+
+### Interno o expuesto a internet
+
+Un balanceador expuesto a internet tiene nodos con IP públicas; uno interno solo tiene IP privadas y atiende a clientes con acceso a su VPC. En ambos casos los destinos no necesitan IP públicas. En una aplicación de varios niveles puedes combinar los dos: uno público delante de los servidores web y uno interno delante de los servidores de aplicaciones.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Registra destinos automáticamente con"
+    service="Amazon EC2 Auto Scaling"
+    description="Las instancias que lanza Auto Scaling se registran solas en el balanceador y las que termina se eliminan del registro."
+  />
+  <ConnectionCard
+    relation="Termina HTTPS con certificados de"
+    service="AWS Certificate Manager"
+    description="Un agente de escucha HTTPS usa certificados de ACM para terminar las conexiones y descifrar las solicitudes."
+  />
+  <ConnectionCard
+    relation="Recibe tráfico desde"
+    service="Amazon Route 53"
+    description="Route 53 traduce tu nombre de dominio para dirigir a los usuarios al nombre DNS del balanceador."
+  />
+  <ConnectionCard
+    relation="Se reparte entre regiones con"
+    service="AWS Global Accelerator"
+    description="Un acelerador distribuye el tráfico entre varios balanceadores de carga en una o varias regiones."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Elastic Load Balancing cuando"
+    items={[
+      'Repartes tráfico entre varios destinos de una región para ganar disponibilidad.',
+      'Quieres que el tráfico solo llegue a destinos en buen estado.',
+      'Necesitas escalar horizontalmente con EC2 Auto Scaling o contenedores.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Necesitas IP estáticas globales y dirigir tráfico entre regiones por la red de AWS: AWS Global Accelerator.',
+      'Quieres guardar en caché contenido cerca de los usuarios: Amazon CloudFront.',
+      'Repartes usuarios entre regiones o recursos mediante DNS: Amazon Route 53.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Elastic Load Balancing"
+  url="https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/what-is-load-balancing.html"
+/>
+<OfficialSource
+  title="Cómo funciona Elastic Load Balancing"
+  url="https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/how-elastic-load-balancing-works.html"
+/>
+<OfficialSource
+  title="Qué es un Application Load Balancer"
+  url="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html"
+/>
+<OfficialSource
+  title="Qué es un Gateway Load Balancer"
+  url="https://docs.aws.amazon.com/elasticloadbalancing/latest/gateway/introduction.html"
+/>
