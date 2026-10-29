@@ -7,4 +7,96 @@ export const meta = {
   covers: ['2.1-k14'],
 };
 
-Contenido pendiente.
+Amazon EKS (Elastic Kubernetes Service) es un servicio de Kubernetes totalmente administrado para desplegar, administrar y escalar aplicaciones en contenedores con Kubernetes, tanto en la nube de AWS como en tus propios centros de datos. Es una de las dos opciones de orquestación de contenedores que cita la guía del examen, junto con Amazon ECS.
+
+## Qué problema resuelve
+
+Operar Kubernetes por tu cuenta implica mantener el plano de control (los componentes que programan las cargas, guardan el estado del clúster y lo escalan), actualizarlo y hacerlo muy disponible. EKS se encarga de ese plano de control y lo ejecuta en varias zonas de disponibilidad para eliminar puntos únicos de fallo. Como EKS cumple el estándar de Kubernetes certificado, las aplicaciones compatibles con Kubernetes se despliegan sin rehacerlas y puedes usar las herramientas y complementos de la comunidad. Cuándo conviene usar contenedores se explica en el tema «Contenedores: cuándo usarlos y cómo migrar».
+
+## Conceptos clave
+
+### Qué administra AWS
+
+- **EKS estándar**: AWS administra el plano de control de Kubernetes; tú eliges y administras la capacidad de cómputo.
+- **EKS Auto Mode**: AWS administra también los nodos: aprovisiona la infraestructura, elige las instancias, escala, optimiza costos y aplica parches al sistema operativo.
+
+### Opciones de nodos
+
+- **Grupos de nodos administrados**: EKS aprovisiona y gestiona el ciclo de vida de instancias EC2 dentro de un grupo de Auto Scaling, repartido entre las zonas de disponibilidad que elijas. Las actualizaciones vacían los nodos para mantener las aplicaciones disponibles, y no tienen costo adicional: pagas los recursos de AWS que uses.
+- **Nodos autoadministrados**: instancias EC2 que administras tú.
+- **AWS Fargate**: cada pod se ejecuta con su propio límite de aislamiento, sin compartir kernel, CPU, memoria ni interfaz de red con otro. No aprovisionas ni escalas máquinas virtuales; un perfil de Fargate decide qué pods se ejecutan allí.
+
+### Acceso y seguridad
+
+EKS combina las funciones de Kubernetes con IAM para controlar el acceso de usuarios y cargas de trabajo: puedes dar acceso a la API de Kubernetes a usuarios y roles de IAM, y permisos de AWS a los pods mediante cuentas de servicio de Kubernetes.
+
+### Fuera de la región
+
+Además de las regiones, EKS puede usar cómputo en AWS Local Zones y AWS Wavelength Zones, en AWS Outposts o, con **EKS Hybrid Nodes**, en tus propios servidores, siempre con el plano de control administrado por AWS. Para entornos aislados sin conexión existe Amazon EKS Anywhere, que administras tú.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Descarga imágenes de"
+    service="Amazon ECR"
+    description="Los pods descargan sus imágenes de repositorios privados de ECR."
+  />
+  <ConnectionCard
+    relation="Ejecuta pods sin servidores con"
+    service="AWS Fargate"
+    description="Aporta capacidad aislada por pod sin administrar instancias ni grupos de nodos."
+  />
+  <ConnectionCard
+    relation="Usa nodos de"
+    service="Amazon EC2"
+    description="Los grupos de nodos administrados o autoadministrados se ejecutan en instancias EC2."
+  />
+  <ConnectionCard
+    relation="Guarda datos en"
+    service="Amazon EBS y Amazon EFS"
+    description="Con controladores CSI, las aplicaciones usan almacenamiento en bloques o de archivos."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="EKS cuando"
+    items={[
+      'Ya usas Kubernetes o quieres su flexibilidad, su ecosistema y sus herramientas.',
+      'Necesitas portabilidad para ejecutar la misma aplicación en AWS y en tus instalaciones.',
+      'Quieres que AWS administre el plano de control y, con Auto Mode, también los nodos.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Quieres orquestación administrada con control sobre la red y la seguridad, sin operar Kubernetes: Amazon ECS.',
+      'Tu equipo tiene poca experiencia con contenedores: AWS Lambda, Amazon Lightsail o AWS Batch.',
+      'Necesitas Kubernetes en un entorno aislado y administrado por ti: Amazon EKS Anywhere.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon EKS"
+  url="https://docs.aws.amazon.com/eks/latest/userguide/what-is-eks.html"
+/>
+<OfficialSource
+  title="Grupos de nodos administrados de Amazon EKS"
+  url="https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html"
+/>
+<OfficialSource
+  title="Servicios de contenedores de AWS"
+  url="https://docs.aws.amazon.com/whitepapers/latest/aws-overview/containers.html"
+/>
+<OfficialSource
+  title="Opciones de despliegue de Amazon EKS"
+  url="https://docs.aws.amazon.com/eks/latest/userguide/eks-deployment-options.html"
+/>
