@@ -7,4 +7,112 @@ export const meta = {
   covers: ['2.1-k2', '2.1-s7', '2.2-k2', '2.2-s8'],
 };
 
-Contenido pendiente.
+Antes de construir y operar una pieza de infraestructura por tu cuenta, conviene preguntar si AWS ya la ofrece como servicio administrado y diseñado para ese fin. Un servidor de transferencia de archivos, una cola de mensajes, un almacén de secretos o un modelo que convierte texto en voz son tareas que AWS resuelve como servicio, sin que tengas que operar la infraestructura.
+
+## Qué problema resuelve
+
+Montar tu propio servidor SFTP, tu propio sistema de colas o tu propio modelo de procesamiento de lenguaje exige instalar, parchear, escalar y mantener disponible esa infraestructura, y en el caso del aprendizaje automático, conocimientos especializados. Usar servicios de AWS diseñados específicamente para cada carga de trabajo traslada esa carga operativa a AWS y deja que tu equipo se concentre en el producto.
+
+## Conceptos clave
+
+### Consumir la tecnología como servicio
+
+Un principio de diseño del pilar de eficiencia del rendimiento es democratizar las tecnologías avanzadas: en lugar de que tu equipo aprenda a alojar y operar una tecnología nueva, consúmela como servicio. Las bases de datos NoSQL, la transcodificación de medios y el aprendizaje automático requieren experiencia especializada; en la nube se convierten en servicios que tu equipo usa sin aprovisionar ni administrar recursos. Las arquitecturas sin servidor siguen la misma idea: eliminan la necesidad de ejecutar y mantener servidores y reducen la carga operativa.
+
+### Servicios administrados para integración y seguridad
+
+- **AWS Transfer Family**: servicio totalmente administrado para transferir archivos hacia y desde Amazon S3 o Amazon EFS por SFTP, FTPS, FTP, AS2 o desde el navegador. Te da un servidor compatible con esos protocolos sin ejecutar infraestructura propia, y permite migrar flujos de transferencia de archivos a AWS manteniendo los clientes y la configuración de autenticación, acceso y firewall de tus usuarios. Escala en tiempo real y no requiere modificar las aplicaciones. Casos de uso: cargas de terceros a un lago de datos, distribución de datos a clientes, cadena de suministro e intercambios B2B con AS2.
+- **Amazon SQS**: cola alojada, segura, duradera y disponible para integrar y desacoplar sistemas y componentes distribuidos. Guarda los mensajes en varios servidores, escala de forma transparente ante picos sin aprovisionar nada y ofrece colas de mensajes fallidos. Las colas estándar entregan cada mensaje al menos una vez y las FIFO lo procesan exactamente una vez.
+- **AWS Secrets Manager**: administra, recupera y rota credenciales de bases de datos, claves de API y otros secretos durante su ciclo de vida. Sustituye las credenciales escritas en el código por una llamada en tiempo de ejecución, y permite rotarlas de forma automática sin volver a desplegar la aplicación.
+
+### Servicios de inteligencia artificial ya entrenados
+
+AWS ofrece servicios de IA para necesidades concretas que se integran en las aplicaciones sin necesidad de experiencia en aprendizaje automático y con poca programación o configuración. Cuando necesitas modelos personalizados que vayan más allá de esas funciones, la opción es Amazon SageMaker AI.
+
+- **Amazon Comprehend**: usa procesamiento de lenguaje natural para extraer información de documentos: entidades, frases clave, idioma, sentimiento, información de identificación personal (PII) y sintaxis. Puede analizar en tiempo real cargas pequeñas o lanzar trabajos asíncronos para grandes conjuntos de documentos, y permite entrenar modelos propios de clasificación y reconocimiento de entidades.
+- **Amazon Polly**: convierte texto en voz realista en varios idiomas y voces. Sirve para crear aplicaciones con voz que mejoran la participación y la accesibilidad. Pagas solo por el texto que sintetizas y puedes guardar y reproducir el audio generado sin costo adicional.
+- **Amazon Transcribe**: convierte audio en texto.
+- **Amazon Translate**: traduce texto entre idiomas.
+- **Amazon Textract**: extrae texto y datos estructurados de documentos.
+- **Amazon Rekognition**: añade análisis de imágenes y video a tus aplicaciones.
+- **Amazon Lex V2**: servicio conversacional para crear bots e implementarlos en distintos servicios de chat.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Guarda los archivos transferidos en"
+    service="Amazon S3 y Amazon EFS"
+    description="Transfer Family deja los archivos en almacenamiento duradero donde otros servicios de AWS pueden procesarlos."
+  />
+  <ConnectionCard
+    relation="Cifra los mensajes con"
+    service="AWS KMS"
+    description="SQS protege el contenido de los mensajes con cifrado del lado del servidor administrado por SQS o con claves propias de KMS."
+  />
+  <ConnectionCard
+    relation="Distribuye mensajes con"
+    service="Amazon SNS"
+    description="Combinar SNS con SQS permite el patrón de abanico para enviar un mensaje a varios suscriptores a la vez."
+  />
+  <ConnectionCard
+    relation="Personaliza modelos con"
+    service="Amazon SageMaker AI"
+    description="Cuando los servicios de IA preentrenados no bastan, permite crear, entrenar e implementar modelos propios."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Un servicio administrado cuando"
+    items={[
+      'Necesitas SFTP, FTPS o AS2 sin operar servidores: AWS Transfer Family.',
+      'Debes desacoplar componentes y absorber picos: Amazon SQS.',
+      'Guardas y rotas credenciales: AWS Secrets Manager.',
+      'Analizas texto o generas voz sin experiencia en ML: Amazon Comprehend o Amazon Polly.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Necesitas enviar el mismo mensaje a varios suscriptores: Amazon SNS.',
+      'Quieres audio a texto, traducción o extracción de documentos: Transcribe, Translate o Textract.',
+      'Necesitas un modelo de aprendizaje automático propio: Amazon SageMaker AI.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Principios de diseño del pilar de eficiencia del rendimiento"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/performance-efficiency-pillar/design-principles.html"
+/>
+<OfficialSource
+  title="Qué es AWS Transfer Family"
+  url="https://docs.aws.amazon.com/transfer/latest/userguide/what-is-aws-transfer-family.html"
+/>
+<OfficialSource
+  title="Qué es Amazon SQS"
+  url="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welcome.html"
+/>
+<OfficialSource
+  title="Qué es AWS Secrets Manager"
+  url="https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html"
+/>
+<OfficialSource
+  title="Qué es Amazon Comprehend"
+  url="https://docs.aws.amazon.com/comprehend/latest/dg/what-is.html"
+/>
+<OfficialSource
+  title="Qué es Amazon Polly"
+  url="https://docs.aws.amazon.com/polly/latest/dg/what-is.html"
+/>
+<OfficialSource
+  title="Elegir un servicio de aprendizaje automático de AWS"
+  url="https://docs.aws.amazon.com/decision-guides/latest/machine-learning-on-aws-how-to-choose/guide.html"
+/>
