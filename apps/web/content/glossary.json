@@ -1,0 +1,550 @@
+[
+  {
+    "id": "acl",
+    "abbreviation": "ACL",
+    "fullName": "Access control list · lista de control de acceso",
+    "definition": "Lista de reglas que permite o deniega tráfico o acceso. En una VPC, la ACL de red filtra lo que entra y sale de las subredes y, a diferencia de un grupo de seguridad, no recuerda el estado de las conexiones.",
+    "source": {
+      "title": "Documentación de AWS: Access control list",
+      "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html"
+    },
+    "pages": ["seguridad-de-la-vpc-grupos-de-seguridad-acl-de-red-y-segmentacion"]
+  },
+  {
+    "id": "acm",
+    "abbreviation": "ACM",
+    "fullName": "AWS Certificate Manager",
+    "definition": "Aprovisiona, administra e implementa certificados SSL/TLS para usarlos con servicios de AWS, y renueva automáticamente los que administra.",
+    "source": {
+      "title": "Documentación de AWS: AWS Certificate Manager",
+      "url": "https://docs.aws.amazon.com/acm/latest/userguide/acm-overview.html"
+    },
+    "pages": ["aws-certificate-manager-acm"]
+  },
+  {
+    "id": "alb",
+    "abbreviation": "ALB",
+    "fullName": "Application Load Balancer",
+    "definition": "Balanceador de carga de capa 7: reparte las solicitudes HTTP y HTTPS entre sus destinos según el contenido de cada una, como la ruta o los encabezados.",
+    "source": {
+      "title": "Documentación de AWS: Application Load Balancer",
+      "url": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html"
+    },
+    "pages": ["balanceo-de-carga-alb-nlb-y-gwlb"]
+  },
+  {
+    "id": "ami",
+    "abbreviation": "AMI",
+    "fullName": "Amazon Machine Image",
+    "definition": "Plantilla con lo necesario para lanzar una instancia de EC2: el sistema operativo y, si quieres, software y configuración de tu aplicación.",
+    "source": {
+      "title": "Documentación de AWS: Amazon Machine Image",
+      "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html"
+    },
+    "pages": ["amazon-ec2"]
+  },
+  {
+    "id": "ams",
+    "abbreviation": "AMS",
+    "fullName": "AWS Managed Services",
+    "definition": "Servicio con el que AWS opera tu infraestructura en la nube por ti, incluyendo monitoreo, respuesta a incidentes, parches y seguridad.",
+    "source": {
+      "title": "Documentación de AWS: AWS Managed Services",
+      "url": "https://docs.aws.amazon.com/managedservices/latest/userguide/what-is-ams.html"
+    },
+    "pages": ["servicios-administrados-para-cada-carga-de-trabajo"]
+  },
+  {
+    "id": "api",
+    "abbreviation": "API",
+    "fullName": "Application programming interface · interfaz de programación de aplicaciones",
+    "definition": "Conjunto de operaciones que un programa expone para que otro lo use. En AWS, cada servicio se controla mediante su API, ya sea desde la consola, la CLI o un SDK.",
+    "source": {
+      "title": "Glosario de AWS",
+      "url": "https://docs.aws.amazon.com/general/latest/gr/glos-chap.html"
+    },
+    "pages": ["amazon-api-gateway"]
+  },
+  {
+    "id": "az",
+    "abbreviation": "AZ",
+    "fullName": "Availability Zone · zona de disponibilidad",
+    "definition": "Ubicación distinta dentro de una región, aislada de los fallos de otras zonas y conectada con ellas por una red de baja latencia.",
+    "source": {
+      "title": "Documentación de AWS: Availability Zone",
+      "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html"
+    },
+    "pages": ["alta-disponibilidad-multi-az-y-multirregion"]
+  },
+  {
+    "id": "cdn",
+    "abbreviation": "CDN",
+    "fullName": "Content delivery network · red de entrega de contenido",
+    "definition": "Red de servidores distribuidos que guarda copias del contenido cerca de los usuarios para entregarlo con menor latencia. En AWS la ofrece Amazon CloudFront.",
+    "source": {
+      "title": "Glosario de AWS",
+      "url": "https://docs.aws.amazon.com/general/latest/gr/glos-chap.html"
+    },
+    "pages": ["amazon-cloudfront"]
+  },
+  {
+    "id": "cidr",
+    "abbreviation": "CIDR",
+    "fullName": "Classless Inter-Domain Routing",
+    "definition": "Notación que describe un rango de direcciones IP con un prefijo, por ejemplo 10.0.0.0/16. Define el tamaño de una VPC y de cada una de sus subredes.",
+    "source": {
+      "title": "Documentación de AWS: Classless Inter-Domain Routing",
+      "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-cidr-blocks.html"
+    },
+    "pages": ["fundamentos-de-redes-cidr-subredes-rutas-y-puertos"]
+  },
+  {
+    "id": "cli",
+    "abbreviation": "CLI",
+    "fullName": "AWS Command Line Interface",
+    "definition": "Herramienta de código abierto para administrar los servicios de AWS con comandos desde la terminal y automatizar tareas con scripts.",
+    "source": {
+      "title": "Documentación de AWS: AWS Command Line Interface",
+      "url": "https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-welcome.html"
+    },
+    "pages": ["aws-cli"]
+  },
+  {
+    "id": "ddos",
+    "abbreviation": "DDoS",
+    "fullName": "Distributed denial of service · denegación de servicio distribuida",
+    "definition": "Ataque que intenta dejar un servicio sin respuesta saturándolo con tráfico desde muchos orígenes a la vez. AWS Shield y AWS WAF ayudan a mitigarlo.",
+    "source": {
+      "title": "Documentación de AWS: Distributed denial of service",
+      "url": "https://docs.aws.amazon.com/waf/latest/developerguide/ddos-overview.html"
+    },
+    "pages": ["amenazas-externas-ddos-e-inyeccion-de-codigo"]
+  },
+  {
+    "id": "dms",
+    "abbreviation": "DMS",
+    "fullName": "AWS Database Migration Service",
+    "definition": "Servicio para migrar bases de datos a AWS con poco tiempo de inactividad, tanto entre motores iguales como entre motores distintos.",
+    "source": {
+      "title": "Documentación de AWS: AWS Database Migration Service",
+      "url": "https://docs.aws.amazon.com/dms/latest/userguide/Welcome.html"
+    },
+    "pages": ["aws-dms"]
+  },
+  {
+    "id": "dns",
+    "abbreviation": "DNS",
+    "fullName": "Domain Name System · sistema de nombres de dominio",
+    "definition": "Sistema que traduce nombres legibles, como ejemplo.com, a direcciones IP. En AWS lo ofrece Amazon Route 53.",
+    "source": {
+      "title": "Documentación de AWS: Domain Name System",
+      "url": "https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/Welcome.html"
+    },
+    "pages": ["amazon-route-53"]
+  },
+  {
+    "id": "dr",
+    "abbreviation": "DR",
+    "fullName": "Disaster recovery · recuperación ante desastres",
+    "definition": "Conjunto de estrategias para restaurar una carga de trabajo tras un evento grave, elegidas según cuánto tiempo y cuántos datos puedes permitirte perder.",
+    "source": {
+      "title": "Documentación de AWS: Disaster recovery",
+      "url": "https://docs.aws.amazon.com/whitepapers/latest/disaster-recovery-workloads-on-aws/disaster-recovery-options-in-the-cloud.html"
+    },
+    "pages": ["recuperacion-ante-desastres"]
+  },
+  {
+    "id": "ebs",
+    "abbreviation": "EBS",
+    "fullName": "Amazon Elastic Block Store",
+    "definition": "Almacenamiento en bloques persistente para instancias de EC2: los volúmenes se comportan como discos y conservan los datos aunque la instancia se detenga.",
+    "source": {
+      "title": "Documentación de AWS: Amazon Elastic Block Store",
+      "url": "https://docs.aws.amazon.com/ebs/latest/userguide/what-is-ebs.html"
+    },
+    "pages": ["volumenes-de-ebs-ssd-frente-a-hdd", "amazon-ebs"]
+  },
+  {
+    "id": "ec2",
+    "abbreviation": "EC2",
+    "fullName": "Amazon Elastic Compute Cloud",
+    "definition": "Servidores virtuales, llamados instancias, con capacidad de cómputo que puedes aumentar o reducir según la necesidad.",
+    "source": {
+      "title": "Documentación de AWS: Amazon Elastic Compute Cloud",
+      "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/concepts.html"
+    },
+    "pages": ["amazon-ec2", "amazon-ec2-auto-scaling"]
+  },
+  {
+    "id": "ecr",
+    "abbreviation": "ECR",
+    "fullName": "Amazon Elastic Container Registry",
+    "definition": "Registro administrado donde almacenas, compartes y despliegas las imágenes de tus contenedores.",
+    "source": {
+      "title": "Documentación de AWS: Amazon Elastic Container Registry",
+      "url": "https://docs.aws.amazon.com/AmazonECR/latest/userguide/what-is-ecr.html"
+    },
+    "pages": ["amazon-ecr"]
+  },
+  {
+    "id": "ecs",
+    "abbreviation": "ECS",
+    "fullName": "Amazon Elastic Container Service",
+    "definition": "Servicio de orquestación de contenedores administrado para desplegar, administrar y escalar aplicaciones en contenedores.",
+    "source": {
+      "title": "Documentación de AWS: Amazon Elastic Container Service",
+      "url": "https://docs.aws.amazon.com/AmazonECS/latest/developerguide/Welcome.html"
+    },
+    "pages": ["amazon-ecs", "amazon-ecs-anywhere"]
+  },
+  {
+    "id": "efs",
+    "abbreviation": "EFS",
+    "fullName": "Amazon Elastic File System",
+    "definition": "Sistema de archivos compartido y elástico: crece y se reduce solo, y muchas instancias pueden montarlo a la vez.",
+    "source": {
+      "title": "Documentación de AWS: Amazon Elastic File System",
+      "url": "https://docs.aws.amazon.com/efs/latest/ug/whatisefs.html"
+    },
+    "pages": ["amazon-efs"]
+  },
+  {
+    "id": "eks",
+    "abbreviation": "EKS",
+    "fullName": "Amazon Elastic Kubernetes Service",
+    "definition": "Servicio administrado que ejecuta Kubernetes en AWS sin que tengas que operar tú el plano de control.",
+    "source": {
+      "title": "Documentación de AWS: Amazon Elastic Kubernetes Service",
+      "url": "https://docs.aws.amazon.com/eks/latest/userguide/what-is-eks.html"
+    },
+    "pages": ["amazon-eks", "amazon-eks-anywhere", "amazon-eks-distro"]
+  },
+  {
+    "id": "elb",
+    "abbreviation": "ELB",
+    "fullName": "Elastic Load Balancing",
+    "definition": "Distribuye el tráfico entrante entre varios destinos, como instancias, contenedores o direcciones IP, en una o más zonas de disponibilidad.",
+    "source": {
+      "title": "Documentación de AWS: Elastic Load Balancing",
+      "url": "https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/what-is-load-balancing.html"
+    },
+    "pages": ["elastic-load-balancing-elb"]
+  },
+  {
+    "id": "emr",
+    "abbreviation": "EMR",
+    "fullName": "Amazon EMR",
+    "definition": "Plataforma administrada para ejecutar marcos de macrodatos como Apache Spark y Hadoop y procesar grandes volúmenes de datos.",
+    "source": {
+      "title": "Documentación de AWS: Amazon EMR",
+      "url": "https://docs.aws.amazon.com/emr/latest/ManagementGuide/emr-what-is-emr.html"
+    },
+    "pages": ["amazon-emr"]
+  },
+  {
+    "id": "gwlb",
+    "abbreviation": "GWLB",
+    "fullName": "Gateway Load Balancer",
+    "definition": "Balanceador que permite desplegar, escalar y administrar dispositivos virtuales de red, como firewalls, con un único punto de entrada.",
+    "source": {
+      "title": "Documentación de AWS: Gateway Load Balancer",
+      "url": "https://docs.aws.amazon.com/elasticloadbalancing/latest/gateway/introduction.html"
+    },
+    "pages": ["balanceo-de-carga-alb-nlb-y-gwlb"]
+  },
+  {
+    "id": "hdd",
+    "abbreviation": "HDD",
+    "fullName": "Hard disk drive · disco duro",
+    "definition": "Disco magnético: cuesta menos por gigabyte, pero rinde menos que un SSD. En EBS, los volúmenes st1 y sc1 son de tipo HDD.",
+    "source": {
+      "title": "Documentación de AWS: Hard disk drive",
+      "url": "https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html"
+    },
+    "pages": ["volumenes-de-ebs-ssd-frente-a-hdd"]
+  },
+  {
+    "id": "iam",
+    "abbreviation": "IAM",
+    "fullName": "AWS Identity and Access Management",
+    "definition": "Servicio que controla quién puede autenticarse y qué puede hacer cada identidad con los recursos de AWS, mediante usuarios, roles y políticas.",
+    "source": {
+      "title": "Documentación de AWS: AWS Identity and Access Management",
+      "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html"
+    },
+    "pages": ["iam-usuarios-grupos-roles-politicas-y-mfa", "aws-iam-identity-center", "iam"]
+  },
+  {
+    "id": "iops",
+    "abbreviation": "IOPS",
+    "fullName": "Input/output operations per second · operaciones de entrada y salida por segundo",
+    "definition": "Cantidad de lecturas y escrituras que un volumen de almacenamiento puede atender cada segundo; es una medida de su rendimiento.",
+    "source": {
+      "title": "Documentación de AWS: Input/output operations per second",
+      "url": "https://docs.aws.amazon.com/ebs/latest/userguide/ebs-io-characteristics.html"
+    },
+    "pages": ["volumenes-de-ebs-ssd-frente-a-hdd"]
+  },
+  {
+    "id": "ip",
+    "abbreviation": "IP",
+    "fullName": "Internet Protocol · protocolo de internet",
+    "definition": "Protocolo que identifica y direcciona a los dispositivos de una red. Las VPC usan direcciones IPv4 y, de forma opcional, IPv6.",
+    "source": {
+      "title": "Glosario de AWS",
+      "url": "https://docs.aws.amazon.com/general/latest/gr/glos-chap.html"
+    },
+    "pages": ["diseno-de-red-subredes-enrutamiento-y-direccionamiento-ip"]
+  },
+  {
+    "id": "kms",
+    "abbreviation": "KMS",
+    "fullName": "AWS Key Management Service",
+    "definition": "Servicio para crear y controlar las claves de cifrado con las que se protegen tus datos en otros servicios de AWS.",
+    "source": {
+      "title": "Documentación de AWS: AWS Key Management Service",
+      "url": "https://docs.aws.amazon.com/kms/latest/developerguide/overview.html"
+    },
+    "pages": ["aws-kms"]
+  },
+  {
+    "id": "mfa",
+    "abbreviation": "MFA",
+    "fullName": "Multi-factor authentication · autenticación multifactor",
+    "definition": "Verificación que exige más de una prueba de identidad, por ejemplo la contraseña y un código de un dispositivo, para reducir el riesgo de accesos indebidos.",
+    "source": {
+      "title": "Documentación de AWS: Multi-factor authentication",
+      "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa.html"
+    },
+    "pages": ["iam-usuarios-grupos-roles-politicas-y-mfa"]
+  },
+  {
+    "id": "msk",
+    "abbreviation": "MSK",
+    "fullName": "Amazon Managed Streaming for Apache Kafka",
+    "definition": "Servicio administrado para ejecutar aplicaciones que procesan datos en flujo con Apache Kafka, sin operar los clústeres tú mismo.",
+    "source": {
+      "title": "Documentación de AWS: Amazon Managed Streaming for Apache Kafka",
+      "url": "https://docs.aws.amazon.com/msk/latest/developerguide/what-is-msk.html"
+    },
+    "pages": ["amazon-managed-streaming-para-apache-kafka-amazon-msk"]
+  },
+  {
+    "id": "nat",
+    "abbreviation": "NAT",
+    "fullName": "Network address translation · traducción de direcciones de red",
+    "definition": "Mecanismo que permite que recursos de una subred privada salgan a internet sin ser accesibles desde fuera. En AWS se usa con una NAT gateway.",
+    "source": {
+      "title": "Documentación de AWS: Network address translation",
+      "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html"
+    },
+    "pages": ["nat-gateway-frente-a-instancia-nat"]
+  },
+  {
+    "id": "nlb",
+    "abbreviation": "NLB",
+    "fullName": "Network Load Balancer",
+    "definition": "Balanceador de capa 4 que reparte tráfico TCP, UDP y TLS con latencias muy bajas y muy alto rendimiento.",
+    "source": {
+      "title": "Documentación de AWS: Network Load Balancer",
+      "url": "https://docs.aws.amazon.com/elasticloadbalancing/latest/network/introduction.html"
+    },
+    "pages": ["balanceo-de-carga-alb-nlb-y-gwlb"]
+  },
+  {
+    "id": "ram",
+    "abbreviation": "RAM",
+    "fullName": "AWS Resource Access Manager",
+    "definition": "Servicio que permite compartir recursos de AWS con otras cuentas o dentro de una organización, sin duplicarlos.",
+    "source": {
+      "title": "Documentación de AWS: AWS Resource Access Manager",
+      "url": "https://docs.aws.amazon.com/ram/latest/userguide/what-is.html"
+    },
+    "pages": ["aws-resource-access-manager-aws-ram"]
+  },
+  {
+    "id": "rds",
+    "abbreviation": "RDS",
+    "fullName": "Amazon Relational Database Service",
+    "definition": "Servicio administrado para configurar, operar y escalar bases de datos relacionales, con copias de seguridad y parches automatizados.",
+    "source": {
+      "title": "Documentación de AWS: Amazon Relational Database Service",
+      "url": "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Welcome.html"
+    },
+    "pages": ["amazon-rds"]
+  },
+  {
+    "id": "rest",
+    "abbreviation": "REST",
+    "fullName": "Representational state transfer",
+    "definition": "Estilo de diseño de API basado en HTTP en el que cada recurso se identifica con una URL. Amazon API Gateway permite crear y publicar API de REST.",
+    "source": {
+      "title": "Glosario de AWS",
+      "url": "https://docs.aws.amazon.com/general/latest/gr/glos-chap.html"
+    },
+    "pages": []
+  },
+  {
+    "id": "rpo",
+    "abbreviation": "RPO",
+    "fullName": "Recovery point objective · objetivo de punto de recuperación",
+    "definition": "Cantidad máxima de datos, medida en tiempo, que aceptas perder después de una interrupción. Un RPO de una hora admite perder la última hora de cambios.",
+    "source": {
+      "title": "Documentación de AWS: Recovery point objective",
+      "url": "https://docs.aws.amazon.com/wellarchitected/latest/reliability-pillar/rel_planning_for_recovery_objective_defined_recovery.html"
+    },
+    "pages": ["recuperacion-ante-desastres"]
+  },
+  {
+    "id": "rto",
+    "abbreviation": "RTO",
+    "fullName": "Recovery time objective · objetivo de tiempo de recuperación",
+    "definition": "Tiempo máximo aceptable entre que ocurre una interrupción y que el servicio vuelve a estar disponible.",
+    "source": {
+      "title": "Documentación de AWS: Recovery time objective",
+      "url": "https://docs.aws.amazon.com/wellarchitected/latest/reliability-pillar/rel_planning_for_recovery_objective_defined_recovery.html"
+    },
+    "pages": ["recuperacion-ante-desastres"]
+  },
+  {
+    "id": "s3",
+    "abbreviation": "S3",
+    "fullName": "Amazon Simple Storage Service",
+    "definition": "Almacenamiento de objetos escalable y duradero, organizado en buckets, para guardar y recuperar cualquier cantidad de datos.",
+    "source": {
+      "title": "Documentación de AWS: Amazon Simple Storage Service",
+      "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html"
+    },
+    "pages": ["clases-de-almacenamiento-y-ciclo-de-vida-de-s3", "amazon-s3", "amazon-s3-glacier"]
+  },
+  {
+    "id": "scp",
+    "abbreviation": "SCP",
+    "fullName": "Service control policy · política de control de servicios",
+    "definition": "Política de AWS Organizations que fija el máximo de permisos disponibles para las cuentas a las que se aplica. No concede permisos por sí sola.",
+    "source": {
+      "title": "Documentación de AWS: Service control policy",
+      "url": "https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps.html"
+    },
+    "pages": ["estrategia-de-varias-cuentas-organizations-scp-y-control-tower"]
+  },
+  {
+    "id": "sdk",
+    "abbreviation": "SDK",
+    "fullName": "Software development kit · kit de desarrollo de software",
+    "definition": "Conjunto de bibliotecas, por lenguaje de programación, para llamar a las API de AWS desde tu código.",
+    "source": {
+      "title": "Documentación de AWS: Software development kit",
+      "url": "https://docs.aws.amazon.com/sdkref/latest/guide/overview.html"
+    },
+    "pages": []
+  },
+  {
+    "id": "sns",
+    "abbreviation": "SNS",
+    "fullName": "Amazon Simple Notification Service",
+    "definition": "Servicio de mensajería de publicación y suscripción: un tema recibe un mensaje y lo entrega a todos sus suscriptores.",
+    "source": {
+      "title": "Documentación de AWS: Amazon Simple Notification Service",
+      "url": "https://docs.aws.amazon.com/sns/latest/dg/welcome.html"
+    },
+    "pages": ["amazon-sns"]
+  },
+  {
+    "id": "sql",
+    "abbreviation": "SQL",
+    "fullName": "Structured Query Language · lenguaje de consulta estructurado",
+    "definition": "Lenguaje estándar para consultar y modificar datos en bases de datos relacionales. Servicios como Amazon Athena también permiten usarlo sobre archivos en S3.",
+    "source": {
+      "title": "Glosario de AWS",
+      "url": "https://docs.aws.amazon.com/general/latest/gr/glos-chap.html"
+    },
+    "pages": []
+  },
+  {
+    "id": "sqs",
+    "abbreviation": "SQS",
+    "fullName": "Amazon Simple Queue Service",
+    "definition": "Servicio de colas de mensajes administrado que desacopla los componentes de una aplicación para que se comuniquen sin depender uno del otro.",
+    "source": {
+      "title": "Documentación de AWS: Amazon Simple Queue Service",
+      "url": "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welcome.html"
+    },
+    "pages": ["amazon-sqs"]
+  },
+  {
+    "id": "ssd",
+    "abbreviation": "SSD",
+    "fullName": "Solid state drive · unidad de estado sólido",
+    "definition": "Almacenamiento sin partes móviles, con más rendimiento y menor latencia que un HDD. En EBS, gp3, gp2, io1 e io2 son volúmenes SSD.",
+    "source": {
+      "title": "Documentación de AWS: Solid state drive",
+      "url": "https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html"
+    },
+    "pages": ["volumenes-de-ebs-ssd-frente-a-hdd"]
+  },
+  {
+    "id": "sts",
+    "abbreviation": "STS",
+    "fullName": "AWS Security Token Service",
+    "definition": "Servicio que emite credenciales temporales y de privilegios limitados para usuarios de IAM o identidades federadas.",
+    "source": {
+      "title": "Documentación de AWS: AWS Security Token Service",
+      "url": "https://docs.aws.amazon.com/STS/latest/APIReference/welcome.html"
+    },
+    "pages": ["roles-aws-sts-y-acceso-entre-cuentas"]
+  },
+  {
+    "id": "tls",
+    "abbreviation": "TLS",
+    "fullName": "Transport Layer Security",
+    "definition": "Protocolo criptográfico que cifra la comunicación entre un cliente y un servidor. Es el sucesor de SSL y protege los datos en tránsito.",
+    "source": {
+      "title": "Glosario de AWS",
+      "url": "https://docs.aws.amazon.com/general/latest/gr/glos-chap.html"
+    },
+    "pages": ["cifrado-en-reposo-y-en-transito-claves-y-certificados"]
+  },
+  {
+    "id": "vpc",
+    "abbreviation": "VPC",
+    "fullName": "Amazon Virtual Private Cloud",
+    "definition": "Red virtual lógicamente aislada dentro de AWS, donde lanzas tus recursos y controlas rangos de IP, subredes, rutas y conectividad.",
+    "source": {
+      "title": "Documentación de AWS: Amazon Virtual Private Cloud",
+      "url": "https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html"
+    },
+    "pages": [
+      "seguridad-de-la-vpc-grupos-de-seguridad-acl-de-red-y-segmentacion",
+      "puntos-de-enlace-de-vpc-y-privatelink",
+      "transit-gateway-frente-a-interconexion-de-vpc",
+      "amazon-vpc"
+    ]
+  },
+  {
+    "id": "vpn",
+    "abbreviation": "VPN",
+    "fullName": "Virtual private network · red privada virtual",
+    "definition": "Conexión cifrada que se establece a través de internet entre dos redes. AWS Site-to-Site VPN conecta tu red local con una VPC.",
+    "source": {
+      "title": "Glosario de AWS",
+      "url": "https://docs.aws.amazon.com/general/latest/gr/glos-chap.html"
+    },
+    "pages": [
+      "conectividad-hibrida-vpn-direct-connect-y-privatelink",
+      "aws-client-vpn",
+      "aws-site-to-site-vpn"
+    ]
+  },
+  {
+    "id": "waf",
+    "abbreviation": "WAF",
+    "fullName": "AWS WAF",
+    "definition": "Firewall de aplicaciones web que filtra las solicitudes HTTP y HTTPS según reglas que defines, para bloquear tráfico malicioso.",
+    "source": {
+      "title": "Documentación de AWS: AWS WAF",
+      "url": "https://docs.aws.amazon.com/waf/latest/developerguide/waf-chapter.html"
+    },
+    "pages": ["aws-waf"]
+  }
+]
