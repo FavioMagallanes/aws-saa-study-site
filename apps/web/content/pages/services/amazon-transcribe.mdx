@@ -7,4 +7,83 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Amazon Transcribe es un servicio de reconocimiento automático de voz que usa modelos de aprendizaje automático para convertir audio en texto. Puedes usarlo como servicio de transcripción independiente o para añadir voz a texto a cualquier aplicación.
+
+## Qué problema resuelve
+
+Grabaciones de llamadas, reuniones, videos o podcasts contienen información que no se puede buscar ni analizar mientras siga siendo audio. Transcribe genera el texto, con marcas de tiempo y puntuaciones de confianza para cada palabra, de modo que puedas indexarlo, subtitularlo o analizarlo con otros servicios. Es de pago por uso, según los segundos de audio transcritos.
+
+## Conceptos clave
+
+### Por lotes o en streaming
+
+- **Por lotes**: transcribe archivos multimedia guardados en un bucket de Amazon S3 (`StartTranscriptionJob`).
+- **Streaming**: transcribe flujos de audio en tiempo real, mediante HTTP/2 o WebSockets.
+
+Las funciones y los idiomas disponibles difieren entre ambos modos.
+
+### Funciones destacadas
+
+- **Vocabularios personalizados**: mejoran la precisión con términos de tu dominio, como nombres de marca, siglas o nombres propios.
+- **Separación de hablantes (diarización)**: distingue a las distintas personas que hablan y etiqueta el texto de cada una.
+- **Redacción de PII**: oculta la información de identificación personal en la transcripción; en streaming también puedes solo marcarla. Es predictiva, así que AWS recomienda revisar el resultado.
+- **Filtrado de contenido** para proteger la privacidad o adecuar el lenguaje a la audiencia, y análisis de audio de varios canales.
+- Es un servicio apto para HIPAA.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Transcribe archivos de"
+    service="Amazon S3"
+    description="Las transcripciones por lotes procesan archivos multimedia que subiste a un bucket de S3."
+  />
+  <ConnectionCard
+    relation="Subtitula en otros idiomas con"
+    service="Amazon Translate"
+    description="Translate puede integrarse con Transcribe para ofrecer subtítulos y rotulado en vivo en varios idiomas."
+  />
+  <ConnectionCard
+    relation="Entrega texto para analizar a"
+    service="Amazon Comprehend"
+    description="La transcripción es texto que Comprehend puede analizar para extraer entidades, frases clave o sentimiento."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Amazon Transcribe cuando"
+    items={[
+      'Necesitas convertir audio o video en texto, por lotes o en tiempo real.',
+      'Debes distinguir hablantes u ocultar PII en las transcripciones.',
+      'Quieres subtítulos o un índice de búsqueda a partir de grabaciones.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Necesitas lo contrario, convertir texto en voz: Amazon Polly.',
+      'Necesitas un bot que entienda la intención del usuario y responda: Amazon Lex.',
+      'El texto está en documentos escaneados: Amazon Textract.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon Transcribe"
+  url="https://docs.aws.amazon.com/transcribe/latest/dg/what-is.html"
+/>
+<OfficialSource
+  title="Cómo funciona Amazon Transcribe"
+  url="https://docs.aws.amazon.com/transcribe/latest/dg/how-it-works.html"
+/>
+<OfficialSource
+  title="Redactar o identificar información de identificación personal"
+  url="https://docs.aws.amazon.com/transcribe/latest/dg/pii-redaction.html"
+/>
