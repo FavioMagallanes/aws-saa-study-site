@@ -1,6 +1,7 @@
 import type { PageMeta } from '@arquitecto/contracts/content';
 import { TextLink } from '../../../shared/ui/text-link/text-link';
 import type { ExamGuide } from '../../content/model/exam-guide';
+import type { ProgressStatus } from '../../progress/hooks/use-reading-progress';
 import {
   DOMAIN_HIGHLIGHTS,
   FEATURED_SERVICE_CATEGORIES,
@@ -27,9 +28,16 @@ interface HomeScreenProps {
   readonly guide: ExamGuide;
   readonly readPageIds: ReadPageIds;
   readonly lastReadTitle?: string;
+  readonly progressStatus: ProgressStatus;
 }
 
-export const HomeScreen = ({ pages, guide, readPageIds, lastReadTitle }: HomeScreenProps) => {
+export const HomeScreen = ({
+  pages,
+  guide,
+  readPageIds,
+  lastReadTitle,
+  progressStatus,
+}: HomeScreenProps) => {
   const fundamentals = pages.filter((page) => page.kind === 'fundamental');
   const fundamentalsSummary = summarizeProgress(fundamentals, readPageIds);
 
@@ -68,6 +76,7 @@ export const HomeScreen = ({ pages, guide, readPageIds, lastReadTitle }: HomeScr
         <ContinueCard
           summary={summarizeProgress(pages, readPageIds)}
           nextPage={nextPageToRead(pages, readPageIds)}
+          progressStatus={progressStatus}
           {...(lastReadTitle === undefined ? {} : { lastReadTitle })}
         />
       </section>

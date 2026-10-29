@@ -1,6 +1,7 @@
 import { Link, Outlet, createRootRoute } from '@tanstack/react-router';
 import { SiteFooter } from '../app/layout/site-footer/site-footer';
 import { TopBar } from '../app/layout/top-bar/top-bar';
+import { ProgressNotice } from '../features/progress/components/progress-notice';
 
 export const Route = createRootRoute({
   notFoundComponent: () => (
@@ -13,6 +14,7 @@ export const Route = createRootRoute({
   component: () => (
     <>
       <TopBar />
+      <ProgressNotice />
       <Outlet />
       <SiteFooter />
     </>

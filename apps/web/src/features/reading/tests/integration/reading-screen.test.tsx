@@ -1,16 +1,8 @@
-import { RouterProvider, createMemoryHistory, createRouter } from '@tanstack/react-router';
-import { render, screen, within } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { routeTree } from '../../../../routeTree.gen';
+import { renderApp } from '../../../../app/tests/render-app';
 
-const renderAt = async (path: string) => {
-  const router = createRouter({
-    routeTree,
-    history: createMemoryHistory({ initialEntries: [path] }),
-  });
-  await router.load();
-  render(<RouterProvider router={router} />);
-};
+const renderAt = (path: string) => renderApp(path);
 
 describe('reading page with the real content', () => {
   it('shows the page title, its exam tasks and the pending body', async () => {

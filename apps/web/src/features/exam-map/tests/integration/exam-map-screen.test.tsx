@@ -1,16 +1,8 @@
-import { RouterProvider, createMemoryHistory, createRouter } from '@tanstack/react-router';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { routeTree } from '../../../../routeTree.gen';
+import { renderApp } from '../../../../app/tests/render-app';
 
-const renderMap = async () => {
-  const router = createRouter({
-    routeTree,
-    history: createMemoryHistory({ initialEntries: ['/mapa-del-examen'] }),
-  });
-  await router.load();
-  render(<RouterProvider router={router} />);
-};
+const renderMap = () => renderApp('/mapa-del-examen');
 
 describe('Mapa del examen with the real content', () => {
   it('opens the first domain and keeps the others collapsed', async () => {

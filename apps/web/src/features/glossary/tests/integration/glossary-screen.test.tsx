@@ -1,16 +1,8 @@
-import { RouterProvider, createMemoryHistory, createRouter } from '@tanstack/react-router';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { routeTree } from '../../../../routeTree.gen';
+import { renderApp } from '../../../../app/tests/render-app';
 
-const renderGlossary = async () => {
-  const router = createRouter({
-    routeTree,
-    history: createMemoryHistory({ initialEntries: ['/glosario'] }),
-  });
-  await router.load();
-  render(<RouterProvider router={router} />);
-};
+const renderGlossary = () => renderApp('/glosario');
 
 describe('Glosario with the real data', () => {
   it('lists the entries grouped by letter', async () => {

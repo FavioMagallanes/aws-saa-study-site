@@ -1,16 +1,8 @@
-import { RouterProvider, createMemoryHistory, createRouter } from '@tanstack/react-router';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { routeTree } from '../../../routeTree.gen';
+import { renderApp } from '../render-app';
 
-const renderAt = async (path: string) => {
-  const router = createRouter({
-    routeTree,
-    history: createMemoryHistory({ initialEntries: [path] }),
-  });
-  await router.load();
-  render(<RouterProvider router={router} />);
-};
+const renderAt = (path: string) => renderApp(path);
 
 describe('app shell', () => {
   it('marks the current section in the main navigation', async () => {
