@@ -7,4 +7,88 @@ export const meta = {
   covers: ['3.3-s4'],
 };
 
-Contenido pendiente.
+Amazon DynamoDB es una base de datos NoSQL distribuida, sin servidor y totalmente administrada, con rendimiento de milisegundos de un solo dígito a cualquier escala. Admite los modelos de datos clave-valor y de documentos, y está pensada para cargas operativas que necesitan un rendimiento constante tanto con pocos usuarios como con millones.
+
+## Qué problema resuelve
+
+Escalar una base relacional para un volumen de solicitudes muy alto obliga a ampliar instancias, planificar almacenamiento y gestionar versiones y ventanas de mantenimiento. DynamoDB elimina esa carga: no hay servidores que aprovisionar ni software que parchear, no tiene versiones ni ventanas de mantenimiento, y las tablas crecen hasta prácticamente cualquier tamaño. A cambio, renuncia a funciones que no escalan bien, como las uniones (JOIN), así que el modelo de datos se diseña según cómo se van a consultar los datos.
+
+## Conceptos clave
+
+- **Sin uniones, datos desnormalizados**: DynamoDB no tiene operador JOIN. AWS recomienda desnormalizar el modelo para responder cada consulta con menos viajes a la base de datos. Aun así, ofrece lecturas de consistencia fuerte y transacciones ACID sobre uno o varios elementos y tablas.
+- **Modos de capacidad**: el modo bajo demanda es el predeterminado y el recomendado para la mayoría de las cargas; pagas por solicitud, escala solo y baja a cero cuando no hay tráfico. En el modo aprovisionado indicas las lecturas y escrituras por segundo y pagas por lo aprovisionado aunque no lo consumas; conviene con cargas estables y crecimiento predecible. El tema «Capacidad de bases de datos» lo amplía.
+- **Índices secundarios**: los índices globales y locales permiten consultar por atributos distintos de la clave principal.
+- **Tablas globales**: replican la tabla en las regiones que elijas, con escritura activa en todas ellas, sin una tabla principal. Sirven para lecturas y escrituras locales en cada región y para la continuidad del negocio.
+- **Flujos de cambios**: DynamoDB Streams y Kinesis Data Streams for DynamoDB registran cada cambio de elemento casi en tiempo real, lo que permite arquitecturas basadas en eventos, por ejemplo con disparadores de AWS Lambda.
+- **Caché con DAX**: DynamoDB Accelerator es una caché en memoria compatible con la API de DynamoDB que lleva las lecturas de consistencia final de milisegundos a microsegundos, con cambios mínimos en la aplicación.
+- **Resiliencia y copias de seguridad**: replica los datos en tres zonas de disponibilidad de forma predeterminada. Ofrece copias continuas con recuperación a un momento dado de hasta los últimos 35 días, y copias bajo demanda.
+- **Seguridad**: el acceso se controla con IAM, sin usuarios ni contraseñas de base de datos, incluso con control detallado por atributo. Todos los datos se cifran en reposo de forma predeterminada con claves de AWS KMS.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Dispara funciones de"
+    service="AWS Lambda"
+    description="Los disparadores responden a los cambios registrados en DynamoDB Streams para construir aplicaciones basadas en eventos."
+  />
+  <ConnectionCard
+    relation="Expone los datos con"
+    service="Amazon API Gateway"
+    description="Es una de las integraciones sin servidor habituales para crear API REST sobre tablas de DynamoDB."
+  />
+  <ConnectionCard
+    relation="Exporta e importa datos con"
+    service="Amazon S3"
+    description="Exporta tablas completas o cambios incrementales a S3 para análisis, e importa datos desde S3 a una tabla nueva."
+  />
+  <ConnectionCard
+    relation="Controla el acceso con"
+    service="AWS IAM"
+    description="Las políticas de IAM deciden quién accede a cada tabla, incluso a nivel de atributo, sin credenciales de base de datos."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+Determinar el tipo de base de datos adecuado se trata en el tema «Elegir base de datos: tipo y motor». Desde la vista del servicio:
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="DynamoDB cuando"
+    items={[
+      'Accedes por clave y necesitas latencia de milisegundos con muchísimos usuarios, como carritos de compras o datos de juegos.',
+      'Quieres una base sin servidor que escale sola y sin ventanas de mantenimiento.',
+      'Necesitas escritura activa en varias regiones con tablas globales.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Necesitas consultas complejas con uniones sobre datos relacionales: Amazon Aurora o Amazon RDS.',
+      'Los datos son documentos JSON de una aplicación MongoDB: Amazon DocumentDB.',
+      'Migras una carga de Apache Cassandra: Amazon Keyspaces.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon DynamoDB"
+  url="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Introduction.html"
+/>
+<OfficialSource
+  title="Modos de capacidad de DynamoDB"
+  url="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/capacity-mode.html"
+/>
+<OfficialSource
+  title="Tablas globales de DynamoDB"
+  url="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GlobalTables.html"
+/>
+<OfficialSource
+  title="DynamoDB Accelerator (DAX)"
+  url="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DAX.html"
+/>
