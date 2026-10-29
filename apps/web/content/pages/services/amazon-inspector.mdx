@@ -7,4 +7,89 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Amazon Inspector es un servicio de administración de vulnerabilidades que descubre tus cargas de trabajo de forma automática y las analiza de manera continua en busca de vulnerabilidades de software y de exposición de red no intencionada. Analiza instancias de Amazon EC2, imágenes de contenedor en Amazon ECR y funciones de AWS Lambda.
+
+## Qué problema resuelve
+
+Un paquete sin parches o un puerto abierto a internet sin querer son puertas de entrada habituales. Programar y configurar análisis a mano es fácil de olvidar, y un análisis puntual queda viejo en cuanto se publica una vulnerabilidad nueva. Inspector no necesita que programes análisis: encuentra los recursos aptos, los analiza y vuelve a analizarlos cuando algo cambia, por ejemplo al instalar un paquete o un parche, o cuando se publica una nueva vulnerabilidad (CVE) que afecta al recurso.
+
+## Conceptos clave
+
+### Hallazgos
+
+Cuando detecta una vulnerabilidad o una ruta de red abierta, Inspector crea un hallazgo con detalles de la vulnerabilidad, el recurso afectado y recomendaciones para corregirla. Si la corriges, Inspector lo detecta y cierra el hallazgo solo. Puedes filtrar los hallazgos, ocultar los no deseados con reglas de supresión y generar informes en CSV o JSON.
+
+### Puntuación de riesgo
+
+Inspector parte de la puntuación base de la National Vulnerability Database (NVD) y la ajusta a tu entorno. Por ejemplo, puede bajar la puntuación de una vulnerabilidad explotable por red si la instancia no tiene una ruta de red abierta a internet. El panel destaca los hallazgos que afectan a más instancias e imágenes.
+
+### Análisis de EC2
+
+En las instancias, Inspector busca vulnerabilidades en los paquetes y problemas de accesibilidad de red. El inventario de software se obtiene con el agente de AWS Systems Manager (SSM) o, sin agente, a partir de instantáneas de Amazon EBS.
+
+### Varias cuentas
+
+Con AWS Organizations designas una cuenta de administrador delegado que ve los hallazgos agregados de las cuentas miembro y activa o desactiva los análisis, y puedes activar el servicio de forma automática en las cuentas nuevas.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Analiza imágenes en"
+    service="Amazon ECR"
+    description="Inspector analiza las imágenes de contenedor guardadas en tus repositorios en busca de vulnerabilidades."
+  />
+  <ConnectionCard
+    relation="Recoge el inventario con"
+    service="AWS Systems Manager"
+    description="El análisis basado en agente de las instancias de EC2 usa el agente de SSM y asociaciones de Systems Manager."
+  />
+  <ConnectionCard
+    relation="Publica hallazgos en"
+    service="Amazon EventBridge"
+    description="Los hallazgos llegan como eventos que puedes enviar a una función de Lambda o a un tema de Amazon SNS."
+  />
+  <ConnectionCard
+    relation="Centraliza los hallazgos en"
+    service="AWS Security Hub"
+    description="Si activaste Security Hub CSPM, Inspector también le publica sus hallazgos."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Amazon Inspector cuando"
+    items={[
+      'Necesitas encontrar vulnerabilidades de software en EC2, ECR o Lambda.',
+      'Quieres detectar exposición de red no intencionada en tus instancias.',
+      'Quieres un análisis continuo sin programar evaluaciones a mano.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Necesitas detectar actividad maliciosa o credenciales comprometidas: Amazon GuardDuty.',
+      'Necesitas descubrir datos sensibles en Amazon S3: Amazon Macie.',
+      'Quieres evaluar la configuración frente a estándares de seguridad: AWS Security Hub.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon Inspector"
+  url="https://docs.aws.amazon.com/inspector/latest/user/what-is-inspector.html"
+/>
+<OfficialSource
+  title="Analizar instancias de Amazon EC2 con Amazon Inspector"
+  url="https://docs.aws.amazon.com/inspector/latest/user/scanning-ec2.html"
+/>
+<OfficialSource
+  title="Introducción a AWS Security Hub CSPM"
+  url="https://docs.aws.amazon.com/securityhub/latest/userguide/what-is-securityhub.html"
+/>
