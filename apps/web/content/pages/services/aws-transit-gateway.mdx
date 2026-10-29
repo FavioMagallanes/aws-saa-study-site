@@ -7,4 +7,96 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+AWS Transit Gateway es un concentrador de tránsito de red que interconecta tus VPC y tus redes locales. Actúa como un router virtual regional que escala de forma elástica según el volumen de tráfico y enruta en la capa 3, enviando cada paquete al adjunto que corresponde según su dirección IP de destino.
+
+## Qué problema resuelve
+
+Conectar muchas VPC entre sí y con la red local mediante enlaces punto a punto se vuelve difícil de gestionar a medida que crece el número de redes. Con Transit Gateway cada VPC, VPN o Direct Connect gateway se conecta una sola vez al concentrador, y las tablas de enrutamiento de este deciden quién puede hablar con quién. Su comparación de costo y topología con la interconexión de VPC está en el tema "Transit Gateway frente a interconexión de VPC".
+
+## Conceptos clave
+
+### Adjuntos
+
+Un adjunto es a la vez origen y destino de paquetes. Puedes adjuntar una o varias VPC, conexiones Site-to-Site VPN, Direct Connect gateways, dispositivos SD-WAN de terceros mediante Transit Gateway Connect, puntos de enlace de Client VPN e interconexiones con otros transit gateways. Al adjuntar una VPC necesitas al menos una subred por cada zona de disponibilidad desde la que quieras llegar al transit gateway.
+
+### Tablas de enrutamiento y segmentación
+
+- Hay una tabla de enrutamiento predeterminada y puedes crear otras. Cada adjunto se asocia exactamente a una tabla.
+- **Propagación de rutas**: una VPC, una VPN o un Direct Connect gateway pueden propagar sus rutas de forma dinámica a una tabla. En las tablas de las subredes de una VPC, en cambio, debes crear rutas estáticas hacia el transit gateway.
+- **Segmentación**: asociando, por ejemplo, las VPC de desarrollo a una tabla y las de producción a otra, creas redes aisladas dentro del mismo transit gateway.
+
+### Varias cuentas y regiones
+
+- **Compartir**: con AWS RAM compartes el transit gateway con otras cuentas, que pueden adjuntarle sus VPC.
+- **Interconexión**: puedes interconectar transit gateways de la misma región o de regiones distintas, propios o de otra cuenta, con rutas estáticas hacia el adjunto de interconexión. El tráfico entre regiones se cifra.
+
+### ECMP
+
+Transit Gateway admite enrutamiento multiruta de igual costo (ECMP) en la mayoría de adjuntos. En los adjuntos VPN lo activas o desactivas tú, y te permite repartir el tráfico entre varias conexiones VPN.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Interconecta varias"
+    service="Amazon VPC"
+    description="Cada VPC se adjunta una vez y el transit gateway enruta el tráfico entre todas según sus tablas."
+  />
+  <ConnectionCard
+    relation="Termina conexiones de"
+    service="AWS Site-to-Site VPN"
+    description="Una VPN creada como adjunto llega a las VPC adjuntas según las tablas de enrutamiento y admite ECMP y VPN acelerada."
+  />
+  <ConnectionCard
+    relation="Se une a la red local con"
+    service="AWS Direct Connect"
+    description="Una interfaz virtual de tránsito y un Direct Connect gateway conectan tu centro de datos con el transit gateway."
+  />
+  <ConnectionCard
+    relation="Se comparte con"
+    service="AWS RAM"
+    description="Otras cuentas pueden adjuntar sus VPC a un transit gateway compartido."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Transit Gateway cuando"
+    items={[
+      'Conectas muchas VPC entre sí y con la red local en un punto central.',
+      'Necesitas segmentar el tráfico entre entornos con distintas tablas de enrutamiento.',
+      'Quieres que una conexión VPN o Direct Connect llegue a varias VPC.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Solo conectas unas pocas VPC entre sí: interconexión de VPC (VPC peering).',
+      'Solo necesitas exponer un servicio concreto a otra VPC: AWS PrivateLink.',
+      'Conectas una sola VPC con tu red local: Site-to-Site VPN con una puerta de enlace privada virtual.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Transit Gateway para Amazon VPC"
+  url="https://docs.aws.amazon.com/vpc/latest/tgw/what-is-transit-gateway.html"
+/>
+<OfficialSource
+  title="Cómo funciona AWS Transit Gateway"
+  url="https://docs.aws.amazon.com/vpc/latest/tgw/how-transit-gateways-work.html"
+/>
+<OfficialSource
+  title="Transit gateways en AWS Transit Gateway"
+  url="https://docs.aws.amazon.com/vpc/latest/tgw/tgw-transit-gateways.html"
+/>
+<OfficialSource
+  title="Adjuntos de interconexión de transit gateways"
+  url="https://docs.aws.amazon.com/vpc/latest/tgw/tgw-peering.html"
+/>
