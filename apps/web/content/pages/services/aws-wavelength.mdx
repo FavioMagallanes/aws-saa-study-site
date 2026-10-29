@@ -7,4 +7,88 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+AWS Wavelength despliega servicios estándar de cómputo y almacenamiento de AWS en el borde de las redes de los proveedores de servicios de comunicaciones, como las redes 5G. Sirve para crear aplicaciones que necesitan latencia muy baja hacia dispositivos móviles y usuarios finales, o para aumentar la resiliencia de aplicaciones de borde. Amplías tu VPC a una Wavelength Zone y ejecutas allí instancias EC2 que se comunican con tus servicios en la región principal.
+
+## Qué problema resuelve
+
+El tráfico de un dispositivo móvil hacia una aplicación en una región normalmente sale de la red del operador y atraviesa varios saltos por internet, y cada salto suma latencia. Con Wavelength, la aplicación corre dentro del centro de datos del operador, en el borde de la red 5G, y el tráfico de los dispositivos llega a ella sin salir de la red de telecomunicaciones. La comparación con CloudFront, Local Zones y Outposts está en el tema "Cómputo distribuido y en la periferia".
+
+## Conceptos clave
+
+### Wavelength Zone
+
+Una Wavelength Zone es una zona ubicada en las instalaciones del operador donde se despliega la infraestructura de Wavelength. Está asociada a una región, es una extensión lógica de ella y se administra desde el plano de control de esa región. Para usarla, primero la habilitas (opt in) y después creas recursos en ella, siempre trabajando con la región principal.
+
+### Red
+
+- **Subred de Wavelength**: creas en la zona una subred de tu VPC. La misma VPC puede abarcar zonas de disponibilidad, Local Zones y Wavelength Zones, y la ruta local conecta todas sus subredes.
+- **Carrier gateway**: permite el tráfico entrante desde la red del operador en una ubicación concreta y el saliente hacia la red del operador e internet. No admite conexiones entrantes desde internet. Traduce (NAT) las direcciones de las instancias a direcciones IP de operador, de forma parecida a como lo hace una puerta de enlace de internet en la región. Solo admite IPv4.
+- **Dirección IP de operador (Carrier IP)**: la dirección que el carrier gateway usa para el tráfico de la interfaz hacia internet o los dispositivos móviles.
+- AWS recomienda tablas de rutas personalizadas para las subredes de la zona, con la ruta predeterminada hacia el carrier gateway.
+
+### Qué puedes ejecutar
+
+Instancias EC2, volúmenes de EBS, subredes de VPC y carrier gateways. También puedes usar, entre otros, EC2 Auto Scaling, clústeres de Amazon ECS y Amazon EKS, CloudWatch, CloudTrail y CloudFormation, y Application Load Balancer en algunas zonas.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Extiende la red de"
+    service="Amazon VPC"
+    description="Creas una subred de tu VPC en la Wavelength Zone y te comunicas con las subredes de la región."
+  />
+  <ConnectionCard
+    relation="Ejecuta cómputo con"
+    service="Amazon EC2"
+    description="Las instancias en la zona atienden a los dispositivos con latencia mínima."
+  />
+  <ConnectionCard
+    relation="Escala con"
+    service="Amazon EC2 Auto Scaling"
+    description="Puedes escalar las instancias que ejecutas en la Wavelength Zone."
+  />
+  <ConnectionCard
+    relation="Orquesta contenedores con"
+    service="Amazon ECS y Amazon EKS"
+    description="Ambos pueden ejecutar cargas en Wavelength Zones."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="AWS Wavelength cuando"
+    items={[
+      'Tu aplicación atiende a dispositivos móviles en redes 5G y necesita latencia mínima.',
+      'Quieres que el tráfico de los dispositivos no salga de la red del operador.',
+      'Necesitas aumentar la resiliencia de una aplicación de borde.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Necesitas baja latencia para usuarios de una gran ciudad en general: AWS Local Zones.',
+      'La carga debe correr en tu propio centro de datos: AWS Outposts.',
+      'Solo debes manipular solicitudes HTTP cerca de usuarios de todo el mundo: Amazon CloudFront.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Wavelength"
+  url="https://docs.aws.amazon.com/wavelength/latest/developerguide/what-is-wavelength.html"
+/>
+<OfficialSource
+  title="Cómo funciona AWS Wavelength"
+  url="https://docs.aws.amazon.com/wavelength/latest/developerguide/how-wavelengths-work.html"
+/>
+<OfficialSource
+  title="Qué es AWS Local Zones"
+  url="https://docs.aws.amazon.com/local-zones/latest/ug/what-is-aws-local-zones.html"
+/>
