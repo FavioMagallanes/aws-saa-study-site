@@ -7,4 +7,92 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+AWS Global Accelerator es un servicio global en el que creas aceleradores para mejorar el rendimiento y la disponibilidad de tus aplicaciones para usuarios locales y de todo el mundo. Ofrece direcciones IP estáticas anycast que actúan como puntos de entrada fijos y lleva el tráfico por la red global de AWS hasta tus puntos de enlace en una o varias regiones.
+
+## Qué problema resuelve
+
+Por internet, el tráfico de un usuario lejano pasa por muchas redes y sufre latencia y variaciones (jitter). Además, cambiar las direcciones IP de una aplicación obliga a actualizar clientes, cortafuegos y listas de permitidos. Global Accelerator hace que el tráfico entre en la red de AWS por la ubicación de borde más cercana al usuario, lo dirige al punto de enlace regional óptimo y mantiene las mismas IP aunque cambien los recursos que hay detrás. Su diferencia con CloudFront está explicada en el tema "Periferia: CloudFront frente a Global Accelerator".
+
+## Conceptos clave
+
+### Direcciones IP estáticas
+
+Para IPv4 recibes dos direcciones estáticas, y cuatro en pila doble (dos IPv4 y dos IPv6), que se anuncian desde la red de borde de AWS. Se mantienen mientras exista el acelerador, incluso si lo desactivas, y se pierden al eliminarlo. También puedes usar tus propias direcciones IPv4 (BYOIP).
+
+### Tipos de acelerador
+
+- **Estándar**: dirige el tráfico al punto de enlace regional óptimo según la ubicación del usuario, el estado del punto de enlace y los pesos que configures. Los puntos de enlace pueden ser Network Load Balancers, Application Load Balancers, instancias EC2 o direcciones IP elásticas.
+- **De enrutamiento personalizado**: asigna cada usuario a una instancia EC2 y un puerto concretos de una subred de VPC, según tu propia lógica de aplicación.
+
+### Agentes de escucha y grupos de puntos de enlace
+
+Los agentes de escucha procesan las conexiones entrantes según puerto y protocolo, y admiten TCP y UDP. Cada uno se asocia a grupos de puntos de enlace, y cada grupo a una región. Con el **dial de tráfico** controlas el porcentaje que recibe un grupo, por ejemplo para pruebas de rendimiento o actualizaciones, y con los **pesos** repartes el tráfico dentro del grupo, útil en despliegues azul/verde y pruebas A/B.
+
+### Disponibilidad y protección
+
+- Supervisa de forma continua el estado de los puntos de enlace del acelerador estándar y envía las conexiones nuevas a otro disponible si uno deja de estar sano.
+- Si falla el punto de enlace de la región principal, desvía el tráfico a la siguiente región disponible más cercana.
+- Oculta los orígenes detrás de dos puntos de entrada protegidos de forma predeterminada contra DDoS con AWS Shield.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Dirige tráfico a"
+    service="Elastic Load Balancing"
+    description="Application y Network Load Balancers de una o varias regiones pueden ser puntos de enlace del acelerador estándar."
+  />
+  <ConnectionCard
+    relation="Dirige tráfico a"
+    service="Amazon EC2"
+    description="Instancias o direcciones IP elásticas como puntos de enlace, o instancias y puertos concretos con enrutamiento personalizado."
+  />
+  <ConnectionCard
+    relation="Se protege con"
+    service="AWS Shield"
+    description="Los puntos de entrada estáticos están protegidos de forma predeterminada contra ataques DDoS."
+  />
+  <ConnectionCard
+    relation="Acelera conexiones de"
+    service="AWS Site-to-Site VPN"
+    description="La VPN acelerada usa Global Accelerator para llevar el tráfico a la ubicación de borde más cercana a tu dispositivo."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Global Accelerator cuando"
+    items={[
+      'Necesitas IP estáticas fijas para listas de permitidos o clientes que no puedes actualizar a menudo.',
+      'Tu aplicación usa TCP o UDP y es sensible a la latencia, como juegos o aplicaciones móviles.',
+      'Quieres desviar el tráfico a otra región en cuanto falla el punto de enlace principal.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'El contenido se puede almacenar en caché cerca de los usuarios: Amazon CloudFront.',
+      'Basta con dirigir a los usuarios por DNS según latencia, ubicación o estado: Amazon Route 53.',
+      'Solo repartes tráfico dentro de una región: Elastic Load Balancing.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Global Accelerator"
+  url="https://docs.aws.amazon.com/global-accelerator/latest/dg/what-is-global-accelerator.html"
+/>
+<OfficialSource
+  title="Cómo funciona AWS Global Accelerator"
+  url="https://docs.aws.amazon.com/global-accelerator/latest/dg/introduction-how-it-works.html"
+/>
+<OfficialSource
+  title="Casos de uso de AWS Global Accelerator"
+  url="https://docs.aws.amazon.com/global-accelerator/latest/dg/introduction-benefits-of-migrating.html"
+/>
