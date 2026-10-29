@@ -10,6 +10,7 @@ interface AbbrDetailsProps {
   readonly size?: 'card' | 'sheet';
 }
 
+// Phrasing elements only: the card can open inside a paragraph of the reading body.
 export const AbbrDetails = ({
   abbreviation,
   fullName,
@@ -17,18 +18,18 @@ export const AbbrDetails = ({
   footer,
   size = 'card',
 }: AbbrDetailsProps) => (
-  <div className={cx(styles['abbr-details'], size === 'sheet' && styles['abbr-details--sheet'])}>
+  <span className={cx(styles['abbr-details'], size === 'sheet' && styles['abbr-details--sheet'])}>
     {abbreviation ? (
       <span className={styles['abbr-details__abbreviation']}>{abbreviation}</span>
     ) : null}
-    <p className={styles['abbr-details__name']}>{fullName}</p>
-    <p className={styles['abbr-details__definition']}>{definition}</p>
+    <span className={styles['abbr-details__name']}>{fullName}</span>
+    <span className={styles['abbr-details__definition']}>{definition}</span>
     {footer}
-  </div>
+  </span>
 );
 
 export const AbbrCard = (props: Omit<AbbrDetailsProps, 'size'>) => (
-  <div className={styles['abbr-card']}>
+  <span className={styles['abbr-card']}>
     <AbbrDetails {...props} />
-  </div>
+  </span>
 );

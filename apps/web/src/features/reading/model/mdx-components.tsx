@@ -10,7 +10,7 @@ interface HeadingProps {
   readonly children?: ReactNode;
 }
 
-const SectionHeading = ({ children }: HeadingProps) => (
+export const SectionHeading = ({ children }: HeadingProps) => (
   <h2 id={headingIdFrom(children)}>{children}</h2>
 );
 

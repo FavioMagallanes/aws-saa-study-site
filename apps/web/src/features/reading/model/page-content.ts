@@ -1,6 +1,8 @@
-import type { ComponentType, ElementType } from 'react';
+import type { ElementType, ReactNode } from 'react';
 
-export type PageContent = ComponentType<{ components?: Record<string, ElementType> }>;
+// MDX compiles each page to a pure function component without hooks, so the reading body can
+// expand it into its element tree before rendering (see annotate-abbreviations).
+export type PageContent = (props: { components?: Record<string, ElementType> }) => ReactNode;
 
 interface PageModule {
   readonly default: PageContent;

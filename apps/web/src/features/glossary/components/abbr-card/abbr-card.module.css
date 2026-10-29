@@ -37,6 +37,7 @@
 }
 
 .abbr-card {
+  display: block;
   width: 320px;
   max-width: 100%;
   padding: var(--space-4);

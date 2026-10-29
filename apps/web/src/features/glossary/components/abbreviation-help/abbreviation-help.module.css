@@ -1,0 +1,44 @@
+.abbreviation-help {
+  position: relative;
+  white-space: nowrap;
+}
+
+.abbreviation-help__trigger {
+  padding: 0;
+  border: 0;
+  border-radius: 2px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  cursor: help;
+  text-decoration: underline dotted;
+  text-decoration-color: var(--color-muted);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+.abbreviation-help__trigger:hover,
+.abbreviation-help__trigger[aria-expanded='true'] {
+  text-decoration-color: var(--color-accent);
+}
+
+.abbreviation-help__card {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  left: 0;
+  z-index: 20;
+  width: 320px;
+  white-space: normal;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.12);
+  border-radius: var(--radius-lg);
+}
+
+.abbreviation-help__card--end {
+  right: 0;
+  left: auto;
+}
+
+.abbreviation-help__card:focus-visible {
+  outline-offset: 4px;
+}

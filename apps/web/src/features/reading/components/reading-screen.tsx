@@ -4,10 +4,10 @@ import type { PageMeta } from '@arquitecto/contracts/content';
 import { ButtonLink } from '../../../shared/ui/button/button-link';
 import { TextLink } from '../../../shared/ui/text-link/text-link';
 import { MarkReadControl } from '../../progress/components/mark-read-control';
-import { mdxComponents } from '../model/mdx-components';
 import type { PageContent } from '../model/page-content';
 import type { ReadingContext } from '../model/reading-context';
 import { ExamTasks } from './exam-tasks/exam-tasks';
+import { ReadingBody } from './reading-body/reading-body';
 import { ReadingSidebar } from './reading-sidebar/reading-sidebar';
 import { ReadingToc } from './reading-toc/reading-toc';
 import styles from './reading-screen.module.css';
@@ -33,7 +33,7 @@ export const ReadingScreen = ({ page, Content, context }: ReadingScreenProps) =>
         <h1 className={styles.reading__title}>{page.title}</h1>
         {context.examTasks.length > 0 ? <ExamTasks tasks={context.examTasks} /> : null}
         <div className={styles.reading__body}>
-          <Content components={mdxComponents} />
+          <ReadingBody Content={Content} />
         </div>
         <nav className={styles.reading__pager} aria-label="Página anterior y siguiente">
           {previous ? (
