@@ -6,4 +6,115 @@ export const meta = {
   covers: ['3.2-k1'],
 };
 
-Contenido pendiente.
+Los servicios de cómputo de AWS cubren desde un servidor virtual hasta código que se ejecuta sin que administres nada. La diferencia clave entre los tres modelos principales, instancias, contenedores y sin servidor, es cuánto de la infraestructura administras tú y cuánto asume AWS. Una misma carga de trabajo puede combinar varios.
+
+## Qué problema resuelve
+
+No todas las aplicaciones necesitan lo mismo: una aplicación web sencilla, un proceso por lotes de datos masivos y un conjunto de microservicios piden cosas distintas. Si eliges un servicio que no encaja, pagas de más, trabajas de más o te quedas corto. Entender qué ofrece cada modelo te permite elegir el que equilibra rendimiento, costo y facilidad de administración.
+
+## Conceptos clave
+
+### Instancias: servidores virtuales
+
+**Amazon EC2** ofrece capacidad de cómputo escalable bajo demanda y te deja elegir entre muchos tipos de instancia, con distintas combinaciones de CPU, memoria, almacenamiento y red. Las familias se agrupan por propósito: uso general, optimizadas para cómputo, optimizadas para memoria, optimizadas para almacenamiento, de cómputo acelerado y de computación de alto rendimiento. Está optimizado para ofrecer recursos de cómputo escalables y de alto rendimiento a las cargas intensivas en CPU.
+
+Otros servicios se apoyan en EC2:
+
+- **Amazon EC2 Auto Scaling** añade o quita instancias según políticas de escalado que defines, para mantener la disponibilidad de la aplicación.
+- **AWS Elastic Beanstalk** despliega y administra aplicaciones web con una administración mínima de la infraestructura. Admite Python, Node.js, Java, .NET, PHP, Ruby, Go y plataformas Docker.
+- **Amazon Lightsail** es una forma sencilla de crear aplicaciones web con instancias, servicios de contenedores, bases de datos administradas, distribuciones de CDN, balanceadores de carga, almacenamiento SSD y administración de DNS.
+- **EC2 Image Builder** automatiza la creación, administración e implementación de imágenes de servidor personalizadas, seguras y actualizadas.
+
+### Contenedores
+
+Los servicios de contenedores te ayudan a desplegar, administrar y escalar aplicaciones en contenedores, de modo que tu equipo se concentre en la aplicación y no en el entorno de ejecución ni en un plano de control.
+
+- **Amazon ECS** es un servicio de orquestación de contenedores totalmente administrado. **Amazon ECS Anywhere** permite registrar en tu clúster un servidor externo, como uno local.
+- **Amazon EKS** es un servicio administrado de Kubernetes que elimina la necesidad de instalar y operar tu propio plano de control. **Amazon EKS Anywhere** facilita ejecutar clústeres de Kubernetes en tu centro de datos y en el borde.
+- **Amazon ECR** es un registro de imágenes de contenedores administrado, seguro y escalable.
+- Puedes ejecutar los contenedores en instancias de EC2 que administras tú, o en **AWS Fargate**, sobre cómputo administrado por AWS.
+- **AWS Batch** es un servicio de procesamiento por lotes totalmente administrado: planifica, programa y ejecuta cargas de trabajo por lotes en contenedores, de aprendizaje automático, simulación y análisis, sobre ECS, EKS, Fargate e instancias de EC2 de Spot o bajo demanda. Úsalo para procesar grandes volúmenes de datos en paralelo.
+
+### Sin servidor
+
+Las opciones sin servidor te permiten ejecutar cargas de trabajo sin aprovisionar ni administrar servidores, así que los desarrolladores se concentran en escribir código mientras AWS asume la mayor parte de la administración de la infraestructura.
+
+- **AWS Lambda** ejecuta tu código en una infraestructura de cómputo de alta disponibilidad y se encarga de toda la administración de los recursos: el mantenimiento de servidores y sistema operativo, el aprovisionamiento de capacidad, el escalado automático y el registro.
+- **AWS Fargate** es la tecnología que se usa con Amazon ECS para ejecutar contenedores sin administrar servidores ni clústeres de instancias de EC2.
+
+### Procesamiento de macrodatos
+
+**Amazon EMR**, antes llamado Amazon Elastic MapReduce, es una plataforma de clústeres administrada que simplifica ejecutar marcos de macrodatos, como Apache Hadoop y Apache Spark, para procesar y analizar enormes volúmenes de datos. Sirve para análisis y cargas de inteligencia empresarial, y también para transformar y mover grandes cantidades de datos desde y hacia otros almacenes de AWS, como Amazon S3 y Amazon DynamoDB.
+
+### Híbrido y de borde
+
+Para llevar la infraestructura de AWS cerca de tus usuarios o a tu propio centro de datos existen **AWS Local Zones**, **AWS Outposts** y **AWS Wavelength**, pensados para menor latencia y procesamiento local de datos.
+
+### Reducir el costo del cómputo
+
+- **Savings Plans**: un modelo de precios flexible que reduce la factura frente a los precios bajo demanda a cambio de comprometer un gasto por hora durante uno o tres años.
+- **Instancias de Spot de Amazon EC2**: aprovechan la capacidad de EC2 sin usar con un descuento significativo frente al precio bajo demanda.
+- **AWS Compute Optimizer**: ofrece análisis para ajustar el tamaño de tus cargas de trabajo, reducir costos y mejorar el rendimiento.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Reparte el tráfico con"
+    service="Elastic Load Balancing"
+    description="Distribuye el tráfico entrante entre varios destinos, como instancias, contenedores o direcciones IP, en una o más zonas de disponibilidad."
+  />
+  <ConnectionCard
+    relation="Procesa lotes con"
+    service="AWS Batch"
+    description="Planifica y ejecuta tus trabajos por lotes sobre ECS, EKS, Fargate y EC2, con instancias de Spot o bajo demanda."
+  />
+  <ConnectionCard
+    relation="Procesa macrodatos con"
+    service="Amazon EMR"
+    description="Procesa grandes volúmenes de datos y los mueve desde y hacia Amazon S3 y Amazon DynamoDB."
+  />
+  <ConnectionCard
+    relation="Guarda las imágenes en"
+    service="Amazon ECR"
+    description="Es un registro de imágenes de contenedores administrado, seguro y escalable para tus aplicaciones en contenedores."
+  />
+</CardGrid>
+
+## Cuándo elegir cada modelo
+
+Puedes usar varios tipos de cómputo en una misma carga de trabajo, cada uno con sus ventajas. Esta guía rápida resume para qué está optimizada cada categoría.
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Qué modelo para cada necesidad"
+    items={[
+      'Cargas intensivas en CPU que necesitan cómputo escalable de alto rendimiento: instancias de EC2.',
+      'Concentrarte en la aplicación sin administrar un plano de control: contenedores con ECS o EKS.',
+      'Reducir al mínimo la administración y centrarte en la lógica de negocio: Lambda o Fargate.',
+      'Procesar lotes de datos en paralelo: AWS Batch. Analizar macrodatos con Spark o Hadoop: Amazon EMR.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Cuándo mirar otra opción"
+    items={[
+      'Necesitas la AWS conocida cerca de tus usuarios o en tu centro de datos: Local Zones, Outposts o Wavelength.',
+      'Quieres desplegar una aplicación web con poca administración de infraestructura: Elastic Beanstalk.',
+      'Puedes comprometer un gasto por hora durante uno o tres años a cambio de pagar menos: Savings Plans.',
+      'Quieres aprovechar capacidad de EC2 sin usar con un descuento: instancias de Spot.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Elegir un servicio de cómputo de AWS"
+  url="https://docs.aws.amazon.com/decision-guides/latest/compute-on-aws-how-to-choose/choosing-aws-compute-service.html"
+/>
+<OfficialSource
+  title="Qué es Amazon EMR"
+  url="https://docs.aws.amazon.com/emr/latest/ManagementGuide/emr-what-is-emr.html"
+/>
