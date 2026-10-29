@@ -7,4 +7,95 @@ export const meta = {
   covers: ['1.1-k2'],
 };
 
-Contenido pendiente.
+AWS IAM Identity Center es la solución de AWS para conectar a las personas de tu organización (tu fuerza laboral) con cuentas de AWS y con aplicaciones. Puedes conectar tu proveedor de identidades existente y sincronizar sus usuarios y grupos, o crear y administrar los usuarios directamente en el servicio. Antes se llamaba AWS Single Sign-On.
+
+## Qué problema resuelve
+
+Con varias cuentas y varias aplicaciones, crear usuarios de IAM en cada cuenta multiplica identidades y credenciales de largo plazo. Como práctica recomendada, AWS pide que las personas accedan mediante federación con un proveedor de identidades. Identity Center es el único punto de federación: federas una sola vez, administras un solo certificado si usas un proveedor SAML 2.0, y las personas reciben credenciales de corto plazo. Las tres formas de federar y cuándo usar cada una se comparan en el tema de federación de identidades y servicios de directorio.
+
+## Conceptos clave
+
+### Origen de identidades
+
+El origen de identidades define dónde se administran los usuarios y grupos. Solo puede haber uno por organización:
+
+- **Proveedor de identidades externo**, como Okta o Microsoft Entra ID.
+- **Active Directory**, local o AWS Managed Microsoft AD. Simple AD no se admite como origen.
+- **Directorio de Identity Center**, el predeterminado, donde creas tú los usuarios y grupos.
+
+### Conjuntos de permisos
+
+Un conjunto de permisos es una plantilla que agrupa una o más políticas de IAM, por ejemplo para administradores de bases de datos. Al asignarlo a un usuario o grupo en una o varias cuentas, Identity Center crea en cada cuenta los roles de IAM correspondientes, les adjunta las políticas y deja que los usuarios autorizados asuman esos roles. Si modificas el conjunto, el servicio mantiene actualizados los roles y políticas.
+
+### Instancias y portal
+
+- **Instancia de organización**: es la práctica recomendada y la única que permite administrar el acceso a cuentas de AWS. Se despliega en la cuenta de administración de AWS Organizations.
+- **Instancia de cuenta**: ligada a una sola cuenta, solo para despliegues aislados de algunas aplicaciones administradas por AWS.
+- **Portal de acceso de AWS**: un portal web donde cada persona ve las cuentas y aplicaciones que tiene asignadas, con inicio de sesión único en la consola y en aplicaciones compatibles con SAML, como Microsoft 365, SAP Concur y Salesforce.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Administra el acceso a las cuentas de"
+    service="AWS Organizations"
+    description="La instancia de organización se despliega en la cuenta de administración y da acceso a las cuentas miembro."
+  />
+  <ConnectionCard
+    relation="Crea roles en las cuentas con"
+    service="AWS IAM"
+    description="Los conjuntos de permisos se convierten en roles de IAM con sus políticas en cada cuenta asignada."
+  />
+  <ConnectionCard
+    relation="Usa como origen de identidades"
+    service="AWS Directory Service"
+    description="Puedes conectar AWS Managed Microsoft AD o tu Active Directory local para que las personas usen sus credenciales actuales."
+  />
+  <ConnectionCard
+    relation="Registra la actividad en"
+    service="AWS CloudTrail"
+    description="Con la propagación de identidad de confianza, los eventos se registran según el usuario y las acciones que inició."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="IAM Identity Center cuando"
+    items={[
+      'Las personas de tu empresa necesitan acceso a varias cuentas de AWS Organizations.',
+      'Quieres un solo punto de federación con tu proveedor de identidades o tu Active Directory.',
+      'Quieres asignar permisos por función de trabajo a usuarios y grupos en muchas cuentas.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Tienes una sola cuenta independiente y un despliegue pequeño: federación con IAM mediante SAML u OIDC.',
+      'Son usuarios de una aplicación web o móvil: Amazon Cognito.',
+      'Son cargas de trabajo o máquinas que llaman a AWS: roles de IAM.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es IAM Identity Center"
+  url="https://docs.aws.amazon.com/singlesignon/latest/userguide/what-is.html"
+/>
+<OfficialSource
+  title="Administrar el origen de identidades"
+  url="https://docs.aws.amazon.com/singlesignon/latest/userguide/manage-your-identity-source.html"
+/>
+<OfficialSource
+  title="Administrar cuentas de AWS con conjuntos de permisos"
+  url="https://docs.aws.amazon.com/singlesignon/latest/userguide/permissionsetsconcept.html"
+/>
+<OfficialSource
+  title="Proveedores de identidades y federación en AWS"
+  url="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers.html"
+/>
