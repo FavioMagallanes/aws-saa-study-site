@@ -7,4 +7,91 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+AWS Snow Family es la familia de dispositivos físicos de AWS para mover datos sin usar internet y para procesar datos en lugares con poca o ninguna conectividad. Su miembro actual es **AWS Snowball Edge**, un dispositivo resistente con almacenamiento y capacidad de cómputo propios. Importante: según la documentación de AWS, Snowball Edge, y con él toda la familia Snow, **ya no está disponible para clientes nuevos**; los clientes existentes pueden seguir usándolo.
+
+## Qué problema resuelve
+
+Cuando hay que llevar a AWS una gran cantidad de datos y la red es lenta o poco fiable, transferirlos por internet puede tardar demasiado. Snowball Edge resuelve esto transportando los datos físicamente: AWS envía el dispositivo, copias los datos en local y lo devuelves por mensajería para que se carguen en Amazon S3, a velocidades mayores que las de internet. También permite procesar datos y ejecutar cargas de cómputo en el borde, cerca de donde se generan.
+
+## Conceptos clave
+
+### Trabajos de importación y exportación
+
+En un trabajo de **importación**, AWS te envía un dispositivo vacío, copias en él los datos de tus sistemas locales y lo devuelves. En uno de **exportación**, AWS copia los datos de S3 en el dispositivo y te lo envía. La transferencia admite NFS y la API de Amazon S3 mediante el adaptador de S3.
+
+### Configuraciones del dispositivo
+
+- **Storage Optimized**: centrado en la capacidad de almacenamiento para mover datos.
+- **Compute Optimized**: centrado en el cómputo en el borde, con instancias que se ejecutan en el dispositivo a partir de AMI y puntos de enlace compatibles con Amazon S3 y Amazon EC2.
+
+Los dispositivos se pueden agrupar en clústeres para almacenamiento y cómputo local con mayor durabilidad.
+
+### Seguridad
+
+El cifrado es obligatorio: los datos están protegidos en reposo y durante el transporte físico.
+
+### Alternativas que recomienda AWS
+
+Para clientes nuevos, AWS propone:
+
+- **Transferencia en línea**: AWS DataSync, que puede combinarse con AWS Direct Connect para superar las limitaciones de ancho de banda.
+- **Transferencia física**: AWS Data Transfer Terminal, ubicaciones donde llevas tus propios dispositivos para cargar los datos en AWS, o soluciones de socios.
+- **Cómputo en el borde**: AWS Outposts.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Importa y exporta datos de"
+    service="Amazon S3"
+    description="Los datos copiados en el dispositivo se cargan en buckets de S3, o se exportan desde ellos."
+  />
+  <ConnectionCard
+    relation="Se reemplaza en línea por"
+    service="AWS DataSync"
+    description="Es la alternativa que recomienda AWS para nuevas transferencias de datos por la red."
+  />
+  <ConnectionCard
+    relation="Acelera la red con"
+    service="AWS Direct Connect"
+    description="Combinado con DataSync, mejora la velocidad y la fiabilidad de las migraciones grandes."
+  />
+  <ConnectionCard
+    relation="Se reemplaza en el borde por"
+    service="AWS Outposts"
+    description="La alternativa para cargas de cómputo híbrido o en el borde que usaban Snowball Edge Compute Optimized."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Snowball Edge cuando"
+    items={[
+      'Ya eres cliente de Snowball Edge y necesitas mover datos sin depender de internet.',
+      'Necesitas procesar datos en un lugar con conectividad limitada, con un dispositivo que ya tienes.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Eres cliente nuevo y vas a transferir por la red: AWS DataSync, con Direct Connect si el ancho de banda no alcanza.',
+      'Eres cliente nuevo y necesitas una transferencia física: AWS Data Transfer Terminal o soluciones de socios.',
+      'Necesitas cómputo de AWS en tus instalaciones: AWS Outposts.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Snowball Edge"
+  url="https://docs.aws.amazon.com/snowball/latest/developer-guide/whatisedge.html"
+/>
+<OfficialSource
+  title="Cambio de disponibilidad de AWS Snowball Edge"
+  url="https://docs.aws.amazon.com/snowball/latest/developer-guide/snowball-edge-availability-change.html"
+/>
