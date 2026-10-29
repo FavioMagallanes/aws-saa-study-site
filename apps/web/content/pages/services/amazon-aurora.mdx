@@ -7,4 +7,88 @@ export const meta = {
   covers: ['3.3-s4'],
 };
 
-Contenido pendiente.
+Amazon Aurora es un motor de base de datos relacional totalmente administrado y compatible con MySQL y PostgreSQL. Forma parte de Amazon RDS, así que se crea y se administra con la misma consola, la misma AWS CLI y la misma API, pero cambia la forma de guardar los datos: en lugar de un disco por instancia, usa un almacenamiento distribuido y compartido por todo el clúster. El código, las herramientas y las aplicaciones que ya usas con MySQL o PostgreSQL funcionan con Aurora.
+
+## Qué problema resuelve
+
+Escalar y proteger una base relacional suele ser lo más difícil de operar: configurar la replicación, preparar la conmutación por error y dimensionar el almacenamiento. Aurora automatiza y estandariza el agrupamiento en clústeres y la replicación, y el volumen de almacenamiento crece solo a medida que aumentan los datos. Así obtienes una base relacional con más rendimiento y disponibilidad que MySQL y PostgreSQL estándar en hardware similar, sin cambiar de motor ni reescribir la aplicación.
+
+## Conceptos clave
+
+- **Clúster y volumen compartido**: un clúster de Aurora tiene una instancia principal (de escritura) y hasta 15 réplicas de Aurora de solo lectura. Todas se conectan al mismo volumen del clúster, que guarda copias de los datos en tres zonas de disponibilidad de una región. Añadir una instancia es rápido porque no copia los datos, y eliminarla no borra nada: los datos solo desaparecen al eliminar el clúster completo.
+- **Replicación del almacenamiento**: cada escritura se replica de forma síncrona en seis nodos de almacenamiento repartidos entre zonas de disponibilidad. El clúster tolera la caída de una zona de disponibilidad sin perder datos, aunque las instancias no estén en varias zonas.
+- **Conmutación por error**: si falla la instancia principal, Aurora lo detecta y promueve una réplica a principal de forma automática. Para alta disponibilidad, AWS recomienda repartir la principal y las réplicas en varias zonas de disponibilidad.
+- **Puntos de enlace**: el punto de enlace del clúster apunta siempre a la instancia principal actual, también después de una conmutación por error; el de lectura reparte las conexiones entre las réplicas. También hay puntos de enlace de instancia y personalizados, para grupos concretos de instancias. El tema «Réplicas de lectura, proxies y conexiones» detalla cómo repartir las lecturas.
+- **Configuraciones de almacenamiento**: Aurora Standard cobra las operaciones de E/S aparte y conviene con un uso de E/S moderado; Aurora I/O-Optimized no cobra la E/S de lectura y escritura y conviene a las aplicaciones con mucha E/S.
+- **Aurora Global Database**: un clúster principal en una región y clústeres secundarios de solo lectura en otras regiones. Aurora replica los cambios con su propia infraestructura, normalmente en menos de un segundo, lo que permite lecturas de baja latencia cerca de los usuarios y recuperación ante la caída de una región.
+- **Capacidad sin servidor**: con Aurora sin servidor el clúster ajusta su capacidad a la demanda; tiene su propia página.
+- **Responsabilidad compartida**: AWS administra la infraestructura, los parches, las copias de seguridad y la recuperación; tú sigues siendo responsable de ajustar las consultas.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Se administra como parte de"
+    service="Amazon RDS"
+    description="Aurora usa la consola, la CLI y la API de RDS para aprovisionar, aplicar parches, hacer copias de seguridad y recuperar."
+  />
+  <ConnectionCard
+    relation="Ajusta la capacidad con"
+    service="Amazon Aurora sin servidor"
+    description="Las instancias sin servidor escalan según la demanda dentro de un rango mínimo y máximo, y pueden convivir con instancias aprovisionadas."
+  />
+  <ConnectionCard
+    relation="Agrupa conexiones con"
+    service="Amazon RDS Proxy"
+    description="Un proxy comparte un grupo de conexiones con la base de datos y ayuda con aplicaciones que abren muchas conexiones cortas."
+  />
+  <ConnectionCard
+    relation="Recibe migraciones con"
+    service="AWS DMS"
+    description="Migra bases de datos locales o de otros motores; desde RDS for MySQL o PostgreSQL también puedes restaurar una instantánea."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+Determinar el tipo de base de datos se trata a fondo en el tema «Elegir base de datos: tipo y motor». Desde la vista del servicio:
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Aurora cuando"
+    items={[
+      'Los datos son relacionales y la aplicación usa MySQL o PostgreSQL.',
+      'Necesitas alta disponibilidad entre zonas y conmutación por error automática a réplicas.',
+      'Quieres lecturas de baja latencia o recuperación en otras regiones con Aurora Global Database.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Acceso por clave con un volumen de solicitudes muy alto y sin uniones: Amazon DynamoDB.',
+      'Necesitas Oracle, SQL Server, Db2 o MariaDB: Amazon RDS con ese motor.',
+      'La carga es muy variable o pasa largos periodos sin uso: Aurora sin servidor.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon Aurora"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/CHAP_AuroraOverview.html"
+/>
+<OfficialSource
+  title="Almacenamiento de Amazon Aurora"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.Overview.StorageReliability.html"
+/>
+<OfficialSource
+  title="Alta disponibilidad en Amazon Aurora"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.AuroraHighAvailability.html"
+/>
+<OfficialSource
+  title="Amazon Aurora Global Database"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-global-database.html"
+/>
