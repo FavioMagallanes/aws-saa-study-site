@@ -7,4 +7,128 @@ export const meta = {
   covers: ['2.2-k7', '2.2-s1'],
 };
 
-Contenido pendiente.
+Una infraestructura que se modifica a mano poco a poco termina siendo distinta en cada entorno y difícil de reproducir. La infraestructura inmutable y la automatización resuelven eso: nada se cambia en caliente, todo se describe como código y cada cambio se despliega como un conjunto nuevo de recursos que se puede probar y revertir.
+
+## Qué problema resuelve
+
+Aplicar parches, actualizaciones o cambios de configuración directamente sobre los recursos en producción introduce errores humanos y genera desviaciones de configuración: los servidores dejan de coincidir con lo que se probó y nadie sabe con certeza cuál es su estado real. Cambiar los sistemas en producción es una de las áreas de mayor riesgo para muchas organizaciones. Automatizar el aprovisionamiento y los despliegues, y tratar la infraestructura como algo que se reemplaza en vez de modificarse, mantiene la integridad de la infraestructura: un estado conocido, probado y versionado.
+
+## Conceptos clave
+
+### Infraestructura inmutable
+
+La infraestructura inmutable es un modelo en el que no se hacen actualizaciones, parches de seguridad ni cambios de configuración en el sitio sobre las cargas de producción. Cuando hace falta un cambio, se despliega en paralelo un conjunto nuevo de recursos que ya incluye todos los cambios; el despliegue se valida de forma automática y, si es correcto, el tráfico pasa poco a poco a los recursos nuevos. Aplica a actualizaciones de software, parches, cambios de infraestructura y de configuración. Sus beneficios:
+
+- **Coherencia entre entornos**: al no haber diferencias entre los recursos de cada entorno, las pruebas son más simples.
+- **Menos desviaciones de configuración**: los recursos se reemplazan por una configuración conocida y versionada.
+- **Despliegues atómicos**: o se completan con éxito o no cambia nada.
+- **Reversión rápida**: la versión anterior no se modifica, así que puedes volver a ella si detectas errores.
+- **Mejor seguridad**: como no se permiten cambios, puedes desactivar el acceso remoto, por ejemplo SSH, y reducir la superficie de ataque.
+
+### Patrones de despliegue
+
+- **Canary**: diriges a una pequeña parte de los clientes a la nueva versión, observas con detalle errores y cambios de comportamiento, y si algo falla devuelves a esos usuarios a la versión anterior. AWS CodeDeploy admite despliegues canary.
+- **Azul/verde (blue/green)**: despliegas una flota completa de la aplicación en paralelo y alternas entre las dos pilas. Normalmente todo el tráfico cambia de una vez, aunque puedes repartirlo de forma gradual con el enrutamiento ponderado de Amazon Route 53. AWS CodeDeploy y AWS Elastic Beanstalk admiten despliegues azul/verde.
+
+### Infraestructura como código
+
+Con la infraestructura como código, el aprovisionamiento y los despliegues se definen de forma programática y declarativa, y se guardan en un sistema de control de versiones. Esto facilita la automatización y ayuda a lograr la inmutabilidad.
+
+- **AWS CloudFormation**: describes en una plantilla JSON o YAML los recursos que necesitas, como instancias de EC2 o de RDS, y CloudFormation los aprovisiona y configura, resolviendo las dependencias. Los recursos de una pila se administran como una sola unidad. Puedes reutilizar la plantilla para crear los mismos recursos de forma coherente en varias regiones, y como es texto, versionarla para saber qué cambió, quién y cuándo, y volver a una versión anterior.
+- **AWS Serverless Application Model (AWS SAM)**: marco de código abierto para crear aplicaciones sin servidor que extiende CloudFormation.
+- **EC2 Image Builder**: servicio totalmente administrado que automatiza la creación, el mantenimiento, la prueba y la distribución de imágenes de servidor personalizadas y actualizadas. Preparar de antemano una AMI acelera el lanzamiento, y Image Builder solo distribuye la imagen si pasan todas las pruebas configuradas.
+
+### Automatizar los despliegues
+
+AWS recomienda automatizar todo despliegue y parcheo para eliminar el error humano y poder probar antes de cambiar producción. Una canalización de despliegue ejecuta pruebas automatizadas, puede detenerse antes de producción o revertir el cambio de forma automática, y escalona los despliegues en producción.
+
+- **AWS CodePipeline**: automatiza las canalizaciones de publicación de aplicaciones e infraestructura.
+- **AWS CodeBuild**: compila el código, ejecuta pruebas y genera los artefactos de despliegue.
+- **AWS CodeDeploy**: automatiza los despliegues en Amazon EC2, AWS Fargate, AWS Lambda y servidores locales.
+
+### Detectar y corregir desviaciones
+
+Una desviación es cualquier cambio que hace que un recurso tenga un estado o configuración distinto del esperado, y va en contra de la infraestructura inmutable.
+
+- **Evita los cambios en el sitio**: usa IAM para restringir quién o qué puede modificar los recursos.
+- **Detección de desviaciones de CloudFormation**: compara los valores reales de las propiedades de los recursos de una pila con los definidos en la plantilla y los parámetros, e indica qué recursos cambiaron fuera de CloudFormation. Solo evalúa las propiedades definidas de forma explícita, no los valores predeterminados.
+- **AWS Config**: registra la configuración de los recursos y cómo cambia con el tiempo. Sus reglas evalúan esa configuración de forma continua, marcan los recursos que no cumplen y envían una notificación; la corrección se aplica con documentos de automatización de AWS Systems Manager.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Define la infraestructura con"
+    service="AWS CloudFormation"
+    description="Las plantillas describen los recursos y CloudFormation los aprovisiona de forma repetible y detecta desviaciones."
+  />
+  <ConnectionCard
+    relation="Prepara imágenes con"
+    service="EC2 Image Builder"
+    description="Automatiza la creación, prueba y distribución de AMI e imágenes de contenedor actualizadas."
+  />
+  <ConnectionCard
+    relation="Despliega con"
+    service="AWS CodePipeline y AWS CodeDeploy"
+    description="Automatizan la canalización de publicación y los despliegues canary o azul/verde."
+  />
+  <ConnectionCard
+    relation="Vigila la configuración con"
+    service="AWS Config"
+    description="Evalúa los recursos con reglas, avisa de los que no cumplen y corrige con Systems Manager Automation."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Infraestructura inmutable cuando"
+    items={[
+      'Quieres el mismo estado probado en todos los entornos.',
+      'Necesitas volver rápido a la versión anterior si un despliegue falla.',
+      'Quieres desactivar el acceso remoto a los servidores de producción.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra herramienta cuando"
+    items={[
+      'Quieres exponer la nueva versión a pocos usuarios primero: despliegue canary con CodeDeploy.',
+      'Necesitas detectar cambios hechos fuera de la plantilla: detección de desviaciones de CloudFormation.',
+      'Debes evaluar y corregir la configuración de toda la cuenta: reglas de AWS Config.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Implementar con infraestructura inmutable (REL08-BP04)"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/reliability-pillar/rel_tracking_change_management_immutable_infrastructure.html"
+/>
+<OfficialSource
+  title="Implementar los cambios con automatización (REL08-BP05)"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/reliability-pillar/rel_tracking_change_management_automated_changemgmt.html"
+/>
+<OfficialSource
+  title="Qué es AWS CloudFormation"
+  url="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/Welcome.html"
+/>
+<OfficialSource
+  title="Detección de desviaciones en CloudFormation"
+  url="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-stack-drift.html"
+/>
+<OfficialSource
+  title="Qué es EC2 Image Builder"
+  url="https://docs.aws.amazon.com/imagebuilder/latest/userguide/what-is-image-builder.html"
+/>
+<OfficialSource
+  title="Qué es AWS Config"
+  url="https://docs.aws.amazon.com/config/latest/developerguide/WhatIsConfig.html"
+/>
+<OfficialSource
+  title="Corregir recursos no conformes con AWS Config"
+  url="https://docs.aws.amazon.com/config/latest/developerguide/remediation.html"
+/>
