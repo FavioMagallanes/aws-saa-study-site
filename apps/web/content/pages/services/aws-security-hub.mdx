@@ -7,4 +7,95 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+AWS Security Hub reúne en un solo lugar las señales de seguridad de tu entorno de AWS para que veas y priorices los problemas más importantes. La documentación actual distingue dos partes: AWS Security Hub CSPM, que evalúa tu entorno frente a estándares y prácticas recomendadas de seguridad, y Security Hub, una solución unificada que correlaciona los hallazgos de CSPM y de otros servicios para priorizar los riesgos activos.
+
+## Qué problema resuelve
+
+Cada servicio de seguridad produce sus propios hallazgos: GuardDuty detecta amenazas, Amazon Inspector vulnerabilidades y Macie datos sensibles. Revisarlos por separado, en varias cuentas y regiones, hace difícil saber qué atender primero. Security Hub los consolida, comprueba de forma continua tu configuración frente a estándares de seguridad y te ayuda a automatizar la respuesta.
+
+## Conceptos clave
+
+### Estándares y controles (Security Hub CSPM)
+
+- **Estándares**: incluye el estándar AWS Foundational Security Best Practices (FSBP), desarrollado por AWS, y marcos externos como CIS, PCI DSS y NIST.
+- **Controles**: cada estándar tiene varios controles, cada uno una práctica recomendada. Security Hub CSPM los comprueba y genera hallazgos de control que muestran tu grado de cumplimiento, y con los resultados calcula puntuaciones de seguridad.
+- **Depende de AWS Config**: usa reglas de AWS Config para la mayoría de los controles. Si usas solo Security Hub CSPM, debes habilitar AWS Config y el registro de recursos en cada cuenta y región donde lo actives.
+
+### Hallazgos consolidados
+
+- Recibe hallazgos de Amazon GuardDuty, Amazon Inspector, Amazon Macie y productos de terceros compatibles.
+- Security Hub CSPM normaliza los hallazgos con el formato AWS Security Finding Format (ASFF), así que no tienes que manejar formatos distintos según el origen.
+- Puedes agregar los hallazgos de varias regiones y administrar varias cuentas desde una cuenta de administrador.
+- Security Hub CSPM solo procesa hallazgos generados después de habilitarlo, y en la región donde lo habilitaste.
+
+### Automatización
+
+- **Reglas de automatización**: modifican o suprimen hallazgos según los criterios que definas.
+- **Amazon EventBridge**: dispara respuestas automáticas a hallazgos concretos.
+
+### Lo que añade Security Hub
+
+Correlaciona los hallazgos para detectar exposiciones de los recursos y muestra un gráfico de rutas de ataque. Además, identifica roles, usuarios, claves de acceso y permisos de IAM que no se han usado en los últimos 90 días, y puede proponer una política más restringida para aplicar el mínimo privilegio.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Recibe hallazgos de"
+    service="Amazon GuardDuty, Amazon Inspector y Amazon Macie"
+    description="Consolida amenazas, vulnerabilidades y datos sensibles en una sola vista."
+  />
+  <ConnectionCard
+    relation="Evalúa controles con"
+    service="AWS Config"
+    description="Las reglas de AWS Config ejecutan la mayoría de las comprobaciones de seguridad de CSPM."
+  />
+  <ConnectionCard
+    relation="Automatiza respuestas con"
+    service="Amazon EventBridge"
+    description="Envía los hallazgos como eventos para iniciar acciones de corrección."
+  />
+  <ConnectionCard
+    relation="Se administra en varias cuentas con"
+    service="AWS Organizations"
+    description="Puedes habilitarlo para las cuentas de tu organización y revisarlas desde una cuenta de administrador."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="AWS Security Hub cuando"
+    items={[
+      'Quieres una vista única de los hallazgos de seguridad de varias cuentas y servicios.',
+      'Necesitas comprobar tu entorno frente a estándares como FSBP, CIS o PCI DSS.',
+      'Quieres priorizar y automatizar la respuesta a los hallazgos.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otro servicio cuando"
+    items={[
+      'Necesitas detectar amenazas o actividad maliciosa: Amazon GuardDuty, que envía sus hallazgos a Security Hub.',
+      'Buscas datos sensibles en S3: Amazon Macie.',
+      'Quieres evaluar la configuración de recursos con reglas propias y su historial: AWS Config.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Introducción a AWS Security Hub"
+  url="https://docs.aws.amazon.com/securityhub/latest/userguide/what-is-securityhub-v2.html"
+/>
+<OfficialSource
+  title="Introducción a AWS Security Hub CSPM"
+  url="https://docs.aws.amazon.com/securityhub/latest/userguide/what-is-securityhub.html"
+/>
+<OfficialSource
+  title="Habilitar y configurar AWS Config para Security Hub CSPM"
+  url="https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-setup-prereqs.html"
+/>
