@@ -7,4 +7,96 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+AWS Budgets sirve para seguir tus costos y tu uso de AWS y actuar sobre ellos: defines un umbral y recibes un aviso, o lanzas una acción, cuando el gasto real o el pronosticado lo alcanza. También vigila si aprovechas bien tus instancias reservadas (RI) y tus Savings Plans.
+
+## Qué problema resuelve
+
+Mirar la factura a fin de mes es tarde para corregir un gasto que se descontrola. Con AWS Budgets fijas de antemano cuánto quieres gastar o usar, en el periodo que te convenga, y te enteras antes de superarlo. Las demás herramientas de costos se comparan en el tema «Herramientas de costos y etiquetas».
+
+## Conceptos clave
+
+### Tipos de presupuesto
+
+- **De costo**: un límite de gasto, con avisos al acercarte o superarlo.
+- **De uso**: un límite de uso de uno o varios servicios, útil, por ejemplo, para mantenerte dentro de los límites de un servicio.
+- **De utilización de RI o Savings Plans**: avisa cuando su uso cae por debajo del umbral, señal de que estás pagando capacidad que no aprovechas.
+- **De cobertura de RI o Savings Plans**: avisa cuando el porcentaje de tu uso cubierto por ellos cae por debajo del objetivo.
+
+El periodo puede ser mensual, diario o personalizado, como un año fiscal o la duración de un proyecto, y el importe puede ser fijo o variable.
+
+### Notificaciones
+
+- Para presupuestos de costo y de uso, puedes recibir avisos por el valor real o por el pronosticado.
+- Se envían a un correo electrónico, a un tema de Amazon SNS o a ambos.
+- Hay un retraso entre el uso de un recurso y su facturación, así que puedes superar el umbral antes de recibir el aviso. La información se actualiza hasta tres veces al día.
+
+### Acciones de presupuesto
+
+Al superar un umbral, una acción puede ejecutarse de forma automática o tras tu aprobación. Puede aplicar una política de IAM, por ejemplo una que deniegue crear más recursos de EC2, aplicar una política de control de servicios (SCP) o actuar sobre instancias concretas de Amazon EC2 o Amazon RDS. Desde la cuenta de administración puedes aplicar una SCP a otra cuenta, pero no actuar sobre sus instancias.
+
+### Varias cuentas
+
+La cuenta de administración puede crear un presupuesto que siga el costo de una cuenta miembro. Un presupuesto solo lo ven los usuarios con acceso a la cuenta que lo creó y al propio presupuesto.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Notifica con"
+    service="Amazon SNS"
+    description="Envía los avisos a un tema de SNS además de, o en lugar de, un correo."
+  />
+  <ConnectionCard
+    relation="Restringe recursos con"
+    service="IAM"
+    description="Una acción de presupuesto puede aplicar una política de IAM que impida aprovisionar más recursos."
+  />
+  <ConnectionCard
+    relation="Aplica barreras en cuentas con"
+    service="AWS Organizations"
+    description="Una acción puede aplicar una SCP a una cuenta para frenar nuevos aprovisionamientos."
+  />
+  <ConnectionCard
+    relation="Vigila el aprovechamiento de"
+    service="Savings Plans"
+    description="Los presupuestos de utilización y cobertura avisan si el compromiso no se aprovecha o no cubre tu uso."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="AWS Budgets cuando"
+    items={[
+      'Quieres un aviso antes o después de superar un gasto o un uso que fijaste.',
+      'Quieres frenar el aprovisionamiento de forma automática al llegar a un umbral.',
+      'Necesitas vigilar la utilización y la cobertura de tus RI o Savings Plans.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Quieres explorar el gasto pasado, ver tendencias o un pronóstico: AWS Cost Explorer.',
+      'Quieres detectar gastos inusuales sin fijar un umbral manual: AWS Cost Anomaly Detection.',
+      'Necesitas el detalle línea a línea para analizarlo con tus herramientas: el informe de costo y uso de AWS.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Administrar costos con AWS Budgets"
+  url="https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-managing-costs.html"
+/>
+<OfficialSource
+  title="Configurar acciones de presupuesto"
+  url="https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-controls.html"
+/>
+<OfficialSource
+  title="Detectar gastos inusuales con AWS Cost Anomaly Detection"
+  url="https://docs.aws.amazon.com/cost-management/latest/userguide/manage-ad.html"
+/>
