@@ -7,4 +7,97 @@ export const meta = {
   covers: ['4.3-s5'],
 };
 
-Contenido pendiente.
+AWS DMS (Database Migration Service) es un servicio en la nube para migrar bases de datos relacionales, almacenes de datos, bases de datos NoSQL y otros almacenes de datos. Sirve para llevar los datos a AWS o moverlos entre combinaciones de entornos locales y en la nube, al mismo motor de base de datos o a otro distinto.
+
+## Qué problema resuelve
+
+Migrar una base de datos a mano obliga a analizar capacidad, comprar hardware y software, instalarlo, probarlo y, a menudo, detener la aplicación mientras se copian los datos. DMS gestiona por ti el despliegue, la administración y la supervisión de la infraestructura de migración, y puede mantener origen y destino sincronizados mientras la aplicación sigue funcionando. Pagas solo mientras usas los recursos. El tema «Transferencia y migración de datos» lo compara con las demás opciones para mover datos.
+
+## Conceptos clave
+
+### Cómo funciona
+
+En esencia, DMS es un servidor en la nube que ejecuta software de replicación. Defines un **punto de enlace de origen** y uno de **destino**, y programas una **tarea** que mueve los datos. Uno de los dos puntos de enlace debe estar en un servicio de AWS: DMS no migra de una base de datos local a otra local. Si el servidor de replicación principal falla, uno de respaldo puede tomar el relevo con poca o ninguna interrupción.
+
+### Mismo motor o motor distinto
+
+- **Migración homogénea**: del mismo motor a su equivalente en AWS, por ejemplo de PostgreSQL local a Amazon RDS for PostgreSQL o Aurora PostgreSQL. DMS usa las herramientas nativas del motor, es sin servidor y escala los recursos solo. Migra datos, particiones, tipos de datos y objetos como funciones y procedimientos almacenados.
+- **Migración heterogénea**: a otro motor, por ejemplo de Oracle a PostgreSQL. Primero conviertes el esquema y luego migras los datos con DMS.
+
+### Conversión de esquemas
+
+**DMS Schema Conversion** evalúa el esquema de origen, indica qué se convierte de forma automática y qué requiere trabajo manual, y convierte el esquema y el código para un destino en Aurora, Amazon RDS o Amazon Redshift. Como alternativa, puedes instalar **AWS Schema Conversion Tool (AWS SCT)** en tu equipo. La conversión de esquemas no mueve datos: eso lo hace DMS después. Para preparar la migración, **DMS Fleet Advisor** inventaría los servidores, bases de datos y esquemas locales.
+
+### Carga completa y replicación continua (CDC)
+
+Puedes hacer una migración única (carga completa) o capturar los cambios continuos del origen, durante la carga o después, para mantener sincronizado el destino. Esta captura de datos de cambios (CDC) lee los registros de transacciones de la base de datos. No es replicación en tiempo real y su latencia no tiene SLA: puede llegar a varios minutos o más.
+
+### Destinos posibles
+
+Además de RDS y Aurora, DMS puede migrar a Amazon Redshift, a bases de datos NoSQL como Amazon DynamoDB o a almacenamiento como Amazon S3.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Migra bases de datos a"
+    service="Amazon RDS"
+    description="Lleva bases de datos al mismo motor administrado en RDS o, tras convertir el esquema, a otro motor."
+  />
+  <ConnectionCard
+    relation="Migra bases de datos a"
+    service="Amazon Aurora"
+    description="Por ejemplo, de PostgreSQL local a Aurora PostgreSQL con una migración homogénea."
+  />
+  <ConnectionCard
+    relation="Carga almacenes de datos en"
+    service="Amazon Redshift"
+    description="Schema Conversion adapta el esquema a Redshift y DMS migra después los datos."
+  />
+  <ConnectionCard
+    relation="Escribe datos en"
+    service="Amazon S3"
+    description="S3 puede ser el destino de una migración, por ejemplo para alimentar un lago de datos."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="AWS DMS cuando"
+    items={[
+      'Migras una base de datos a AWS con poca interrupción, manteniendo origen y destino sincronizados.',
+      'Cambias de motor: Schema Conversion o AWS SCT para el esquema, y DMS para los datos.',
+      'Mueves datos de una base de datos a Redshift, DynamoDB o S3.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Lo que mueves son archivos u objetos, no una base de datos: AWS DataSync.',
+      'Migras servidores completos con sus aplicaciones: AWS Application Migration Service.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Database Migration Service"
+  url="https://docs.aws.amazon.com/dms/latest/userguide/Welcome.html"
+/>
+<OfficialSource
+  title="Terminología y conceptos de AWS DMS"
+  url="https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Introduction.html"
+/>
+<OfficialSource
+  title="Convertir esquemas con DMS Schema Conversion"
+  url="https://docs.aws.amazon.com/dms/latest/userguide/CHAP_SchemaConversion.html"
+/>
+<OfficialSource
+  title="Tareas de replicación continua con AWS DMS"
+  url="https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Task.CDC.html"
+/>
