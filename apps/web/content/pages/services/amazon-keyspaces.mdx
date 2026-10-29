@@ -7,4 +7,79 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Amazon Keyspaces (para Apache Cassandra) es un servicio de base de datos administrado, escalable y de alta disponibilidad, compatible con Apache Cassandra, un almacén de datos de código abierto de columnas anchas diseñado para grandes volúmenes de datos. Es sin servidor: no aprovisionas ni parcheas servidores, no instalas software y pagas solo por los recursos que usas.
+
+## Qué problema resuelve
+
+Un despliegue de Cassandra en producción puede tener cientos de nodos repartidos en uno o varios centros de datos, y el equipo tiene que aprovisionarlos, parchearlos, añadirlos y quitarlos a medida que el clúster crece. Keyspaces elimina esa carga operativa: creas espacios de claves (keyspaces) y tablas desde la consola o con unas líneas de código, y sigues usando el mismo código de aplicación y las mismas herramientas de Cassandra. Las tablas escalan solas según el tráfico.
+
+## Conceptos clave
+
+- **Compatibilidad con Cassandra**: las aplicaciones se conectan a un punto de enlace del servicio y envían sentencias en Cassandra Query Language (CQL), con los controladores de código abierto de Cassandra.
+- **Diseño orientado a las consultas**: aunque CQL se parece a SQL, no tiene uniones (JOIN). Cada tabla se diseña según cómo se van a consultar los datos, lo que puede implicar desnormalizar y duplicar datos. Un mal modelo de datos degrada mucho el rendimiento.
+- **Modos de capacidad**: bajo demanda (el predeterminado), en el que pagas por las lecturas y escrituras que haces y que conviene con tráfico impredecible; y aprovisionado, en el que indicas las lecturas y escrituras por segundo previstas y puedes activar el escalado automático, para tráfico predecible. Puedes cambiar de modo una vez al día.
+- **Durabilidad y disponibilidad**: guarda tres copias de los datos en varias zonas de disponibilidad.
+- **Seguridad**: el cifrado en reposo se activa automáticamente al crear una tabla, todas las conexiones de cliente exigen TLS, y el acceso se controla con IAM y puntos de enlace de VPC.
+- **Casos de uso**: aplicaciones que procesan datos a gran velocidad con latencia de milisegundos de un solo dígito, como mantenimiento de equipos industriales, supervisión de operaciones comerciales, gestión de flotas u optimización de rutas, y la migración de cargas de Cassandra a la nube.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Controla el acceso con"
+    service="AWS IAM"
+    description="IAM forma parte de las funciones de seguridad del servicio para decidir quién puede usar sus recursos."
+  />
+  <ConnectionCard
+    relation="Se accede de forma privada con"
+    service="AWS PrivateLink"
+    description="Los puntos de enlace de VPC de interfaz comunican tu VPC con Keyspaces sin puerta de enlace de internet, NAT ni VPN."
+  />
+  <ConnectionCard
+    relation="Se supervisa con"
+    service="Amazon CloudWatch"
+    description="Las métricas de CloudWatch ayudan a estimar el consumo de capacidad de las tablas."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+El tema «Elegir base de datos: tipo y motor» compara todos los modelos de datos. Desde la vista del servicio:
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Keyspaces cuando"
+    items={[
+      'Migras o ejecutas cargas de Apache Cassandra y quieres conservar el código CQL y los controladores.',
+      'Necesitas procesar datos a gran velocidad con latencia de milisegundos y sin administrar nodos.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'No dependes de Cassandra y buscas una base clave-valor sin servidor nativa de AWS: Amazon DynamoDB.',
+      'Necesitas uniones y transacciones SQL sobre datos relacionales: Amazon Aurora o Amazon RDS.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon Keyspaces"
+  url="https://docs.aws.amazon.com/keyspaces/latest/devguide/what-is-keyspaces.html"
+/>
+<OfficialSource
+  title="Cómo funciona Amazon Keyspaces"
+  url="https://docs.aws.amazon.com/keyspaces/latest/devguide/how-it-works.html"
+/>
+<OfficialSource
+  title="Amazon Keyspaces con puntos de enlace de VPC de interfaz"
+  url="https://docs.aws.amazon.com/keyspaces/latest/devguide/vpc-endpoints.html"
+/>
+<OfficialSource
+  title="Casos de uso de Amazon Keyspaces"
+  url="https://docs.aws.amazon.com/keyspaces/latest/devguide/use-cases.html"
+/>
