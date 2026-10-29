@@ -7,4 +7,85 @@ export const meta = {
   covers: ['3.5-k1'],
 };
 
-Contenido pendiente.
+Amazon Athena es un servicio de consultas interactivas que analiza datos directamente en Amazon S3 con SQL estándar. Es sin servidor: no hay clústeres ni infraestructura que configurar, pagas solo por las consultas que ejecutas y el servicio escala por su cuenta ejecutando las consultas en paralelo. También permite ejecutar análisis interactivos con Apache Spark sin planificar ni administrar recursos.
+
+## Qué problema resuelve
+
+Muchas veces los datos ya están en S3, por ejemplo registros web o archivos exportados, y solo necesitas hacerles preguntas. Cargarlos antes en una base de datos o levantar un clúster para una consulta puntual es lento y caro. Con Athena defines una tabla sobre los datos y empiezas a consultar con SQL, sin moverlos ni darles formato. Es la forma más sencilla que ofrece AWS para hacer consultas ad hoc sobre S3.
+
+## Conceptos clave
+
+- **Datos de cualquier estructura**: consulta datos estructurados, semiestructurados y no estructurados, como CSV, JSON, Apache Parquet o Apache ORC, sin agregarlos ni cargarlos en Athena.
+- **Catálogo compartido**: usa el AWS Glue Data Catalog como almacén persistente de metadatos. Las tablas quedan disponibles en toda la cuenta y se integran con las funciones de ETL y descubrimiento de AWS Glue. El catálogo es compatible con el metastore de Hive, así que puedes consultar datos que procesa Amazon EMR.
+- **Costo según los datos leídos**: particionar los datos y guardarlos en formatos columnares reduce lo que lee cada consulta, y con ello el costo y el tiempo. El tema «Análisis y visualización» lo explica en detalle.
+- **Consultas federadas**: con Athena Federated Query consultas en su lugar datos que no están en S3, como bases de datos relacionales o no relacionales, mediante conectores de orígenes de datos. Algunos conectores usan una función de AWS Lambda en tu cuenta.
+- **Grupos de trabajo (workgroups)**: separan cargas, por ejemplo informes programados frente a consultas de analistas. Son recursos de IAM, así que controlas quién consulta en cada uno, y pueden imponer la ubicación y el cifrado de los resultados. Admiten límites de datos leídos por consulta, que cancelan la consulta que los supera, y por grupo de trabajo, que pueden avisar mediante Amazon SNS.
+- **Resultados en S3**: Athena guarda los resultados de cada consulta en una ubicación de S3 que tú indicas, o en resultados administrados por el servicio.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Consulta datos en"
+    service="Amazon S3"
+    description="Lee los datos directamente en los buckets y guarda allí los resultados de las consultas."
+  />
+  <ConnectionCard
+    relation="Lee metadatos de"
+    service="AWS Glue"
+    description="El Data Catalog define el esquema y la ubicación de las tablas que consulta Athena."
+  />
+  <ConnectionCard
+    relation="Aplica permisos de"
+    service="AWS Lake Formation"
+    description="Lake Formation limita qué columnas, filas o celdas devuelve cada consulta."
+  />
+  <ConnectionCard
+    relation="Se visualiza con"
+    service="Amazon Quick"
+    description="Athena se integra con Amazon Quick para crear informes y paneles a partir de las consultas."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Athena cuando"
+    items={[
+      'Quieres consultas SQL ad hoc sobre datos que ya están en S3.',
+      'No quieres administrar servidores ni clústeres.',
+      'Prefieres pagar solo por las consultas que ejecutas.',
+      'Necesitas consultar un origen fuera de S3 sin moverlo: consultas federadas.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Reúnes datos de muchos orígenes para informes complejos sobre historial, con uniones de tablas muy grandes: Amazon Redshift.',
+      'Procesas conjuntos de datos enormes con código propio y control del clúster: Amazon EMR.',
+      'Necesitas un trabajo de ETL programado para preparar los datos: AWS Glue.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon Athena"
+  url="https://docs.aws.amazon.com/athena/latest/ug/what-is.html"
+/>
+<OfficialSource
+  title="Cuándo usar Athena"
+  url="https://docs.aws.amazon.com/athena/latest/ug/when-should-i-use-ate.html"
+/>
+<OfficialSource
+  title="Amazon Athena Federated Query"
+  url="https://docs.aws.amazon.com/athena/latest/ug/federated-queries.html"
+/>
+<OfficialSource
+  title="Grupos de trabajo para controlar el acceso y los costos"
+  url="https://docs.aws.amazon.com/athena/latest/ug/workgroups-manage-queries-control-costs.html"
+/>
