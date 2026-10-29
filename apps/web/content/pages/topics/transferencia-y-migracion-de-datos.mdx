@@ -17,4 +17,168 @@ export const meta = {
   ],
 };
 
-Contenido pendiente.
+Llevar datos a AWS, ya sea una vez o de forma continua, es una de las decisiones de diseño más frecuentes en el examen. Hay servicios para copiar archivos y objetos por la red (AWS DataSync), para dar acceso híbrido a almacenamiento en la nube (AWS Storage Gateway), para mantener flujos de trabajo SFTP o FTP (AWS Transfer Family), para mover datos físicamente (AWS Snow Family) y para migrar bases de datos al mismo motor o a otro distinto (AWS DMS). Elegir bien depende del tipo de datos, el volumen, el plazo y el costo.
+
+## Qué problema resuelve
+
+Mover datos entre tu centro de datos y AWS plantea varias preguntas. Si son archivos, objetos o una base de datos en uso. Si la transferencia es única o recurrente. Si la red disponible permite moverlos en el plazo necesario. Y si las aplicaciones o los socios deben seguir trabajando igual que antes. Usar el servicio equivocado puede alargar una migración, obligar a escribir scripts propios o generar cargos de transferencia innecesarios.
+
+## Conceptos clave
+
+### AWS DataSync
+
+DataSync es un servicio de transferencia de archivos y objetos seguro, fiable y de alta velocidad hacia, desde y entre servicios de almacenamiento de AWS.
+
+- **Orígenes y destinos**: en local trabaja con NFS, SMB, HDFS y almacenamiento de objetos; en AWS, con Amazon S3, Amazon EFS y los sistemas de Amazon FSx; también con almacenamiento de otras nubes.
+- **Casos de uso**: migrar conjuntos de datos activos por la red, archivar datos fríos directamente en clases como S3 Glacier Flexible Retrieval o S3 Glacier Deep Archive, replicar datos y transferirlos para procesarlos en la nube.
+- **Velocidad**: usa un protocolo de red propio y una arquitectura paralela y multihilo para acelerar las transferencias.
+- **Seguridad**: cifra los datos, valida su integridad, accede a tu almacenamiento con roles de IAM y admite puntos de enlace de VPC para no atravesar la internet pública.
+- **Automatización**: automatiza tanto la gestión del proceso de transferencia como la infraestructura necesaria para transferir con alto rendimiento y de forma segura.
+
+### AWS Storage Gateway
+
+Storage Gateway conecta tu entorno local con almacenamiento en AWS. Se despliega en local como máquina virtual o dispositivo físico, o en EC2. Tiene varios tipos:
+
+- **Amazon S3 File Gateway**: ofrece una interfaz de archivos sobre S3 con NFS y SMB. Los objetos quedan en S3, accesibles desde cualquier servicio de AWS, y una caché local da acceso de baja latencia. Administra la transferencia, protege a las aplicaciones de la congestión de red y controla el uso del ancho de banda.
+- **Amazon FSx File Gateway**: da acceso desde local a recursos compartidos de Amazon FSx for Windows File Server.
+- **Tape Gateway**: una solución basada en cintas virtuales para archivar datos en la nube.
+- **Volume Gateway**: volúmenes con arquitectura en caché o almacenada.
+
+DataSync sirve para mover los datos; Storage Gateway, para que las aplicaciones locales sigan accediendo con protocolos de archivos, volúmenes o cintas mientras el almacenamiento está en AWS.
+
+### AWS Transfer Family
+
+Transfer Family ofrece servidores totalmente administrados para transferir archivos con SFTP, FTPS, FTP y AS2, además de aplicaciones web en el navegador, directamente hacia y desde S3 o EFS. Su ventaja es que conserva la configuración de autenticación, acceso y cortafuegos de los clientes: tus socios y equipos siguen usando sus herramientas sin cambios. Sirve, por ejemplo, para que terceros suban datos a un lago de datos en S3 o para intercambios entre empresas (B2B).
+
+### AWS Snow Family
+
+Los dispositivos Snowball Edge tienen almacenamiento y cómputo propios y transportan los datos por mensajería, sin usar internet, a velocidades mayores que la red. El cifrado es obligatorio en reposo y durante el transporte físico. Ten en cuenta que, según la documentación actual, Snowball Edge ya no está disponible para clientes nuevos, y AWS recomienda explorar DataSync para las transferencias en línea.
+
+### Migrar bases de datos con AWS DMS
+
+AWS DMS migra bases de datos relacionales, almacenes de datos, bases de datos NoSQL y otros almacenes de datos, hacia AWS o entre entornos en la nube y locales. Puede hacer migraciones únicas o replicar los cambios continuos para mantener sincronizados el origen y el destino. Se paga por uso y ofrece conmutación por error automática a un servidor de replicación de respaldo.
+
+- **Migración homogénea (mismo motor)**: por ejemplo, de PostgreSQL local a Amazon RDS for PostgreSQL o Aurora PostgreSQL. DMS usa las herramientas nativas del motor, es sin servidor y escala los recursos automáticamente. Migra datos, particiones, tipos de datos y objetos secundarios como funciones y procedimientos almacenados.
+- **Migración heterogénea (otro motor)**: primero conviertes el esquema con DMS Schema Conversion, que evalúa el origen, genera un informe de lo que se convierte de forma automática y de lo que requiere trabajo manual, y convierte tablas, vistas, procedimientos y funciones para Aurora, Amazon RDS o Amazon Redshift. También existe AWS Schema Conversion Tool (AWS SCT) para instalar en tu equipo. Schema Conversion convierte el esquema, no los datos: los datos se migran después con DMS.
+- **Captura de datos de cambios (CDC)**: DMS puede capturar los cambios continuos del origen durante la carga completa o después, leyendo los registros de la base de datos. No es replicación en tiempo real y su latencia no tiene SLA: puede llegar a varios minutos según la carga y la red.
+- **Destinos de almacenamiento**: DMS puede migrar a Amazon S3 desde cualquiera de sus orígenes compatibles. Por defecto escribe en CSV, y puedes elegir Parquet para un almacenamiento más compacto y consultas más rápidas.
+
+### Tamaño, velocidad y costo de la transferencia
+
+- **Costo de transferencia**: según la guía de precios de AWS, en la mayoría de los casos no se cobra la transferencia de datos entrante ni la transferencia entre servicios dentro de la misma región, aunque hay excepciones; la transferencia saliente sí se cobra. Comprueba siempre las tarifas de cada servicio.
+- **Direct Connect**: une tu red con AWS por una conexión dedicada que evita a los proveedores de internet. Las conexiones dedicadas tienen puertos de 1, 10, 100 o 400 Gbps, y se factura por horas de puerto y por datos salientes.
+- **S3 Transfer Acceleration**: acelera las transferencias a largas distancias hacia un bucket aprovechando las ubicaciones de borde de CloudFront. Conviene cuando hay usuarios de todo el mundo que suben a un bucket central, cuando transfieres de gigabytes a terabytes con regularidad entre continentes o cuando no aprovechas todo tu ancho de banda. Puede tener cargos adicionales.
+- **Carga multiparte de S3**: divide un objeto en partes que se suben en paralelo e independientes, lo que mejora el rendimiento y permite reintentar solo la parte que falla. Es una práctica recomendada para objetos de 100 MB o más.
+- **Por red o físicamente**: DataSync o Direct Connect mueven los datos por la red. Los dispositivos Snowball Edge permitían transportarlos sin usar internet, pero hoy ya no se ofrecen a clientes nuevos.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Copia datos a"
+    service="Amazon S3"
+    description="DataSync, Transfer Family, S3 File Gateway y DMS dejan los datos en buckets de S3."
+  />
+  <ConnectionCard
+    relation="Transfiere por"
+    service="AWS Direct Connect"
+    description="Una conexión dedicada que evita internet y factura por horas de puerto y datos salientes."
+  />
+  <ConnectionCard
+    relation="Migra bases de datos a"
+    service="Amazon Aurora"
+    description="DMS migra al mismo motor o, tras Schema Conversion, a otro motor en Aurora, RDS o Redshift."
+  />
+  <ConnectionCard
+    relation="Guarda credenciales en"
+    service="AWS Secrets Manager"
+    description="Los proyectos de DMS Schema Conversion usan secretos para las credenciales de las bases de datos."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="DataSync cuando"
+    items={[
+      'Migras o replicas archivos u objetos por la red hacia S3, EFS o FSx.',
+      'Necesitas transferencias rápidas, cifradas y con validación de integridad.',
+      'Quieres archivar datos fríos directamente en S3 Glacier.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Las aplicaciones locales deben seguir usando NFS, SMB, volúmenes o cintas: Storage Gateway.',
+      'Socios o clientes envían archivos por SFTP, FTPS, FTP o AS2: Transfer Family.',
+      'Migras una base de datos al mismo motor o a otro: AWS DMS, con Schema Conversion si cambia el motor.',
+      'Usuarios lejanos suben a un bucket central: S3 Transfer Acceleration.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS DataSync"
+  url="https://docs.aws.amazon.com/datasync/latest/userguide/what-is-datasync.html"
+/>
+<OfficialSource
+  title="Documentación de AWS Storage Gateway por tipo de gateway"
+  url="https://docs.aws.amazon.com/storagegateway/latest/userguide/WhatIsStorageGateway.html"
+/>
+<OfficialSource
+  title="Qué es Amazon S3 File Gateway"
+  url="https://docs.aws.amazon.com/filegateway/latest/files3/what-is-file-s3.html"
+/>
+<OfficialSource
+  title="Qué es AWS Transfer Family"
+  url="https://docs.aws.amazon.com/transfer/latest/userguide/what-is-aws-transfer-family.html"
+/>
+<OfficialSource
+  title="Qué es Snowball Edge"
+  url="https://docs.aws.amazon.com/snowball/latest/developer-guide/whatisedge.html"
+/>
+<OfficialSource
+  title="Qué es AWS Database Migration Service"
+  url="https://docs.aws.amazon.com/dms/latest/userguide/Welcome.html"
+/>
+<OfficialSource
+  title="Migraciones homogéneas con AWS DMS"
+  url="https://docs.aws.amazon.com/dms/latest/userguide/data-migrations.html"
+/>
+<OfficialSource
+  title="Convertir esquemas con DMS Schema Conversion"
+  url="https://docs.aws.amazon.com/dms/latest/userguide/CHAP_SchemaConversion.html"
+/>
+<OfficialSource
+  title="Tareas de replicación continua con AWS DMS"
+  url="https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Task.CDC.html"
+/>
+<OfficialSource
+  title="Amazon S3 como destino de AWS DMS"
+  url="https://docs.aws.amazon.com/dms/latest/userguide/CHAP_Target.S3.html"
+/>
+<OfficialSource
+  title="Qué es AWS Direct Connect"
+  url="https://docs.aws.amazon.com/directconnect/latest/UserGuide/Welcome.html"
+/>
+<OfficialSource
+  title="Conexiones dedicadas de Direct Connect"
+  url="https://docs.aws.amazon.com/directconnect/latest/UserGuide/dedicated_connection.html"
+/>
+<OfficialSource
+  title="Amazon S3 Transfer Acceleration"
+  url="https://docs.aws.amazon.com/AmazonS3/latest/userguide/transfer-acceleration.html"
+/>
+<OfficialSource
+  title="Carga multiparte en Amazon S3"
+  url="https://docs.aws.amazon.com/AmazonS3/latest/userguide/mpuoverview.html"
+/>
+<OfficialSource
+  title="Principios clave de los precios de AWS"
+  url="https://docs.aws.amazon.com/whitepapers/latest/how-aws-pricing-works/key-principles.html"
+/>
