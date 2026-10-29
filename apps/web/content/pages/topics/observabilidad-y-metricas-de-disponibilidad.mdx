@@ -7,4 +7,123 @@ export const meta = {
   covers: ['2.2-k12', '2.2-s3'],
 };
 
-Contenido pendiente.
+No puedes mantener disponible lo que no ves. La observabilidad reúne métricas, registros y trazas para saber cómo se comporta cada parte de la carga de trabajo, y las métricas de disponibilidad traducen los requisitos del negocio en objetivos medibles que indican si la solución cumple lo prometido.
+
+## Qué problema resuelve
+
+En una aplicación con muchos componentes, una solicitud puede atravesar el front-end, varios servicios y bases de datos. Cuando algo se vuelve lento o falla, sin visibilidad no sabes dónde está el problema ni si los usuarios ya lo notan. Además, una métrica técnica como el uso de CPU puede parecer normal mientras el negocio deja de procesar pedidos. Definir métricas ligadas a los objetivos del negocio, vigilarlas con alarmas y rastrear las solicitudes de extremo a extremo permite detectar la degradación a tiempo y ubicar su causa.
+
+## Conceptos clave
+
+### Disponibilidad como métrica
+
+La disponibilidad es el porcentaje de tiempo en que una carga de trabajo está disponible para usarse, es decir, cumple su función acordada cuando se necesita. Se mide en un periodo, como un mes o un año, y se suele expresar en "nueves": cinco nueves es 99,999 %. AWS no recomienda excluir el mantenimiento programado del cálculo, porque los usuarios pueden querer usar el servicio en ese momento. Como referencia, estos objetivos permiten como máximo esta indisponibilidad al año:
+
+- **99 %**: unos 3 días y 15 horas; por ejemplo, procesos por lotes y trabajos de extracción y carga de datos.
+- **99,9 %**: unas 8 horas y 45 minutos; herramientas internas.
+- **99,95 %**: unas 4 horas y 22 minutos; comercio en línea y puntos de venta.
+- **99,99 %**: unos 52 minutos; entrega de video y transmisiones.
+- **99,999 %**: unos 5 minutos; cajeros automáticos y telecomunicaciones.
+
+Otras formas de medir y estimar:
+
+- **Por solicitudes**: a veces es más fácil contar solicitudes exitosas y fallidas que tiempo disponible. Se mide en periodos de uno o cinco minutos y se promedia para obtener el porcentaje mensual.
+- **Dependencias fuertes**: si un sistema depende directamente de otros, su disponibilidad es el producto de las disponibilidades. Tres sistemas de 99,99 % encadenados dan en teoría 99,97 %.
+- **Componentes redundantes**: con componentes independientes y redundantes, por ejemplo en distintas zonas de disponibilidad, la disponibilidad es 100 % menos el producto de sus tasas de fallo. Dos componentes de 99,9 % dan 99,9999 %.
+- **MTBF y MTTR**: cuando un componente no publica su disponibilidad, puedes estimarla con el tiempo medio entre fallos y el tiempo medio de recuperación.
+
+### Métricas según los requisitos del negocio
+
+AWS recomienda supervisar todos los componentes de la carga de trabajo, del front-end a la lógica de negocio y el almacenamiento, y definir métricas clave relacionadas con los indicadores clave de rendimiento (KPI). Una métrica de negocio, como el número de pedidos procesados con éxito por minuto, puede revelar un problema antes que una métrica técnica como el uso de CPU.
+
+- **Umbrales y alarmas**: define para cada métrica un umbral que active una alarma.
+- **Detección de anomalías**: Amazon CloudWatch aplica algoritmos estadísticos y de aprendizaje automático para establecer la línea base normal de una métrica y señalar anomalías, teniendo en cuenta la estacionalidad y las tendencias.
+- **Transacciones sintéticas**: supervisa los puntos de enlace externos con tareas cortas que imitan lo que hacen los clientes, sin sobrecargar la carga de trabajo. CloudWatch Synthetics ejecuta estos scripts, llamados canaries, para avisar de problemas de disponibilidad antes de que afecten a los usuarios reales.
+- **Objetivos de nivel de servicio (SLO)**: en CloudWatch puedes definir objetivos de fiabilidad, vigilar su cumplimiento y alertar sobre ellos, con presupuestos de error.
+- **Estado de AWS**: AWS Health Dashboard da una vista personalizada del rendimiento y la disponibilidad de los servicios de AWS en los que se apoyan tus recursos.
+
+### Amazon CloudWatch
+
+CloudWatch supervisa en tiempo real tus recursos de AWS y las aplicaciones que ejecutas en AWS.
+
+- **Métricas**: muchos servicios de AWS envían métricas de forma automática, y puedes publicar métricas personalizadas.
+- **Alarmas**: vigilan las métricas contra umbrales definidos, avisan cuando se superan y pueden lanzar acciones automáticas.
+- **Paneles**: muestran en un solo lugar métricas y registros, y se pueden compartir entre cuentas y regiones.
+- **Registros**: recopila, almacena y consulta registros. El agente de CloudWatch reúne métricas, registros y trazas de flotas de Amazon EC2.
+- **Application Signals**: detecta y vigila indicadores como latencia, tasa de errores y tasa de solicitudes sin cambiar el código.
+
+### AWS X-Ray
+
+AWS X-Ray recopila datos sobre las solicitudes que atiende tu aplicación y te da herramientas para verlos, filtrarlos y analizarlos. Para cada solicitud rastreada ves no solo la solicitud y la respuesta, sino también las llamadas a recursos de AWS, microservicios, bases de datos y API web.
+
+- **Instrumentación**: la aplicación envía datos de rastreo de las solicitudes entrantes y salientes con metadatos. En muchos casos basta con cambiar la configuración, y existen SDK, agentes y herramientas para hacerlo.
+- **Servicios integrados**: algunos servicios de AWS, como AWS Lambda, pueden enviar datos de rastreo a X-Ray.
+- **Daemon de X-Ray**: los SDK envían los segmentos a un proceso local que los acumula y los sube en lotes a X-Ray.
+- **Mapa de rastreo**: muestra el cliente, el servicio de front-end y los servicios de backend a los que llama. Sirve para encontrar cuellos de botella, picos de latencia y otros problemas.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Rastrea solicitudes con"
+    service="AWS X-Ray"
+    description="Sigue cada solicitud por los servicios, bases de datos y API que atraviesa y genera un mapa de rastreo."
+  />
+  <ConnectionCard
+    relation="Mide y alerta con"
+    service="Amazon CloudWatch"
+    description="Reúne métricas y registros, dispara alarmas, detecta anomalías y vigila los objetivos de nivel de servicio."
+  />
+  <ConnectionCard
+    relation="Envía trazas desde"
+    service="AWS Lambda"
+    description="Puede enviar datos de rastreo a X-Ray sobre las solicitudes a tus funciones."
+  />
+  <ConnectionCard
+    relation="Conoce el estado de AWS con"
+    service="AWS Health Dashboard"
+    description="Muestra el rendimiento y la disponibilidad de los servicios de AWS que usan tus recursos."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="AWS X-Ray cuando"
+    items={[
+      'Necesitas seguir una solicitud a través de varios servicios.',
+      'Quieres ubicar cuellos de botella y picos de latencia.',
+      'Tienes microservicios o funciones de Lambda que llaman a otros recursos.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="CloudWatch cuando"
+    items={[
+      'Debes alertar sobre una métrica de negocio o técnica que cruza un umbral.',
+      'Quieres comprobar la disponibilidad desde fuera con canaries de CloudWatch Synthetics.',
+      'Necesitas definir y vigilar objetivos de nivel de servicio.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Disponibilidad (pilar de fiabilidad)"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/reliability-pillar/availability.html"
+/>
+<OfficialSource
+  title="Supervisar todos los componentes de la carga de trabajo (REL06-BP01)"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/reliability-pillar/rel_monitor_aws_resources_monitor_resources.html"
+/>
+<OfficialSource
+  title="Qué es Amazon CloudWatch"
+  url="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/WhatIsCloudWatch.html"
+/>
+<OfficialSource
+  title="Qué es AWS X-Ray"
+  url="https://docs.aws.amazon.com/xray/latest/devguide/aws-xray.html"
+/>
