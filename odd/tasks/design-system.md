@@ -37,9 +37,10 @@ TopBar desktop 1440 (pad 20/80, brand Literata 20/600 + SAA-C03 tag, nav Ruta/Se
 - [x] T3 (S1,S5) Glossary: Abbr card + BottomSheet (static)
 - [x] T4 (S1,S4) Navigation: TopBar desktop/mobile, BottomBar mobile
 - [x] T5 (S3,S4) App shell and routes: sidebar 240 / column 680 / TOC 220, route for each real page
-- [ ] T6 (S3) Screens: Inicio, Mapa del examen, Página de lectura, Glosario, Búsqueda (layout only)
+- [x] T6 (S3) Screens: Inicio, Mapa del examen, Lectura, Glosario done. Búsqueda (command palette) moves to phase 3: it needs page summaries and a full-text index. BottomBar mobile and the mark-as-read button also move to phase 3
 
 ## Log
 
 - L1: "ya abrí docker desktop..." / "ok continua, este es el repo ... todo a main siempre, no armes prs"
 - L2: "si" (start phase 2: design system and layout)
+- L3: "Glosario con datos reales ahora" and "Sí, instalarla" (Inter Tight)

@@ -164,6 +164,7 @@ src/
 - User-facing copy is Spanish (AWS service names stay in English). Content comes only from the official exam guide and docs.aws.amazon.com, explained in our own words.
 - Every page is `apps/web/content/pages/<kind>/<id>.mdx` and exports `meta` (validated by `pageMetaSchema`). Page bodies currently say "Contenido pendiente."
 - No exam topic may be left out: every bullet in `content/exam-guide.json` must be in some page's `covers`, and every in-scope service needs a service page. The test `src/features/content/tests/integration/content-coverage.test.ts` enforces this.
+- The glossary lives in `apps/web/content/glossary.json` (schema `glossaryEntrySchema`). Every entry cites a `docs.aws.amazon.com` source whose page must contain the English expansion. The guide's out-of-scope services (for example AWS CDK, Amazon MWAA, AWS FIS, Amazon IVS, DLAMI) are not exam topics and must not be added.
 - No mocked data: use the real content and the real API with a real Postgres.
 
 **Commands** (run from the repository root)
