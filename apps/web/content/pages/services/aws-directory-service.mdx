@@ -7,4 +7,87 @@ export const meta = {
   covers: ['1.1-s6'],
 };
 
-Contenido pendiente.
+AWS Directory Service ofrece varias formas de usar Microsoft Active Directory (AD) con otros servicios de AWS. Un directorio guarda información de usuarios, grupos y dispositivos, y sirve para administrar el acceso a la información y a los recursos. El servicio sirve tanto a quien ya tiene un Active Directory o aplicaciones compatibles con LDAP como a quien necesita un directorio nuevo en la nube.
+
+## Qué problema resuelve
+
+Muchas empresas ya administran a sus personas en un Active Directory local y tienen aplicaciones que dependen de él. Llevar esas cargas a AWS o dar acceso a la consola sin duplicar identidades exige un directorio en la nube o un puente hacia el directorio existente. Directory Service te da las dos opciones como servicio administrado. Cuándo federar y con qué servicio se explica en detalle en el tema de federación de identidades y servicios de directorio; aquí ves cada tipo de directorio.
+
+## Conceptos clave
+
+### Tres tipos de directorio
+
+- **AWS Managed Microsoft AD**: un Active Directory real de Windows Server, administrado por AWS. Crea un par de controladores de dominio de alta disponibilidad en tu VPC, en distintas zonas de disponibilidad, y AWS se encarga de la supervisión, la recuperación, la replicación, las instantáneas y las actualizaciones. Admite relaciones de confianza con tu AD existente, MFA, LDAP seguro y cargas como SharePoint, SQL Server y Amazon RDS for SQL Server.
+- **AD Connector**: una puerta de enlace que redirige las solicitudes de directorio a tu AD local sin guardar información en la nube. No sincroniza directorios ni requiere una infraestructura de federación propia. Sigues administrando usuarios y contraseñas en tu AD local; no es compatible con RDS SQL Server.
+- **Simple AD**: un directorio independiente compatible con Active Directory, con tecnología de Samba 4, para funciones básicas como cuentas de usuario, grupos, unión de instancias al dominio y SSO con Kerberos. No admite MFA ni relaciones de confianza.
+
+### Federar el directorio con roles de IAM
+
+Por defecto, los miembros del directorio no tienen acceso a ningún recurso de AWS. Para darles acceso a la consola de administración asignas roles de IAM a usuarios o grupos del directorio, y el rol define qué servicios, recursos y nivel de acceso tienen. AD Connector también permite que los usuarios entren a la consola con sus credenciales actuales de AD. Federa así cuando tus identidades ya viven en un Active Directory y no quieres crear usuarios de IAM. Si además administras varias cuentas, conecta el directorio como origen de identidades de IAM Identity Center; junto con AWS Managed Microsoft AD, Identity Center añade credenciales de corto plazo para el SDK y la CLI, e inicio de sesión en aplicaciones en la nube mediante integraciones SAML.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Da acceso a AWS mediante"
+    service="AWS IAM"
+    description="Asignas roles de IAM a usuarios y grupos del directorio para definir a qué servicios y recursos pueden acceder."
+  />
+  <ConnectionCard
+    relation="Es origen de identidades de"
+    service="AWS IAM Identity Center"
+    description="Con Managed Microsoft AD, Identity Center añade credenciales de corto plazo para el SDK y la CLI, e inicio de sesión en aplicaciones con SAML."
+  />
+  <ConnectionCard
+    relation="Autentica cargas de"
+    service="Amazon RDS"
+    description="Managed Microsoft AD admite Amazon RDS for SQL Server; AD Connector y Simple AD no son compatibles con RDS SQL Server."
+  />
+  <ConnectionCard
+    relation="Une al dominio instancias de"
+    service="Amazon EC2"
+    description="Las instancias de EC2 se pueden unir al directorio para que los usuarios tengan inicio de sesión único en sus cargas de Windows."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="AWS Managed Microsoft AD cuando"
+    items={[
+      'Necesitas funciones reales de Active Directory para cargas de Windows o RDS for SQL Server.',
+      'Quieres una relación de confianza con tu AD local.',
+      'Necesitas un directorio LDAP para aplicaciones de Linux.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Solo quieres usar tu AD local con servicios compatibles, sin sincronizar: AD Connector.',
+      'Necesitas un directorio básico e independiente en la nube: Simple AD.',
+      'Son usuarios de una aplicación web o móvil, no de tu empresa: Amazon Cognito.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Directory Service"
+  url="https://docs.aws.amazon.com/directoryservice/latest/admin-guide/what_is.html"
+/>
+<OfficialSource
+  title="AWS Managed Microsoft AD"
+  url="https://docs.aws.amazon.com/directoryservice/latest/admin-guide/directory_microsoft_ad.html"
+/>
+<OfficialSource
+  title="AD Connector"
+  url="https://docs.aws.amazon.com/directoryservice/latest/admin-guide/directory_ad_connector.html"
+/>
+<OfficialSource
+  title="Acceso a la consola de administración con credenciales de AWS Managed Microsoft AD"
+  url="https://docs.aws.amazon.com/directoryservice/latest/admin-guide/ms_ad_management_console_access.html"
+/>
