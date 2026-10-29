@@ -7,4 +7,155 @@ export const meta = {
   covers: ['2.1-k14', '2.1-k8', '2.1-s4', '3.2-k6'],
 };
 
-Contenido pendiente.
+Un contenedor empaqueta una aplicación junto con todas sus dependencias en una imagen que se ejecuta igual en cualquier entorno. En AWS la pregunta no es solo si conviene usar contenedores, sino también quién los orquesta (Amazon ECS o Amazon EKS), dónde se ejecutan (instancias EC2 o AWS Fargate) y cómo llevar hasta allí una aplicación existente.
+
+## Qué problema resuelve
+
+Desplegar una aplicación directamente en servidores obliga a reproducir a mano su entorno, sus bibliotecas y su configuración en cada máquina, y a escalarla instancia por instancia. Los contenedores ofrecen un entorno de ejecución reproducible que simplifica el empaquetado y la gestión de dependencias. Cuando hay muchos contenedores, un orquestador se encarga de programarlos, mantener el número deseado en ejecución y escalarlos según la demanda.
+
+## Conceptos clave
+
+### Ventajas de los contenedores
+
+La guía de decisión de AWS sobre servicios de contenedores destaca estas ventajas:
+
+- **Portabilidad**: el mismo entorno de ejecución funciona en cualquier plataforma que admita el motor de contenedores.
+- **Escalabilidad**: los contenedores son ligeros y fáciles de replicar, así que se escalan hacia arriba o hacia abajo según la demanda.
+- **Coherencia**: la aplicación se comporta igual en todos los entornos.
+- **Eficiencia**: usan menos recursos que las máquinas virtuales tradicionales.
+- **Aislamiento**: el aislamiento a nivel de proceso impide que aplicaciones de contenedores distintos interfieran entre sí.
+- **Agilidad**: empaquetar y desplegar rápido acorta el tiempo para llevar nuevas funciones al mercado.
+
+### Capas de los servicios de contenedores
+
+AWS organiza sus servicios de contenedores en capas:
+
+- **Capacidad**: dónde se ejecutan los contenedores. Instancias de Amazon EC2 que eliges y administras, AWS Fargate (sin servidor) o AWS Outposts en tu propio centro de datos.
+- **Orquestación**: programa y escala el entorno. Amazon ECS, Amazon EKS y Red Hat OpenShift Service on AWS (ROSA). AWS la recomienda cuando necesitas desplegar y administrar hasta miles de contenedores.
+- **Soluciones verticales**: servicios de más alto nivel, como AWS Batch, Amazon Lightsail o AWS Lambda (que admite imágenes de contenedor), pensados para equipos con poca experiencia en contenedores o infraestructura.
+- **Registro de imágenes**: Amazon ECR es un registro administrado de imágenes de contenedor, con repositorios privados controlados con IAM, análisis de vulnerabilidades al subir una imagen y replicación entre regiones y cuentas.
+
+### Amazon ECS
+
+Amazon ECS es un servicio de orquestación de contenedores totalmente administrado, con buenas prácticas de AWS integradas y sin un plano de control que tengas que gestionar.
+
+- **Definición de tarea**: el plano de la aplicación. Indica la capacidad, la imagen de contenedor, el modo de red, el registro y los volúmenes.
+- **Tarea**: una ejecución que realiza un trabajo y termina, como un proceso por lotes.
+- **Servicio**: una aplicación sin estado de larga duración; ECS mantiene el número deseado de tareas y puede escalarlo automáticamente.
+- **Capacidad**: instancias EC2 que eliges y administras, Amazon ECS Managed Instances (EC2 con la administración delegada en AWS), Fargate, o servidores locales registrados con Amazon ECS Anywhere.
+- AWS recomienda usar cada familia de definiciones de tarea para un solo propósito: si pones una web y una API en la misma definición, no puedes escalarlas por separado.
+
+### Amazon EKS
+
+Amazon EKS es un servicio de Kubernetes totalmente administrado. En el modo estándar, AWS administra el plano de control de Kubernetes; con EKS Auto Mode también administra los nodos (aprovisionamiento, elección de instancias, escalado y parches). También puede ejecutar Kubernetes en tus centros de datos con EKS Anywhere y EKS Hybrid Nodes.
+
+### AWS Fargate
+
+Fargate es un motor de cómputo sin servidor y de pago por uso para contenedores, compatible con ECS y EKS. No aprovisionas ni escalas máquinas virtuales, no eliges tipos de servidor ni optimizas cómo se empaquetan los contenedores en el clúster. Cada tarea de ECS o pod de EKS en Fargate tiene su propio límite de aislamiento y no comparte kernel, CPU, memoria ni interfaz de red con otro. Con ECS, Fargate Spot ejecuta tareas tolerantes a interrupciones con descuento, con un aviso de dos minutos antes de la interrupción.
+
+### Cuándo usar contenedores
+
+Según la guía de decisión de AWS, conviene evaluar:
+
+- **Sobrecarga operativa**: los servicios administrados liberan al equipo de tareas que no aportan valor diferencial.
+- **Características de la carga**: aplicaciones web, microservicios basados en API, aplicaciones basadas en eventos o canalizaciones de datos rinden o cuestan distinto según el entorno de cómputo.
+- **Portabilidad**: si necesitas poder mover la aplicación entre entornos o ejecutarla tanto en local como en la nube.
+- **Tamaño y habilidades del equipo**: operar Kubernetes exige invertir en equipos que gestionen los clústeres y sus actualizaciones frecuentes; Kubernetes publica tres versiones principales al año y retira las antiguas.
+
+Sobre la facilidad de despliegue, la guía indica que Amazon ECS es buena opción si quieres más control sobre la red y la seguridad sin renunciar a escala, y que Amazon EKS aporta la flexibilidad y el control de Kubernetes.
+
+### Cómo migrar una aplicación a contenedores
+
+Llevar una aplicación heredada a contenedores suele ser el punto de partida de su modernización. El proceso que automatizaba AWS App2Container muestra los pasos típicos:
+
+1. Inventariar las aplicaciones del servidor que son candidatas a contenedores.
+2. Analizar sus dependencias en tiempo de ejecución, como procesos que cooperan y puertos de red.
+3. Extraer los artefactos de la aplicación y generar un Dockerfile; no hace falta el código fuente.
+4. Construir la imagen y guardarla en Amazon ECR.
+5. Generar la definición de tarea de ECS o las plantillas de AWS CloudFormation para la red, la seguridad y el cómputo, y desplegar en ECS o EKS.
+6. Opcionalmente, crear una canalización de CI/CD con AWS CodePipeline para construir y desplegar los contenedores.
+
+App2Container dejó de aceptar nuevos clientes a partir del 7 de noviembre de 2025; para modernizar aplicaciones .NET, AWS propone AWS Transform. Los pasos siguen siendo una buena guía para cualquier migración. Además, AWS recomienda asociar cada versión del código con una etiqueta de imagen y una revisión de la definición de tarea, para saber en todo momento qué versión se está ejecutando.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Guarda las imágenes en"
+    service="Amazon ECR"
+    description="Registro administrado de imágenes con repositorios privados, análisis de vulnerabilidades y replicación entre regiones y cuentas."
+  />
+  <ConnectionCard
+    relation="Ejecuta sin servidores con"
+    service="AWS Fargate"
+    description="Aporta la capacidad de cómputo para tareas de ECS y pods de EKS sin administrar instancias."
+  />
+  <ConnectionCard
+    relation="Reparte el tráfico con"
+    service="Elastic Load Balancing"
+    description="Un balanceador de carga distribuye las solicitudes entre las tareas de un servicio de ECS."
+  />
+  <ConnectionCard
+    relation="Escala con"
+    service="Application Auto Scaling"
+    description="Ajusta automáticamente el número de tareas de un servicio de ECS según la demanda."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Contenedores cuando"
+    items={[
+      'Necesitas portabilidad y un entorno coherente entre desarrollo, pruebas y producción.',
+      'Quieres modernizar una aplicación heredada sin reescribirla.',
+      'Ejecutas muchos servicios que deben escalar de forma independiente.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Qué opción elegir"
+    items={[
+      'Orquestación administrada con integración nativa de AWS: Amazon ECS.',
+      'Ya usas Kubernetes o quieres su ecosistema y portabilidad: Amazon EKS.',
+      'No quieres administrar servidores para los contenedores: Fargate; si necesitas tipos de instancia concretos, como GPU: instancias EC2.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Elegir un servicio de contenedores de AWS"
+  url="https://docs.aws.amazon.com/decision-guides/latest/containers-on-aws-how-to-choose/choosing-aws-container-service.html"
+/>
+<OfficialSource
+  title="Qué es Amazon ECS"
+  url="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/Welcome.html"
+/>
+<OfficialSource
+  title="Diseñar la aplicación para Amazon ECS"
+  url="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/application_architecture.html"
+/>
+<OfficialSource
+  title="AWS Fargate para Amazon ECS"
+  url="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/AWS_Fargate.html"
+/>
+<OfficialSource
+  title="Qué es Amazon EKS"
+  url="https://docs.aws.amazon.com/eks/latest/userguide/what-is-eks.html"
+/>
+<OfficialSource
+  title="AWS Fargate con Amazon EKS"
+  url="https://docs.aws.amazon.com/eks/latest/userguide/fargate.html"
+/>
+<OfficialSource
+  title="Qué es Amazon ECR"
+  url="https://docs.aws.amazon.com/AmazonECR/latest/userguide/what-is-ecr.html"
+/>
+<OfficialSource
+  title="Qué es AWS App2Container"
+  url="https://docs.aws.amazon.com/app2container/latest/UserGuide/what-is-a2c.html"
+/>
