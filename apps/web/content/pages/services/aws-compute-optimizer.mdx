@@ -7,4 +7,90 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+AWS Compute Optimizer analiza la configuración y las métricas de uso de tus recursos para recomendar el tamaño adecuado (rightsizing) e identificar recursos inactivos. Indica si cada recurso está bien dimensionado y propone cambios para reducir costos y mejorar el rendimiento.
+
+## Qué problema resuelve
+
+Elegir el tamaño de una instancia o de un volumen al lanzarlo es casi siempre una estimación. Si te quedas corto, la aplicación rinde mal; si te pasas, pagas capacidad que no usas. Compute Optimizer revisa el uso real y te dice qué recursos conviene agrandar, reducir, detener o eliminar, con gráficas que muestran el uso reciente y el uso previsto con cada recomendación. Cómo elegir familias y tamaños de instancia se explica en el tema "Elegir instancias: familias, tipos y tamaños".
+
+## Conceptos clave
+
+### Qué recursos analiza
+
+Genera recomendaciones para instancias EC2, grupos de EC2 Auto Scaling, volúmenes de EBS, funciones de Lambda, servicios de Amazon ECS en AWS Fargate, bases de datos de Aurora y RDS, NAT Gateway, DynamoDB y otros servicios. Cada recurso debe cumplir unos requisitos y haber acumulado suficientes datos de métricas.
+
+### Cómo funciona
+
+- **Activación (opt in)**: hay que activarlo para que analice tus recursos. Si lo activas en la cuenta de administración de una organización, ves las recomendaciones de varias cuentas.
+- **Métricas de CloudWatch**: analiza las especificaciones y las métricas de uso de los últimos 14 días. Las métricas de infraestructura mejoradas, una función de pago, amplían ese periodo a 93 días.
+- **Memoria**: en EC2, el uso de memoria solo se analiza si la instancia tiene instalado el agente unificado de CloudWatch.
+- **Recomendaciones**: se actualizan a diario y muestran hasta tres opciones por recurso, con su riesgo de rendimiento y su precio.
+
+### Clasificación de los hallazgos
+
+- **Subaprovisionado**: al menos una especificación, como CPU, memoria o red, no cubre las necesidades de la carga y puede degradar el rendimiento.
+- **Sobreaprovisionado**: al menos una especificación se puede reducir sin dejar de cubrir la carga, lo que genera costos innecesarios.
+- **Optimizado**: todas las especificaciones cubren la carga sin sobrar; aun así puede sugerir un tipo de instancia de nueva generación.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Lee las métricas de"
+    service="Amazon CloudWatch"
+    description="Basa sus recomendaciones en las métricas de uso; con el agente de CloudWatch también analiza la memoria."
+  />
+  <ConnectionCard
+    relation="Recomienda tamaños para"
+    service="Amazon EC2"
+    description="Propone tipos de instancia y muestra el uso previsto de cada opción frente al actual."
+  />
+  <ConnectionCard
+    relation="Analiza también"
+    service="AWS Lambda"
+    description="Genera recomendaciones para las funciones de Lambda, además de para instancias y volúmenes."
+  />
+  <ConnectionCard
+    relation="Abarca varias cuentas con"
+    service="AWS Organizations"
+    description="Desde la cuenta de administración ves los hallazgos de las cuentas miembro."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Compute Optimizer cuando"
+    items={[
+      'Quieres saber si tus instancias, volúmenes o funciones están sobredimensionados o se quedan cortos.',
+      'Buscas recursos inactivos que puedas detener o eliminar.',
+      'Necesitas comparar el uso actual con el previsto antes de cambiar de tamaño.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'La demanda sube y baja a lo largo del día: escalado automático con Amazon EC2 Auto Scaling.',
+      'Quieres una revisión amplia de costos, seguridad y rendimiento con prácticas recomendadas: AWS Trusted Advisor.',
+      'Solo necesitas ver las métricas o alertar sobre ellas: Amazon CloudWatch.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Compute Optimizer"
+  url="https://docs.aws.amazon.com/compute-optimizer/latest/ug/what-is-compute-optimizer.html"
+/>
+<OfficialSource
+  title="Recomendaciones para instancias EC2"
+  url="https://docs.aws.amazon.com/compute-optimizer/latest/ug/view-ec2-recommendations.html"
+/>
+<OfficialSource
+  title="AWS Trusted Advisor"
+  url="https://docs.aws.amazon.com/awssupport/latest/user/trusted-advisor.html"
+/>
