@@ -7,4 +7,83 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+AWS Application Migration Service (MGN), que la documentación actual de AWS llama **AWS Transform MGN**, automatiza la migración de servidores físicos, virtuales y de otras nubes a AWS con un tiempo de inactividad mínimo. Replica los servidores de origen de forma continua y los convierte para que arranquen en AWS.
+
+## Qué problema resuelve
+
+Llevar a la nube decenas o cientos de servidores con sus aplicaciones, tal como están, es lento y arriesgado si se hace a mano: hay que copiar discos, adaptar los sistemas para que arranquen en otra plataforma y detener las aplicaciones durante el traslado. MGN replica los servidores a nivel de bloque mientras siguen funcionando, de modo que el corte final suele durar minutos. Es la vía rápida para **rehospedar** (lift and shift); una vez en AWS, puedes cambiar de plataforma o refactorizar las aplicaciones como siguiente paso de modernización.
+
+## Conceptos clave
+
+### Replicación continua
+
+En cada servidor de origen instalas el **AWS Replication Agent**. El agente envía los datos de forma continua, cifrados y comprimidos, a servidores de replicación situados en una **subred de staging** de tu cuenta, que AWS recomienda dedicar solo a este fin. Funciona con Windows Server y con varias distribuciones de Linux.
+
+### Plantillas
+
+Tres plantillas configurables controlan la migración: de **replicación**, de **lanzamiento** y de **posterior al lanzamiento**. Se aplican a cada servidor nuevo y puedes sobrescribirlas para un servidor concreto. Las instancias de prueba y de corte se lanzan en la subred que indica la plantilla de lanzamiento de Amazon EC2 que MGN crea para cada servidor.
+
+### Prueba y corte (cutover)
+
+El flujo recomendado es: instalar el agente, esperar a que la replicación esté en estado saludable, lanzar **instancias de prueba** y validarlas, y en la fecha planificada lanzar las **instancias de corte**. AWS recomienda probar al menos dos semanas antes del corte y no desconectar el servidor de origen hasta comprobar que la instancia en AWS funciona como se espera.
+
+### Migración a escala
+
+Puedes agrupar servidores en aplicaciones y aplicaciones en **oleadas** (waves), y ejecutar acciones como el lanzamiento o el corte sobre un servidor, una aplicación o una oleada completa.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Lanza los servidores como"
+    service="Amazon EC2"
+    description="Las instancias de prueba y de corte se lanzan con una plantilla de lanzamiento de EC2 creada para cada servidor de origen."
+  />
+  <ConnectionCard
+    relation="Replica dentro de"
+    service="Amazon VPC"
+    description="Los datos llegan a servidores de replicación en una subred de staging, y las instancias finales se lanzan en subredes operativas."
+  />
+  <ConnectionCard
+    relation="Se complementa con"
+    service="AWS DMS"
+    description="Cuando lo que hay que migrar es una base de datos, y no el servidor completo, DMS migra los datos y puede cambiar de motor."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Application Migration Service cuando"
+    items={[
+      'Quieres llevar servidores físicos, virtuales o de otra nube a AWS tal como están.',
+      'Necesitas un corte con poco tiempo de inactividad gracias a la replicación continua.',
+      'Migras muchos servidores y quieres organizarlos en aplicaciones y oleadas.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Solo migras una base de datos, o quieres cambiar de motor: AWS DMS.',
+      'Solo necesitas copiar archivos u objetos a S3, EFS o FSx: AWS DataSync.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Transform MGN"
+  url="https://docs.aws.amazon.com/mgn/latest/ug/what-is-application-migration-service.html"
+/>
+<OfficialSource
+  title="Requisitos de red de MGN"
+  url="https://docs.aws.amazon.com/mgn/latest/ug/Network-Requirements.html"
+/>
+<OfficialSource
+  title="Prácticas recomendadas de AWS Transform MGN"
+  url="https://docs.aws.amazon.com/mgn/latest/ug/best_practices_mgn.html"
+/>
