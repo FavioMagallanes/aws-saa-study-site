@@ -7,4 +7,103 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+El Panel de AWS Health (AWS Health Dashboard) es la consola de AWS Health, el servicio que informa sobre el rendimiento de tus recursos y la disponibilidad de los servicios de AWS y de tus cuentas. Te avisa de incidencias en curso y de cambios programados que pueden afectar a tus aplicaciones, con guía para actuar.
+
+## Qué problema resuelve
+
+Cuando una aplicación falla, conviene saber cuanto antes si la causa está en tu código o en un problema de un servicio de AWS en una región. También necesitas enterarte con tiempo del mantenimiento programado de tus instancias o de la retirada de un recurso que usas. AWS Health te da esa información personalizada para tu cuenta, sin configuración, y permite automatizar la respuesta. Su papel en la supervisión de la disponibilidad se resume en el tema "Observabilidad y métricas de disponibilidad".
+
+## Conceptos clave
+
+### Eventos de AWS Health
+
+Son notificaciones que AWS Health envía en nombre de otros servicios. Hay dos tipos:
+
+- **Eventos específicos de la cuenta**: afectan a tu cuenta o a una cuenta de tu organización, e incluyen los recursos afectados; por ejemplo, un problema con un tipo de instancia EC2 en una región que usas.
+- **Eventos públicos**: incidencias de servicio que no son específicas de ninguna cuenta, como un problema de Amazon S3 en una región, aunque no uses ese servicio.
+
+### Categorías
+
+- **Incidencia (issue)**: eventos inesperados que afectan a servicios o recursos, como una degradación operativa.
+- **Cambio programado (scheduled change)**: cambios futuros, como un mantenimiento programado de EC2 o de RDS.
+- **Notificación de cuenta**: información sobre la administración o la seguridad de la cuenta, por ejemplo un bucket de S3 que podría permitir acceso público.
+
+AWS recomienda supervisar todas las categorías.
+
+### Dos vistas del estado
+
+- **Tu Panel de AWS Health**: al iniciar sesión ves eventos públicos y los específicos de tu cuenta. No requiere configuración y no tiene costo adicional.
+- **Estado de los servicios (Service health)**: página pública, sin iniciar sesión, que solo muestra eventos públicos.
+
+### Automatizar y centralizar
+
+- **Amazon EventBridge**: todos los clientes pueden recibir los eventos de Health en EventBridge sin costo adicional, y con reglas enviarlos a destinos como funciones de Lambda, colas de SQS o temas de SNS para notificar o corregir.
+- **Vista organizativa**: con AWS Organizations ves de forma central los eventos de todas las cuentas; AWS recomienda delegar esa vista a una cuenta miembro.
+- **AWS Health API**: para integrarlo con sistemas propios, requiere ciertos planes de AWS Support.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Automatiza la respuesta con"
+    service="Amazon EventBridge"
+    description="Las reglas reaccionan a los eventos de Health e invocan destinos para notificar o corregir."
+  />
+  <ConnectionCard
+    relation="Notifica con"
+    service="Amazon SNS"
+    description="Un tema de SNS como destino de EventBridge avisa a los equipos cuando llega un evento."
+  />
+  <ConnectionCard
+    relation="Centraliza eventos con"
+    service="AWS Organizations"
+    description="La vista organizativa reúne los eventos de Health de todas las cuentas."
+  />
+  <ConnectionCard
+    relation="Ejecuta acciones con"
+    service="AWS Lambda"
+    description="Una función puede procesar el evento y, por ejemplo, enviar un mensaje a un canal de chat."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Panel de AWS Health cuando"
+    items={[
+      'Quieres saber si una incidencia de AWS afecta a tus recursos.',
+      'Necesitas enterarte con tiempo del mantenimiento programado o de cambios en tus servicios.',
+      'Quieres automatizar la respuesta a eventos de AWS con EventBridge.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Necesitas métricas y alarmas sobre el rendimiento de tus propias aplicaciones: Amazon CloudWatch.',
+      'Quieres saber quién hizo un cambio en la cuenta: AWS CloudTrail.',
+      'Buscas recomendaciones de costo, seguridad y tolerancia a fallos: AWS Trusted Advisor.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Health"
+  url="https://docs.aws.amazon.com/health/latest/ug/what-is-aws-health.html"
+/>
+<OfficialSource
+  title="Conceptos de AWS Health"
+  url="https://docs.aws.amazon.com/health/latest/ug/aws-health-concepts-and-terms.html"
+/>
+<OfficialSource
+  title="Supervisar eventos de AWS Health con Amazon EventBridge"
+  url="https://docs.aws.amazon.com/health/latest/ug/cloudwatch-events-health.html"
+/>
+<OfficialSource
+  title="Agregar eventos de AWS Health de varias cuentas"
+  url="https://docs.aws.amazon.com/health/latest/ug/aggregate-events.html"
+/>
