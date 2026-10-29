@@ -7,4 +7,165 @@ export const meta = {
   covers: ['4.3-k4', '4.3-k9', '4.3-s1', '4.3-s3', '4.3-s4'],
 };
 
-Contenido pendiente.
+En una base de datos pagas por el cómputo que la atiende, por el almacenamiento que ocupan los datos y las copias, y, según el servicio, por las solicitudes o las operaciones de E/S. Una base rentable no es la más barata en abstracto, sino la que encaja con la forma de los datos y el patrón de uso, y que no guarda copias ni datos más tiempo del necesario.
+
+## Qué problema resuelve
+
+Elegir el tipo de base de datos y el modelo de capacidad sin mirar el uso real lleva a pagar por instancias encendidas que nadie consulta, por E/S que se podría evitar o por copias de seguridad acumuladas durante años. Esta página se centra en el ángulo de costo: qué servicio y qué tipo de base sale más rentable para cada caso, y cómo diseñar la retención de datos y de copias. Cómo elegir el modelo de datos y el motor se explica en la página de elegir base de datos, y el funcionamiento de las copias en la de copias de seguridad y replicación.
+
+## Conceptos clave
+
+### Relacional o no relacional: el costo sigue al patrón de uso
+
+- **Amazon RDS y Amazon Aurora (relacionales)**: con instancias aprovisionadas pagas por las horas de instancia aunque la carga sea baja. Encajan con datos estructurados, consultas complejas y transacciones.
+- **Amazon DynamoDB (clave-valor, sin servidor)**: no hay instancias que administrar. En el modo bajo demanda pagas por solicitud; en el modo aprovisionado pagas por hora la capacidad que reservas, la consumas o no, a cambio de costos predecibles. Encaja con accesos por clave a gran escala.
+
+Las bases de datos sin servidor ayudan a no pagar por capacidad ociosa cuando la carga es variable o tiene periodos de inactividad. Las opciones aprovisionadas convienen cuando la carga es estable y predecible.
+
+### Aurora: sin servidor y configuración de almacenamiento
+
+- **Aurora Serverless**: ajusta la capacidad automáticamente según la demanda y cobra solo por los recursos que consume el clúster, así que ayuda a no pagar por cómputo que no usas. Es especialmente útil con cargas muy variables e impredecibles, bases multiinquilino y entornos de desarrollo y prueba. En lugar de aprovisionar para el pico, defines un límite máximo de capacidad que solo se usa si hace falta.
+- **Pausa automática**: si fijas la capacidad mínima en cero, las instancias de Aurora Serverless se pausan tras un periodo sin conexiones de usuario, y no pagas la capacidad de instancia mientras están en pausa. Conviene para desarrollo, pruebas o aplicaciones internas que toleran una breve espera mientras la base se reanuda.
+- **Aurora Standard o Aurora I/O-Optimized**: con Aurora Standard pagas, además del uso y el almacenamiento, cada solicitud de E/S; es la opción rentable con un uso moderado de E/S. Con Aurora I/O-Optimized no hay cargos adicionales por E/S de lectura y escritura, y AWS lo recomienda cuando el gasto en E/S es el 25 % o más del gasto total en Aurora.
+- **Solo pagas el almacenamiento usado**: el volumen del clúster crece automáticamente, y al eliminar tablas, índices o bases que ya no necesitas el espacio asignado se reduce, lo que baja el cargo de almacenamiento.
+
+### DynamoDB: clase de tabla y caducidad de elementos
+
+- **Clase de tabla**: DynamoDB Standard es la predeterminada y la recomendada para la mayoría de las cargas. DynamoDB Standard-Infrequent Access (Standard-IA) está optimizada para tablas en las que el almacenamiento es el costo dominante, como registros de aplicaciones, historiales de pedidos o publicaciones antiguas a las que se accede poco. Puedes cambiar la clase de una tabla más adelante.
+- **Tiempo de vida (TTL)**: defines por elemento una marca de tiempo de caducidad, y DynamoDB elimina los elementos caducados en los días siguientes sin consumir capacidad de escritura. Es una forma rentable de aplicar una política de retención y de no pagar por datos que ya no sirven.
+
+### Tipos de base de datos según la forma de los datos
+
+Una base diseñada para el formato de los datos suele resolver la carga con menos recursos que una de uso general:
+
+- **Serie temporal: Amazon Timestream for LiveAnalytics**: base de datos de serie temporal sin servidor, que escala automáticamente y no requiere aprovisionar capacidad. Ahorra tiempo y costo en el ciclo de vida de los datos: mantiene los recientes en un almacén en memoria y mueve los históricos a un almacén de menor costo según las políticas que definas, y aun así permite consultar ambos juntos.
+- **Formato en columnas: Amazon Redshift**: guarda cada columna en bloques propios. Como las consultas analíticas suelen leer pocas columnas de muchísimas filas, solo se cargan los bloques de las columnas necesarias, lo que reduce mucho la E/S de disco. Además, cada bloque contiene un único tipo de dato y se puede comprimir con un esquema específico, lo que reduce el espacio en disco. El almacenamiento por filas, en cambio, es el adecuado para cargas transaccionales (OLTP) que leen y escriben registros completos.
+
+### Políticas de retención de datos
+
+Una política de retención define cuánto tiempo se conserva cada dato y qué pasa después. Desde el punto de vista del costo:
+
+- Elimina o expira los datos que ya no se necesitan: TTL en DynamoDB, o eliminar tablas e índices sin uso en Aurora para reducir el almacenamiento facturado.
+- Mueve los datos históricos a un almacenamiento más barato: el almacén de menor costo en Timestream o la clase Standard-IA en DynamoDB.
+- Para conservar datos de RDS a largo plazo con fines de análisis, puedes exportar una instantánea a Amazon S3 en formato Apache Parquet y consultarla con Amazon Athena o Redshift Spectrum. Ten en cuenta que esos datos exportados no se pueden restaurar directamente en una instancia de base de datos.
+
+### Copias de seguridad: frecuencia y retención
+
+Más copias y más tiempo de retención significan más almacenamiento facturado. La política debe responder a cuántos datos puedes permitirte perder y cuánto tiempo necesitas conservarlos, no a "guardarlo todo".
+
+- **Copias automáticas de RDS**: el periodo de retención va de 0 a 35 días; con 0 se desactivan las copias automáticas. El almacenamiento de copias tiene una asignación gratuita igual al almacenamiento de bases de datos aprovisionado en la región, y pagas lo que la supera.
+- **Instantáneas manuales de RDS**: no se eliminan al borrar la instancia y siguen generando cargos de almacenamiento hasta que las borras. Si compartes una instantánea, el costo sigue siendo tuyo.
+- **Recuperación a un momento dado en DynamoDB**: ofrece copias continuas con un periodo de recuperación configurable de 1 a 35 días. Acortar el periodo no reduce el precio, que depende del tamaño de la tabla y de sus índices secundarios locales.
+- **AWS Backup**: en cada regla del plan de copia defines la frecuencia (cada hora, cada 12 horas, diaria, semanal, mensual o una expresión cron) y el periodo total de retención. Para los tipos de recurso que lo admiten, puedes pasar las copias a un almacenamiento en frío de menor costo, con una permanencia mínima de 90 días en ese nivel.
+
+### Detener lo que no se usa
+
+Para bases de datos que no son de producción, puedes detener una instancia de RDS de forma temporal, como máximo siete días seguidos. Mientras está detenida no pagas horas de instancia, aunque sí el almacenamiento aprovisionado, las copias de seguridad y, si es accesible públicamente, la dirección IPv4 pública. Arrancarla de nuevo puede tardar de minutos a horas, así que no conviene para producción si la disponibilidad importa.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Centraliza las copias con"
+    service="AWS Backup"
+    description="Define en planes la frecuencia, la retención y el paso a almacenamiento en frío de las copias de varios servicios."
+  />
+  <ConnectionCard
+    relation="Conserva instantáneas exportadas en"
+    service="Amazon S3"
+    description="Las instantáneas de RDS se pueden exportar a S3 en formato Parquet para análisis a largo plazo."
+  />
+  <ConnectionCard
+    relation="Consulta los datos exportados con"
+    service="Amazon Athena"
+    description="Analiza los datos en Parquet directamente en S3, sin mantener una base de datos encendida."
+  />
+  <ConnectionCard
+    relation="Desglosa el gasto con"
+    service="AWS Cost Explorer"
+    description="Los cargos de almacenamiento de instantáneas de RDS aparecen por instantánea; las etiquetas de asignación de costos permiten agruparlos."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Opción sin servidor cuando"
+    items={[
+      'La carga es variable, impredecible o tiene largos periodos de inactividad.',
+      'Es desarrollo o pruebas y tolera esperar a que la base se reanude: Aurora Serverless con pausa automática.',
+      'El acceso es por clave a gran escala: DynamoDB en modo bajo demanda.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'La carga es estable y predecible: capacidad aprovisionada.',
+      'El gasto en E/S es el 25 % o más del gasto en Aurora: Aurora I/O-Optimized.',
+      'Son datos con marca de tiempo: Timestream. Son consultas analíticas sobre pocas columnas: Redshift.',
+      'Los datos caducan o se consultan poco: TTL o la clase Standard-IA en DynamoDB.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Usar Aurora Serverless"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless-v2.html"
+/>
+<OfficialSource
+  title="Pausa automática de Aurora Serverless"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless-v2-auto-pause.html"
+/>
+<OfficialSource
+  title="Almacenamiento de Amazon Aurora"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.Overview.StorageReliability.html"
+/>
+<OfficialSource
+  title="Modos de capacidad de DynamoDB"
+  url="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/capacity-mode.html"
+/>
+<OfficialSource
+  title="Clases de tabla de DynamoDB"
+  url="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.TableClasses.html"
+/>
+<OfficialSource
+  title="Tiempo de vida (TTL) en DynamoDB"
+  url="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/TTL.html"
+/>
+<OfficialSource
+  title="Qué es Amazon Timestream for LiveAnalytics"
+  url="https://docs.aws.amazon.com/timestream/latest/developerguide/what-is-timestream.html"
+/>
+<OfficialSource
+  title="Almacenamiento en columnas de Amazon Redshift"
+  url="https://docs.aws.amazon.com/redshift/latest/dg/c_columnar_storage_disk_mem_mgmnt.html"
+/>
+<OfficialSource
+  title="Periodo de retención de copias de seguridad de RDS"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_WorkingWithAutomatedBackups.BackupRetention.html"
+/>
+<OfficialSource
+  title="Copias de seguridad automáticas de RDS"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_WorkingWithAutomatedBackups.html"
+/>
+<OfficialSource
+  title="Exportar instantáneas de RDS a Amazon S3"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ExportSnapshot.html"
+/>
+<OfficialSource
+  title="Recuperación a un momento dado en DynamoDB"
+  url="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Point-in-time-recovery.html"
+/>
+<OfficialSource
+  title="Opciones y configuración de los planes de AWS Backup"
+  url="https://docs.aws.amazon.com/aws-backup/latest/devguide/plan-options-and-configuration.html"
+/>
+<OfficialSource
+  title="Detener temporalmente una instancia de RDS"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_StopInstance.html"
+/>
