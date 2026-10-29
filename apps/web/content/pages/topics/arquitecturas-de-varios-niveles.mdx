@@ -7,4 +7,149 @@ export const meta = {
   covers: ['2.1-k10', '2.1-s1'],
 };
 
-Contenido pendiente.
+La arquitectura de varios niveles (de tres niveles, de n niveles) es un patrón que se usa desde hace décadas y que sigue siendo muy común en aplicaciones orientadas a usuarios. Divide la aplicación en capas separadas por la red, de modo que cada una se pueda desarrollar, operar y escalar por su cuenta. En el examen aparece tanto en su forma clásica, con servidores, como en su versión sin servidor.
+
+## Qué problema resuelve
+
+Cuando toda la aplicación vive en un mismo bloque, cualquier cambio o fallo en una parte afecta al resto, y no puedes escalar solo lo que está saturado. El patrón de varios niveles ofrece un marco general para que los componentes estén desacoplados y escalen de forma independiente, y para que se puedan desarrollar, administrar y mantener por separado, a menudo por equipos distintos.
+
+## Conceptos clave
+
+### Los tres niveles
+
+Aunque el vocabulario varía, una aplicación de varios niveles suele tener estos componentes:
+
+- **Nivel de presentación**: lo que el usuario usa directamente, como páginas web o la interfaz de una aplicación móvil.
+- **Nivel de lógica**: el código que convierte las acciones del usuario en funcionalidad, por ejemplo operaciones de lectura y escritura en la base de datos o procesamiento de datos.
+- **Nivel de datos**: los medios de almacenamiento que guardan los datos de la aplicación, como bases de datos, almacenes de objetos, cachés y sistemas de archivos.
+
+La arquitectura de tres niveles, con un único nivel de cada tipo, es la implementación más popular, pero el patrón se puede aplicar mucho más allá de una aplicación web típica.
+
+### La red como frontera entre niveles
+
+En este patrón, un nivel tiene que hacer una llamada de red para hablar con otro. Por eso construir una aplicación de varios niveles suele exigir piezas repetitivas que cambian poco de una aplicación a otra: código que define una cola de mensajes para comunicar niveles, código que define una API y un modelo de datos, y código de seguridad que controla el acceso.
+
+Una buena práctica del pilar de fiabilidad de AWS Well-Architected señala como antipatrón invocar API directamente entre niveles sin capacidad de conmutación por error ni de procesamiento asíncrono de la solicitud. Las colas, los flujos de trabajo y los balanceadores de carga son dependencias débilmente acopladas que ayudan a aislar el fallo de un componente.
+
+### Versión con servidores en una VPC
+
+La guía de Amazon VPC describe dos ejemplos para producción que ilustran cómo se separan los niveles en la red:
+
+- **Servidores web y de base de datos**: una VPC con subredes públicas y privadas en dos zonas de disponibilidad. Los servidores web reciben el tráfico de los clientes a través de un balanceador de carga, y los servidores de base de datos se ejecutan en las subredes privadas. Los grupos de seguridad se encadenan: el de los servidores web acepta tráfico del balanceador de carga y el de la base de datos acepta tráfico de los servidores web.
+- **Servidores en subredes privadas con NAT**: los servidores se ejecutan en subredes privadas de dos zonas de disponibilidad, los lanza y termina un grupo de Auto Scaling y reciben las solicitudes a través de un Application Load Balancer. Salen a internet mediante un NAT gateway, que se despliega en ambas zonas de disponibilidad para mejorar la resiliencia.
+
+Desplegar en varias zonas de disponibilidad con Amazon EC2 Auto Scaling permite mantener la capacidad mínima que necesita la aplicación, y el balanceador de carga reparte el tráfico entre las instancias del grupo.
+
+### Versión sin servidor
+
+AWS ofrece servicios para crear aplicaciones de varios niveles sin administrar servidores:
+
+- **Nivel de lógica**: Amazon API Gateway y AWS Lambda. API Gateway permite iniciar funciones de Lambda directamente mediante solicitudes HTTPS, y ambos servicios escalan automáticamente según el volumen de solicitudes. Con Lambda no eliges, proteges, parcheas ni administras un sistema operativo, ni dimensionas servidores. API Gateway simplifica el despliegue, la supervisión y la protección de las API, y puede mejorar su rendimiento con caché.
+- **Nivel de presentación**: cualquier cliente capaz de usar HTTPS puede llamar a la API, así que este nivel puede ser una aplicación de escritorio, una aplicación móvil, una página web o un dispositivo IoT. Amazon S3 con Amazon CloudFront sirve sitios estáticos, como aplicaciones de una sola página, sin aprovisionar un servidor web. Amazon Cognito añade registro, inicio de sesión y control de acceso, y AWS Amplify ofrece alojamiento administrado para aplicaciones web estáticas.
+- **Nivel de datos**: usar Lambda en el nivel de lógica no limita el almacenamiento. Las funciones se conectan a cualquier almacén incluyendo el controlador de base de datos adecuado, y usan acceso basado en roles de IAM o credenciales cifradas con AWS KMS o AWS Secrets Manager. Hay opciones sin servidor, como Amazon DynamoDB o Amazon Aurora, y otras que no lo son.
+
+### Varios niveles frente a otras arquitecturas
+
+Diseñar según los requisitos implica saber cuándo usar este patrón y cuándo otro:
+
+- **Varios niveles**: separa la aplicación por capas técnicas (presentación, aplicación y datos). Sigue siendo un patrón popular para aplicaciones orientadas a usuarios.
+- **Microservicios**: separan la funcionalidad en verticales cohesivas según el dominio de negocio, en lugar de por capas técnicas. Cada servicio es una unidad independiente y sin estado que se comunica con las demás.
+- **Basada en eventos**: los componentes se comunican emitiendo y respondiendo a eventos, normalmente de forma asíncrona, lo que añade latencia variable a cambio de escalabilidad y desacoplamiento.
+
+Los tres patrones se combinan: un nivel de lógica puede estar formado por microservicios que se comunican mediante eventos.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Reparte el tráfico con"
+    service="Elastic Load Balancing"
+    description="El balanceador de carga recibe las solicitudes de los clientes y las distribuye entre los servidores de la capa web o de aplicación."
+  />
+  <ConnectionCard
+    relation="Mantiene la capacidad con"
+    service="Amazon EC2 Auto Scaling"
+    description="Lanza y termina servidores en varias zonas de disponibilidad para conservar la capacidad mínima que necesita la aplicación."
+  />
+  <ConnectionCard
+    relation="Crea un nivel de lógica sin servidor con"
+    service="Amazon API Gateway y AWS Lambda"
+    description="API Gateway expone la API por HTTPS e invoca funciones de Lambda; ambos escalan automáticamente."
+  />
+  <ConnectionCard
+    relation="Sirve la presentación con"
+    service="Amazon S3 y Amazon CloudFront"
+    description="Alojan sitios estáticos, como aplicaciones de una sola página, sin aprovisionar un servidor web."
+  />
+  <ConnectionCard
+    relation="Aísla los niveles con"
+    service="Amazon VPC"
+    description="Las subredes públicas y privadas y los grupos de seguridad encadenados limitan qué nivel puede hablar con cuál."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Varios niveles cuando"
+    items={[
+      'Construyes una aplicación orientada a usuarios, como una aplicación web o un backend móvil.',
+      'Quieres escalar y mantener por separado la presentación, la lógica y los datos.',
+      'Necesitas que la base de datos quede en subredes privadas, accesible solo desde el nivel de aplicación.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Quieres equipos autónomos con servicios separados por dominio de negocio: microservicios.',
+      'Los componentes deben reaccionar a cambios sin conocerse entre sí: arquitectura basada en eventos.',
+      'No quieres administrar servidores en ningún nivel: la versión sin servidor con API Gateway, Lambda, S3 y CloudFront.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Arquitecturas de varios niveles sin servidor con API Gateway y Lambda"
+  url="https://docs.aws.amazon.com/whitepapers/latest/serverless-multi-tier-architectures-api-gateway-lambda/introduction.html"
+/>
+<OfficialSource
+  title="Nivel de lógica sin servidor"
+  url="https://docs.aws.amazon.com/whitepapers/latest/serverless-multi-tier-architectures-api-gateway-lambda/serverless-logic-tier.html"
+/>
+<OfficialSource
+  title="Nivel de presentación"
+  url="https://docs.aws.amazon.com/whitepapers/latest/serverless-multi-tier-architectures-api-gateway-lambda/presentation-tier.html"
+/>
+<OfficialSource
+  title="Nivel de datos"
+  url="https://docs.aws.amazon.com/whitepapers/latest/serverless-multi-tier-architectures-api-gateway-lambda/data-tier.html"
+/>
+<OfficialSource
+  title="Ejemplo: VPC para servidores web y de base de datos"
+  url="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-example-web-database-servers.html"
+/>
+<OfficialSource
+  title="Ejemplo: VPC con servidores en subredes privadas y NAT"
+  url="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-example-private-subnets-nat.html"
+/>
+<OfficialSource
+  title="REL04-BP02 Implementar dependencias débilmente acopladas"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/reliability-pillar/rel_prevent_interaction_failure_loosely_coupled_system.html"
+/>
+<OfficialSource
+  title="Patrones de arquitectura de ejemplo"
+  url="https://docs.aws.amazon.com/whitepapers/latest/serverless-multi-tier-architectures-api-gateway-lambda/sample-architecture-patterns.html"
+/>
+<OfficialSource
+  title="Crear arquitecturas basadas en eventos con Lambda"
+  url="https://docs.aws.amazon.com/lambda/latest/dg/concepts-event-driven-architectures.html"
+/>
+<OfficialSource
+  title="Arquitectura de microservicios sencilla en AWS"
+  url="https://docs.aws.amazon.com/whitepapers/latest/microservices-on-aws/simple-microservices-architecture-on-aws.html"
+/>
