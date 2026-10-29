@@ -7,4 +7,116 @@ export const meta = {
   covers: ['1.1-k1', '1.1-s3'],
 };
 
-Contenido pendiente.
+Cuando una persona, una aplicación o un servicio necesita acceso temporal a recursos, o cuando ese acceso cruza los límites de una cuenta de AWS, la herramienta indicada es un rol de IAM. AWS Security Token Service (AWS STS) es el servicio que entrega las credenciales temporales que hacen posible ese acceso. Juntos son la base de la estrategia de control de acceso basada en roles.
+
+## Qué problema resuelve
+
+Dar a cada persona o sistema credenciales permanentes en cada cuenta se vuelve ingobernable: hay que distribuirlas, protegerlas, rotarlas y revocarlas. Con roles y credenciales temporales, el acceso se concede cuando hace falta y caduca solo. Además, si varias cuentas comparten recursos, no necesitas crear usuarios de IAM individuales en cada una ni obligar a las personas a cerrar sesión en una cuenta y abrirla en otra.
+
+## Conceptos clave
+
+### Roles y credenciales temporales
+
+Un rol es una identidad con permisos que no está asociada de forma exclusiva a una persona: la puede asumir quien la necesite. No tiene contraseña ni claves de acceso permanentes; al asumirla obtienes credenciales de seguridad temporales para esa sesión.
+
+AWS STS genera esas credenciales temporales. Son de corta duración, pueden configurarse para durar desde unos minutos hasta varias horas, no se almacenan con el usuario sino que se generan de forma dinámica cuando se piden, y cuando caducan no pueden reutilizarse. Eso trae ventajas: no hay que distribuir ni incrustar credenciales de largo plazo en una aplicación, puedes dar acceso sin definir una identidad de AWS para cada persona y no tienes que actualizarlas ni revocarlas de forma explícita. Las credenciales temporales son la base de los roles y de la federación de identidades.
+
+Por defecto, AWS STS es un servicio global con un único punto de enlace, pero puedes llamar a puntos de enlace de otras regiones compatibles para reducir la latencia. Sin importar de qué región provengan, las credenciales funcionan en todo el mundo.
+
+### Asumir un rol
+
+Antes de que alguien pueda usar un rol, debes concederle permiso para cambiar a él; puedes hacerlo con cualquier política asociada a sus grupos o usuarios. Después puede asumirlo desde la consola, con la AWS CLI o con la API `AssumeRole`. También existen `AssumeRoleWithSAML` para quien se autentica con SAML y `AssumeRoleWithWebIdentity` para quien lo hace con un proveedor OIDC.
+
+El método determina quién puede asumir el rol y cuánto dura la sesión. En general, una sesión dura entre 15 minutos y la duración máxima configurada en el rol (de 1 a 12 horas), y 1 hora de forma predeterminada. Si usas las credenciales de un rol para asumir otro, lo que se llama encadenamiento de roles, la sesión queda limitada a una hora.
+
+Hay dos formas habituales de usar un rol. La más sencilla es que los usuarios de IAM cambien a un rol desde la consola: dejan sus permisos originales, toman los del rol, y al salir recuperan los suyos. Eso ayuda a evitar accesos o modificaciones accidentales de recursos sensibles. Para usos más complejos, como dar acceso a aplicaciones y servicios o a usuarios federados externos, se llama a la API `AssumeRole`, que devuelve credenciales temporales; la aplicación simplemente deja de usarlas cuando termina.
+
+Un servicio de AWS como Amazon EC2 también puede asumir un rol para hacer solicitudes programáticas, sin que tengas que compartir ni mantener credenciales de largo plazo.
+
+### Acceso entre cuentas
+
+Los roles permiten establecer una relación de confianza entre dos cuentas. La cuenta que confía es la dueña del recurso al que se quiere acceder y la cuenta de confianza es la que contiene a los usuarios que lo necesitan. Después de crear la relación, un usuario o una aplicación de la cuenta de confianza llama a `AssumeRole` y recibe credenciales temporales para acceder a los recursos de la cuenta que confía.
+
+Si la otra cuenta es de AWS pero no la controlas tú, puedes usar un ID externo, una palabra o un número acordado con el administrador de esa cuenta, como medida adicional. Y cuando un usuario crea recursos en tu cuenta, por ejemplo objetos en un bucket de S3, la cuenta que los crea es dueña de esos recursos y controla quién accede a ellos.
+
+Con este esquema solo permites a usuarios de una cuenta asumir un rol concreto de otra, y cada rol limita lo que se puede hacer: por ejemplo, un rol puede permitir acceder solo a un bucket determinado.
+
+### Tipos de rol que verás con frecuencia
+
+- **Rol para servicios y aplicaciones**: lo asume un servicio, como EC2, para obtener credenciales temporales.
+- **Rol vinculado a un servicio**: un tipo de rol de servicio ligado a un servicio de AWS, que este puede asumir para actuar en tu nombre. Aparece en tu cuenta, pero pertenece al servicio: puedes verlo, no editar sus permisos.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Emite credenciales con"
+    service="AWS STS"
+    description="Crea las credenciales temporales de las sesiones de rol y de la federación, desde un punto de enlace global o uno regional."
+  />
+  <ConnectionCard
+    relation="Entrega el rol a"
+    service="Amazon EC2"
+    description="Un servicio de AWS puede asumir un rol para obtener credenciales temporales, sin que compartas ni mantengas claves de largo plazo."
+  />
+  <ConnectionCard
+    relation="Comparte datos entre cuentas con"
+    service="Amazon S3"
+    description="Un rol en la cuenta que contiene el bucket puede permitir que usuarios de otra cuenta lo accedan, sin crear usuarios nuevos."
+  />
+  <ConnectionCard
+    relation="Asigna roles en toda la organización con"
+    service="AWS IAM Identity Center"
+    description="La función de administrador de acceso a cuentas asigna roles de IAM existentes de las cuentas de tu organización a usuarios y grupos de Identity Center."
+  />
+</CardGrid>
+
+## Cómo elegir el método
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Cambiar de rol en la consola"
+    items={[
+      'Es la forma más sencilla de usar un rol con tus usuarios de IAM.',
+      'Sirve para usar permisos que normalmente no quieres que tengan, y salir al terminar.',
+      'Reduce el riesgo de acceder o modificar por error recursos sensibles.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Llamar a la API AssumeRole"
+    items={[
+      'Aplicaciones y servicios que necesitan credenciales temporales.',
+      'Usuarios federados externos y acceso entre cuentas de forma programática.',
+      'Con SAML u OIDC, las variantes AssumeRoleWithSAML y AssumeRoleWithWebIdentity.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Roles de IAM: términos y conceptos"
+  url="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_terms-and-concepts.html"
+/>
+<OfficialSource
+  title="Credenciales de seguridad temporales en IAM"
+  url="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp.html"
+/>
+<OfficialSource
+  title="Métodos para asumir un rol"
+  url="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_manage-assume.html"
+/>
+<OfficialSource
+  title="Escenarios habituales de los roles de IAM"
+  url="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_common-scenarios.html"
+/>
+<OfficialSource
+  title="Crear un rol para dar permisos a un usuario de IAM"
+  url="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user.html"
+/>
+<OfficialSource
+  title="Tutorial: delegar el acceso entre cuentas de AWS con roles de IAM"
+  url="https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_cross-account-with-roles.html"
+/>
