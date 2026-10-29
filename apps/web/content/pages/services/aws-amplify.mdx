@@ -7,4 +7,90 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+AWS Amplify sirve para crear aplicaciones web de pila completa en AWS, con datos, autenticación, almacenamiento y alojamiento del frontend. Su parte de alojamiento, Amplify Hosting, ofrece un flujo de trabajo basado en Git para publicar aplicaciones web sin servidor con despliegue continuo en la red global de entrega de contenido (CDN) de AWS.
+
+## Qué problema resuelve
+
+Publicar un frontend moderno implica configurar compilaciones, almacenamiento, una CDN, certificados, dominios y entornos para cada rama. Amplify Hosting reúne todo eso: conectas un repositorio de Git y cada cambio se compila y se despliega automáticamente. Para el backend, Amplify Gen 2 ofrece una experiencia basada en código TypeScript para definirlo y conectarlo a la aplicación.
+
+## Conceptos clave
+
+### Qué puedes alojar
+
+- **Frameworks SSR**, como Next.js o Nuxt. En Next.js, Amplify Hosting compute administra por completo la renderización del lado del servidor.
+- **Aplicaciones de una sola página (SPA)**, como React, Angular o Vue.js.
+- **Generadores de sitios estáticos**, como Gatsby, Hugo o Jekyll.
+
+### Funciones de Amplify Hosting
+
+- **Ramas de funciones**: entornos de producción y de pruebas conectando nuevas ramas, y vistas previas de las solicitudes de extracción (pull requests).
+- **Despliegues atómicos**: la aplicación solo se actualiza cuando todo el despliegue termina, así no hay ventanas de mantenimiento ni archivos a medio subir.
+- **Dominios personalizados**, con un certificado administrado que Amplify aprovisiona o uno propio.
+- **Ramas protegidas con contraseña**, redirecciones y reescrituras, y pruebas de extremo a extremo.
+
+### Despliegue sin Git
+
+Puedes desplegar manualmente arrastrando una carpeta comprimida, o desde un bucket de Amazon S3 o una URL pública. Los despliegues manuales no admiten aplicaciones SSR.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Distribuye el sitio con"
+    service="Amazon CloudFront"
+    description="Amplify despliega en la CDN global de AWS impulsada por CloudFront, con soporte para HTTPS."
+  />
+  <ConnectionCard
+    relation="Publica sitios estáticos desde"
+    service="Amazon S3"
+    description="Un sitio estático guardado en un bucket de S3 de tu propia cuenta se puede desplegar en Amplify Hosting."
+  />
+  <ConnectionCard
+    relation="Usa dominios de"
+    service="Amazon Route 53"
+    description="Puedes conectar la aplicación a un dominio propio, por ejemplo uno registrado con Route 53."
+  />
+  <ConnectionCard
+    relation="Se supervisa con"
+    service="Amazon CloudWatch"
+    description="Amplify Hosting ofrece registros de acceso integrados y métricas de CloudWatch para supervisar el sitio."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="AWS Amplify cuando"
+    items={[
+      'Quieres alojar una aplicación web SPA, SSR o estática con despliegue continuo desde Git.',
+      'Necesitas entornos por rama y vistas previas de cambios sin montar la infraestructura.',
+      'Construyes una aplicación de pila completa con autenticación, datos y almacenamiento.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Solo expones una API para tus clientes: Amazon API Gateway.',
+      'Necesitas probar la aplicación en teléfonos y tabletas reales: AWS Device Farm.',
+      'Quieres que AWS aprovisione instancias EC2, balanceo de carga y escalado para tu aplicación web: AWS Elastic Beanstalk.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Bienvenido a AWS Amplify Hosting"
+  url="https://docs.aws.amazon.com/amplify/latest/userguide/welcome.html"
+/>
+<OfficialSource
+  title="Desplegar un sitio estático en Amplify desde un bucket de Amazon S3"
+  url="https://docs.aws.amazon.com/amplify/latest/userguide/deploy-website-from-s3.html"
+/>
+<OfficialSource
+  title="Conectar un dominio personalizado"
+  url="https://docs.aws.amazon.com/amplify/latest/userguide/custom-domains.html"
+/>
