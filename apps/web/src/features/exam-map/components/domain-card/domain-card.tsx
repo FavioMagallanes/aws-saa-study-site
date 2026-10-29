@@ -1,7 +1,7 @@
 import { cx } from '../../../../shared/lib/class-names';
 import { ProgressBar } from '../../../../shared/ui/progress-bar/progress-bar';
 import type { DomainMap } from '../../model/exam-map';
-import { DOMAIN_SHORT_TITLES } from '../../model/exam-map-copy';
+import { DOMAIN_SHORT_TITLES } from '../../../content/model/domain-labels';
 import styles from './domain-card.module.css';
 
 interface DomainCardProps {

@@ -19,7 +19,14 @@ export default tseslint.config(
   {
     files: ['apps/web/**/*.{ts,tsx}'],
     plugins: { 'react-hooks': reactHooks },
-    rules: reactHooks.configs.recommended.rules,
+    rules: {
+      ...reactHooks.configs.recommended.rules,
+      // TanStack Router signals a missing resource by throwing the object returned by notFound().
+      '@typescript-eslint/only-throw-error': [
+        'error',
+        { allow: [{ from: 'package', package: '@tanstack/router-core', name: 'NotFoundError' }] },
+      ],
+    },
   },
   {
     files: ['**/*.config.{ts,js}', '**/*.d.ts', '**/global-setup.ts'],

@@ -1,0 +1,64 @@
+.reading-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: var(--font-sans);
+}
+
+.reading-sidebar__heading {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.reading-sidebar__group-label {
+  margin: var(--space-2) 0 0;
+  color: var(--color-muted);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.reading-sidebar__group-label--current {
+  color: var(--color-text);
+}
+
+.reading-sidebar__pages {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: var(--space-2) 0;
+  list-style: none;
+}
+
+.reading-sidebar__link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: 7px var(--space-3);
+  border-radius: 8px;
+  color: var(--color-text);
+  font-size: 14px;
+  line-height: 1.5;
+  text-decoration: none;
+}
+
+.reading-sidebar__link:hover {
+  background: var(--color-code);
+}
+
+.reading-sidebar__link[aria-current='page'] {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.reading-sidebar__read-icon {
+  display: inline-flex;
+  flex: none;
+  color: var(--color-ok);
+}
