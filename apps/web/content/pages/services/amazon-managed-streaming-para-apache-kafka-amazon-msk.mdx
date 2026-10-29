@@ -7,4 +7,84 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Amazon Managed Streaming for Apache Kafka (Amazon MSK) es un servicio totalmente administrado para crear y ejecutar aplicaciones que procesan datos de streaming con Apache Kafka. MSK se ocupa de las operaciones del plano de control, como crear, actualizar y eliminar clústeres, y tus aplicaciones usan las operaciones normales de Kafka para crear temas (topics), producir y consumir datos.
+
+## Qué problema resuelve
+
+Operar Kafka por tu cuenta exige desplegar brokers en varias zonas, coordinar los metadatos del clúster, sustituir nodos que fallan y escalar la capacidad. MSK ejecuta versiones de código abierto de Apache Kafka, así que tus aplicaciones, herramientas y complementos existentes funcionan sin cambiar el código, mientras AWS administra la infraestructura. También detecta los fallos más comunes y se recupera automáticamente: si un broker falla, lo mitiga o lo reemplaza por uno nuevo, y las aplicaciones siguen usando las mismas direcciones IP. Para comparar MSK con Kinesis dentro de una canalización de ingesta, consulta el tema «Ingesta y streaming de datos».
+
+## Conceptos clave
+
+- **Nodos broker**: al crear un clúster indicas cuántos brokers quieres en cada zona de disponibilidad, como mínimo uno por zona. Cada zona tiene su propia subred de la VPC.
+- **MSK Provisioned**: tú eliges el número y el tipo de brokers, Standard o Express, y puedes cambiarlos más adelante.
+- **MSK Serverless**: ejecuta Kafka sin administrar ni escalar la capacidad del clúster. Aprovisiona y escala la capacidad automáticamente y cobra según el rendimiento que usas. Exige control de acceso con IAM y no admite ACL de Apache Kafka.
+- **Metadatos del clúster**: MSK crea por ti los nodos de Apache ZooKeeper o, en modo KRaft, los controladores de Kafka, sin costo adicional.
+- **MSK Connect**: despliega conectores administrados de Kafka Connect para traer datos de sistemas externos a los temas o enviarlos desde ellos a almacenes como Amazon S3 y Amazon OpenSearch Service. Los conectores escalan automáticamente.
+- **Cifrado**: MSK siempre cifra los datos en reposo con AWS KMS, con una clave tuya o una administrada por AWS. Por defecto cifra con TLS el tráfico entre brokers y solo admite TLS entre clientes y brokers.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Cifra los datos con"
+    service="AWS KMS"
+    description="Los datos en reposo se cifran siempre con una clave de KMS propia o administrada por AWS."
+  />
+  <ConnectionCard
+    relation="Autentica clientes con"
+    service="AWS IAM"
+    description="IAM autentica y autoriza a los clientes; en MSK Serverless es obligatorio."
+  />
+  <ConnectionCard
+    relation="Procesa eventos con"
+    service="AWS Lambda"
+    description="MSK Serverless se integra con Lambda para procesar eventos de los temas."
+  />
+  <ConnectionCard
+    relation="Exporta datos a"
+    service="Amazon S3"
+    description="Con conectores de MSK Connect, los datos de los temas se envían a S3 u OpenSearch Service."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Amazon MSK cuando"
+    items={[
+      'Ya tienes aplicaciones, herramientas o conectores basados en Apache Kafka.',
+      'Quieres migrar Kafka a AWS sin cambiar el código de las aplicaciones.',
+      'Quieres Kafka sin dimensionar el clúster: MSK Serverless.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'No dependes de Kafka y quieres un flujo sin brokers ni shards que planificar, en modo bajo demanda: Amazon Kinesis Data Streams.',
+      'Solo necesitas entregar el flujo en S3, Redshift u OpenSearch Service: Amazon Data Firehose.',
+      'Migras aplicaciones que usan un broker de mensajes como ActiveMQ o RabbitMQ: Amazon MQ.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon MSK"
+  url="https://docs.aws.amazon.com/msk/latest/developerguide/what-is-msk.html"
+/>
+<OfficialSource
+  title="Qué es MSK Serverless"
+  url="https://docs.aws.amazon.com/msk/latest/developerguide/serverless.html"
+/>
+<OfficialSource
+  title="MSK Connect"
+  url="https://docs.aws.amazon.com/msk/latest/developerguide/msk-connect.html"
+/>
+<OfficialSource
+  title="Cifrado en Amazon MSK"
+  url="https://docs.aws.amazon.com/msk/latest/developerguide/msk-encryption.html"
+/>
