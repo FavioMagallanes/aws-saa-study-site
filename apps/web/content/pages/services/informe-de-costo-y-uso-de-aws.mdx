@@ -7,4 +7,89 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+El informe de costo y uso de AWS (AWS Cost and Usage Report, AWS CUR) contiene el conjunto más completo de datos de costo y uso que ofrece AWS. Se entrega en un bucket de Amazon S3 de tu propiedad para que lo analices con tus propias herramientas. Hoy se crea desde AWS Data Exports, donde la versión recomendada es CUR 2.0.
+
+## Qué problema resuelve
+
+Los gráficos y resúmenes sirven para ver tendencias, pero algunas preguntas exigen el detalle línea a línea: cuánto costó un recurso concreto en una hora determinada o cómo se repartió un descuento. El informe de costo y uso te da ese detalle, con una fila por cada combinación de producto, tipo de uso y operación, para procesarlo con consultas o integrarlo en tus propios análisis. La comparación con Cost Explorer y AWS Budgets está en el tema «Herramientas de costos y etiquetas».
+
+## Conceptos clave
+
+### Qué contiene
+
+- Desglosa los costos por hora, día o mes, por producto o recurso y por las etiquetas que defines.
+- Incluye cargos estimados que se van acumulando durante el mes; AWS los finaliza después de emitir la factura, y aún puede actualizarlos si aplica reembolsos, créditos o cargos de soporte.
+- Las columnas dependen de tu uso; por ejemplo, las de Savings Plans solo aparecen si los usaste ese mes.
+
+### Cómo se entrega
+
+- AWS publica los archivos en el bucket de S3 que indicas y los actualiza al menos una vez al día. La primera entrega puede tardar hasta 24 horas.
+- Puedes crear versiones nuevas en cada actualización o sobrescribir la existente. Los informes grandes se dividen en varios archivos.
+- Puedes configurar los datos para integrarlos con Amazon Athena, Amazon Redshift o Amazon Quick.
+
+### AWS Data Exports y CUR 2.0
+
+AWS Data Exports permite crear exportaciones de datos de facturación y elegir las columnas o, desde la CLI o el SDK, filtrar con consultas SQL básicas. CUR 2.0 contiene la misma información que el CUR original, con un esquema fijo de columnas, datos anidados y columnas adicionales, como el nombre de la cuenta. El CUR original sigue disponible como exportación heredada.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Se entrega en"
+    service="Amazon S3"
+    description="Los archivos del informe se publican en un bucket de tu propiedad."
+  />
+  <ConnectionCard
+    relation="Se consulta con"
+    service="Amazon Athena"
+    description="Puedes preparar el informe para consultarlo con SQL directamente sobre S3."
+  />
+  <ConnectionCard
+    relation="Se analiza en"
+    service="Amazon Redshift"
+    description="El informe se puede integrar con Redshift para análisis a mayor escala."
+  />
+  <ConnectionCard
+    relation="Se visualiza con"
+    service="Amazon Quick"
+    description="Data Exports ofrece una integración que despliega un panel prediseñado de costo y uso."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="El informe de costo y uso cuando"
+    items={[
+      'Necesitas el detalle más completo, por hora y por recurso.',
+      'Quieres analizar los costos con SQL, con Athena o Redshift, o con tus propias herramientas.',
+      'Debes repartir los costos por etiquetas con tu propia lógica.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Te basta explorar tendencias y pronósticos con gráficos: AWS Cost Explorer.',
+      'Quieres un aviso al superar un importe: AWS Budgets.',
+      'Quieres detectar gastos inusuales sin analizar datos tú mismo: AWS Cost Anomaly Detection.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué son los informes de costo y uso de AWS"
+  url="https://docs.aws.amazon.com/cur/latest/userguide/what-is-cur.html"
+/>
+<OfficialSource
+  title="Qué es AWS Data Exports"
+  url="https://docs.aws.amazon.com/cur/latest/userguide/what-is-data-exports.html"
+/>
+<OfficialSource
+  title="Informe de costo y uso 2.0"
+  url="https://docs.aws.amazon.com/cur/latest/userguide/table-dictionary-cur2.html"
+/>
