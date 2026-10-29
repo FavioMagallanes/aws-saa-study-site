@@ -7,4 +7,99 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+AWS Direct Connect enlaza tu red interna con una ubicación de Direct Connect mediante un cable de fibra óptica Ethernet estándar: un extremo va a tu router y el otro a un router de Direct Connect. Sobre esa conexión creas interfaces virtuales hacia tus VPC o hacia servicios públicos de AWS sin pasar por los proveedores de internet.
+
+## Qué problema resuelve
+
+Una VPN por internet es rápida de montar, pero su rendimiento depende del estado de la red pública. Cuando una empresa mueve mucho tráfico entre su centro de datos y AWS, o necesita una experiencia de red más coherente, una conexión privada dedicada evita internet en la ruta. La comparación entre VPN, Direct Connect y PrivateLink, con las velocidades disponibles, está en el tema "Conectividad híbrida: VPN, Direct Connect y PrivateLink".
+
+## Conceptos clave
+
+### Conexiones
+
+- **Dedicada**: una conexión Ethernet física asociada a un solo cliente, que pides desde la consola, la CLI o la API.
+- **Alojada**: una conexión física que un socio de AWS Direct Connect aprovisiona en tu nombre.
+- **Requisitos**: tu red debe estar en una ubicación de Direct Connect o debes trabajar con un socio o un proveedor independiente. Tu dispositivo debe admitir BGP.
+
+### Interfaces virtuales
+
+- **Privada**: accede a una VPC con direcciones IP privadas; conectada a un Direct Connect gateway, llega a varias puertas de enlace privadas virtuales de distintas cuentas y regiones.
+- **Pública**: accede a todos los servicios públicos de AWS, como Amazon S3, con direcciones IP públicas.
+- **De tránsito**: accede a uno o varios transit gateways asociados a un Direct Connect gateway.
+
+### Direct Connect gateway
+
+Es un recurso disponible globalmente que permite llegar a cualquier región. Se asocia a un transit gateway, a una puerta de enlace privada virtual o a una red central de AWS Cloud WAN. Su alta disponibilidad viene integrada en el diseño, así que no necesitas varios.
+
+### Cifrado y resiliencia
+
+- **Sin cifrado predeterminado**: Direct Connect no cifra el tráfico en tránsito. Puedes combinarlo con Site-to-Site VPN para tener una conexión privada cifrada con IPsec, o usar MACsec en las conexiones que lo admiten.
+- **Resiliencia**: el kit de herramientas de resiliencia te guía para pedir el número adecuado de conexiones dedicadas en varias ubicaciones según tu objetivo de SLA.
+- **Costo**: se factura por horas de puerto, según la capacidad y el tipo de conexión, y por la transferencia de datos de salida.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Da acceso privado a"
+    service="Amazon VPC"
+    description="Una interfaz virtual privada lleva el tráfico de tu red local a una VPC con direcciones IP privadas."
+  />
+  <ConnectionCard
+    relation="Llega a muchas VPC mediante"
+    service="AWS Transit Gateway"
+    description="Una interfaz virtual de tránsito y un Direct Connect gateway conectan con transit gateways de varias cuentas y regiones."
+  />
+  <ConnectionCard
+    relation="Se cifra con"
+    service="AWS Site-to-Site VPN"
+    description="Combinar ambos da una conexión privada cifrada con IPsec y una experiencia de red más coherente que una VPN solo por internet."
+  />
+  <ConnectionCard
+    relation="Accede a servicios públicos como"
+    service="Amazon S3"
+    description="Una interfaz virtual pública llega a los servicios públicos de AWS sin pasar por los proveedores de internet."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Direct Connect cuando"
+    items={[
+      'Mueves grandes volúmenes de datos de forma constante entre tu centro de datos y AWS.',
+      'Necesitas una experiencia de red más coherente que la de internet.',
+      'Tu red está en una ubicación de Direct Connect o puedes trabajar con un socio que llegue hasta ella.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Necesitas una conexión cifrada rápida de montar sobre internet: AWS Site-to-Site VPN.',
+      'Conectas usuarios individuales, no una red: AWS Client VPN.',
+      'Solo debes consumir un servicio concreto de forma privada desde tu VPC: AWS PrivateLink.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Direct Connect"
+  url="https://docs.aws.amazon.com/directconnect/latest/UserGuide/Welcome.html"
+/>
+<OfficialSource
+  title="Direct Connect gateways"
+  url="https://docs.aws.amazon.com/directconnect/latest/UserGuide/direct-connect-gateways-intro.html"
+/>
+<OfficialSource
+  title="Cifrado en AWS Direct Connect"
+  url="https://docs.aws.amazon.com/directconnect/latest/UserGuide/encryption-in-transit.html"
+/>
+<OfficialSource
+  title="Kit de herramientas de resiliencia de AWS Direct Connect"
+  url="https://docs.aws.amazon.com/directconnect/latest/UserGuide/resiliency_toolkit.html"
+/>
