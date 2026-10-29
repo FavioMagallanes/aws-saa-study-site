@@ -7,4 +7,142 @@ export const meta = {
   covers: ['3.3-k4', '4.3-k5'],
 };
 
-Contenido pendiente.
+Planificar la capacidad de una base de datos es decidir cuánto cómputo, memoria, almacenamiento y rendimiento de E/S necesita, y cómo pagarlo. En AWS esa decisión se expresa de formas distintas según el servicio: unidades de capacidad en Amazon DynamoDB y en Aurora Serverless, clases de instancia y tipos de almacenamiento en Amazon RDS. Elegir bien evita tanto la saturación como pagar por capacidad que nadie usa.
+
+## Qué problema resuelve
+
+Si te quedas corto de capacidad, las solicitudes se limitan o la latencia sube. Si te pasas, pagas por recursos ociosos. El modelo aprovisionado funciona bien cuando la carga es estable y predecible; cuando la carga varía mucho o es difícil de prever, los modos bajo demanda o sin servidor ajustan la capacidad por ti y cobran según el uso real.
+
+## Conceptos clave
+
+### Unidades de capacidad en DynamoDB
+
+El modo de capacidad de una tabla de DynamoDB determina cómo se gestiona su rendimiento y cómo se cobran las lecturas y escrituras.
+
+- **Unidad de capacidad de lectura (RCU)**: para un elemento de hasta 4 KB, equivale a una lectura de coherencia alta por segundo o a dos lecturas de coherencia final por segundo.
+- **Unidad de capacidad de escritura (WCU)**: una escritura por segundo de un elemento de hasta 1 KB.
+- **Elementos más grandes**: consumen varias unidades. Para calcularlas divides el tamaño del elemento entre 4 KB (lectura) o 1 KB (escritura) y redondeas hacia arriba. Por ejemplo, leer 80 elementos de 3 KB por segundo con coherencia alta requiere 80 RCU, porque cada lectura ocupa una unidad.
+- **Coherencia de lectura**: las lecturas de coherencia alta consumen el doble de recursos que las de coherencia final. Las lecturas son de coherencia final de forma predeterminada; si tu aplicación lo tolera, necesitas menos capacidad.
+
+Para estimar la capacidad inicial, la documentación recomienda considerar la tasa esperada de lecturas y escrituras por segundo, el tamaño de los elementos y los requisitos de coherencia de lectura.
+
+### Modo bajo demanda frente a modo aprovisionado
+
+- **Bajo demanda**: es el modo predeterminado y el recomendado para la mayoría de las cargas. No planificas capacidad: DynamoDB escala de forma automática y cobra por solicitud de lectura o escritura (unidades de solicitud), así que no pagas por capacidad ociosa y, sin tráfico, no se cobra rendimiento. Puedes fijar un rendimiento máximo por tabla para acotar costos ante un pico inesperado.
+- **Aprovisionado**: indicas cuántas lecturas y escrituras por segundo necesitas y pagas por hora la capacidad aprovisionada, la uses o no. Conviene para cargas estables con crecimiento predecible y cuando puedes prever la capacidad; a cambio, el costo es más predecible.
+- **Auto scaling**: en modo aprovisionado, DynamoDB auto scaling usa Application Auto Scaling para subir o bajar la capacidad según un porcentaje de uso objetivo, dentro de un mínimo y un máximo.
+- **Capacidad reservada**: en tablas aprovisionadas con la clase de tabla Standard puedes comprometerte a pagar una cantidad mínima de capacidad durante un plazo a cambio de un precio con descuento. Pagas todo lo comprometido aunque no lo uses, y no está disponible en modo bajo demanda.
+- **Cambiar de modo**: puedes pasar de bajo demanda a aprovisionado en cualquier momento; en sentido contrario hay un límite de cambios en una ventana de 24 horas.
+
+### Unidades de capacidad de Aurora Serverless
+
+Aurora Serverless mide la capacidad en **unidades de capacidad de Aurora (ACU)**. Cada ACU combina unos 2 GiB de memoria con la CPU y la red correspondientes. En lugar de elegir una clase de instancia, defines un rango de capacidad mínima y máxima, y Aurora escala cada instancia de escritura o de lectura dentro de ese rango según la carga.
+
+- Se recomienda para cargas muy variables: picos cortos seguidos de largos periodos de poca o ninguna actividad, entornos de desarrollo y pruebas, o aplicaciones nuevas cuyo uso puede crecer rápido.
+- En cada momento solo pagas por la capacidad que se usa activamente. Con una capacidad mínima de 0 ACU, en las versiones que lo admiten, el clúster escala a cero cuando no hay carga.
+- El almacenamiento y el cómputo son independientes: la capacidad que sube o baja es siempre la de cómputo.
+- Los clústeres aprovisionados de Aurora siguen siendo adecuados para cargas estables. Puedes combinar instancias aprovisionadas y sin servidor en un mismo clúster.
+
+### Clases de instancia en Amazon RDS
+
+La clase de instancia de base de datos determina la capacidad de cómputo y de memoria. Se compone de un tipo y un tamaño: en `db.r6g.2xlarge`, `db.r6g` es el tipo (optimizado para memoria, con procesadores AWS Graviton2) y `2xlarge` el tamaño.
+
+- **Uso general** (por ejemplo, familias `db.m`): equilibrio entre cómputo, memoria y red.
+- **Optimizadas para memoria** (por ejemplo, familias `db.r`, `db.x` y `db.z`): cargas que usan mucha memoria.
+- **Optimizadas para cómputo**: cargas intensivas en cómputo.
+- **Rendimiento ampliable** (familias `db.t`): ofrecen un nivel base de rendimiento con capacidad de ráfaga de CPU. Las `db.t3` y `db.t4g` se configuran en modo Unlimited, por lo que superar la línea base durante un periodo prolongado tiene un cargo adicional.
+- **Optimized Reads** (clases con almacenamiento NVMe local, como `db.r6gd`): para cargas que necesitan almacenamiento local de alta velocidad y baja latencia.
+
+Puedes cambiar la CPU y la memoria disponibles modificando la clase de instancia. En un clúster aprovisionado de Aurora, cambiar la clase de la instancia de escritura o de lectura puede implicar breves interrupciones.
+
+### Almacenamiento e IOPS aprovisionadas en Amazon RDS
+
+RDS usa volúmenes de Amazon EBS y ofrece dos tipos de almacenamiento que difieren en rendimiento y precio:
+
+- **SSD de uso general (gp3 y gp2)**: almacenamiento rentable, adecuado para la mayoría de las cargas que no son sensibles a la latencia. Con gp3 puedes ajustar el rendimiento (IOPS y throughput) de forma independiente de la capacidad.
+- **SSD de IOPS aprovisionadas (io2 Block Express e io1)**: pensado para cargas intensivas en E/S, en particular bases de datos de producción OLTP que necesitan latencia baja y rendimiento de E/S constante. Al crear la instancia indicas la tasa de IOPS y el tamaño, y RDS mantiene esa tasa hasta que la cambies.
+- **Costo**: con IOPS aprovisionadas pagas los recursos aprovisionados aunque no los uses en el mes.
+- **Límite real**: aunque reserves IOPS, el rendimiento bajo carga queda limitado por el primer recurso que se agote, como el ancho de banda de red, la CPU o la memoria. Una carga puede no alcanzar el total de IOPS aprovisionadas.
+- **Ajuste automático del almacenamiento**: si la carga es impredecible, el ajuste automático del almacenamiento aumenta el espacio cuando RDS detecta que se está quedando sin espacio libre, hasta un umbral máximo que tú defines.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Ajusta la capacidad con"
+    service="Application Auto Scaling"
+    description="DynamoDB auto scaling y Aurora Auto Scaling usan políticas de seguimiento de destino de Application Auto Scaling."
+  />
+  <ConnectionCard
+    relation="Mide el uso con"
+    service="Amazon CloudWatch"
+    description="Las alarmas y métricas de CloudWatch disparan el escalado y muestran cuánta capacidad se usa realmente, por ejemplo ACUUtilization en Aurora Serverless."
+  />
+  <ConnectionCard
+    relation="Guarda los datos en"
+    service="Amazon EBS"
+    description="Las instancias de RDS usan volúmenes de EBS de uso general o de IOPS aprovisionadas para datos y registros."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Capacidad aprovisionada cuando"
+    items={[
+      'La carga es estable y puedes prever la capacidad que necesita.',
+      'Quieres costos predecibles y, en DynamoDB, descuentos con capacidad reservada.',
+      'Una base de producción OLTP necesita E/S constante: IOPS aprovisionadas en RDS.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'El tráfico es impredecible o nuevo: DynamoDB bajo demanda.',
+      'La carga relacional tiene picos y largos periodos inactivos: Aurora Serverless con un rango de ACU.',
+      'La carga es variable pero quieres seguir en modo aprovisionado: DynamoDB auto scaling.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Capacidad de rendimiento de DynamoDB"
+  url="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/capacity-mode.html"
+/>
+<OfficialSource
+  title="Modo de capacidad aprovisionada de DynamoDB"
+  url="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/provisioned-capacity-mode.html"
+/>
+<OfficialSource
+  title="Modo de capacidad bajo demanda de DynamoDB"
+  url="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/on-demand-capacity-mode.html"
+/>
+<OfficialSource
+  title="Capacidad reservada de DynamoDB"
+  url="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/reserved-capacity.html"
+/>
+<OfficialSource
+  title="Cómo funciona Aurora Serverless"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless-v2.how-it-works.html"
+/>
+<OfficialSource
+  title="Clases de instancia de base de datos de Amazon RDS"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.html"
+/>
+<OfficialSource
+  title="Tipos de clase de instancia de base de datos"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.Types.html"
+/>
+<OfficialSource
+  title="Almacenamiento de instancias de Amazon RDS"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_Storage.html"
+/>
+<OfficialSource
+  title="Ajuste automático del almacenamiento de Amazon RDS"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_PIOPS.Autoscaling.html"
+/>
