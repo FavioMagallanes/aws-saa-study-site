@@ -17,4 +17,164 @@ export const meta = {
   ],
 };
 
-Contenido pendiente.
+No existe una base de datos que sirva para todo. AWS ofrece más de quince opciones con modelos de datos distintos: relacional, clave-valor, documentos, en memoria, grafos, columnas anchas y otros. Elegir bien implica responder tres preguntas: qué forma tienen los datos, cómo se accede a ellos (más lecturas o más escrituras, qué latencia) y de dónde vienes (qué motor usas hoy y cómo vas a migrar). El examen suele describir una carga y esperar que identifiques el tipo de base de datos y, si es relacional, el motor.
+
+## Qué problema resuelve
+
+Usar una base de datos relacional para todo funciona hasta que no funciona: un carrito de compras con millones de usuarios simultáneos, una red social con relaciones complejas o una tabla de clasificación que necesita respuestas en microsegundos encajan mejor con otros modelos. A la inversa, forzar datos muy relacionados en una base NoSQL complica las consultas y las transacciones. Elegir el tipo y el motor adecuados desde el principio evita cuellos de botella de rendimiento, migraciones costosas y licencias innecesarias. Y no tienes que elegir uno solo: una misma aplicación puede combinar varias bases de datos, cada una para lo que mejor hace.
+
+## Conceptos clave
+
+### Relacionales: Amazon RDS y Amazon Aurora
+
+Las bases relacionales guardan datos estructurados en tablas, filas y columnas, y admiten consultas complejas con uniones (joins) y transacciones.
+
+- **Amazon RDS**: base de datos relacional administrada con seis motores: PostgreSQL, MySQL, MariaDB, SQL Server, Oracle y Db2. Se encarga de copias de seguridad, parches, detección de fallos y recuperación; ofrece alta disponibilidad con una instancia secundaria síncrona (Multi-AZ) y réplicas de lectura para escalar las lecturas. AWS lo recomienda como opción predeterminada para la mayoría de las bases relacionales, frente a instalar el motor en EC2 o en local.
+- **Amazon Aurora**: motor relacional administrado compatible con MySQL y PostgreSQL. El código, las herramientas y las aplicaciones que ya usas con esos motores funcionan con Aurora. Usa un subsistema de almacenamiento distribuido que crece automáticamente según haga falta y ofrece más rendimiento que MySQL y PostgreSQL estándar en hardware similar. Conviene al migrar o modernizar una carga relacional local, o cuando los patrones de consulta son poco predecibles.
+- **Aurora Serverless**: configuración bajo demanda que ajusta la capacidad automáticamente según la demanda y cobra solo por lo que se consume. Es especialmente útil con cargas variables e impredecibles, entornos de desarrollo y prueba, y bases multiinquilino.
+
+### No relacionales (NoSQL)
+
+Cada servicio está diseñado para un modelo de datos concreto:
+
+- **Amazon DynamoDB (clave-valor)**: sin servidor, totalmente administrada, con rendimiento de milisegundos de un solo dígito a cualquier escala. Ideal para almacenes de sesión o carritos de compras con muchísimos usuarios simultáneos y un volumen de solicitudes muy alto.
+- **Amazon DocumentDB, compatible con MongoDB (documentos)**: para guardar documentos tipo JSON con datos semiestructurados y consultar sobre cualquiera de sus campos.
+- **Amazon Keyspaces, para Apache Cassandra (columnas anchas)**: para migrar cargas de Cassandra o procesar datos a gran velocidad con muchas lecturas y escrituras, alto throughput y escalabilidad lineal.
+- **Amazon Neptune (grafos)**: para modelar redes complejas de objetos, como redes sociales, detección de fraude o motores de recomendación; optimizada para recorrer muchas relaciones con latencia mínima.
+
+### En memoria
+
+**Amazon ElastiCache** ofrece una capa de caché en memoria, con motores Valkey, Memcached y Redis OSS, para mejorar el rendimiento de lectura con lecturas de microsegundos. Si la carga necesita respuestas en microsegundos y no en milisegundos, puedes usarla junto a tu base de datos.
+
+### Sin servidor o aprovisionada
+
+Las bases de datos sin servidor escalan con la demanda, se pagan por uso e incluyen alta disponibilidad, sin aprovisionar ni parchear servidores. Entre las opciones sin servidor están Aurora Serverless, DynamoDB, ElastiCache, Keyspaces y Neptune Serverless. En DynamoDB, por ejemplo:
+
+- **Modo bajo demanda**: el predeterminado y recomendado para la mayoría de las cargas; pagas por solicitud y no planificas capacidad.
+- **Modo aprovisionado**: indicas las lecturas y escrituras por segundo y pagas por lo aprovisionado, aunque no lo consumas. Conviene con cargas estables y crecimiento predecible.
+
+### Patrones de acceso: lecturas frente a escrituras
+
+- **Lectura intensiva**: envía las consultas a réplicas de lectura para descargar la instancia principal y escalar más allá de una sola instancia; las réplicas se actualizan de forma asíncrona. Añade una caché con ElastiCache para los datos que se leen con frecuencia.
+- **Escritura intensiva o volumen muy alto de solicitudes**: los modelos clave-valor como DynamoDB reparten el procesamiento y el almacenamiento para atender un throughput extremo; Keyspaces está optimizado para cargas con muchas lecturas y escrituras.
+- **Consultas complejas y transacciones**: un modelo relacional en RDS o Aurora.
+- **Relaciones muy conectadas**: un grafo en Neptune.
+
+### Elegir el motor relacional: MySQL, PostgreSQL y los demás
+
+La documentación de AWS no declara un motor ganador; la elección depende del contexto:
+
+- **Lo que ya usas y conoce tu equipo**: si tu aplicación ya funciona con MySQL o PostgreSQL, mantener el motor evita reescribir código y permite reutilizar herramientas y conocimientos. Por ejemplo, AWS sugiere a equipos que ya usan PostgreSQL evaluar la extensión `pgvector` antes de adoptar otro servicio para búsqueda vectorial.
+- **Compatibilidad con Aurora**: Aurora es compatible con ambos motores, y el código, las herramientas y las aplicaciones que usas con MySQL o PostgreSQL funcionan con Aurora.
+- **Licencias**: los motores comerciales (Oracle, SQL Server, Db2) están disponibles en RDS, pero migrar a Aurora MySQL o Aurora PostgreSQL es una forma de dejar de depender de licencias comerciales.
+- **Funciones que ofrece RDS**: tanto RDS for MySQL como RDS for PostgreSQL admiten Multi-AZ, réplicas de lectura, copias de seguridad y restauración a un momento dado.
+
+### Migraciones homogéneas y heterogéneas
+
+- **Homogénea**: el origen y el destino usan el mismo motor, por ejemplo PostgreSQL local a Amazon RDS for PostgreSQL o Aurora PostgreSQL. Las migraciones homogéneas de AWS DMS usan herramientas nativas del motor, son sin servidor y migran datos, particiones, tipos de datos y objetos secundarios como funciones y procedimientos almacenados.
+- **Heterogénea**: el motor cambia, por ejemplo de Oracle o SQL Server a Aurora. Primero conviertes el esquema con DMS Schema Conversion, que evalúa qué se convierte automáticamente y qué requiere trabajo manual; después migras los datos con AWS DMS. La conversión de esquemas no mueve datos.
+- AWS DMS puede hacer migraciones únicas o replicar cambios de forma continua para mantener origen y destino sincronizados.
+
+### Estrategia de migración y operación
+
+- **Realojar (rehost)**: instalas el motor en EC2 y lo administras como en local. Es rápido, pero sigues a cargo de actualizaciones, parches, copias de seguridad, capacidad y disponibilidad.
+- **Cambiar de plataforma (replatform)**: migras a RDS administrado sin cambiar la aplicación, para salir rápido del centro de datos y modernizar después.
+- **Refactorizar**: aprovechas para pasar a Aurora o a bases NoSQL diseñadas para el caso, como DynamoDB, Neptune o DocumentDB.
+- Para análisis de grandes volúmenes (OLAP) la opción es Amazon Redshift, un almacén de datos, y no una base transaccional.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Migra los datos con"
+    service="AWS DMS"
+    description="Migraciones homogéneas con herramientas nativas, o heterogéneas tras convertir el esquema con DMS Schema Conversion."
+  />
+  <ConnectionCard
+    relation="Acelera las lecturas con"
+    service="Amazon ElastiCache"
+    description="Una caché en memoria delante de la base de datos sirve lecturas frecuentes en microsegundos."
+  />
+  <ConnectionCard
+    relation="Analiza los datos en"
+    service="Amazon Redshift"
+    description="Las cargas analíticas (OLAP) a gran escala van a un almacén de datos, no a la base transaccional."
+  />
+  <ConnectionCard
+    relation="Controla el acceso con"
+    service="AWS IAM y Amazon VPC"
+    description="RDS permite definir usuarios y permisos con IAM y aislar las bases de datos dentro de una VPC."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Relacional (RDS o Aurora) cuando"
+    items={[
+      'Los datos son estructurados y necesitas consultas complejas con uniones y transacciones.',
+      'Migras una base relacional existente: RDS con el mismo motor, o Aurora si es MySQL o PostgreSQL.',
+      'La carga relacional es muy variable o impredecible: Aurora Serverless.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otro tipo cuando"
+    items={[
+      'Acceso por clave con muchísimas solicitudes y usuarios simultáneos: DynamoDB.',
+      'Documentos JSON con consultas sobre sus campos: DocumentDB.',
+      'Relaciones complejas como redes sociales o fraude: Neptune.',
+      'Cargas de Cassandra o muchas escrituras con escalado lineal: Keyspaces.',
+      'Lecturas en microsegundos como caché: ElastiCache.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Elegir un servicio de base de datos de AWS"
+  url="https://docs.aws.amazon.com/decision-guides/latest/databases-on-aws-how-to-choose/databases-on-aws-how-to-choose.html"
+/>
+<OfficialSource
+  title="Qué es Amazon RDS"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Welcome.html"
+/>
+<OfficialSource
+  title="Qué es Amazon Aurora"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/CHAP_AuroraOverview.html"
+/>
+<OfficialSource
+  title="Aurora Serverless"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless-v2.html"
+/>
+<OfficialSource
+  title="Amazon RDS for MySQL"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_MySQL.html"
+/>
+<OfficialSource
+  title="Amazon RDS for PostgreSQL"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_PostgreSQL.html"
+/>
+<OfficialSource
+  title="Réplicas de lectura de Amazon RDS"
+  url="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ReadRepl.html"
+/>
+<OfficialSource
+  title="Modos de capacidad de DynamoDB"
+  url="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/capacity-mode.html"
+/>
+<OfficialSource
+  title="Qué es AWS Database Migration Service"
+  url="https://docs.aws.amazon.com/dms/latest/userguide/Welcome.html"
+/>
+<OfficialSource
+  title="Migraciones homogéneas con AWS DMS"
+  url="https://docs.aws.amazon.com/dms/latest/userguide/data-migrations.html"
+/>
+<OfficialSource
+  title="Convertir esquemas con DMS Schema Conversion"
+  url="https://docs.aws.amazon.com/dms/latest/userguide/CHAP_SchemaConversion.html"
+/>
