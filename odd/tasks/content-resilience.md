@@ -11,26 +11,26 @@ Writes the 18 `topic` pages of the category Resiliencia (page orders 20 to 37; t
 
 ## Tasks
 
-Batch A (writer 1), B (writer 2), C (writer 3); the parent commits one page per commit.
+Writer 1 takes T1-T6, writer 2 T7-T12, writer 3 T13-T18; the parent commits one page per commit.
 
-- [ ] A1 arquitecturas-de-varios-niveles (2.1-k10, 2.1-s1)
-- [ ] A2 microservicios-y-cargas-sin-estado (2.1-k4, 2.1-s1)
-- [ ] A3 arquitecturas-basadas-en-eventos (2.1-k5, s1, s3, 3.2-s1)
-- [ ] A4 colas-mensajeria-y-publicacion-suscripcion (2.1-k11, s3, 3.2-k3, s1)
-- [ ] A5 orquestacion-de-flujos-de-trabajo (2.1-k16)
-- [ ] A6 estrategias-de-cache (2.1-k3, 3.3-k2, s5, 4.3-k3)
-- [ ] B1 escalado-horizontal-y-vertical (2.1-k6, s2, 4.2-s2)
-- [ ] B2 contenedores-cuando-usarlos-y-como-migrar (2.1-k14, k8, s4, 3.2-k6)
-- [ ] B3 patrones-sin-servidor (2.1-k12, s5, 3.2-k5)
-- [ ] B4 balanceo-de-carga-alb-nlb-y-gwlb (2.1-k9, 2.2-k8, 3.4-k3, s4, 4.2-s1, 4.4-k3)
-- [ ] B5 alta-disponibilidad-multi-az-y-multirregion (2.2-k1, s2, s4)
-- [ ] B6 recuperacion-ante-desastres (1.3-k2, 2.2-k4, s6)
-- [ ] C1 conmutacion-por-error-y-patrones-distribuidos (2.2-k5, k6, s4)
-- [ ] C2 infraestructura-inmutable-y-automatizacion (2.2-k7, s1)
-- [ ] C3 service-quotas-y-limitacion (2.2-k10, 4.4-s6)
-- [ ] C4 observabilidad-y-metricas-de-disponibilidad (2.2-k12, s3)
-- [ ] C5 fiabilidad-para-aplicaciones-heredadas (2.2-s7)
-- [ ] C6 servicios-administrados-para-cada-carga-de-trabajo (2.1-k2, s7, 2.2-k2, s8)
+- [ ] T1 arquitecturas-de-varios-niveles (2.1-k10, 2.1-s1)
+- [ ] T2 microservicios-y-cargas-sin-estado (2.1-k4, 2.1-s1)
+- [ ] T3 arquitecturas-basadas-en-eventos (2.1-k5, s1, s3, 3.2-s1)
+- [ ] T4 colas-mensajeria-y-publicacion-suscripcion (2.1-k11, s3, 3.2-k3, s1)
+- [ ] T5 orquestacion-de-flujos-de-trabajo (2.1-k16)
+- [ ] T6 estrategias-de-cache (2.1-k3, 3.3-k2, s5, 4.3-k3)
+- [ ] T7 escalado-horizontal-y-vertical (2.1-k6, s2, 4.2-s2)
+- [ ] T8 contenedores-cuando-usarlos-y-como-migrar (2.1-k14, k8, s4, 3.2-k6)
+- [ ] T9 patrones-sin-servidor (2.1-k12, s5, 3.2-k5)
+- [ ] T10 balanceo-de-carga-alb-nlb-y-gwlb (2.1-k9, 2.2-k8, 3.4-k3, s4, 4.2-s1, 4.4-k3)
+- [ ] T11 alta-disponibilidad-multi-az-y-multirregion (2.2-k1, s2, s4)
+- [ ] T12 recuperacion-ante-desastres (1.3-k2, 2.2-k4, s6)
+- [ ] T13 conmutacion-por-error-y-patrones-distribuidos (2.2-k5, k6, s4)
+- [ ] T14 infraestructura-inmutable-y-automatizacion (2.2-k7, s1)
+- [ ] T15 service-quotas-y-limitacion (2.2-k10, 4.4-s6)
+- [ ] T16 observabilidad-y-metricas-de-disponibilidad (2.2-k12, s3)
+- [ ] T17 fiabilidad-para-aplicaciones-heredadas (2.2-s7)
+- [ ] T18 servicios-administrados-para-cada-carga-de-trabajo (2.1-k2, s7, 2.2-k2, s8)
 
 ## Log
 
