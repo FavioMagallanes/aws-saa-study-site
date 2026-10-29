@@ -7,4 +7,94 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Amazon CloudWatch supervisa en tiempo real tus recursos de AWS y las aplicaciones que ejecutas en AWS. Reúne métricas, registros y alarmas en un solo servicio para que veas el rendimiento, el estado operativo y el uso de los recursos, y para que reacciones de forma automática cuando algo se sale de lo normal.
+
+## Qué problema resuelve
+
+Sin datos de rendimiento no sabes si una instancia está saturada, si una aplicación devuelve errores ni cuándo hace falta más capacidad. CloudWatch recoge esos datos de forma continua, avisa cuando se cruza un umbral y puede disparar acciones como escalar un grupo de Auto Scaling. Cómo definir métricas de disponibilidad ligadas al negocio se explica en el tema "Observabilidad y métricas de disponibilidad".
+
+## Conceptos clave
+
+### Métricas
+
+Muchos servicios de AWS envían métricas a CloudWatch de forma automática, y puedes publicar métricas personalizadas. En Amazon EC2, la supervisión básica entrega la mayoría de las métricas en periodos de cinco minutos sin cargo; la supervisión detallada, que se activa por instancia y tiene costo, las entrega cada minuto.
+
+### Alarmas
+
+- **Alarma de métrica**: vigila una métrica, o una expresión matemática sobre métricas, frente a un umbral durante varios periodos. Puede enviar una notificación a un tema de Amazon SNS, ejecutar una acción de EC2 o de EC2 Auto Scaling, o crear un OpsItem o un incidente en Systems Manager.
+- **Alarma compuesta**: combina el estado de otras alarmas con una regla, lo que reduce el ruido de alertas. Puede notificar por SNS, pero no ejecuta acciones de EC2 ni de Auto Scaling.
+- Una alarma actúa cuando cambia de estado (`OK`, `ALARM` o `INSUFFICIENT_DATA`); con acciones de Auto Scaling, la acción se repite mientras sigue en el nuevo estado.
+
+### Registros
+
+CloudWatch Logs guarda los registros de servicios de AWS y aplicaciones en grupos y flujos de registros. Con Logs Insights los consultas, con los filtros de métricas conviertes valores de los registros en métricas para alarmas y paneles, y con los filtros de suscripción los envías en tiempo real a otros servicios, como Amazon S3 o Amazon Data Firehose.
+
+### Agente, paneles y otras capacidades
+
+- **Agente de CloudWatch**: recoge métricas detalladas del sistema, como memoria y uso de disco, y registros de instancias EC2 y de servidores locales.
+- **Paneles**: muestran métricas y registros en un solo lugar y se pueden compartir entre cuentas y regiones.
+- **Observabilidad entre cuentas**: una cuenta central de supervisión ve métricas, registros y trazas de otras cuentas, que puedes vincular mediante AWS Organizations.
+- **Synthetics**: scripts llamados canaries que imitan a los usuarios para detectar problemas de disponibilidad antes que ellos.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Escala recursos con"
+    service="Amazon EC2 Auto Scaling"
+    description="Las alarmas disparan las políticas de escalado que añaden o quitan instancias."
+  />
+  <ConnectionCard
+    relation="Notifica con"
+    service="Amazon SNS"
+    description="Una alarma publica en un tema de SNS para avisar a personas o a otros sistemas."
+  />
+  <ConnectionCard
+    relation="Recibe registros de"
+    service="AWS CloudTrail"
+    description="Un registro de seguimiento puede enviar la actividad de la API a CloudWatch Logs."
+  />
+  <ConnectionCard
+    relation="Crea incidencias en"
+    service="AWS Systems Manager"
+    description="Una alarma puede crear un OpsItem o un incidente para gestionar la respuesta."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="CloudWatch cuando"
+    items={[
+      'Necesitas métricas de rendimiento y alarmas sobre tus recursos y aplicaciones.',
+      'Quieres escalar o notificar de forma automática al cruzar un umbral.',
+      'Debes centralizar y consultar registros de aplicaciones y servicios.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Necesitas saber quién hizo una llamada a la API: AWS CloudTrail.',
+      'Quieres seguir una solicitud a través de varios servicios: AWS X-Ray.',
+      'Debes evaluar si la configuración de los recursos cumple tus reglas: AWS Config.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon CloudWatch"
+  url="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/WhatIsCloudWatch.html"
+/>
+<OfficialSource
+  title="Usar alarmas de Amazon CloudWatch"
+  url="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html"
+/>
+<OfficialSource
+  title="Supervisión detallada de instancias EC2"
+  url="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/manage-detailed-monitoring.html"
+/>
