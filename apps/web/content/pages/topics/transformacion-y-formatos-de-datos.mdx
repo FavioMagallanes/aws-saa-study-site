@@ -7,4 +7,150 @@ export const meta = {
   covers: ['3.5-k4', '3.5-s5', '3.5-s7'],
 };
 
-Contenido pendiente.
+Los datos casi nunca llegan en la forma en que conviene analizarlos. Transformarlos significa limpiarlos, combinarlos y, muy a menudo, cambiarlos de formato, por ejemplo de CSV o JSON a Apache Parquet. En AWS puedes hacerlo con AWS Glue, con Amazon EMR, con consultas de Amazon Athena o durante la entrega con Amazon Data Firehose. El examen espera que sepas qué servicio de transformación y qué opción de cómputo encajan con cada caso.
+
+## Qué problema resuelve
+
+Los formatos columnares como Parquet u ORC ocupan menos espacio y permiten consultas más rápidas que los formatos orientados a filas, como JSON o CSV. En Athena, convertir los datos a estos formatos mejora el rendimiento y reduce el costo de las consultas. Además, preparar los datos una vez evita volver a consultar repetidamente los datos sin procesar. La pregunta es dónde ejecutar esa transformación: en un servicio sin servidor, en un clúster que controlas o en la propia canalización de ingesta.
+
+## Conceptos clave
+
+### Formatos columnares: Parquet y ORC
+
+Apache Parquet y ORC son formatos de almacenamiento columnar optimizados para recuperar datos con rapidez. Según la documentación de Athena, tienen tres ventajas frente a los formatos por filas:
+
+- **Compresión por columna**: cada columna se comprime con un algoritmo adecuado a su tipo de datos, lo que ahorra espacio en S3 y reduce el disco y la E/S al consultar.
+- **Inserción de predicados (predicate pushdown)**: con estadísticas por bloque, como los valores máximo y mínimo, el motor lee solo los bloques que necesita y omite el resto.
+- **División de los datos**: permite repartir la lectura entre varios lectores y aumentar el paralelismo.
+
+Para elegir entre ambos: Parquet admite una gama más amplia de tipos de consulta y conviene para consultas complejas y grandes volúmenes. ORC suele producir archivos más pequeños y admite más tipos de datos complejos, como estructuras, mapas y listas.
+
+### Formas de convertir de CSV a Parquet
+
+- **Trabajos de AWS Glue**: un trabajo de ETL lee los archivos, por ejemplo CSV en la capa sin procesar de un lago de datos, y los escribe en Parquet en S3, registrando los metadatos en el Data Catalog. Es el patrón que propone la guía prescriptiva de AWS para pasar de la capa raw a la capa stage.
+- **Consultas CTAS en Athena**: una consulta `CREATE TABLE AS SELECT` crea una tabla nueva a partir del resultado de un `SELECT` y guarda los archivos en S3 en el formato que indiques, como Parquet u ORC. Sirve para convertir datos con SQL, sin escribir un trabajo de ETL.
+- **Conversión en Firehose**: Firehose puede convertir los datos de entrada de JSON a Parquet u ORC antes de guardarlos en S3. Si el origen es CSV u otro formato, primero puedes transformarlo a JSON con una función de AWS Lambda que Firehose invoca durante la entrega.
+
+### AWS Glue
+
+AWS Glue es un servicio de integración de datos sin servidor para descubrir, preparar, mover e integrar datos de varios orígenes. No hay infraestructura que administrar y se paga por uso.
+
+- **ETL visual o con código**: con AWS Glue Studio compones transformaciones de forma visual y las ejecutas en el motor de ETL sin servidor de Glue, basado en Apache Spark; el editor genera el código.
+- **Cargas variadas**: admite ETL, ELT y streaming; puede limpiar y transformar datos de streaming en tránsito y leer formatos desde Kinesis, Amazon MSK o Apache Kafka.
+- **Escalado automático**: asigna trabajadores a los trabajos solo cuando hacen falta y escala según la carga.
+- **Programación y orquestación**: los trabajos se ejecutan según una programación, bajo demanda o por eventos, y los flujos de trabajo encadenan rastreadores, trabajos y desencadenadores.
+- **Marcadores de trabajo (job bookmarks)**: guardan el estado de ejecuciones anteriores para procesar solo los datos nuevos y evitar duplicados al volver a ejecutar un trabajo programado.
+- **Datos sensibles**: la detección de datos sensibles permite identificarlos y tratarlos dentro de la canalización.
+
+### Amazon EMR
+
+Amazon EMR es una plataforma de clústeres administrada para ejecutar marcos de big data como Apache Hadoop y Apache Spark, y aplicaciones como Hive, para procesar y analizar grandes volúmenes de datos. También sirve para transformar y mover grandes cantidades de datos hacia y desde S3 o DynamoDB.
+
+- **Control del hardware**: el clúster está formado por instancias de EC2, y eliges su tipo y tamaño según el procesamiento: por lotes, consultas de baja latencia, datos de streaming o almacenamiento de grandes datos.
+- **Costo**: el precio depende del tipo y número de instancias. Puedes reducirlo con instancias reservadas o de spot, y combinar grupos de instancias bajo demanda, para garantizar capacidad, con grupos de spot, para acabar antes y a menor costo.
+- **Clústeres transitorios o de larga duración**: un clúster transitorio se termina automáticamente al acabar todos sus pasos; uno de larga duración sigue activo hasta que lo terminas.
+- **Separar cómputo y almacenamiento**: con EMRFS los datos viven en S3 y persisten más allá del ciclo de vida del clúster, así que escalas el cómputo y el almacenamiento por separado. HDFS en los nodos del clúster sirve para datos que no necesitas conservar.
+- **EMR Serverless**: una opción de despliegue sin servidor para Spark y Hive, sin configurar ni operar clústeres. Determina los recursos que necesita cada trabajo y los libera al terminar, lo que evita aprovisionar de más o de menos.
+
+Si el clúster está en una subred privada, AWS recomienda un punto de enlace de VPC para S3; sin él, el tráfico hacia S3 pasa por la puerta de enlace NAT y genera cargos adicionales.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Lee y escribe en"
+    service="Amazon S3"
+    description="Glue, EMR, Athena y Firehose leen los datos de origen y guardan el resultado transformado en buckets de S3."
+  />
+  <ConnectionCard
+    relation="Registra el esquema en"
+    service="AWS Glue Data Catalog"
+    description="Las tablas transformadas quedan catalogadas para consultarlas desde Athena, EMR o Redshift Spectrum."
+  />
+  <ConnectionCard
+    relation="Transforma en la entrega con"
+    service="AWS Lambda"
+    description="Firehose invoca una función para transformar los registros antes de entregarlos o convertirlos a Parquet."
+  />
+  <ConnectionCard
+    relation="Se gobierna con"
+    service="AWS Lake Formation"
+    description="EMR y Glue se integran con Lake Formation para catalogar y proteger los datos del lago."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="AWS Glue cuando"
+    items={[
+      'Quieres ETL sin servidor, sin administrar clústeres.',
+      'Necesitas convertir datos del lago, como CSV a Parquet, en trabajos programados o por eventos.',
+      'Te conviene un editor visual que genere el código.',
+      'Solo debes procesar los datos nuevos en cada ejecución.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Necesitas controlar el clúster, sus instancias y aplicaciones de Hadoop o Spark: Amazon EMR.',
+      'Quieres Spark o Hive sin operar clústeres: EMR Serverless.',
+      'Basta con una conversión por SQL sobre datos ya en S3: Athena con CTAS.',
+      'Quieres convertir JSON a Parquet o ORC mientras llega el flujo: Amazon Data Firehose.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Glue"
+  url="https://docs.aws.amazon.com/glue/latest/dg/what-is-glue.html"
+/>
+<OfficialSource
+  title="Opciones de formato de datos en AWS Glue para Spark"
+  url="https://docs.aws.amazon.com/glue/latest/dg/aws-glue-programming-etl-format.html"
+/>
+<OfficialSource
+  title="Usar el formato Parquet en AWS Glue"
+  url="https://docs.aws.amazon.com/glue/latest/dg/aws-glue-programming-etl-format-parquet-home.html"
+/>
+<OfficialSource
+  title="Seguimiento de datos procesados con marcadores de trabajo"
+  url="https://docs.aws.amazon.com/glue/latest/dg/monitor-continuations.html"
+/>
+<OfficialSource
+  title="Usar formatos de almacenamiento columnar en Athena"
+  url="https://docs.aws.amazon.com/athena/latest/ug/columnar-storage.html"
+/>
+<OfficialSource
+  title="Crear una tabla a partir de resultados de consulta (CTAS)"
+  url="https://docs.aws.amazon.com/athena/latest/ug/ctas.html"
+/>
+<OfficialSource
+  title="Convertir el formato de entrada en Amazon Data Firehose"
+  url="https://docs.aws.amazon.com/firehose/latest/dev/record-format-conversion.html"
+/>
+<OfficialSource
+  title="Transformar datos de origen en Amazon Data Firehose"
+  url="https://docs.aws.amazon.com/firehose/latest/dev/data-transformation.html"
+/>
+<OfficialSource
+  title="Qué es Amazon EMR"
+  url="https://docs.aws.amazon.com/emr/latest/ManagementGuide/emr-what-is-emr.html"
+/>
+<OfficialSource
+  title="Ventajas de usar Amazon EMR"
+  url="https://docs.aws.amazon.com/emr/latest/ManagementGuide/emr-overview-benefits.html"
+/>
+<OfficialSource
+  title="Qué es Amazon EMR Serverless"
+  url="https://docs.aws.amazon.com/emr/latest/EMR-Serverless-UserGuide/emr-serverless.html"
+/>
+<OfficialSource
+  title="Capas de datos recomendadas para un lago de datos"
+  url="https://docs.aws.amazon.com/prescriptive-guidance/latest/defining-bucket-names-data-lakes/data-layer-definitions.html"
+/>
