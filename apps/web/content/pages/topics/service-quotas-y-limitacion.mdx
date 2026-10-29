@@ -7,4 +7,135 @@ export const meta = {
   covers: ['2.2-k10', '4.4-s6'],
 };
 
-Contenido pendiente.
+Cada cuenta de AWS tiene límites sobre cuántos recursos puede crear y cuántas operaciones puede hacer. Conocer esas cuotas, pedir aumentos a tiempo y limitar de forma controlada las solicitudes que recibe tu propia carga de trabajo son dos caras de la misma idea: que ni un pico de demanda ni una conmutación por error te dejen sin capacidad.
+
+## Qué problema resuelve
+
+Una arquitectura de alta disponibilidad puede fallar justo cuando más se la necesita si, al conmutar a otra zona o región, no se pueden lanzar los recursos de reemplazo porque se alcanzó una cuota. Del lado contrario, una API sin límites puede quedar saturada por un aumento repentino de clientes, un ataque de inundación o una tormenta de reintentos. Administrar las cuotas evita quedarte sin margen, y la limitación de solicitudes (throttling) evita que una carga inesperada agote los recursos que atienden al resto de los clientes.
+
+## Conceptos clave
+
+### Qué son las Service Quotas
+
+Las cuotas, antes llamadas límites, son los valores máximos de recursos, acciones y elementos de tu cuenta de AWS. Cada servicio define sus cuotas y sus valores predeterminados. Salvo que se indique lo contrario, cada cuota es propia de una región: el número de VPC por región es un ejemplo, mientras que el número de roles de IAM por cuenta es una cuota a nivel de cuenta.
+
+- **Valor predeterminado y valor aplicado**: AWS fija un valor inicial; cuando se aprueba un aumento, el nuevo valor es la cuota aplicada. En una cuenta recién creada o con poco uso, el valor real puede ser menor que el predeterminado.
+- **Ajustable o no**: puedes pedir aumentos de algunas cuotas, pero no de todas. La consola de Service Quotas muestra si cada cuota es ajustable y a qué nivel, de cuenta o de recurso.
+- **Uso y utilización**: el uso es la cantidad de recursos u operaciones en uso; la utilización es el porcentaje de la cuota que representa.
+
+### Service Quotas
+
+Service Quotas te permite ver y administrar desde un solo lugar las cuotas de los servicios de AWS:
+
+- **Pedir aumentos** desde la consola, la API o la AWS CLI. Support puede aprobar, rechazar o aprobar parcialmente la solicitud, y los aumentos no son inmediatos: pueden tardar un par de días. Si un servicio todavía no está en Service Quotas, abres un caso en el AWS Support Center.
+- **Alarmas de Amazon CloudWatch** que avisan cuando te acercas a un umbral de una cuota, para pedir el aumento antes de agotarla.
+- **Plantillas de solicitud de cuotas**: con AWS Organizations, la plantilla pide de forma automática los aumentos configurados cada vez que se crea una cuenta nueva en la organización. No actualiza las cuentas existentes.
+- **Administración automática**: una vez activada, AWS supervisa el uso de las cuotas y te avisa antes de que se agoten.
+
+### Cuotas para un entorno en espera
+
+En un diseño activo-pasivo, la región o cuenta secundaria debe poder absorber la carga si falla la principal. Por eso:
+
+- **Pide las cuotas en todos los entornos** donde corre la producción: las cuotas se controlan por cuenta y, en general, por región, y el mismo límite puede tener valores distintos en cada región. Revisa las cuotas de la región pasiva y verifica que soporte la carga si falla la principal.
+- **Vigila la desviación de cuotas**: ocurre cuando una cuota se cambia en una región pero no en las demás. Conviene automatizar su detección, porque las pruebas de conmutación a la región pasiva rara vez se hacen a la capacidad máxima y pueden no detectar la diferencia.
+- **Deja margen para la conmutación**: los recursos inaccesibles por un fallo de red o de permisos pero que siguen activos cuentan contra la cuota mientras no se terminen, así que la cuota debe cubrir a la vez esos recursos y sus reemplazos. AWS sugiere, por ejemplo, un margen del 15 % y contemplar la estabilidad estática por zona y por región.
+- **Reserva capacidad por adelantado**: las reservas de capacidad bajo demanda (On-Demand Capacity Reservations) aseguran la cantidad y el tipo de instancias antes de una conmutación por error.
+- **Recibe alertas**: AWS Trusted Advisor avisa cuando el uso supera el 80 % y el 90 % de una cuota.
+
+### Estrategias de limitación de solicitudes
+
+Limitar solicitudes significa procesar las que están por debajo de una tasa definida y rechazar las que la superan con una respuesta que indica que fueron limitadas, para que el cliente pueda reintentar más tarde. La capacidad que tu servicio soporta se establece con pruebas de carga.
+
+- **Algoritmo token bucket**: cada solicitud consume un token y los tokens se reponen a una tasa por segundo; el tamaño del cubo define la ráfaga permitida. Amazon API Gateway lo implementa de forma administrada.
+- **Niveles en API Gateway**: hay límites de AWS por región que el cliente no puede cambiar; límites por cuenta y región, que se pueden aumentar a petición; límites por API, etapa y método; y límites por cliente mediante planes de uso y claves de API. Al superarlos, API Gateway responde con el error 429 Too Many Requests. Estos límites son objetivos que se aplican en la medida de lo posible, no techos garantizados.
+- **Limitación por IP**: las reglas de limitación de frecuencia de AWS WAF en API Gateway o AWS AppSync frenan a los consumidores que generan una carga anormal.
+- **Amortiguar con colas y flujos**: Amazon SQS y Amazon Kinesis absorben las solicitudes y suavizan la tasa cuando el sistema tolera el procesamiento asíncrono.
+- **Concurrencia de Lambda**: cuando una cola de SQS invoca funciones de Lambda, configura la concurrencia máxima para no consumir la cuota de concurrencia que necesitan otras funciones de la cuenta; también puedes reservar concurrencia para esas otras funciones.
+- **Del lado del cliente**: quien recibe un error 429 puede reenviar la solicitud a un ritmo limitado, por ejemplo con reintentos con espera exponencial, para no sobrecargar aún más el servicio.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Avisa del uso de cuotas con"
+    service="Amazon CloudWatch"
+    description="Las alarmas notifican cuando una cuota se acerca al umbral elegido."
+  />
+  <ConnectionCard
+    relation="Aplica cuotas a cuentas nuevas con"
+    service="AWS Organizations"
+    description="Las plantillas de solicitud piden los aumentos de forma automática al crear cuentas en la organización."
+  />
+  <ConnectionCard
+    relation="Limita las API con"
+    service="Amazon API Gateway"
+    description="Implementa el token bucket por cuenta, etapa, método y cliente, y responde 429 al superar el límite."
+  />
+  <ConnectionCard
+    relation="Amortigua picos con"
+    service="Amazon SQS"
+    description="Una cola absorbe las solicitudes y permite procesarlas a un ritmo que el sistema soporta."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Revisa y aumenta cuotas cuando"
+    items={[
+      'Tienes una región o cuenta en espera que debe absorber la carga principal.',
+      'Planeas crecer o lanzar muchos recursos durante una conmutación por error.',
+      'Creas cuentas nuevas en tu organización con necesidades conocidas.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Limita las solicitudes cuando"
+    items={[
+      'Una API pública puede recibir picos o abusos: límites y planes de uso de API Gateway.',
+      'Un solo cliente o IP puede saturar el servicio: reglas de frecuencia de AWS WAF.',
+      'El trabajo admite procesarse más tarde: una cola de SQS como amortiguador.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Service Quotas"
+  url="https://docs.aws.amazon.com/servicequotas/latest/userguide/intro.html"
+/>
+<OfficialSource
+  title="Cuotas de servicio de AWS"
+  url="https://docs.aws.amazon.com/general/latest/gr/aws_service_limits.html"
+/>
+<OfficialSource
+  title="Service Quotas y alarmas de Amazon CloudWatch"
+  url="https://docs.aws.amazon.com/servicequotas/latest/userguide/configure-cloudwatch.html"
+/>
+<OfficialSource
+  title="Plantillas de solicitud de Service Quotas"
+  url="https://docs.aws.amazon.com/servicequotas/latest/userguide/organization-templates.html"
+/>
+<OfficialSource
+  title="Administrar cuotas entre cuentas y regiones (REL01-BP02)"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/reliability-pillar/rel_manage_service_limits_limits_considered.html"
+/>
+<OfficialSource
+  title="Margen entre las cuotas y el uso máximo para la conmutación por error (REL01-BP06)"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/reliability-pillar/rel_manage_service_limits_suff_buffer_limits.html"
+/>
+<OfficialSource
+  title="Limitar solicitudes (REL05-BP02)"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/reliability-pillar/rel_mitigate_interaction_failure_throttle_requests.html"
+/>
+<OfficialSource
+  title="Limitar las solicitudes a las API REST en API Gateway"
+  url="https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-request-throttling.html"
+/>
+<OfficialSource
+  title="Patrón de reintento con espera exponencial"
+  url="https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/retry-backoff.html"
+/>
