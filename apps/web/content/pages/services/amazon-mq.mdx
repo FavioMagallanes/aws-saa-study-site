@@ -7,4 +7,92 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Amazon MQ es un servicio administrado de agentes de mensajes para Apache ActiveMQ Classic y RabbitMQ. Se encarga de configurar, operar y mantener los agentes, y te permite migrar los que ya tienes sin reescribir el código de mensajería.
+
+## Qué problema resuelve
+
+Muchas aplicaciones empresariales se comunican a través de un agente de mensajes tradicional con API como JMS o protocolos estándar como AMQP, MQTT, OpenWire o STOMP. Llevarlas a AWS reescribiéndolas para usar Amazon SQS o Amazon SNS cuesta tiempo. Amazon MQ ofrece esos mismos motores como servicio administrado, de modo que la aplicación sigue hablando con su agente mientras AWS aplica el mantenimiento y las actualizaciones de versión en la ventana que programes. La comparación general entre colas, publicación/suscripción y agentes está en el tema «Colas, mensajería y publicación/suscripción».
+
+## Conceptos clave
+
+### El agente
+
+Un agente (broker) es el entorno de mensajería que se ejecuta en Amazon MQ y es su pieza básica. Permite que aplicaciones escritas en distintos lenguajes y sistemas operativos se comuniquen con protocolos de mensajería estándar. A diferencia de SQS y SNS, Amazon MQ admite mensajería síncrona además de asíncrona, y ofrece tanto colas como publicación/suscripción.
+
+### Opciones de despliegue y alta disponibilidad
+
+- **ActiveMQ de instancia única**: un agente en una zona de disponibilidad, con almacenamiento en Amazon EFS (redundante entre varias zonas) o Amazon EBS (optimizado para baja latencia y alto rendimiento).
+- **ActiveMQ activo/en espera**: dos agentes en zonas de disponibilidad distintas que forman un par redundante con almacenamiento en EFS. Solo uno está activo; si falla o entra en mantenimiento, el otro pasa a activo. La aplicación debe poder conectarse a cualquiera de los dos puntos de enlace.
+- **RabbitMQ de instancia única**: un agente en una zona de disponibilidad detrás de un Network Load Balancer, que mantiene el mismo punto de enlace aunque se reemplace la instancia.
+- **Clúster de RabbitMQ**: tres nodos detrás de un Network Load Balancer, repartidos entre varias zonas de disponibilidad, con los datos replicados entre ellos.
+
+### Seguridad y monitorización
+
+Los mensajes se cifran en reposo y en tránsito, las conexiones usan SSL y puedes limitar el acceso a un punto de enlace privado dentro de tu VPC. IAM controla qué acciones pueden hacer los usuarios sobre cada agente, y las métricas de agentes y colas llegan a Amazon CloudWatch.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Se aísla en"
+    service="Amazon VPC"
+    description="Puedes restringir el acceso al agente a un punto de enlace privado dentro de tu VPC."
+  />
+  <ConnectionCard
+    relation="Guarda los mensajes en"
+    service="Amazon EFS o Amazon EBS"
+    description="EFS replica los datos entre zonas de disponibilidad; EBS ofrece baja latencia en una sola zona."
+  />
+  <ConnectionCard
+    relation="Se supervisa con"
+    service="Amazon CloudWatch"
+    description="Recoge cada minuto métricas de los agentes y de sus colas."
+  />
+  <ConnectionCard
+    relation="Controla el acceso con"
+    service="IAM"
+    description="Define qué acciones pueden realizar los usuarios y grupos sobre cada agente."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Amazon MQ cuando"
+    items={[
+      'Migras una aplicación que ya usa ActiveMQ o RabbitMQ y no quieres reescribir su mensajería.',
+      'La aplicación depende de JMS o de protocolos como AMQP, MQTT, OpenWire o STOMP.',
+      'Necesitas un agente con conmutación por error entre zonas: activo/en espera o clúster.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Es una aplicación nueva que necesita una cola con escalado casi ilimitado: Amazon SQS.',
+      'Es una aplicación nueva que difunde mensajes a muchos suscriptores: Amazon SNS.',
+      'Enrutas eventos de servicios de AWS y socios SaaS: Amazon EventBridge.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es Amazon MQ"
+  url="https://docs.aws.amazon.com/amazon-mq/latest/developer-guide/welcome.html"
+/>
+<OfficialSource
+  title="Opciones de despliegue de agentes de ActiveMQ"
+  url="https://docs.aws.amazon.com/amazon-mq/latest/developer-guide/amazon-mq-broker-architecture.html"
+/>
+<OfficialSource
+  title="Opciones de despliegue de agentes de RabbitMQ"
+  url="https://docs.aws.amazon.com/amazon-mq/latest/developer-guide/rabbitmq-broker-architecture.html"
+/>
+<OfficialSource
+  title="Diferencias entre Amazon SQS, Amazon MQ y Amazon SNS"
+  url="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welcome.html"
+/>
