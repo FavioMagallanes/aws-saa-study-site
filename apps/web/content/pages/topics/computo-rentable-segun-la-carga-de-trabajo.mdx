@@ -7,4 +7,149 @@ export const meta = {
   covers: ['4.2-k8', '4.2-k9', '4.2-s2', '4.2-s3', '4.2-s4'],
 };
 
-Contenido pendiente.
+El cómputo suele ser una de las partidas más grandes de la factura, y también una de las más fáciles de desperdiciar: servidores encendidos toda la noche sin usuarios, instancias dimensionadas para un pico que llega una vez al mes o entornos de pruebas con la misma redundancia que producción. Hacer el cómputo rentable consiste en elegir el servicio que encaja con la carga, ajustar la capacidad a la demanda real y no pagar más disponibilidad de la que cada carga necesita.
+
+## Qué problema resuelve
+
+Elegir el servicio de cómputo implica equilibrar rendimiento, escalabilidad, esfuerzo de administración y costo. Una opción muy barata por hora puede salir cara si exige un equipo dedicado a parchearla, y una muy cómoda puede no ser la más económica con una carga constante. Esta página se centra en el ángulo de costo. Las familias y tamaños de instancia, el escalado horizontal y vertical y las opciones de compra se explican en sus propias páginas.
+
+## Conceptos clave
+
+### Qué servicio de cómputo según la carga
+
+- **Amazon EC2**: servidores virtuales con muchísimos tipos de instancia, para elegir la combinación de procesador, memoria, almacenamiento y red que mejor encaja con la carga y el presupuesto. Te da control total, pero tú eres responsable de la configuración, el escalado, los parches y la seguridad de los servidores. Para cargas que necesitan ese control, ese esfuerzo de administración está justificado. Las instancias basadas en AWS Graviton están diseñadas para ofrecer la mejor relación precio-rendimiento en EC2.
+- **AWS Lambda**: ejecuta código en respuesta a eventos sin aprovisionar ni administrar servidores. Lambda se encarga del mantenimiento, el aprovisionamiento de capacidad y el escalado automático. Pagas solo por los recursos que usas, sin compromisos por adelantado, así que no pagas por servidores que esperan sin trabajo.
+- **AWS Fargate**: ejecuta contenedores con Amazon ECS o Amazon EKS sin administrar servidores ni clústeres de instancias EC2. Indicas la CPU y la memoria de cada tarea, y ya no tienes que elegir tipos de servidor, decidir cuándo escalar el clúster ni optimizar cómo se reparten los contenedores en las instancias.
+- **AWS Batch**: planifica y ejecuta trabajos por lotes en contenedores sobre EC2 (bajo demanda o Spot) o Fargate. Los trabajos por lotes necesitan mucha capacidad mientras se ejecutan, que se puede reducir al terminar para controlar los costos.
+
+Al comparar servicios, considera también el costo total de propiedad, incluidos los costos ocultos del trabajo operativo. Puedes combinar varios tipos de cómputo en una misma carga de trabajo.
+
+### Aprovechar mejor el cómputo: contenedores, sin servidor y microservicios
+
+- **Sin servidor**: los servicios sin servidor escalan automáticamente por unidad de consumo y siguen un modelo de pago por valor, así que no pagas capacidad ociosa.
+- **Contenedores**: empaquetan la aplicación de forma portátil y eficiente. Con Fargate, AWS administra el cómputo; con instancias EC2, tú gestionas la capacidad del clúster. Para tareas que toleran interrupciones, Fargate Spot ejecuta tareas de Amazon ECS con descuento sobre capacidad sobrante, con un aviso de dos minutos antes de recuperarla.
+- **Microservicios**: dividir una aplicación en servicios pequeños y débilmente acoplados mejora la escalabilidad, y cada uno se puede alojar en la opción que mejor le convenga: Lambda, Fargate o EC2. Aun así, no siempre son la mejor opción: hay que evaluar los costos asociados, y en algunos casos un monolito resulta más adecuado.
+
+### Ajustar la capacidad a la demanda
+
+Pagar solo por lo que usas exige que la capacidad siga a la demanda. Hay dos formas de hacerlo:
+
+- **Según la demanda**: Amazon EC2 Auto Scaling añade o quita instancias según políticas que defines. El escalado horizontal, añadir o quitar instancias, es esencial para cargas dinámicas con demanda fluctuante. El escalado vertical cambia el tamaño de una instancia. Los detalles de cada política se ven en la página de escalado automático.
+- **Según el horario**: cuando la demanda es predecible, el escalado programado aumenta o reduce la capacidad deseada a horas concretas, para tener capacidad suficiente en el pico sin sobreaprovisionar el resto del tiempo. Para instancias EC2 y RDS que no forman parte de un grupo de Auto Scaling, AWS Instance Scheduler automatiza su arranque y su parada en horarios definidos, por ejemplo apagarlas fuera del horario laboral.
+
+### Hibernación de EC2
+
+Al hibernar una instancia, su memoria se guarda en el volumen raíz de EBS, y al arrancarla se recuperan la memoria y los procesos que estaban en ejecución. Mientras está hibernada no pagas el uso de la instancia, pero sí el almacenamiento de los volúmenes de EBS, incluido el que guarda el contenido de la memoria. Sirve para aplicaciones que tardan mucho en arrancar y alcanzar su estado de trabajo: puedes dejarlas preparadas, hibernarlas y reanudarlas cuando haga falta en lugar de mantenerlas encendidas.
+
+### Encontrar recursos sobredimensionados u ociosos
+
+AWS Compute Optimizer analiza la configuración y las métricas de uso de tus recursos para recomendar el tamaño adecuado e identificar recursos ociosos. Cubre, entre otros, instancias EC2, grupos de Auto Scaling, funciones de Lambda, servicios de Amazon ECS en Fargate y volúmenes de EBS. En Lambda, la memoria es la palanca principal: la CPU se asigna en proporción a la memoria configurada, y Compute Optimizer puede recomendar el ajuste de memoria de una función.
+
+### Disponibilidad según la clase de carga de trabajo
+
+Diseñar para más disponibilidad suele aumentar el costo, así que conviene identificar la disponibilidad que la carga necesita de verdad antes de diseñarla. Cada carga de trabajo debe tener sus propios objetivos de disponibilidad, definidos con las partes interesadas durante el diseño y no después.
+
+- **Producción**: los objetivos de disponibilidad los fijan el negocio y los acuerdos de nivel de servicio. Esos objetivos pueden justificar redundancia en varias zonas de disponibilidad y capacidad suficiente para los picos, aunque aumenten el costo.
+- **Fuera de producción**: en entornos de desarrollo, pruebas o formación puedes apagar las instancias cuando no se usan, programar su arranque y su parada, pausar las bases de datos y, si las tareas toleran interrupciones, usar capacidad interrumpible como Fargate Spot. Un objetivo de disponibilidad más bajo también permite prescindir de redundancia que no aporta valor en ese entorno.
+
+Fijar objetivos de disponibilidad demasiado altos sin una justificación de negocio es un error común, porque obliga a pagar por redundancia y operación que la carga no necesita.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Ajusta la capacidad con"
+    service="Amazon EC2 Auto Scaling"
+    description="Añade o quita instancias según la demanda o según un horario, para no sobreaprovisionar fuera del pico."
+  />
+  <ConnectionCard
+    relation="Recomienda el tamaño con"
+    service="AWS Compute Optimizer"
+    description="Analiza el uso real de EC2, Lambda, Fargate y otros recursos para proponer tamaños adecuados e identificar recursos ociosos."
+  />
+  <ConnectionCard
+    relation="Orquesta contenedores con"
+    service="Amazon ECS y Amazon EKS"
+    description="Ejecutan contenedores sobre instancias EC2 que administras o sobre Fargate, incluida la capacidad Fargate Spot en ECS."
+  />
+  <ConnectionCard
+    relation="Reduce la tarifa con"
+    service="Savings Plans e instancias Spot"
+    description="Las opciones de compra bajan el precio del cómputo que ya dimensionaste bien; se explican en su propia página."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Opción sin servidor cuando"
+    items={[
+      'La carga responde a eventos o llamadas a la API y no quieres pagar servidores ociosos: AWS Lambda.',
+      'Quieres contenedores sin administrar instancias ni optimizar el clúster: AWS Fargate.',
+      'Las tareas toleran interrupciones: Fargate Spot.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Necesitas control total del sistema operativo o de la instancia: Amazon EC2.',
+      'Son trabajos por lotes a gran escala: AWS Batch sobre EC2, Spot o Fargate.',
+      'La demanda sigue un horario: escalado programado o AWS Instance Scheduler.',
+      'La aplicación tarda en arrancar y se usa a ratos: hibernación de EC2.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Elegir un servicio de cómputo de AWS"
+  url="https://docs.aws.amazon.com/decision-guides/latest/compute-on-aws-how-to-choose/compute-on-aws-how-to-choose.html"
+/>
+<OfficialSource
+  title="Qué es AWS Lambda"
+  url="https://docs.aws.amazon.com/lambda/latest/dg/welcome.html"
+/>
+<OfficialSource
+  title="Configurar la memoria de una función de Lambda"
+  url="https://docs.aws.amazon.com/lambda/latest/dg/configuration-memory.html"
+/>
+<OfficialSource
+  title="AWS Fargate para Amazon ECS"
+  url="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/AWS_Fargate.html"
+/>
+<OfficialSource
+  title="Clústeres de Amazon ECS para Fargate y Fargate Spot"
+  url="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/fargate-capacity-providers.html"
+/>
+<OfficialSource
+  title="Implementar microservicios en AWS"
+  url="https://docs.aws.amazon.com/whitepapers/latest/microservices-on-aws/microservices-on-aws.html"
+/>
+<OfficialSource
+  title="Escalado programado de Amazon EC2 Auto Scaling"
+  url="https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-scheduled-scaling.html"
+/>
+<OfficialSource
+  title="COST09-BP03 Suministrar recursos de forma dinámica"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/framework/cost_manage_demand_resources_dynamic.html"
+/>
+<OfficialSource
+  title="Hibernar una instancia de Amazon EC2"
+  url="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Hibernate.html"
+/>
+<OfficialSource
+  title="Qué es AWS Compute Optimizer"
+  url="https://docs.aws.amazon.com/compute-optimizer/latest/ug/what-is-compute-optimizer.html"
+/>
+<OfficialSource
+  title="Disponibilidad (pilar de fiabilidad)"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/reliability-pillar/availability.html"
+/>
+<OfficialSource
+  title="REL11-BP07 Diseñar para cumplir los objetivos de disponibilidad y los SLA"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/framework/rel_withstand_component_failures_service_level_agreements.html"
+/>
