@@ -7,4 +7,99 @@ export const meta = {
   covers: ['1.3-k4', '1.3-s2', '1.3-s4'],
 };
 
-Contenido pendiente.
+AWS Key Management Service (AWS KMS) es un servicio administrado para crear y controlar las claves con las que cifras y firmas tus datos. Las claves se crean, se usan y se eliminan dentro del servicio, protegidas por módulos de seguridad de hardware (HSM) validados con FIPS 140-3 nivel 3, y nunca salen de AWS KMS sin cifrar.
+
+## Qué problema resuelve
+
+Cifrar datos traslada el problema a la clave: si la cifras, debes proteger la clave que la cifra, y así hasta una clave raíz. AWS KMS protege esas claves raíz por ti, te deja decidir con políticas quién puede usarlas y se integra con muchos servicios de AWS para que cifrar en reposo, por ejemplo volúmenes de Amazon EBS, buckets de Amazon S3 o bases de datos de Amazon RDS, sea cuestión de elegir una clave. No requiere contratos ni compras mínimas.
+
+## Conceptos clave
+
+Los tipos de clave (administradas por el cliente, administradas por AWS y propiedad de AWS) y la rotación se explican en el tema «Cifrado en reposo y en tránsito, claves y certificados»; aquí va lo propio del servicio.
+
+### Cifrado de sobre con claves de datos
+
+Para cifrar grandes cantidades de datos, KMS genera una clave de datos: devuelve una copia en texto sin formato para usarla de inmediato y otra cifrada con tu clave de KMS, que guardas junto a los datos. Cifras fuera de KMS con la copia en claro y la borras de la memoria lo antes posible. Para descifrar, pides a KMS que descifre la clave de datos. KMS genera, cifra y descifra las claves de datos, pero no las guarda, no las administra ni cifra datos con ellas.
+
+### Quién puede usar una clave
+
+- **Política de clave**: es la forma principal de controlar el acceso. Cada clave tiene exactamente una, y es regional: solo afecta a claves de su misma región.
+- **Políticas de IAM**: solo conceden acceso si la política de clave lo habilita; la política de clave predeterminada lo hace. Sin esa habilitación, una política de IAM que permite no tiene efecto, aunque sí puede denegar.
+- **Concesiones (grants)**: permiten a una entidad principal o a un servicio de AWS usar una clave en operaciones criptográficas, a menudo de forma temporal, sin modificar las políticas. Una concesión solo puede permitir, nunca denegar, y vale para una sola clave. Los servicios que cifran tus datos en reposo suelen crear una concesión, usarla y retirarla al terminar.
+
+Nadie, ni siquiera el usuario raíz de la cuenta o quien creó la clave, tiene permisos sobre ella salvo que una política de clave, una política de IAM o una concesión se los permita de forma explícita y ninguna se los deniegue.
+
+### Claves de varias regiones
+
+Son claves relacionadas en distintas regiones con el mismo material criptográfico e identificador, de modo que cifras en una región y descifras en otra sin volver a cifrar ni llamar a KMS en otra región. Sirven para recuperación ante desastres o aplicaciones activo-activo. No son globales: replicas la clave principal en las regiones que eliges y administras cada réplica por separado. Las claves administradas por AWS siempre son de una sola región.
+
+### Almacenes de claves
+
+El almacén estándar de KMS es la opción con menos carga operativa y admite todas las funciones. Si necesitas controlar el material de la clave, puedes importar el tuyo. Solo cuando una norma exige un HSM de un solo inquilino o fuera de AWS conviene un almacén personalizado: respaldado por un clúster de AWS CloudHSM o externo, a cambio de más costo y complejidad y menos rendimiento.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Cifra en reposo datos de"
+    service="Amazon S3, Amazon EBS y Amazon RDS"
+    description="Los servicios integrados cifran tus datos con claves de KMS; solo usan claves simétricas."
+  />
+  <ConnectionCard
+    relation="Controla el acceso con"
+    service="IAM"
+    description="Las políticas de IAM complementan a la política de clave, que debe habilitarlas para que concedan acceso."
+  />
+  <ConnectionCard
+    relation="Cifra secretos de"
+    service="AWS Secrets Manager"
+    description="Cada secreto se cifra con una clave de KMS, administrada por AWS o propia."
+  />
+  <ConnectionCard
+    relation="Usa un HSM dedicado con"
+    service="AWS CloudHSM"
+    description="Un almacén de claves personalizado puede respaldarse en un clúster de CloudHSM de tu propiedad."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="AWS KMS cuando"
+    items={[
+      'Quieres cifrar datos en reposo en servicios de AWS con claves que controlas.',
+      'Necesitas definir con una política de clave quién puede usar cada clave.',
+      'Debes descifrar en otra región sin volver a cifrar: claves de varias regiones.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Una norma exige un HSM de un solo inquilino bajo tu control: AWS CloudHSM, directamente o como almacén personalizado de KMS.',
+      'Lo que necesitas proteger es una contraseña o una clave de API: AWS Secrets Manager.',
+      'Necesitas certificados TLS para cifrar en tránsito: AWS Certificate Manager.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="AWS Key Management Service"
+  url="https://docs.aws.amazon.com/kms/latest/developerguide/overview.html"
+/>
+<OfficialSource
+  title="Políticas de clave en AWS KMS"
+  url="https://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html"
+/>
+<OfficialSource
+  title="Concesiones en AWS KMS"
+  url="https://docs.aws.amazon.com/kms/latest/developerguide/grants.html"
+/>
+<OfficialSource
+  title="Claves de varias regiones en AWS KMS"
+  url="https://docs.aws.amazon.com/kms/latest/developerguide/multi-region-keys-overview.html"
+/>
