@@ -7,4 +7,87 @@ export const meta = {
   covers: ['3.5-k4'],
 };
 
-Contenido pendiente.
+AWS Glue es un servicio de integración de datos sin servidor para descubrir, preparar, mover e integrar datos de varios orígenes. Reúne en un solo servicio el descubrimiento de datos, el ETL (extracción, transformación y carga), la limpieza y un catálogo central de metadatos. No hay infraestructura que administrar y pagas por uso.
+
+## Qué problema resuelve
+
+Antes de analizar datos hay que saber dónde están, qué esquema tienen y cómo llevarlos limpios y en el formato adecuado a un lago o un almacén de datos. Hacerlo con scripts propios en servidores obliga a mantener la infraestructura y a seguir a mano qué datos ya se procesaron. Glue cataloga los orígenes de forma automática, genera y ejecuta trabajos de ETL en un motor sin servidor basado en Apache Spark y escala según la carga. En el examen es el servicio de referencia para la transformación de datos. El tema «Transformación y formatos de datos» explica en detalle la conversión a formatos columnares.
+
+## Conceptos clave
+
+- **AWS Glue Data Catalog**: almacén persistente de metadatos, con definiciones de tablas y trabajos, organizado en bases de datos y tablas. Hay un catálogo por cuenta y región. Las tablas contienen metadatos, no los datos. Athena, Amazon EMR, Redshift Spectrum y Lake Formation lo usan como capa común.
+- **Rastreadores (crawlers)**: se conectan a un almacén de datos, deducen su esquema con clasificadores y crean las tablas en el catálogo. Mantienen el catálogo al día cuando aparecen datos nuevos o cambian.
+- **Trabajos de ETL**: un script extrae los datos del origen, los transforma y los carga en el destino, y se ejecuta en un entorno de Apache Spark. Glue puede generar el script, o puedes escribirlo tú.
+- **AWS Glue Studio**: interfaz gráfica para componer transformaciones de forma visual; el editor genera el código.
+- **Desencadenadores (triggers)**: los trabajos se ejecutan bajo demanda, según una programación o en respuesta a un evento.
+- **Marcadores de trabajo (job bookmarks)**: guardan el estado de ejecuciones anteriores para procesar solo los datos nuevos y evitar duplicados al volver a ejecutar un trabajo programado. Están desactivados por defecto.
+- **Streaming**: también admite ETL en streaming, limpiando y transformando los datos en tránsito para que estén disponibles para el análisis en segundos.
+- **Calidad y datos sensibles**: FindMatches elimina duplicados con aprendizaje automático, y la detección de datos sensibles permite identificarlos y tratarlos en la canalización.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Lee y escribe en"
+    service="Amazon S3"
+    description="Los trabajos de ETL cargan los datos transformados en el lago de datos en S3."
+  />
+  <ConnectionCard
+    relation="Ofrece su catálogo a"
+    service="Amazon Athena"
+    description="Athena consulta con SQL las tablas que Glue registra en el Data Catalog."
+  />
+  <ConnectionCard
+    relation="Protege el catálogo con"
+    service="AWS Lake Formation"
+    description="Lake Formation define permisos de grano fino sobre los recursos del Data Catalog y audita el acceso."
+  />
+  <ConnectionCard
+    relation="Comparte metadatos con"
+    service="Amazon EMR"
+    description="EMR accede a los orígenes de datos definidos en el Data Catalog para procesarlos."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="AWS Glue cuando"
+    items={[
+      'Necesitas ETL sin servidor, sin administrar clústeres.',
+      'Quieres descubrir esquemas y mantener un catálogo central de los datos.',
+      'Ejecutas trabajos programados o por eventos que deben procesar solo los datos nuevos.',
+      'Prefieres un editor visual que genere el código.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Necesitas controlar el clúster y ejecutar Hadoop, Spark u otros marcos con tu configuración: Amazon EMR.',
+      'Solo quieres consultar con SQL datos que ya están en S3: Amazon Athena.',
+      'Solo debes entregar un flujo en S3 y convertirlo a Parquet: Amazon Data Firehose.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Glue"
+  url="https://docs.aws.amazon.com/glue/latest/dg/what-is-glue.html"
+/>
+<OfficialSource
+  title="Conceptos de AWS Glue"
+  url="https://docs.aws.amazon.com/glue/latest/dg/components-key-concepts.html"
+/>
+<OfficialSource
+  title="Descubrimiento y catalogación de datos en AWS Glue"
+  url="https://docs.aws.amazon.com/glue/latest/dg/catalog-and-crawler.html"
+/>
+<OfficialSource
+  title="Seguimiento de datos procesados con marcadores de trabajo"
+  url="https://docs.aws.amazon.com/glue/latest/dg/monitor-continuations.html"
+/>
