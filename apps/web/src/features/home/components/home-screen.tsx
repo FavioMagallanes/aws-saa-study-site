@@ -8,12 +8,14 @@ import {
   VISIBLE_SERVICES_PER_CATEGORY,
 } from '../model/home-copy';
 import {
-  countCategories,
   nextPageToRead,
-  overviewDomains,
-  overviewServiceCategories,
   summarizeProgress,
   type ReadPageIds,
+} from '../../content/model/page-progress';
+import {
+  countCategories,
+  overviewDomains,
+  overviewServiceCategories,
 } from '../model/home-overview';
 import { ContinueCard } from './continue-card/continue-card';
 import { GuidedRoute, type GuidedChapter } from './guided-route/guided-route';

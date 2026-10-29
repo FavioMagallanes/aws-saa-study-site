@@ -2,7 +2,7 @@ import { ArrowRight } from 'lucide-react';
 import type { PageMeta } from '@arquitecto/contracts/content';
 import { ButtonLink } from '../../../../shared/ui/button/button-link';
 import { ProgressBar } from '../../../../shared/ui/progress-bar/progress-bar';
-import type { ProgressSummary } from '../../model/home-overview';
+import type { ProgressSummary } from '../../../content/model/page-progress';
 import styles from './continue-card.module.css';
 
 interface ContinueCardProps {
