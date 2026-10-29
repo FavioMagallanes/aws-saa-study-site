@@ -7,4 +7,89 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+Amazon S3 Glacier es el nombre con el que se conoce el almacenamiento de archivado de AWS. Hoy, AWS recomienda usarlo a través de las **clases de almacenamiento S3 Glacier** de Amazon S3: S3 Glacier Instant Retrieval, S3 Glacier Flexible Retrieval y S3 Glacier Deep Archive, pensadas para guardar a largo plazo y a bajo costo datos que se consultan poco.
+
+## Qué problema resuelve
+
+Muchas empresas deben conservar datos durante años, por obligación legal, como copia de seguridad o para recuperarse de un desastre, aunque casi nunca los lean. Guardarlos en almacenamiento de acceso frecuente es caro. Las clases S3 Glacier ofrecen la misma durabilidad y resiliencia que S3 Standard con un costo de almacenamiento menor, a cambio de cargos de acceso más altos y, en las clases de archivo, de tiempos de recuperación más largos. Cómo combinar estas clases con el resto de S3 y moverlos con reglas de ciclo de vida se explica en el tema «Clases de almacenamiento y ciclo de vida de S3».
+
+## Conceptos clave
+
+### Las tres clases S3 Glacier
+
+- **S3 Glacier Instant Retrieval**: para datos de larga duración que se leen más o menos una vez por trimestre y necesitan recuperarse en milisegundos, como alojamiento de imágenes o historias clínicas. Ofrece acceso en tiempo real con la misma latencia y throughput que S3 Standard-IA; almacena más barato que S3 Standard-IA, pero el acceso cuesta más.
+- **S3 Glacier Flexible Retrieval**: para archivos que se leen una o dos veces al año y no necesitan acceso inmediato, como copias de seguridad y recuperación ante desastres. La recuperación tarda de minutos a horas.
+- **S3 Glacier Deep Archive**: para datos que se leen menos de una vez al año, como conjuntos que se conservan varios años por cumplimiento. Es la opción de almacenamiento de menor costo de AWS, y la recuperación tarda horas.
+
+### Objetos archivados y restauración
+
+Los objetos en S3 Glacier Flexible Retrieval y S3 Glacier Deep Archive están **archivados**: no se pueden leer en tiempo real. Primero lanzas una solicitud de restauración, que crea una copia temporal del objeto durante los días que indiques; mientras tanto pagas el objeto archivado y la copia. Al restaurar eliges un nivel de recuperación: cuanto más tiempo aceptas esperar, menor es el costo.
+
+- **Flexible Retrieval**: niveles Expedited, Standard y Bulk; las recuperaciones Bulk son gratuitas. Para tiempos fiables en Expedited puedes comprar capacidad aprovisionada.
+- **Deep Archive**: niveles Standard y Bulk.
+
+### Duración mínima y costos por objeto
+
+Cada clase S3 Glacier tiene una duración mínima de almacenamiento: si borras, sobrescribes o cambias de clase un objeto antes de ese plazo, pagas el tiempo que falta. Además, S3 Glacier Flexible Retrieval y S3 Glacier Deep Archive guardan metadatos adicionales por cada objeto, que también se cobran, y S3 Glacier Instant Retrieval tiene un tamaño mínimo de objeto.
+
+### Clases S3 Glacier frente al servicio Amazon Glacier original
+
+El servicio original, que guardaba archivos en almacenes (vaults) con su propia API, es distinto de las clases S3 Glacier, no admite las funciones de S3 y ya no acepta clientes nuevos. Las clases S3 Glacier, en cambio, guardan objetos en buckets y permiten usar el cifrado, las etiquetas y S3 Lifecycle. AWS recomienda las clases de S3 para todos los datos de largo plazo.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Forma parte de"
+    service="Amazon S3"
+    description="Las clases S3 Glacier se gestionan con la consola, la API y las reglas de ciclo de vida de S3."
+  />
+  <ConnectionCard
+    relation="Recibe cintas virtuales de"
+    service="AWS Storage Gateway"
+    description="Tape Gateway archiva las copias de seguridad en S3 Glacier Flexible Retrieval o S3 Glacier Deep Archive."
+  />
+  <ConnectionCard
+    relation="Recibe datos fríos de"
+    service="AWS DataSync"
+    description="DataSync puede archivar datos locales directamente en las clases S3 Glacier."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Una clase S3 Glacier cuando"
+    items={[
+      'Datos que se leen cada trimestre pero deben estar al instante: S3 Glacier Instant Retrieval.',
+      'Copias de seguridad y recuperación ante desastres que toleran minutos u horas: S3 Glacier Flexible Retrieval.',
+      'Datos que se conservan años por cumplimiento y casi nunca se leen: S3 Glacier Deep Archive.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'El patrón de acceso es cambiante o desconocido: S3 Intelligent-Tiering.',
+      'Los datos se leen con frecuencia: S3 Standard.',
+      'Los objetos se borrarán o cambiarán antes de la duración mínima: S3 Standard.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Clases de almacenamiento S3 Glacier"
+  url="https://docs.aws.amazon.com/AmazonS3/latest/userguide/glacier-storage-classes.html"
+/>
+<OfficialSource
+  title="Restaurar un objeto archivado"
+  url="https://docs.aws.amazon.com/AmazonS3/latest/userguide/restoring-objects.html"
+/>
+<OfficialSource
+  title="Qué es Amazon Glacier (servicio original)"
+  url="https://docs.aws.amazon.com/amazonglacier/latest/dev/introduction.html"
+/>
