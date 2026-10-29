@@ -7,4 +7,95 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+AWS PrivateLink es una tecnología de alta disponibilidad y escalable para conectar de forma privada tu VPC con servicios y recursos como si estuvieran dentro de ella. Los clientes de tus subredes privadas llegan a esos destinos con direcciones IP privadas, sin puerta de enlace de internet, dispositivo NAT, dirección IP pública, Direct Connect ni Site-to-Site VPN.
+
+## Qué problema resuelve
+
+Los puntos de enlace predeterminados de los servicios de AWS son públicos, así que una instancia de una subred privada necesita una puerta de enlace NAT y una de internet para llegar a ellos. Si tus requisitos de seguridad no lo permiten, o si quieres consumir un servicio de otra cuenta sin interconectar redes completas, PrivateLink expone solo el servicio concreto dentro de tu VPC. Así controlas exactamente qué puntos de enlace, servicios y recursos son alcanzables. Los tipos de punto de enlace y su comparación con los de puerta de enlace se tratan en el tema "Puntos de enlace de VPC y PrivateLink".
+
+## Conceptos clave
+
+### Proveedores y consumidores
+
+- **Proveedor de servicios**: es el propietario del servicio, ya sea AWS, un socio de AWS u otra cuenta. Crea un **servicio de punto de enlace** delante de un balanceador de carga, que recibe las solicitudes y las envía al servicio. De forma predeterminada no está disponible para nadie: debes dar permiso a principales concretos.
+- **Consumidor**: crea un punto de enlace de VPC indicando el servicio, el recurso o la red de servicios a la que quiere llegar. Puede acceder desde su VPC o desde su red local.
+
+### Tipos de punto de enlace
+
+- **De interfaz**: envía tráfico TCP o UDP a un servicio de punto de enlace, como un servicio de AWS, el de otra cuenta o un producto SaaS de un socio. Se resuelve por DNS.
+- **De Gateway Load Balancer**: envía tráfico a una flota de dispositivos virtuales usando tablas de enrutamiento.
+- **De recurso**: accede directamente a un recurso compartido de otra VPC, como una base de datos, sin balanceador de carga.
+- Los puntos de enlace de **puerta de enlace** para Amazon S3 y DynamoDB **no** usan PrivateLink.
+
+### Interfaces de red y políticas
+
+- Por cada subred que elijas se crea una interfaz de red del punto de enlace, que es la entrada del tráfico hacia el servicio.
+- Una **política de punto de enlace** es una política de recursos de IAM que decide qué principales pueden usar el punto de enlace. La predeterminada lo permite todo.
+- **Costo**: pagas por cada hora que un punto de enlace de interfaz está aprovisionado en cada zona de disponibilidad y por cada GB de datos procesados.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Crea puntos de enlace dentro de"
+    service="Amazon VPC"
+    description="Las interfaces de red del punto de enlace viven en tus subredes y reciben direcciones IP privadas."
+  />
+  <ConnectionCard
+    relation="Publica servicios detrás de"
+    service="Elastic Load Balancing"
+    description="El proveedor indica un balanceador de carga, como un Network Load Balancer, al crear su servicio de punto de enlace."
+  />
+  <ConnectionCard
+    relation="Comparte recursos con"
+    service="AWS RAM"
+    description="Para compartir un recurso con otras cuentas, el proveedor lo comparte mediante AWS Resource Access Manager."
+  />
+  <ConnectionCard
+    relation="Controla el acceso con"
+    service="AWS IAM"
+    description="Las políticas de punto de enlace son políticas de recursos de IAM que limitan quién usa el punto de enlace."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="PrivateLink cuando"
+    items={[
+      'Las subredes privadas deben llegar a servicios de AWS sin pasar por una puerta de enlace de internet.',
+      'Quieres ofrecer un servicio propio a otras cuentas sin conectar sus redes completas.',
+      'Consumes un producto SaaS de un socio de forma privada.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Solo necesitas Amazon S3 o DynamoDB: un punto de enlace de puerta de enlace, sin cargo adicional.',
+      'Debes conectar redes completas entre muchas VPC: AWS Transit Gateway.',
+      'Conectas tu centro de datos con AWS: AWS Site-to-Site VPN o AWS Direct Connect.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS PrivateLink"
+  url="https://docs.aws.amazon.com/vpc/latest/privatelink/what-is-privatelink.html"
+/>
+<OfficialSource
+  title="Conceptos de AWS PrivateLink"
+  url="https://docs.aws.amazon.com/vpc/latest/privatelink/concepts.html"
+/>
+<OfficialSource
+  title="Acceder a servicios de AWS mediante AWS PrivateLink"
+  url="https://docs.aws.amazon.com/vpc/latest/privatelink/privatelink-access-aws-services.html"
+/>
+<OfficialSource
+  title="Compartir tus servicios mediante AWS PrivateLink"
+  url="https://docs.aws.amazon.com/vpc/latest/privatelink/privatelink-share-your-services.html"
+/>
