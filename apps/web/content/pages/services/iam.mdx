@@ -7,4 +7,103 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+AWS Identity and Access Management (IAM) es el servicio web con el que controlas de forma segura el acceso a los recursos de AWS: quién se autentica (inicia sesión) y quién está autorizado (tiene permisos) para usar cada recurso. Es una función de tu cuenta de AWS sin cargo adicional; solo pagas por los otros servicios que usas con esas identidades.
+
+## Qué problema resuelve
+
+Sin un control central de identidades y permisos tendrías que compartir las credenciales de la cuenta, y no sabrías quién hizo qué. IAM da la infraestructura para decidir qué personas y cargas de trabajo pueden hacer qué acciones sobre qué recursos. Las identidades (usuarios, grupos y roles), los tipos de política y la MFA se explican en el tema «IAM: usuarios, grupos, roles, políticas y MFA», y el acceso entre cuentas en «Roles, AWS STS y acceso entre cuentas».
+
+## Conceptos clave
+
+### Cómo decide AWS si permite una solicitud
+
+Primero autentica a la entidad principal, luego reúne el contexto de la solicitud y por último evalúa todas las políticas que aplican.
+
+- **Identidad y recurso en la misma cuenta**: el permiso resultante es la unión de las políticas basadas en identidad y en recursos; basta con que una lo permita.
+- **Límite de permisos**: el resultado es la intersección con las políticas de identidad, así que añadir un límite puede reducir lo que se permite.
+- **SCP y RCP de AWS Organizations**: la acción debe estar permitida por las políticas del usuario y por las SCP y RCP.
+- **Denegación explícita**: en cualquiera de estos casos, un `Deny` explícito prevalece sobre cualquier `Allow`.
+
+### Prácticas recomendadas que el examen da por supuestas
+
+- **Credenciales temporales para las personas**: federación con un proveedor de identidad y roles; para administrar el acceso de forma central, AWS recomienda IAM Identity Center.
+- **Roles para las cargas de trabajo**: en Amazon EC2 o AWS Lambda, AWS entrega las credenciales temporales de un rol y el SDK las usa, sin distribuir claves de acceso de largo plazo.
+- **MFA y protección del usuario raíz**, que no debe usarse en las tareas diarias.
+- **Mínimo privilegio**: empieza con políticas administradas por AWS, redúcelas con políticas administradas por el cliente, usa condiciones y elimina usuarios, roles y permisos que no se usan.
+- **Barreras de protección**: SCP para varias cuentas y límites de permisos para delegar la administración de permisos dentro de una cuenta.
+
+### IAM Access Analyzer
+
+- Detecta recursos de tu organización o cuenta, como buckets de S3 o roles, compartidos con una entidad externa a tu zona de confianza, y genera un hallazgo por cada uno.
+- Detecta accesos no utilizados, valida políticas frente a la gramática y las prácticas recomendadas, y genera políticas a partir de la actividad registrada en AWS CloudTrail.
+
+### Consistencia eventual
+
+Los cambios en usuarios, grupos, roles o políticas tardan un tiempo en replicarse. AWS recomienda no incluirlos en las rutas críticas de alta disponibilidad de una aplicación, sino en rutinas de configuración aparte.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Centraliza el acceso del personal con"
+    service="AWS IAM Identity Center"
+    description="Conecta a tu personal con cuentas y aplicaciones de AWS desde un único punto de federación."
+  />
+  <ConnectionCard
+    relation="Acota permisos en varias cuentas con"
+    service="AWS Organizations"
+    description="Las SCP y RCP establecen barreras de protección de permisos para las identidades y los recursos de todas las cuentas."
+  />
+  <ConnectionCard
+    relation="Entrega credenciales temporales a"
+    service="Amazon EC2 y AWS Lambda"
+    description="Los roles dan a las cargas de trabajo credenciales temporales sin claves de largo plazo."
+  />
+  <ConnectionCard
+    relation="Registra la actividad en"
+    service="AWS CloudTrail"
+    description="IAM Access Analyzer usa esa actividad para generar políticas de mínimo privilegio."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="IAM cuando"
+    items={[
+      'Debes definir qué acciones puede hacer una identidad o quién puede usar un recurso.',
+      'Una carga de trabajo en AWS necesita acceder a otros servicios: un rol de IAM.',
+      'Quieres acotar el máximo de permisos que se puede delegar: un límite de permisos.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Administras el acceso de muchas personas a varias cuentas: IAM Identity Center, en lugar de usuarios de IAM en cada cuenta.',
+      'Necesitas usuarios finales de una aplicación web o móvil: Amazon Cognito.',
+      'Debes limitar los permisos de cuentas enteras de una organización: SCP de AWS Organizations.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es IAM"
+  url="https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html"
+/>
+<OfficialSource
+  title="Lógica de evaluación de políticas"
+  url="https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_evaluation-logic.html"
+/>
+<OfficialSource
+  title="Prácticas recomendadas de seguridad en IAM"
+  url="https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html"
+/>
+<OfficialSource
+  title="IAM Access Analyzer"
+  url="https://docs.aws.amazon.com/IAM/latest/UserGuide/what-is-access-analyzer.html"
+/>
