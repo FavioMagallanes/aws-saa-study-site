@@ -7,4 +7,87 @@ export const meta = {
   covers: ['1.3-s1'],
 };
 
-Contenido pendiente.
+AWS Artifact es el lugar donde descargas, bajo demanda, los documentos de seguridad y cumplimiento de AWS: informes de auditoría, certificaciones y acuerdos. No configura ni protege recursos; te da la evidencia de lo que AWS hace en su parte de la infraestructura.
+
+## Qué problema resuelve
+
+Cuando una auditoría o un regulador te pide demostrar que la infraestructura en la que corre tu carga de trabajo cumple con un estándar, necesitas documentos emitidos por terceros sobre AWS. Artifact los centraliza: puedes entregarlos a tus auditores o reguladores como artefactos de auditoría y usarlos como guía para evaluar tu propia arquitectura y la eficacia de tus controles internos. Para alinear las tecnologías de AWS con tus requisitos de cumplimiento, primero necesitas saber qué cubre AWS y qué te toca a ti.
+
+## Conceptos clave
+
+### Informes
+
+- Incluye, por ejemplo, informes sobre estándares ISO y PCI, e informes SOC. También ofrece certificaciones de organismos de acreditación que validan la implementación y la eficacia de los controles de seguridad de AWS.
+- Tiene informes de terceros: los de proveedores independientes de software (ISV) que venden sus productos en AWS Marketplace.
+- Cada informe se genera para ti con una marca de agua única y rastreable. Algunos piden aceptar términos y condiciones antes de descargarlos.
+- Los documentos son confidenciales: solo puedes compartirlos dentro de tu empresa, con tus reguladores y con tus auditores, nunca con tus clientes ni en tu sitio web.
+
+### Acuerdos
+
+Con Artifact revisas, aceptas, consultas y das por terminados acuerdos con AWS. El ejemplo típico es el Business Associate Addendum (BAA) que suelen necesitar las empresas sujetas a HIPAA para proteger la información de salud (PHI). Si usas AWS Organizations, puedes aceptar un acuerdo en nombre de todas las cuentas de la organización, y las cuentas miembro actuales y futuras quedan cubiertas de forma automática.
+
+### Responsabilidad compartida
+
+Artifact demuestra la seguridad y el cumplimiento de AWS, no los de tu empresa: desarrollar u obtener esos documentos es responsabilidad tuya. El tema de gobernanza, clasificación, retención y cumplimiento de datos explica cómo encaja con el resto de las herramientas de cumplimiento. Los documentos y acuerdos de Artifact no tienen costo.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Acepta acuerdos para toda la organización con"
+    service="AWS Organizations"
+    description="Un acuerdo como el BAA, aceptado desde la organización, cubre a todas las cuentas miembro actuales y futuras."
+  />
+  <ConnectionCard
+    relation="Complementa la evidencia de tus recursos con"
+    service="AWS Config"
+    description="Artifact documenta el cumplimiento de AWS; Config te da el historial de configuración de tus recursos para demostrar el tuyo."
+  />
+  <ConnectionCard
+    relation="Complementa la evaluación de estándares con"
+    service="AWS Security Hub"
+    description="Security Hub CSPM compara tu entorno con estándares como CIS, PCI DSS o NIST y genera hallazgos sobre tus controles."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="AWS Artifact cuando"
+    items={[
+      'Un auditor te pide informes SOC, ISO o PCI sobre la infraestructura de AWS.',
+      'Necesitas aceptar o revisar un acuerdo con AWS, como el BAA.',
+      'Quieres aceptar un acuerdo para todas las cuentas de tu organización.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Debes demostrar cómo estaban configurados tus propios recursos: AWS Config.',
+      'Quieres evaluar tu entorno frente a estándares de seguridad: AWS Security Hub.',
+      'Necesitas encontrar datos sensibles en Amazon S3: Amazon Macie.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="Qué es AWS Artifact"
+  url="https://docs.aws.amazon.com/artifact/latest/ug/what-is-aws-artifact.html"
+/>
+<OfficialSource
+  title="Descargar informes en AWS Artifact"
+  url="https://docs.aws.amazon.com/artifact/latest/ug/downloading-documents.html"
+/>
+<OfficialSource
+  title="Administrar acuerdos en AWS Artifact"
+  url="https://docs.aws.amazon.com/artifact/latest/ug/managing-agreements.html"
+/>
+<OfficialSource
+  title="Qué es AWS Config"
+  url="https://docs.aws.amazon.com/config/latest/developerguide/WhatIsConfig.html"
+/>
