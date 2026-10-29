@@ -6,4 +6,121 @@ export const meta = {
   covers: [],
 };
 
-Contenido pendiente.
+El AWS Well-Architected Framework es un conjunto de buenas prácticas para diseñar y operar sistemas en AWS. Te ayuda a entender las ventajas y desventajas de cada decisión que tomas y te da un lenguaje común, los seis pilares, para evaluar si una arquitectura es sólida.
+
+## Qué problema resuelve
+
+Construir un sistema de software se parece a construir un edificio: si los cimientos fallan, los problemas estructurales terminan afectando todo lo demás. Sin un marco, cada equipo decide por intuición qué cuidar. El marco recoge la experiencia de revisar miles de arquitecturas de clientes y ofrece una manera consistente de medir las tuyas frente a las buenas prácticas e identificar dónde mejorar.
+
+## Conceptos clave
+
+### Los seis pilares
+
+Descuidar cualquiera de ellos dificulta construir un sistema que cumpla lo que se espera de él. Cada pilar tiene principios de diseño, prácticas recomendadas y preguntas para revisar tu carga de trabajo.
+
+- **Excelencia operativa (Operational excellence)**: el compromiso de construir software correctamente y ofrecer siempre una buena experiencia al cliente. Incluye cómo organizas al equipo, diseñas la carga de trabajo, la operas a escala y la haces evolucionar.
+- **Seguridad (Security)**: la capacidad de proteger datos, sistemas y activos, aprovechando la nube para mejorar tu seguridad.
+- **Fiabilidad (Reliability)**: la capacidad de una carga de trabajo de cumplir su función de forma correcta y consistente cuando se espera que lo haga, incluida la forma de operarla y probarla durante todo su ciclo de vida.
+- **Eficiencia del rendimiento (Performance efficiency)**: usar los recursos de la nube de forma eficiente para cumplir los requisitos de rendimiento y mantener esa eficiencia cuando cambian la demanda y la tecnología.
+- **Optimización de costos (Cost optimization)**: ejecutar los sistemas para ofrecer valor al negocio al menor precio posible.
+- **Sostenibilidad (Sustainability)**: reducir el impacto ambiental, sobre todo el consumo de energía y su eficiencia, porque son palancas importantes para reducir el uso de recursos.
+
+### Principios generales de diseño
+
+El marco propone seis ideas que facilitan un buen diseño en la nube:
+
+- **Deja de adivinar la capacidad**: puedes usar la que necesites y escalar hacia dentro y hacia fuera automáticamente, sin quedarte con recursos caros sin uso ni con rendimiento limitado.
+- **Prueba los sistemas a escala de producción**: crea un entorno de pruebas a esa escala bajo demanda, pruébalo y desmóntalo; solo pagas mientras funciona.
+- **Automatiza pensando en la experimentación**: la automatización permite crear y replicar cargas de trabajo a bajo costo, y rastrear cambios, auditarlos y volver a parámetros anteriores.
+- **Considera arquitecturas evolutivas**: automatizar y probar bajo demanda reduce el riesgo de cambiar el diseño, así que los sistemas pueden evolucionar con el negocio.
+- **Guía la arquitectura con datos**: reúne datos sobre cómo influyen tus decisiones en la carga de trabajo para mejorar con hechos.
+- **Mejora con días de simulación (game days)**: programa simulaciones de eventos de producción para ver cómo responden tu arquitectura y tus procesos.
+
+## Cómo se conecta con el examen
+
+<CardGrid>
+  <ConnectionCard
+    relation="Se relaciona con el dominio 1"
+    service="Seguridad"
+    description="El dominio de arquitecturas seguras trata el mismo terreno que el pilar de seguridad: proteger datos, sistemas y activos."
+  />
+  <ConnectionCard
+    relation="Se relaciona con el dominio 2"
+    service="Fiabilidad"
+    description="El dominio de arquitecturas resistentes se relaciona con el pilar de fiabilidad: que la carga de trabajo funcione de forma consistente."
+  />
+  <ConnectionCard
+    relation="Se relaciona con el dominio 3"
+    service="Eficiencia del rendimiento"
+    description="El dominio de alto rendimiento trata cómo usar los recursos eficientemente para cumplir los requisitos de rendimiento."
+  />
+  <ConnectionCard
+    relation="Se relaciona con el dominio 4"
+    service="Optimización de costos"
+    description="El dominio de optimización de costos corresponde al pilar que busca el menor precio con el mismo valor para el negocio."
+  />
+</CardGrid>
+
+La guía del examen organiza el contenido en esos cuatro dominios. Los otros dos pilares, excelencia operativa y sostenibilidad, también forman parte del marco y conviene conocerlos al razonar sobre cualquier arquitectura.
+
+## Cómo usar el marco
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="Para qué sirve"
+    items={[
+      'Medir tu arquitectura frente a buenas prácticas de forma consistente.',
+      'Entender las ventajas y desventajas de cada decisión de diseño.',
+      'Identificar áreas de mejora y la corrección que haría falta.',
+      'Revisar tus cargas de trabajo con la AWS Well-Architected Tool, un servicio en la nube sin cargo.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Lo que no es"
+    items={[
+      'Un mecanismo de auditoría: la revisión es una conversación constructiva sobre decisiones de arquitectura.',
+      'Una lista cerrada: AWS sigue refinando la definición de lo que es una buena arquitectura.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="AWS Well-Architected Framework: introducción"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/framework/welcome.html"
+/>
+<OfficialSource
+  title="Los pilares del marco"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/framework/the-pillars-of-the-framework.html"
+/>
+<OfficialSource
+  title="Principios generales de diseño"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/framework/general-design-principles.html"
+/>
+<OfficialSource
+  title="Pilar de excelencia operativa"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/framework/operational-excellence.html"
+/>
+<OfficialSource
+  title="Pilar de seguridad"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/framework/security.html"
+/>
+<OfficialSource
+  title="Pilar de fiabilidad"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/framework/reliability.html"
+/>
+<OfficialSource
+  title="Pilar de eficiencia del rendimiento"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/framework/performance-efficiency.html"
+/>
+<OfficialSource
+  title="Pilar de optimización de costos"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/framework/cost-optimization.html"
+/>
+<OfficialSource
+  title="Pilar de sostenibilidad"
+  url="https://docs.aws.amazon.com/wellarchitected/latest/framework/sustainability.html"
+/>
