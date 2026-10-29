@@ -7,4 +7,97 @@ export const meta = {
   covers: ['3.2-k1'],
 };
 
-Contenido pendiente.
+AWS Fargate es un motor de cómputo sin servidor para contenedores que se usa con Amazon ECS y Amazon EKS. Con Fargate no aprovisionas, configuras ni escalas clústeres de máquinas virtuales: empaquetas la aplicación en contenedores, indicas la CPU y la memoria, defines la red y los permisos de IAM, y la lanzas.
+
+## Qué problema resuelve
+
+Ejecutar contenedores sobre instancias EC2 propias obliga a elegir tipos de servidor, decidir cuándo escalar el clúster y optimizar cómo se reparten los contenedores entre las instancias, además de parchear esas instancias. Fargate elimina ese trabajo: AWS administra el cómputo y tú te concentras en la aplicación. Cuándo conviene usar contenedores y cómo migrar a ellos se explica en el tema "Contenedores: cuándo usarlos y cómo migrar".
+
+## Conceptos clave
+
+### Aislamiento y tamaño
+
+- Cada tarea de ECS o pod de EKS en Fargate tiene su propio límite de aislamiento: no comparte el kernel, la CPU, la memoria ni la interfaz de red elástica con otra tarea o pod.
+- Dimensionas cada tarea con la CPU y la memoria que necesita, en lugar de elegir un tipo de instancia. En ECS indicas en la definición de tarea que es compatible con `FARGATE`.
+- Las tareas siempre usan el modo de red `awsvpc`, así que cada una tiene su propia interfaz de red. Por eso, al usar un balanceador de carga, el tipo de destino debe ser `ip` y no `instance`.
+
+### Plataforma siempre actualizada
+
+Una versión de plataforma de Fargate combina el kernel y el entorno de ejecución de contenedores. Cada tarea nueva arranca en la revisión más reciente, así que se ejecuta sobre infraestructura parcheada. Si aparece un problema de seguridad, AWS crea una revisión corregida y retira las tareas que corren en la vulnerable.
+
+### Fargate y Fargate Spot
+
+En ECS, los proveedores de capacidad son **Fargate** y **Fargate Spot**. Fargate Spot ejecuta tareas tolerantes a interrupciones con descuento sobre capacidad sobrante; cuando AWS necesita recuperarla, la tarea recibe un aviso de dos minutos.
+
+### Límites que conviene recordar
+
+- Fargate no ofrece GPU; si la carga las necesita, usa instancias EC2.
+- No admite contenedores privilegiados.
+- En EKS no admite DaemonSets (el daemon se ejecuta como contenedor sidecar), los pods deben coincidir con un perfil de Fargate y solo se ejecutan en subredes privadas.
+
+## Cómo se conecta con otros servicios
+
+<CardGrid>
+  <ConnectionCard
+    relation="Ejecuta tareas de"
+    service="Amazon ECS"
+    description="Fargate es un proveedor de capacidad de ECS, junto con Fargate Spot."
+  />
+  <ConnectionCard
+    relation="Ejecuta pods de"
+    service="Amazon EKS"
+    description="Los perfiles de Fargate deciden qué pods se ejecutan en Fargate."
+  />
+  <ConnectionCard
+    relation="Reparte el tráfico con"
+    service="Elastic Load Balancing"
+    description="Los servicios de ECS en Fargate admiten Application, Network y Gateway Load Balancer con destinos de tipo IP."
+  />
+  <ConnectionCard
+    relation="Ejecuta trabajos por lotes de"
+    service="AWS Batch"
+    description="Un entorno de cómputo de Fargate ejecuta trabajos por lotes sin administrar instancias."
+  />
+</CardGrid>
+
+## Cómo elegir
+
+<CardGrid>
+  <DecisionBox
+    variant="use"
+    title="AWS Fargate cuando"
+    items={[
+      'Ejecutas contenedores y no quieres administrar servidores ni clústeres de instancias.',
+      'Necesitas aislamiento por tarea o por pod.',
+      'Prefieres dimensionar cada tarea por CPU y memoria en lugar de elegir tipos de instancia.',
+    ]}
+  />
+  <DecisionBox
+    variant="alternative"
+    title="Otra opción cuando"
+    items={[
+      'Necesitas GPU, contenedores privilegiados o control del servidor: ECS o EKS sobre instancias EC2.',
+      'El código es una función corta que responde a eventos: AWS Lambda.',
+      'Ejecutas muchos trabajos por lotes con colas y prioridades: AWS Batch.',
+    ]}
+  />
+</CardGrid>
+
+## Fuentes oficiales
+
+<OfficialSource
+  title="AWS Fargate para Amazon ECS"
+  url="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/AWS_Fargate.html"
+/>
+<OfficialSource
+  title="Diferencias de las definiciones de tarea para Fargate"
+  url="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/fargate-tasks-services.html"
+/>
+<OfficialSource
+  title="AWS Fargate con Amazon EKS"
+  url="https://docs.aws.amazon.com/eks/latest/userguide/fargate.html"
+/>
+<OfficialSource
+  title="Elegir un servicio de cómputo de AWS"
+  url="https://docs.aws.amazon.com/decision-guides/latest/compute-on-aws-how-to-choose/choosing-aws-compute-service.html"
+/>
