@@ -1,6 +1,9 @@
 export const FUNDAMENTALS_SUMMARY =
   'Infraestructura global, responsabilidad compartida, Well-Architected';
 
+export const START_READING_HINT =
+  'Empieza por Fundamentos; el resto de la ruta sigue el orden de la guía.';
+
 export const DOMAIN_HIGHLIGHTS: Readonly<Record<number, string>> = {
   1: 'IAM, VPC, cifrado, protección de datos',
   2: 'desacoplamiento, alta disponibilidad, DR',

@@ -65,6 +65,22 @@
   font-weight: 500;
 }
 
+.guided-route__count {
+  align-self: flex-start;
+  padding: 7px var(--space-3);
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  background: var(--color-code);
+  color: var(--color-muted);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.guided-route__chip {
+  display: flex;
+}
+
 @media (min-width: 768px) {
   .guided-route__chapter {
     grid-template-columns: 48px 1fr 200px;

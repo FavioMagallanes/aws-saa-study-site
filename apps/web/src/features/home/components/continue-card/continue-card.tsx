@@ -4,6 +4,7 @@ import { ButtonLink } from '../../../../shared/ui/button/button-link';
 import { ProgressBar } from '../../../../shared/ui/progress-bar/progress-bar';
 import type { ProgressStatus } from '../../../progress/hooks/use-reading-progress';
 import type { ProgressSummary } from '../../../content/model/page-progress';
+import { START_READING_HINT } from '../../model/home-copy';
 import styles from './continue-card.module.css';
 
 interface ContinueCardProps {
@@ -29,7 +30,9 @@ export const ContinueCard = ({
             : 'Tu progreso no está disponible ahora'}
       </p>
       <ProgressBar label="Progreso de lectura" percentage={summary.percentage} />
-      {progressStatus === 'ready' && lastReadTitle ? (
+      {progressStatus === 'ready' && summary.read === 0 ? (
+        <p className={styles['continue-card__hint']}>{START_READING_HINT}</p>
+      ) : progressStatus === 'ready' && lastReadTitle ? (
         <p className={styles['continue-card__last']}>Último tema: {lastReadTitle}</p>
       ) : null}
     </div>

@@ -11,6 +11,7 @@ import {
 import {
   nextPageToRead,
   summarizeProgress,
+  type ProgressSummary,
   type ReadPageIds,
 } from '../../content/model/page-progress';
 import {
@@ -19,9 +20,18 @@ import {
   overviewServiceCategories,
 } from '../model/home-overview';
 import { ContinueCard } from './continue-card/continue-card';
-import { GuidedRoute, type GuidedChapter } from './guided-route/guided-route';
+import { GuidedRoute, type ChapterStatus, type GuidedChapter } from './guided-route/guided-route';
 import { ServiceIndex } from './service-index/service-index';
 import styles from './home-screen.module.css';
+
+const fundamentalsStatus = (
+  summary: ProgressSummary,
+  progressStatus: ProgressStatus,
+): ChapterStatus => {
+  if (progressStatus !== 'ready') return { kind: 'label', text: 'Base' };
+  if (summary.total > 0 && summary.read === summary.total) return { kind: 'read' };
+  return { kind: 'count', read: summary.read, total: summary.total };
+};
 
 interface HomeScreenProps {
   readonly pages: readonly PageMeta[];
@@ -46,15 +56,15 @@ export const HomeScreen = ({
       number: 0,
       title: 'Fundamentos',
       summary: FUNDAMENTALS_SUMMARY,
-      statusLabel: 'Base',
+      status: fundamentalsStatus(fundamentalsSummary, progressStatus),
       percentage: fundamentalsSummary.percentage,
       startPageId: nextPageToRead(fundamentals, readPageIds)?.id,
     },
-    ...overviewDomains(pages, guide, readPageIds).map((domain) => ({
+    ...overviewDomains(pages, guide, readPageIds).map((domain): GuidedChapter => ({
       number: domain.id,
       title: domain.title,
       summary: `Tareas ${domain.firstTask} – ${domain.lastTask} · ${DOMAIN_HIGHLIGHTS[domain.id] ?? ''}`,
-      statusLabel: `Peso ${String(domain.weight)} %`,
+      status: { kind: 'label', text: `Peso ${String(domain.weight)} %` },
       percentage: domain.summary.percentage,
       startPageId: domain.startPageId,
     })),
