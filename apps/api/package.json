@@ -5,10 +5,10 @@
   "scripts": {
     "dev": "tsx watch --env-file=.env src/server.ts",
     "start": "tsx src/server.ts",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc -p ../../api --noEmit",
     "test": "vitest run",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "tsx --env-file=.env src/shared/db/migrate.ts"
+    "db:migrate": "tsx --env-file-if-exists=.env src/shared/db/migrate.ts"
   },
   "dependencies": {
     "@arquitecto/contracts": "workspace:*",
