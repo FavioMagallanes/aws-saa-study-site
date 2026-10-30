@@ -1,7 +1,7 @@
 .write-key-dialog {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: 14px;
   font-family: var(--font-sans);
 }
 
@@ -28,6 +28,7 @@
 }
 
 .write-key-dialog__input {
+  height: 44px;
   padding: var(--space-3) var(--space-4);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -35,4 +36,14 @@
   color: var(--color-text);
   font-family: var(--font-mono);
   font-size: 14px;
+}
+
+/* Full-width pill: the shared Button keeps its 41px height (10px padding, 21px line, borders). */
+.write-key-dialog__submit {
+  display: flex;
+  flex-direction: column;
+}
+
+.write-key-dialog__submit > button {
+  justify-content: center;
 }

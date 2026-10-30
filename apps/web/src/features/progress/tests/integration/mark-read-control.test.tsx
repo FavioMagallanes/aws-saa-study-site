@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import type { ProgressEntry } from '@arquitecto/contracts/progress';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { renderApp } from '../../../../app/tests/render-app';
@@ -126,5 +126,71 @@ describe('mark as read control', () => {
     expect(await screen.findByText(/no hay conexión con el servicio/)).toBeInTheDocument();
     expect(await findUnreadButton()).toHaveAttribute('aria-pressed', 'false');
     expect(useWriteKeyStore.getState().writeKey).toBe(KEY);
+  });
+});
+
+describe('write key dialog', () => {
+  const openDialog = async (server = fakeServer()) => {
+    await renderPage(server);
+    const trigger = await findUnreadButton();
+    trigger.focus();
+    fireEvent.click(trigger);
+    const dialog = await screen.findByRole('dialog', { name: 'Clave de escritura' });
+    return { dialog, server, trigger };
+  };
+
+  it('shows the approved content and focuses the key field', async () => {
+    const { dialog } = await openDialog();
+    expect(
+      within(dialog).getByRole('heading', { level: 2, name: 'Clave de escritura' }),
+    ).toBeInTheDocument();
+    expect(
+      within(dialog).getByText(
+        'Para guardar tu progreso necesitas la clave de escritura. Se guarda solo en este navegador.',
+      ),
+    ).toBeInTheDocument();
+    const input = within(dialog).getByLabelText('Clave', { selector: 'input' });
+    expect(input).toHaveAttribute('type', 'password');
+    expect(input).toHaveFocus();
+    expect(within(dialog).getByRole('button', { name: 'Guardar y continuar' })).toHaveAttribute(
+      'type',
+      'submit',
+    );
+    expect(within(dialog).getByRole('button', { name: 'Cerrar' })).toBeInTheDocument();
+  });
+
+  it('closes with Escape without saving and returns focus to the button', async () => {
+    const { dialog, server, trigger } = await openDialog();
+    const input = within(dialog).getByLabelText('Clave', { selector: 'input' });
+    fireEvent.change(input, { target: { value: KEY } });
+    fireEvent.keyDown(input, { key: 'Escape' });
+
+    expect(screen.queryByRole('dialog', { name: 'Clave de escritura' })).not.toBeInTheDocument();
+    expect(trigger).toHaveFocus();
+    expect(server.requests.some((request) => request.method === 'PUT')).toBe(false);
+    expect(useWriteKeyStore.getState().writeKey).toBeUndefined();
+  });
+
+  it('closes from the close button and returns focus to the button', async () => {
+    const { dialog, server, trigger } = await openDialog();
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Cerrar' }));
+
+    expect(screen.queryByRole('dialog', { name: 'Clave de escritura' })).not.toBeInTheDocument();
+    expect(trigger).toHaveFocus();
+    expect(server.requests.some((request) => request.method === 'PUT')).toBe(false);
+  });
+
+  it('returns focus to the mark as read button after saving', async () => {
+    const { dialog } = await openDialog();
+    fireEvent.change(within(dialog).getByLabelText('Clave', { selector: 'input' }), {
+      target: { value: KEY },
+    });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Guardar y continuar' }));
+
+    const readButton = await findReadButton();
+    expect(screen.queryByRole('dialog', { name: 'Clave de escritura' })).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(readButton).toHaveFocus();
+    });
   });
 });

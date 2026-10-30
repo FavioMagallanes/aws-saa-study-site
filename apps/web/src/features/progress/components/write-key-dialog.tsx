@@ -1,4 +1,4 @@
-import { useId, useState, type SyntheticEvent } from 'react';
+import { useId, useRef, useState, type SyntheticEvent } from 'react';
 import { BottomSheet } from '../../../shared/ui/bottom-sheet/bottom-sheet';
 import { Button } from '../../../shared/ui/button/button';
 import styles from './write-key-dialog.module.css';
@@ -12,6 +12,7 @@ interface WriteKeyDialogProps {
 export const WriteKeyDialog = ({ open, onClose, onSubmit }: WriteKeyDialogProps) => {
   const [value, setValue] = useState('');
   const inputId = useId();
+  const inputRef = useRef<HTMLInputElement>(null);
   const canSubmit = value.trim().length > 0;
 
   const handleSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
@@ -22,7 +23,13 @@ export const WriteKeyDialog = ({ open, onClose, onSubmit }: WriteKeyDialogProps)
   };
 
   return (
-    <BottomSheet open={open} onClose={onClose} label="Clave de escritura">
+    <BottomSheet
+      open={open}
+      onClose={onClose}
+      label="Clave de escritura"
+      variant="modal"
+      initialFocusRef={inputRef}
+    >
       <form className={styles['write-key-dialog']} onSubmit={handleSubmit}>
         <h2 className={styles['write-key-dialog__title']}>Clave de escritura</h2>
         <p className={styles['write-key-dialog__help']}>
@@ -32,6 +39,7 @@ export const WriteKeyDialog = ({ open, onClose, onSubmit }: WriteKeyDialogProps)
         <label className={styles['write-key-dialog__field']} htmlFor={inputId}>
           Clave
           <input
+            ref={inputRef}
             id={inputId}
             className={styles['write-key-dialog__input']}
             type="password"
@@ -42,9 +50,11 @@ export const WriteKeyDialog = ({ open, onClose, onSubmit }: WriteKeyDialogProps)
             }}
           />
         </label>
-        <Button type="submit" disabled={!canSubmit}>
-          Guardar y continuar
-        </Button>
+        <div className={styles['write-key-dialog__submit']}>
+          <Button type="submit" disabled={!canSubmit}>
+            Guardar y continuar
+          </Button>
+        </div>
       </form>
     </BottomSheet>
   );

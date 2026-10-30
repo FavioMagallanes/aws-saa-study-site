@@ -1,5 +1,5 @@
 import { Check } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '../../../shared/ui/button/button';
 import { ProgressRequestError } from '../api/progress-client';
 import { useReadingProgress } from '../hooks/use-reading-progress';
@@ -32,8 +32,19 @@ export const MarkReadControl = ({ pageId }: MarkReadControlProps) => {
   const setWriteKey = useWriteKeyStore((state) => state.setWriteKey);
   const clearWriteKey = useWriteKeyStore((state) => state.clearWriteKey);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const refocusAfterSaveRef = useRef(false);
 
   const isRead = readPageIds.has(pageId);
+  const isSaving = setPageRead.isPending;
+
+  // Submitting the key closes the dialog while the button is disabled for the save, so the
+  // dialog cannot hand focus back; return it here once the button is usable again.
+  useEffect(() => {
+    if (isSaving || !refocusAfterSaveRef.current) return;
+    refocusAfterSaveRef.current = false;
+    containerRef.current?.querySelector('button')?.focus();
+  }, [isSaving]);
 
   const save = (read: boolean) => {
     setPageRead.mutate(
@@ -57,12 +68,12 @@ export const MarkReadControl = ({ pageId }: MarkReadControlProps) => {
   };
 
   return (
-    <div className={styles['mark-read']}>
+    <div ref={containerRef} className={styles['mark-read']}>
       <Button
         variant={isRead ? 'read' : 'secondary'}
         leadingIcon={isRead ? <Check size={16} strokeWidth={1.75} /> : undefined}
         aria-pressed={isRead}
-        disabled={status !== 'ready' || setPageRead.isPending}
+        disabled={status !== 'ready' || isSaving}
         onClick={handleClick}
       >
         {isRead ? 'Leído' : 'Marcar como leído'}
@@ -78,6 +89,7 @@ export const MarkReadControl = ({ pageId }: MarkReadControlProps) => {
         onSubmit={(key) => {
           setWriteKey(key);
           setDialogOpen(false);
+          refocusAfterSaveRef.current = true;
           save(!isRead);
         }}
       />
