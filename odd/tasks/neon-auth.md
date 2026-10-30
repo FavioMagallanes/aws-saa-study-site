@@ -1,0 +1,23 @@
+# Phase 6: sign-in with Neon Auth and per-user progress
+
+Follows odd/tasks/vercel-api.md and odd/tasks/index-pages.md. Direct pushes to main, no PRs. Neon Auth (managed Better Auth) is already enabled on the owner's Neon project (branch production). Auth base URL: https://ep-bold-boat-b5jwy6jj.neonauth.c-7.us-east-2.aws.neon.tech/neondb/auth ; JWKS: <base>/.well-known/jwks.json ; the users live in the neon_auth schema of the same database.
+
+## Specs
+
+- S1: "cualquiera que la use" — any visitor can have their own progress, so progress is stored per user, not as one global record. Reading stays open without an account ("Leer sigue siendo libre: no necesitas cuenta para estudiar.").
+- S2: "no deberia verse antes de loguearte" — the sign-in screens ('Acceso') show only the brand in the top bar: no navigation, no search, no theme or menu buttons.
+- S3: Sign in only with Google and GitHub; the email field of the first design was dropped by the owner ("Quitarlo: solo Google y GitHub").
+- S4: API contract: every progress route requires `Authorization: Bearer <JWT>` where the JWT is the `access_token` of the Neon Auth session; the API verifies signature (JWKS) and expiry (and issuer/audience if the docs and the token say so) and takes the user id from the `sub` claim; missing or invalid token = 401 `{"error":"unauthorized"}`; GET /api/progress returns only the caller's entries; PUT and DELETE /api/progress/:pageId touch only the caller's rows; response shapes stay as today. The write key (WRITE_KEY, header x-write-key) disappears.
+- S5: Database: `read_pages` gets a `user_id text not null` and its primary key becomes (user_id, page_id); a Drizzle migration; Neon currently has 0 rows in read_pages, local dev data may be dropped. The migration must also apply cleanly to a database that already has the `drizzle` journal row for 0000 (the owner's Neon has it, inserted by hand).
+- S6: Web, per the approved Penpot boards 'Acceso — Escritorio', 'Acceso — Móvil' and 'Menú de usuario — Escritorio': route /acceso with an editorial left panel (from 768px: two columns, left panel 640px wide on the code background) and a card (420px wide on desktop, 20px radius, 1px border, 36px padding) holding the title "Inicia sesión", the subtitle "Elige cómo quieres entrar.", the buttons "Continuar con Google" and "Continuar con GitHub" (46px high, 12px radius, 1px border) and the line "¿Solo quieres leer? Sigue sin cuenta →" (link to /); left panel: eyebrow "GUARDA TU PROGRESO", headline "Sigue tu ruta de estudio desde cualquier lugar" (Literata 44/600 on desktop, 32 on mobile), intro "Inicia sesión para marcar lo que ya leíste y retomarlo en tu teléfono, tu tableta o tu computadora. Leer sigue siendo libre: no necesitas cuenta para estudiar." and three benefits with a green check ("Tu progreso viaja contigo / La ruta guiada continúa donde la dejaste.", "Solo guardamos lo que lees / Páginas marcadas como leídas, nada más.", "Sin contraseñas nuevas / Entra con tu cuenta de Google o GitHub."); on mobile a single column without the benefits; the top bar of this route shows only the brand. Signed-in users get an avatar button (initials) in the top bar opening a menu with name, email, "Mi progreso N de 182" and "Cerrar sesión". Signed-out users get a "Iniciar sesión" text button in the top bar actions (the boards do not draw it: design gap, flag it). "Marcar como leído" for a signed-out user sends them to /acceso and returns them to the page after signing in. The write key dialog and its store are removed.
+- S7: Accessibility per AGENTS.md; tokens only; dark theme works; the site stays readable when the auth service or the progress API is down (existing S4 of progress-logic.md).
+- S8: Tests first with real components and a real Postgres for the API; the only things faked are the network boundary of the auth SDK in the web tests and, in the API tests, a locally generated signing key served through the same verification code path (no verification bypass).
+
+## Tasks
+
+- [ ] T1 (S1, S4, S5, S8) API: JWT verification with jose, progress per user, migration, remove the write key, config and docs
+- [ ] T2 (S2, S3, S6, S7, S8) Web: auth client from @neondatabase/auth (vanilla), /acceso, top bar states, user menu, progress hooks with the bearer token, remove the write key flow
+
+## Log
+
+- L1: "cualquiera que la use" (multi-user) and "estan bien esos" (Google and GitHub); "no deberia verse antes de loguearte" (login screens without navbar and search); email field dropped; dependencies approved. jose is pinned at 6.2.13, not the 6.2.14 the owner approved, because 6.2.14 was under pnpm's one-day release guard; core-js build scripts denied like esbuild's.
