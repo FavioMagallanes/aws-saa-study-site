@@ -12,8 +12,9 @@ Follows odd/tasks/design-gaps.md. Direct pushes to main, no PRs. The owner's ord
 
 ## Tasks
 
-- [ ] T1 (S1-S5) serverless entry for the Express app, vercel.json, SSL/pool handling, migration instructions, README deploy section, tests
+- [x] T1 (S1-S5) serverless entry for the Express app, vercel.json, SSL/pool handling, migration instructions, README deploy section, tests
 
 ## Log
 
 - L1: "con el diseño, el deploy al final" (design is done; now prepare the deploy). Provisioning stays with the owner.
+- L2: Repository prepared by a worker, reviewed by the parent (lint, format, typecheck, 28 API tests, 403 web tests, web build pass; plain Node loaded api/index.ts and answered GET 200 and PUT without key 401). NOT deployed: still unverified until a real deploy are how Vercel compiles the TypeScript files and the contracts package (likely fixes: a pre-built JS entry, or contracts publishing JS), whether the Express app sees the original /api path after the rewrite, whether api/tsconfig.json is used, and TLS to Neon with channel_binding=require. sslmode prefer/allow/no-verify are now rejected. Provisioning (Neon, Vercel, secrets) belongs to the owner; steps are in README.md.
