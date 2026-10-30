@@ -177,3 +177,30 @@
     display: none;
   }
 }
+
+/* Design gap: the boards do not draw it. Below 768px the bar has no room; the progress notice
+   under the bar carries the same invitation there. */
+.top-bar__sign-in {
+  display: none;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.top-bar__sign-in:hover {
+  color: var(--color-accent);
+}
+
+@media (min-width: 768px) {
+  .top-bar__sign-in {
+    display: inline-flex;
+  }
+}

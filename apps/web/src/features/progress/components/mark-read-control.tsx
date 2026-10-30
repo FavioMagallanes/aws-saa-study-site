@@ -1,12 +1,11 @@
+import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { Check } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
 import { Button } from '../../../shared/ui/button/button';
+import { SIGN_IN_PATH } from '../../auth/model/return-to';
 import { ProgressRequestError } from '../api/progress-client';
 import { useReadingProgress } from '../hooks/use-reading-progress';
 import { useSetPageRead } from '../hooks/use-set-page-read';
-import { useWriteKeyStore } from '../store/use-write-key-store';
 import styles from './mark-read-control.module.css';
-import { WriteKeyDialog } from './write-key-dialog';
 
 interface MarkReadControlProps {
   readonly pageId: string;
@@ -16,8 +15,8 @@ const errorMessageFor = (error: Error | null): string | undefined => {
   if (!error) return undefined;
   const kind = error instanceof ProgressRequestError ? error.kind : 'failed';
   switch (kind) {
-    case 'invalid-key':
-      return 'La clave no es válida. Introdúcela de nuevo.';
+    case 'unauthorized':
+      return 'Tu sesión ya no es válida. Inicia sesión de nuevo.';
     case 'unavailable':
       return 'No se pudo guardar: no hay conexión con el servicio. Inténtalo de nuevo.';
     default:
@@ -26,49 +25,24 @@ const errorMessageFor = (error: Error | null): string | undefined => {
 };
 
 export const MarkReadControl = ({ pageId }: MarkReadControlProps) => {
-  const { readPageIds, status } = useReadingProgress();
+  const { readPageIds, status, signedIn } = useReadingProgress();
   const setPageRead = useSetPageRead();
-  const writeKey = useWriteKeyStore((state) => state.writeKey);
-  const setWriteKey = useWriteKeyStore((state) => state.setWriteKey);
-  const clearWriteKey = useWriteKeyStore((state) => state.clearWriteKey);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const refocusAfterSaveRef = useRef(false);
+  const navigate = useNavigate();
+  const currentHref = useRouterState({ select: (state) => state.location.href });
 
   const isRead = readPageIds.has(pageId);
   const isSaving = setPageRead.isPending;
 
-  // Submitting the key closes the dialog while the button is disabled for the save, so the
-  // dialog cannot hand focus back; return it here once the button is usable again.
-  useEffect(() => {
-    if (isSaving || !refocusAfterSaveRef.current) return;
-    refocusAfterSaveRef.current = false;
-    containerRef.current?.querySelector('button')?.focus();
-  }, [isSaving]);
-
-  const save = (read: boolean) => {
-    setPageRead.mutate(
-      { pageId, read },
-      {
-        onError: (error) => {
-          if (error instanceof ProgressRequestError && error.kind === 'invalid-key') {
-            clearWriteKey();
-          }
-        },
-      },
-    );
-  };
-
   const handleClick = () => {
-    if (!writeKey) {
-      setDialogOpen(true);
+    if (!signedIn) {
+      void navigate({ to: SIGN_IN_PATH, search: { returnTo: currentHref } });
       return;
     }
-    save(!isRead);
+    setPageRead.mutate({ pageId, read: !isRead });
   };
 
   return (
-    <div ref={containerRef} className={styles['mark-read']}>
+    <div className={styles['mark-read']}>
       <Button
         variant={isRead ? 'read' : 'secondary'}
         leadingIcon={isRead ? <Check size={16} strokeWidth={1.75} /> : undefined}
@@ -81,18 +55,6 @@ export const MarkReadControl = ({ pageId }: MarkReadControlProps) => {
       <p className={styles['mark-read__error']} role="alert">
         {errorMessageFor(setPageRead.error)}
       </p>
-      <WriteKeyDialog
-        open={dialogOpen}
-        onClose={() => {
-          setDialogOpen(false);
-        }}
-        onSubmit={(key) => {
-          setWriteKey(key);
-          setDialogOpen(false);
-          refocusAfterSaveRef.current = true;
-          save(!isRead);
-        }}
-      />
     </div>
   );
 };

@@ -15,9 +15,10 @@ Follows odd/tasks/vercel-api.md and odd/tasks/index-pages.md. Direct pushes to m
 
 ## Tasks
 
-- [ ] T1 (S1, S4, S5, S8) API: JWT verification with jose, progress per user, migration, remove the write key, config and docs
-- [ ] T2 (S2, S3, S6, S7, S8) Web: auth client from @neondatabase/auth (vanilla), /acceso, top bar states, user menu, progress hooks with the bearer token, remove the write key flow
+- [x] T1 (S1, S4, S5, S8) API: JWT verification with jose, progress per user, migration, remove the write key, config and docs
+- [x] T2 (S2, S3, S6, S7, S8) Web: auth client from @neondatabase/auth (vanilla), /acceso, top bar states, user menu, progress hooks with the bearer token, remove the write key flow
 
 ## Log
 
 - L1: "cualquiera que la use" (multi-user) and "estan bien esos" (Google and GitHub); "no deberia verse antes de loguearte" (login screens without navbar and search); email field dropped; dependencies approved. jose is pinned at 6.2.13, not the 6.2.14 the owner approved, because 6.2.14 was under pnpm's one-day release guard; core-js build scripts denied like esbuild's.
+- L2: T1 (API) and T2 (web) built by two parallel workers and reviewed by the parent. Parent checks on the whole tree: lint, format, typecheck 0 errors, web 455 tests, API 63 tests (real Postgres, tokens signed by a key pair generated in the tests and served through the production verification path), contracts 19 tests, web build. Real Chrome against local vite + API: /acceso (brand-only header, Google and GitHub, 'Sigue sin cuenta'; two columns with benefits from 1100px, single column below; a horizontal overflow at 768px was found and fixed), signed-out home ('Iniciar sesión', the quiet notice, 'Llevas 0 de 182 páginas'), and 'Marcar como leído' signed out goes to /acceso?returnTo=... The API verifies signature (EdDSA only, JWKS), sub and exp, NOT iss and aud (nothing documents them). The SDK is a lazy chunk (about 46 kB gzip); main chunk 99 kB gzip; the build drops the SDK when VITE_NEON_AUTH_URL is missing. NOT verified: a real sign-in (OAuth round trip, that the token the SDK returns is the JWT the API accepts, the SDK's verifier query param on the returnTo page), Safari third-party cookies, dark theme and keyboard focus of the new screens. The old write key files were deleted by the parent.

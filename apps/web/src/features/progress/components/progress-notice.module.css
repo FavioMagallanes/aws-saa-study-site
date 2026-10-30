@@ -11,3 +11,25 @@
   font-size: 14px;
   line-height: 1.5;
 }
+
+/* Signed-out visitors: a quiet invitation, not an alert. */
+.progress-notice--quiet {
+  margin: 0;
+  padding: var(--space-2) var(--layout-margin-mobile);
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-muted);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.progress-notice__link {
+  color: var(--color-muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.progress-notice__link:hover {
+  color: var(--color-text);
+}

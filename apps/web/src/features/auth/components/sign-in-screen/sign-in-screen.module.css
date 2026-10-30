@@ -1,0 +1,212 @@
+.sign-in {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding: var(--space-10) var(--layout-margin-mobile) var(--space-12);
+  font-family: var(--font-sans);
+}
+
+.sign-in__intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.sign-in__eyebrow {
+  margin: 0;
+  color: var(--color-accent);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  line-height: 1.3;
+}
+
+.sign-in__headline {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1.18;
+}
+
+.sign-in__lead {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* The mobile board drops the benefits. */
+.sign-in__benefits {
+  display: none;
+  flex-direction: column;
+  gap: var(--space-5);
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sign-in__benefit {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.sign-in__check {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-pill);
+  background: var(--color-ok-soft);
+  color: var(--color-ok);
+}
+
+.sign-in__benefit-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sign-in__benefit-title {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.sign-in__benefit-text {
+  color: var(--color-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.sign-in__panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sign-in__card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 420px;
+  padding: 36px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2xl);
+  background: var(--color-surface);
+}
+
+.sign-in__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.sign-in__subtitle {
+  margin: var(--space-2) 0 var(--space-6);
+  color: var(--color-muted);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.sign-in__providers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.sign-in__provider {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 46px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.sign-in__provider:hover:not(:disabled) {
+  border-color: var(--color-faint);
+}
+
+.sign-in__provider:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.sign-in__error {
+  margin: var(--space-3) 0 0;
+  color: var(--color-accent);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.sign-in__error:empty {
+  margin: 0;
+}
+
+.sign-in__read-only {
+  margin: var(--space-6) 0 0;
+  color: var(--color-muted);
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.sign-in__read-only-link {
+  color: var(--color-accent);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.sign-in__read-only-link:hover {
+  text-decoration: underline;
+}
+
+/* Tablet (768 to 1099px): the same single column as the phone, with the tablet side padding. */
+@media (min-width: 768px) {
+  .sign-in {
+    padding-inline: 44px;
+  }
+}
+
+/* Two columns from 1100px: the editorial panel (640px on wide screens) on the code background. */
+@media (min-width: 1100px) {
+  .sign-in {
+    display: grid;
+    grid-template-columns: minmax(280px, 640px) minmax(calc(420px + 2 * 44px), 1fr);
+    gap: 0;
+    padding: 0;
+  }
+
+  .sign-in__intro {
+    justify-content: center;
+    gap: var(--space-5);
+    padding: var(--space-16) 80px;
+    background: var(--color-code);
+  }
+
+  .sign-in__headline {
+    font-size: 44px;
+    line-height: 1.15;
+  }
+
+  .sign-in__benefits {
+    display: flex;
+  }
+
+  .sign-in__panel {
+    padding: var(--space-16) 44px;
+  }
+}

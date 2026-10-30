@@ -4,7 +4,7 @@ import {
   type ProgressEntry,
 } from '@arquitecto/contracts/progress';
 
-export type ProgressErrorKind = 'missing-key' | 'invalid-key' | 'unavailable' | 'failed';
+export type ProgressErrorKind = 'unauthorized' | 'unavailable' | 'failed';
 
 export class ProgressRequestError extends Error {
   readonly kind: ProgressErrorKind;
@@ -16,7 +16,12 @@ export class ProgressRequestError extends Error {
   }
 }
 
+export const isUnauthorized = (error: unknown): boolean =>
+  error instanceof ProgressRequestError && error.kind === 'unauthorized';
+
 const BASE_URL = '/api/progress';
+
+const authorization = (accessToken: string) => ({ authorization: `Bearer ${accessToken}` });
 
 const send = async (input: string, init: RequestInit): Promise<Response> => {
   try {
@@ -29,7 +34,7 @@ const send = async (input: string, init: RequestInit): Promise<Response> => {
 const assertOk = (response: Response): void => {
   if (response.ok) return;
   if (response.status === 401) {
-    throw new ProgressRequestError('invalid-key', 'The write key was rejected');
+    throw new ProgressRequestError('unauthorized', 'The access token was rejected');
   }
   throw new ProgressRequestError(
     'failed',
@@ -45,8 +50,12 @@ const parseJson = async (response: Response): Promise<unknown> => {
   }
 };
 
-export const fetchProgress = async (signal?: AbortSignal): Promise<ProgressEntry[]> => {
-  const response = await send(BASE_URL, signal ? { signal } : {});
+export const fetchProgress = async (
+  accessToken: string,
+  signal?: AbortSignal,
+): Promise<ProgressEntry[]> => {
+  const headers = authorization(accessToken);
+  const response = await send(BASE_URL, signal ? { headers, signal } : { headers });
   assertOk(response);
   const parsed = progressResponseSchema.safeParse(await parseJson(response));
   if (!parsed.success) {
@@ -55,10 +64,10 @@ export const fetchProgress = async (signal?: AbortSignal): Promise<ProgressEntry
   return parsed.data.entries;
 };
 
-export const markPageRead = async (pageId: string, writeKey: string): Promise<ProgressEntry> => {
+export const markPageRead = async (pageId: string, accessToken: string): Promise<ProgressEntry> => {
   const response = await send(`${BASE_URL}/${encodeURIComponent(pageId)}`, {
     method: 'PUT',
-    headers: { 'x-write-key': writeKey },
+    headers: authorization(accessToken),
   });
   assertOk(response);
   const parsed = progressEntrySchema.safeParse(await parseJson(response));
@@ -68,10 +77,10 @@ export const markPageRead = async (pageId: string, writeKey: string): Promise<Pr
   return parsed.data;
 };
 
-export const markPageUnread = async (pageId: string, writeKey: string): Promise<void> => {
+export const markPageUnread = async (pageId: string, accessToken: string): Promise<void> => {
   const response = await send(`${BASE_URL}/${encodeURIComponent(pageId)}`, {
     method: 'DELETE',
-    headers: { 'x-write-key': writeKey },
+    headers: authorization(accessToken),
   });
   assertOk(response);
 };

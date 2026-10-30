@@ -1,8 +1,14 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { ProgressEntry } from '@arquitecto/contracts/progress';
-import { markPageRead, markPageUnread, ProgressRequestError } from '../api/progress-client';
-import { useWriteKeyStore } from '../store/use-write-key-store';
-import { PROGRESS_QUERY_KEY } from './use-reading-progress';
+import { showSignedOut, useAuthSession } from '../../auth/hooks/use-auth-session';
+import { currentAccessToken } from '../api/current-access-token';
+import {
+  ProgressRequestError,
+  isUnauthorized,
+  markPageRead,
+  markPageUnread,
+} from '../api/progress-client';
+import { progressQueryKey } from './use-reading-progress';
 
 interface SetPageReadVariables {
   readonly pageId: string;
@@ -11,6 +17,8 @@ interface SetPageReadVariables {
 
 export const useSetPageRead = () => {
   const queryClient = useQueryClient();
+  const auth = useAuthSession();
+  const queryKey = progressQueryKey(auth.status === 'signed-in' ? auth.user.id : '');
 
   return useMutation<
     unknown,
@@ -19,23 +27,26 @@ export const useSetPageRead = () => {
     { previous: ProgressEntry[] | undefined }
   >({
     mutationFn: async ({ pageId, read }) => {
-      const writeKey = useWriteKeyStore.getState().writeKey;
-      if (!writeKey) throw new ProgressRequestError('missing-key', 'No write key is stored');
-      return read ? markPageRead(pageId, writeKey) : markPageUnread(pageId, writeKey);
+      if (auth.status !== 'signed-in') {
+        throw new ProgressRequestError('unauthorized', 'There is no session');
+      }
+      const accessToken = await currentAccessToken();
+      return read ? markPageRead(pageId, accessToken) : markPageUnread(pageId, accessToken);
     },
     onMutate: async ({ pageId, read }) => {
-      await queryClient.cancelQueries({ queryKey: PROGRESS_QUERY_KEY });
-      const previous = queryClient.getQueryData<ProgressEntry[]>(PROGRESS_QUERY_KEY);
+      await queryClient.cancelQueries({ queryKey });
+      const previous = queryClient.getQueryData<ProgressEntry[]>(queryKey);
       const others = (previous ?? []).filter((entry) => entry.pageId !== pageId);
       queryClient.setQueryData<ProgressEntry[]>(
-        PROGRESS_QUERY_KEY,
+        queryKey,
         read ? [...others, { pageId, readAt: new Date().toISOString() }] : others,
       );
       return { previous };
     },
-    onError: (_error, _variables, context) => {
-      if (context) queryClient.setQueryData(PROGRESS_QUERY_KEY, context.previous);
+    onError: (error, _variables, context) => {
+      if (context) queryClient.setQueryData(queryKey, context.previous);
+      if (isUnauthorized(error)) showSignedOut(queryClient);
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: PROGRESS_QUERY_KEY }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey }),
   });
 };

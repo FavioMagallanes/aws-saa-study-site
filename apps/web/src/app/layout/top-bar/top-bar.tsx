@@ -5,6 +5,7 @@ import { LazySearchDialog } from '../../../features/search/components/lazy-searc
 import { useSearchDialog } from '../../../features/search/hooks/use-search-dialog';
 import { useThemeStore } from '../../../features/theme/store/use-theme-store';
 import { IconButton } from '../../../shared/ui/icon-button/icon-button';
+import { AccountAction } from './account-action';
 import styles from './top-bar.module.css';
 
 const NAV_ITEMS = [
@@ -13,6 +14,22 @@ const NAV_ITEMS = [
   { label: 'Arquitecturas', to: '/arquitecturas' },
   { label: 'Glosario', to: '/glosario' },
 ] as const;
+
+const TopBarBrand = () => (
+  <Link to="/" className={styles['top-bar__brand']} aria-label="Arquitecto · SAA-C03, inicio">
+    <span className={styles['top-bar__brand-name']}>Arquitecto</span>
+    <span className={styles['top-bar__exam-tag']}>SAA-C03</span>
+  </Link>
+);
+
+// The sign-in screens show only the brand: no navigation, search, theme or menu.
+export const BrandTopBar = () => (
+  <header className={styles['top-bar']}>
+    <div className={styles['top-bar__inner']}>
+      <TopBarBrand />
+    </div>
+  </header>
+);
 
 export const TopBar = () => {
   const theme = useThemeStore((state) => state.theme);
@@ -72,10 +89,7 @@ export const TopBar = () => {
   return (
     <header className={styles['top-bar']}>
       <div className={styles['top-bar__inner']}>
-        <Link to="/" className={styles['top-bar__brand']} aria-label="Arquitecto · SAA-C03, inicio">
-          <span className={styles['top-bar__brand-name']}>Arquitecto</span>
-          <span className={styles['top-bar__exam-tag']}>SAA-C03</span>
-        </Link>
+        <TopBarBrand />
         <nav className={styles['top-bar__nav']} aria-label="Principal">
           {navLinks}
         </nav>
@@ -114,6 +128,7 @@ export const TopBar = () => {
             }
             onClick={toggleTheme}
           />
+          <AccountAction />
           <span className={styles['top-bar__mobile-only']} ref={menuButtonRef}>
             <IconButton
               label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}

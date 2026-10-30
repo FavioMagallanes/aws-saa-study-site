@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider, createMemoryHistory, createRouter } from '@tanstack/react-router';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import type { ProgressEntry } from '@arquitecto/contracts/progress';
 import { vi } from 'vitest';
 import { routeTree } from '../../routeTree.gen';
@@ -37,4 +37,11 @@ export const renderApp = async (
     </QueryClientProvider>,
   );
   return { ...view, router };
+};
+
+// Screens may carry their own <header>; the site top bar is always the first banner.
+export const getTopBar = (): HTMLElement => {
+  const [topBar] = screen.getAllByRole('banner');
+  if (!topBar) throw new Error('Top bar not found');
+  return topBar;
 };

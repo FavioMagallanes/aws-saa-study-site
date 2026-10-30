@@ -1,8 +1,18 @@
 import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 import { afterEach, vi } from 'vitest';
+import { resetFakeAuth } from './fake-auth-client';
 
-afterEach(cleanup);
+// The Neon Auth SDK is the only faked boundary: every test starts signed in as TEST_SESSION.
+vi.mock('../../features/auth/data/auth-client', async () => {
+  const { fakeAuthClient } = await import('./fake-auth-client');
+  return fakeAuthClient;
+});
+
+afterEach(() => {
+  cleanup();
+  resetFakeAuth();
+});
 
 // jsdom does not implement the modal dialog methods; emulate the parts the UI relies on.
 if (typeof HTMLDialogElement.prototype.showModal !== 'function') {
