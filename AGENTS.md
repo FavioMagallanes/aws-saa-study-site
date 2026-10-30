@@ -156,7 +156,7 @@ src/
 **Stack**: pnpm 12 workspaces, Node >=22.12, TypeScript 6.0.3 (pinned below 6.1 because `typescript-eslint` does not yet support TS 7).
 
 - `apps/web`: Vite, React 19, TanStack Router (file-based), TanStack Query (server state), Zustand (UI state only), MDX content, CSS Modules with BEM, design tokens in `src/shared/styles/tokens.css`.
-- `apps/api`: Express 5, Drizzle ORM, Postgres (Neon in production). No login: single global reading progress; `PUT`/`DELETE` require the `x-write-key` header matching `WRITE_KEY`.
+- `apps/api`: Express 5, Drizzle ORM, Postgres (Neon in production). Sign-in with Neon Auth (Google and GitHub): reading progress is stored per user; every `/api/progress` route requires `Authorization: Bearer <access token>` verified against the JWKS in `NEON_AUTH_JWKS_URL`.
 - `packages/contracts`: shared Zod schemas (`./progress`, `./content`).
 
 **Content rules**

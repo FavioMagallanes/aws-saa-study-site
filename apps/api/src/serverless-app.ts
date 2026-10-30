@@ -10,5 +10,5 @@ export const createServerlessApp = (source: NodeJS.ProcessEnv = process.env) => 
   const { db } = createDatabase(env.DATABASE_URL, {
     maxConnections: env.DATABASE_POOL_MAX ?? SERVERLESS_MAX_CONNECTIONS,
   });
-  return createApp({ db, writeKey: env.WRITE_KEY });
+  return createApp({ db, neonAuthJwksUrl: env.NEON_AUTH_JWKS_URL });
 };

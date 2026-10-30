@@ -5,7 +5,7 @@ const databaseEnvSchema = z.object({
 });
 
 const envSchema = databaseEnvSchema.extend({
-  WRITE_KEY: z.string().min(16, 'WRITE_KEY must be at least 16 characters'),
+  NEON_AUTH_JWKS_URL: z.url('NEON_AUTH_JWKS_URL must be the URL of the Neon Auth JWKS'),
   PORT: z.coerce.number().int().positive().default(3001),
   DATABASE_POOL_MAX: z.coerce.number().int().positive().optional(),
 });

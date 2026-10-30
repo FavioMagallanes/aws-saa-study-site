@@ -1,32 +1,35 @@
-import { Router } from 'express';
+import { Router, type RequestHandler } from 'express';
 import { markReadParamsSchema } from '@arquitecto/contracts/progress';
+import { authenticatedUserId } from '../../../shared/auth/require-user.ts';
 import type { ProgressRepository } from '../data/progress.repository.ts';
-import { requireWriteKey } from './require-write-key.ts';
 
-export const createProgressRouter = (repository: ProgressRepository, writeKey: string) => {
+export const createProgressRouter = (
+  repository: ProgressRepository,
+  requireUser: RequestHandler,
+) => {
   const router = Router();
-  const guard = requireWriteKey(writeKey);
+  router.use('/progress', requireUser);
 
   router.get('/progress', async (_req, res) => {
-    res.json({ entries: await repository.list() });
+    res.json({ entries: await repository.list(authenticatedUserId(res)) });
   });
 
-  router.put('/progress/:pageId', guard, async (req, res) => {
+  router.put('/progress/:pageId', async (req, res) => {
     const params = markReadParamsSchema.safeParse(req.params);
     if (!params.success) {
       res.status(400).json({ error: 'invalid_page_id' });
       return;
     }
-    res.json(await repository.markRead(params.data.pageId));
+    res.json(await repository.markRead(authenticatedUserId(res), params.data.pageId));
   });
 
-  router.delete('/progress/:pageId', guard, async (req, res) => {
+  router.delete('/progress/:pageId', async (req, res) => {
     const params = markReadParamsSchema.safeParse(req.params);
     if (!params.success) {
       res.status(400).json({ error: 'invalid_page_id' });
       return;
     }
-    await repository.markUnread(params.data.pageId);
+    await repository.markUnread(authenticatedUserId(res), params.data.pageId);
     res.status(204).end();
   });
 
