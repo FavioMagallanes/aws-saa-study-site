@@ -1,0 +1,132 @@
+.services-index {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+  padding: var(--space-10) var(--layout-margin-mobile) var(--space-16);
+}
+
+.services-index__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 1040px;
+}
+
+.services-index__eyebrow {
+  margin: 0;
+  color: var(--color-accent);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.services-index__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1.18;
+}
+
+.services-index__lead {
+  max-width: 720px;
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 19px;
+  line-height: 1.65;
+}
+
+.services-index__categories {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-8) var(--space-10);
+  max-width: 1040px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.services-index__category {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.services-index__category-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.services-index__category-title {
+  margin: 0;
+  color: var(--color-muted);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.services-index__count {
+  margin: 0;
+  color: var(--color-faint);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.services-index__services {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 10px 0 0;
+  border-top: 1px solid var(--color-border);
+  list-style: none;
+}
+
+.services-index__service {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.services-index__service-link {
+  color: var(--color-text);
+  font-size: 17px;
+  line-height: 1.4;
+  text-decoration: none;
+}
+
+.services-index__service-link:hover {
+  text-decoration: underline;
+}
+
+@media (min-width: 768px) {
+  .services-index {
+    padding: 72px 44px 96px;
+  }
+
+  .services-index__title {
+    font-size: 44px;
+  }
+
+  .services-index__categories {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1100px) {
+  .services-index {
+    padding-inline: 200px;
+  }
+
+  .services-index__categories {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

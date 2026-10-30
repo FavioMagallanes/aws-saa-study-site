@@ -28,6 +28,33 @@ describe('app shell', () => {
     expect(current.map((link) => link.textContent)).toEqual(['Servicios']);
   });
 
+  it('marks Arquitecturas as the current section on its page', async () => {
+    await renderAt('/arquitecturas');
+    const [nav] = screen.getAllByRole('navigation', { name: 'Principal' });
+    if (!nav) throw new Error('Main navigation not found');
+    const current = within(nav)
+      .getAllByRole('link')
+      .filter((link) => link.getAttribute('aria-current') === 'page');
+    expect(current.map((link) => link.textContent)).toEqual(['Arquitecturas']);
+  });
+
+  it('links the home service index to the Servicios page with the real category count', async () => {
+    const { router } = await renderAt('/');
+    const index = screen.getByRole('region', { name: 'Índice de servicios' });
+    expect(within(index).getByRole('link', { name: 'Ver las 16 categorías' })).toHaveAttribute(
+      'href',
+      '/servicios',
+    );
+    const [more] = within(index).getAllByRole('link', { name: /^\+\d+ más$/ });
+    if (!more) throw new Error('"+N más" link not found');
+    expect(more).toHaveAttribute('href', '/servicios');
+    fireEvent.click(more);
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Los servicios que cubre la guía' }),
+    ).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe('/servicios');
+  });
+
   it('toggles the theme and announces the next action', async () => {
     await renderAt('/');
     const before = document.documentElement.dataset.theme;

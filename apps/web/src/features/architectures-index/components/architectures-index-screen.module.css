@@ -1,0 +1,134 @@
+.architectures-index {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  padding: var(--space-10) var(--layout-margin-mobile) var(--space-16);
+}
+
+.architectures-index__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 1040px;
+}
+
+.architectures-index__eyebrow {
+  margin: 0;
+  color: var(--color-accent);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.architectures-index__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1.18;
+}
+
+.architectures-index__lead {
+  max-width: 720px;
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 19px;
+  line-height: 1.65;
+}
+
+.architectures-index__domain {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 1040px;
+}
+
+.architectures-index__domain-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+}
+
+.architectures-index__domain-title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.architectures-index__weight {
+  margin: 0;
+  color: var(--color-muted);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.architectures-index__progress {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.architectures-index__count {
+  flex: none;
+  margin: 0;
+  color: var(--color-faint);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.architectures-index__topics {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px var(--space-10);
+  margin: 0;
+  padding: var(--space-3) 0 0;
+  border-top: 1px solid var(--color-border);
+  list-style: none;
+}
+
+.architectures-index__topic {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.architectures-index__topic-link {
+  color: var(--color-text);
+  font-size: 17px;
+  line-height: 1.4;
+  text-decoration: none;
+}
+
+.architectures-index__topic-link:hover {
+  text-decoration: underline;
+}
+
+@media (min-width: 768px) {
+  .architectures-index {
+    padding: 72px 44px 96px;
+  }
+
+  .architectures-index__title {
+    font-size: 44px;
+  }
+
+  .architectures-index__topics {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1100px) {
+  .architectures-index {
+    padding-inline: 200px;
+  }
+}

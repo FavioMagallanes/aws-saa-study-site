@@ -1,0 +1,4 @@
+.read-mark {
+  display: inline-flex;
+  color: var(--color-ok);
+}
