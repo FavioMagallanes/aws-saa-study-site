@@ -9,11 +9,10 @@ export const SIGN_IN_BENEFITS = [
   },
   {
     title: 'Sin contraseñas nuevas',
-    text: 'Entra con tu cuenta de Google o GitHub.',
+    text: 'Entra con tu cuenta de GitHub.',
   },
 ] as const;
 
-export const SIGN_IN_PROVIDERS = [
-  { provider: 'google', label: 'Continuar con Google' },
-  { provider: 'github', label: 'Continuar con GitHub' },
-] as const;
+export const SIGN_IN_SUBTITLE = 'Entra con tu cuenta de GitHub.';
+
+export const SIGN_IN_PROVIDER = { provider: 'github', label: 'Continuar con GitHub' } as const;

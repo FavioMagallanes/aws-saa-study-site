@@ -19,6 +19,26 @@ const expectMenuClosedWithFocusOnButton = () => {
 };
 
 describe('app shell', () => {
+  it.each(['/', '/servicios', '/glosario', '/lectura/amazon-sqs'])(
+    'shows the site footer on %s',
+    async (path) => {
+      await renderAt(path);
+      const footer = await screen.findByRole('contentinfo');
+      expect(
+        within(footer).getByText(
+          'Basado en la Guía de examen SAA-C03 y en docs.aws.amazon.com. No es material oficial de AWS.',
+        ),
+      ).toBeInTheDocument();
+      expect(within(footer).getByRole('navigation', { name: 'Pie de página' })).toBeInTheDocument();
+    },
+  );
+
+  it('hides the site footer on the sign-in screen', async () => {
+    await renderAt('/acceso');
+    expect(screen.getByRole('heading', { level: 2, name: 'Inicia sesión' })).toBeInTheDocument();
+    expect(screen.queryByRole('contentinfo')).not.toBeInTheDocument();
+  });
+
   it('marks the current section in the main navigation', async () => {
     await renderAt('/servicios');
     const [nav] = screen.getAllByRole('navigation', { name: 'Principal' });

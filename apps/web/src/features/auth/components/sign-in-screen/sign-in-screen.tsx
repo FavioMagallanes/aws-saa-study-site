@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { Check } from 'lucide-react';
 import { useId } from 'react';
 import { useSignIn } from '../../hooks/use-sign-in';
-import { SIGN_IN_BENEFITS, SIGN_IN_PROVIDERS } from '../../model/sign-in-copy';
+import { SIGN_IN_BENEFITS, SIGN_IN_PROVIDER, SIGN_IN_SUBTITLE } from '../../model/sign-in-copy';
 import styles from './sign-in-screen.module.css';
 
 interface SignInScreenProps {
@@ -45,22 +45,17 @@ export const SignInScreen = ({ returnTo }: SignInScreenProps) => {
           <h2 id={titleId} className={styles['sign-in__title']}>
             Inicia sesión
           </h2>
-          <p className={styles['sign-in__subtitle']}>Elige cómo quieres entrar.</p>
-          <div className={styles['sign-in__providers']}>
-            {SIGN_IN_PROVIDERS.map(({ provider, label }) => (
-              <button
-                key={provider}
-                type="button"
-                className={styles['sign-in__provider']}
-                disabled={signIn.isPending}
-                onClick={() => {
-                  signIn.mutate({ provider, returnTo });
-                }}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+          <p className={styles['sign-in__subtitle']}>{SIGN_IN_SUBTITLE}</p>
+          <button
+            type="button"
+            className={styles['sign-in__provider']}
+            disabled={signIn.isPending}
+            onClick={() => {
+              signIn.mutate({ provider: SIGN_IN_PROVIDER.provider, returnTo });
+            }}
+          >
+            {SIGN_IN_PROVIDER.label}
+          </button>
           <p className={styles['sign-in__error']} role="alert">
             {signIn.isError ? 'No se pudo iniciar sesión. Inténtalo de nuevo.' : null}
           </p>

@@ -90,7 +90,7 @@ describe('auth client', () => {
   it('fails when the social sign-in is rejected', async () => {
     sdk.client?.signIn.social.mockResolvedValue({ data: null, error: { status: 400 } });
     const { signInWithProvider } = await loadActual();
-    await expect(signInWithProvider('google', 'http://localhost:3000/')).rejects.toThrow();
+    await expect(signInWithProvider('github', 'http://localhost:3000/')).rejects.toThrow();
   });
 
   it('signs out through the SDK', async () => {
@@ -103,7 +103,7 @@ describe('auth client', () => {
     sdk.client = undefined;
     const { getAuthSession, signInWithProvider } = await loadActual();
     await expect(getAuthSession()).rejects.toThrow('VITE_NEON_AUTH_URL');
-    await expect(signInWithProvider('google', 'http://localhost:3000/')).rejects.toThrow(
+    await expect(signInWithProvider('github', 'http://localhost:3000/')).rejects.toThrow(
       'VITE_NEON_AUTH_URL',
     );
   });

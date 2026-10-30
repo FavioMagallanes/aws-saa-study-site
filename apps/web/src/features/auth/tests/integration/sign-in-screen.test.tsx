@@ -6,7 +6,7 @@ import { getTopBar, renderApp } from '../../../../app/tests/render-app';
 const BENEFITS = [
   ['Tu progreso viaja contigo', 'La ruta guiada continúa donde la dejaste.'],
   ['Solo guardamos lo que lees', 'Páginas marcadas como leídas, nada más.'],
-  ['Sin contraseñas nuevas', 'Entra con tu cuenta de Google o GitHub.'],
+  ['Sin contraseñas nuevas', 'Entra con tu cuenta de GitHub.'],
 ] as const;
 
 const renderAccess = (search = '') => {
@@ -17,7 +17,7 @@ const renderAccess = (search = '') => {
 const signInCard = () => screen.getByRole('region', { name: 'Inicia sesión' });
 
 describe('Acceso screen', () => {
-  it('shows the approved copy, the two providers and the way back to reading', async () => {
+  it('shows the approved copy, GitHub as the only provider and the way back to reading', async () => {
     await renderAccess();
     expect(screen.getByText('GUARDA TU PROGRESO')).toBeInTheDocument();
     expect(
@@ -39,12 +39,14 @@ describe('Acceso screen', () => {
 
     const card = signInCard();
     expect(within(card).getByRole('heading', { level: 2, name: 'Inicia sesión' })).toBeVisible();
-    expect(within(card).getByText('Elige cómo quieres entrar.')).toBeInTheDocument();
+    expect(within(card).getByText('Entra con tu cuenta de GitHub.')).toBeInTheDocument();
+    expect(within(card).queryByText('Elige cómo quieres entrar.')).not.toBeInTheDocument();
     expect(
       within(card)
         .getAllByRole('button')
         .map((button) => button.textContent),
-    ).toEqual(['Continuar con Google', 'Continuar con GitHub']);
+    ).toEqual(['Continuar con GitHub']);
+    expect(screen.queryByText(/Google/)).not.toBeInTheDocument();
     expect(within(card).queryByRole('textbox')).not.toBeInTheDocument();
     expect(within(card).getByText(/¿Solo quieres leer\?/)).toBeInTheDocument();
     expect(within(card).getByRole('link', { name: 'Sigue sin cuenta' })).toHaveAttribute(
@@ -65,24 +67,17 @@ describe('Acceso screen', () => {
     expect(screen.queryByText('Inicia sesión para guardar tu progreso')).not.toBeInTheDocument();
   });
 
-  it.each([
-    ['Continuar con Google', 'google'],
-    ['Continuar con GitHub', 'github'],
-  ] as const)(
-    '%s starts the %s sign-in and comes back to the page the visitor came from',
-    async (label, provider) => {
-      await renderAccess(`?returnTo=${encodeURIComponent('/lectura/amazon-sqs')}`);
-      fireEvent.click(within(signInCard()).getByRole('button', { name: label }));
-      await waitFor(() => {
-        expect(fakeAuth.signInCalls).toEqual([
-          { provider, callbackURL: `${window.location.origin}/lectura/amazon-sqs` },
-        ]);
-      });
-      for (const button of within(signInCard()).getAllByRole('button')) {
-        expect(button).toBeDisabled();
-      }
-    },
-  );
+  it('starts the GitHub sign-in and comes back to the page the visitor came from', async () => {
+    await renderAccess(`?returnTo=${encodeURIComponent('/lectura/amazon-sqs')}`);
+    const github = within(signInCard()).getByRole('button', { name: 'Continuar con GitHub' });
+    fireEvent.click(github);
+    await waitFor(() => {
+      expect(fakeAuth.signInCalls).toEqual([
+        { provider: 'github', callbackURL: `${window.location.origin}/lectura/amazon-sqs` },
+      ]);
+    });
+    expect(github).toBeDisabled();
+  });
 
   it.each([
     ['an absolute URL', 'https://evil.example/lectura/amazon-sqs'],
@@ -90,10 +85,10 @@ describe('Acceso screen', () => {
     ['no returnTo', undefined],
   ])('comes back to the home page when returnTo is %s', async (_label, returnTo) => {
     await renderAccess(returnTo === undefined ? '' : `?returnTo=${encodeURIComponent(returnTo)}`);
-    fireEvent.click(within(signInCard()).getByRole('button', { name: 'Continuar con Google' }));
+    fireEvent.click(within(signInCard()).getByRole('button', { name: 'Continuar con GitHub' }));
     await waitFor(() => {
       expect(fakeAuth.signInCalls).toEqual([
-        { provider: 'google', callbackURL: `${window.location.origin}/` },
+        { provider: 'github', callbackURL: `${window.location.origin}/` },
       ]);
     });
   });
@@ -101,11 +96,11 @@ describe('Acceso screen', () => {
   it('explains a failed sign-in and lets the visitor try again', async () => {
     fakeAuth.signInFails = true;
     await renderAccess();
-    const google = within(signInCard()).getByRole('button', { name: 'Continuar con Google' });
-    fireEvent.click(google);
+    const github = within(signInCard()).getByRole('button', { name: 'Continuar con GitHub' });
+    fireEvent.click(github);
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'No se pudo iniciar sesión. Inténtalo de nuevo.',
     );
-    expect(google).toBeEnabled();
+    expect(github).toBeEnabled();
   });
 });

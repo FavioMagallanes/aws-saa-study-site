@@ -1,0 +1,17 @@
+.brand-only-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* Takes the height left under the bar and hands it to the screen. */
+.brand-only-layout__screen {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+}
+
+.brand-only-layout__screen > * {
+  flex: 1 0 auto;
+}

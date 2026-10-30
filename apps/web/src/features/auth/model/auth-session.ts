@@ -1,4 +1,5 @@
-export type AuthProvider = 'google' | 'github';
+// GitHub is the only sign-in provider.
+export type AuthProvider = 'github';
 
 export interface AuthUser {
   readonly id: string;
