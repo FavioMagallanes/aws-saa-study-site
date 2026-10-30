@@ -1,141 +1,261 @@
+<p align="center">
+  <img src="docs/banner.png" alt="Arquitecto · SAA-C03: Entendé AWS como un arquitecto" width="100%" />
+</p>
+
+<p align="center">
+  <a href="https://aws-saa-study-site.vercel.app"><strong>aws-saa-study-site.vercel.app</strong></a>
+</p>
+
 # Arquitecto
 
-Personal reading-only study site for the AWS Certified Solutions Architect - Associate (SAA-C03) exam.
+Sitio de estudio **solo de lectura** para el examen **AWS Certified Solutions Architect – Associate
+(SAA-C03)**. No tiene simulacros ni preguntas: explica qué hace cada servicio, qué problema
+resuelve, con qué se conecta y cuándo conviene elegirlo, con el texto armado a partir de la guía
+oficial del examen y de la documentación de AWS.
 
-## Structure
+> No es material oficial de AWS. Es un proyecto personal de estudio.
 
-| Path                 | Purpose                                                 |
-| -------------------- | ------------------------------------------------------- |
-| `apps/web`           | Vite + React site. Content lives in `apps/web/content`. |
-| `apps/api`           | Express API that stores reading progress in Postgres.   |
-| `packages/contracts` | Zod schemas shared by web and API.                      |
-| `odd/tasks`          | Feature task documents.                                 |
+## Contenido
 
-## Getting started
+- [Qué incluye](#qué-incluye)
+- [Cómo está armado el contenido](#cómo-está-armado-el-contenido)
+- [Arquitectura](#arquitectura)
+- [Estructura del repositorio](#estructura-del-repositorio)
+- [Correrlo en tu máquina](#correrlo-en-tu-máquina)
+- [Inicio de sesión y progreso](#inicio-de-sesión-y-progreso)
+- [Despliegue (Vercel + Neon)](#despliegue-vercel--neon)
+- [Migraciones](#migraciones)
+- [Calidad y convenciones](#calidad-y-convenciones)
+- [Cómo se trabajó](#cómo-se-trabajó)
+- [Limitaciones conocidas](#limitaciones-conocidas)
 
-You need Node 22+, pnpm and Docker.
+## Qué incluye
+
+| Sección             | Qué vas a encontrar                                                                                        |
+| ------------------- | ---------------------------------------------------------------------------------------------------------- |
+| **Ruta guiada**     | El orden de la guía oficial: Fundamentos y los cuatro dominios del examen (30 %, 26 %, 24 % y 20 %).       |
+| **Servicios**       | Los 118 servicios que la guía declara dentro del alcance, agrupados en sus 16 categorías.                  |
+| **Arquitecturas**   | 57 temas transversales (seguridad, resiliencia, rendimiento y costos) que conectan los servicios entre sí. |
+| **Mapa del examen** | Cada tarea de la guía enlazada con las páginas que la cubren, con tu avance.                               |
+| **Glosario**        | Las siglas del examen con su definición y la fuente oficial.                                               |
+| **Búsqueda**        | `⌘K` / `Ctrl+K`: busca servicios, siglas y texto, y salta directo a la sección.                            |
+| **Progreso**        | Marcá cada página como leída. Se guarda por usuario cuando iniciás sesión con GitHub.                      |
+| **Modo oscuro**     | Respeta el tema de tu sistema y te deja cambiarlo.                                                         |
+
+En total son **182 páginas**: 7 de fundamentos, 57 de temas y 118 de servicios. Leer **no requiere
+cuenta**: iniciar sesión solo suma guardar lo que ya leíste.
+
+## Cómo está armado el contenido
+
+- **Fuentes**: únicamente la guía de examen SAA-C03 y `docs.aws.amazon.com`. Todo explicado con
+  palabras propias, en español, dejando los nombres de los servicios en inglés.
+- **Cobertura**: cada punto de la guía (conocimientos y habilidades) está asignado al menos a una
+  página; un test de cobertura lo valida.
+- **Estructura de cada página**: qué problema resuelve, conceptos clave, cómo se conecta con otros
+  servicios, cómo elegir (cuándo usarlo y cuál es la alternativa) y las fuentes oficiales.
+- **Verificación de fuentes**: `node scripts/check-sources.mjs` comprueba que cada URL de
+  `docs.aws.amazon.com` citada en las páginas siga respondiendo.
+- **Sin invenciones**: lo que la documentación no dice se suaviza o se saca; no hay precios ni
+  cifras que no estén en la fuente.
+
+## Arquitectura
+
+Un solo proyecto de Vercel sirve el sitio y la API desde el mismo origen. La base de datos y los
+usuarios viven en Neon.
+
+```mermaid
+flowchart LR
+  U[Navegador] -->|HTML, JS, MDX| V[Vercel: sitio estático Vite]
+  U -->|/api/progress + Bearer JWT| F[Vercel Function: Express]
+  U -->|signIn.social| A[Neon Auth]
+  A -->|OAuth| G[GitHub]
+  F -->|verifica la firma con JWKS| A
+  F -->|progreso por usuario| P[(Neon Postgres)]
+  A --- P
+```
+
+- **Web** (`apps/web`): React + Vite + TypeScript estricto. Rutas con TanStack Router, estado del
+  servidor con TanStack Query, contenido en MDX, estilos con CSS Modules (BEM) y tokens de diseño.
+- **API** (`apps/api`): Express 5 + Drizzle ORM + Postgres. Corre en Vercel como una Function y
+  verifica el token de sesión con `jose` contra las claves públicas (JWKS) de Neon Auth.
+- **Contratos** (`packages/contracts`): esquemas Zod compartidos entre la web y la API.
+- **Diseño**: las pantallas se diseñaron primero en Penpot y después se implementaron.
+
+## Estructura del repositorio
+
+| Ruta                 | Para qué sirve                                                                           |
+| -------------------- | ---------------------------------------------------------------------------------------- |
+| `apps/web`           | Sitio Vite + React. El contenido vive en `apps/web/content` (páginas MDX y glosario).    |
+| `apps/api`           | API Express que guarda el progreso por usuario en Postgres. Migraciones en `migrations`. |
+| `api`                | Punto de entrada de la Vercel Function (`api/index.ts`).                                 |
+| `packages/contracts` | Esquemas Zod compartidos por la web y la API.                                            |
+| `scripts`            | Utilidades, como la verificación de fuentes.                                             |
+| `odd`                | Documentos de cada funcionalidad: specs, tareas y bitácora de decisiones.                |
+| `docs`               | Imágenes de la documentación.                                                            |
+
+## Correrlo en tu máquina
+
+Necesitás Node 22+, pnpm y Docker.
 
 ```bash
-docker compose up -d --wait   # Postgres on localhost:5432
+docker compose up -d --wait   # Postgres en localhost:5432
 pnpm install
 
-# Terminal 1: API on :3001 (copy apps/api/.env.example to apps/api/.env first;
-# an older .env needs the NEON_AUTH_JWKS_URL line from the example)
+# Terminal 1: API en :3001
+# Copiá apps/api/.env.example a apps/api/.env primero.
+# Si ya tenías un .env viejo, agregale la línea NEON_AUTH_JWKS_URL del ejemplo.
 pnpm --filter @arquitecto/api db:migrate
 pnpm --filter @arquitecto/api dev
 
-# Terminal 2: web on :5173 (proxies /api to the API)
+# Terminal 2: web en :5173 (hace proxy de /api hacia la API)
+# Copiá apps/web/.env.example a apps/web/.env y completá VITE_NEON_AUTH_URL.
 pnpm --filter @arquitecto/web dev
 ```
 
-Open http://localhost:5173. Reading works without the API; saving progress needs it.
+Abrí http://localhost:5173. **Leer funciona sin la API**; guardar el progreso sí la necesita.
 
-### Saving progress
+## Inicio de sesión y progreso
 
-Reading needs no account. Saving progress needs a sign-in with Google or GitHub through Neon Auth
-(Managed Better Auth on the Neon project). Every progress request sends the session's
-`access_token` as `Authorization: Bearer <JWT>`; the API checks it against the Neon Auth signing
-keys (`NEON_AUTH_JWKS_URL`) and stores progress per user (the token's `sub`). Without a valid
-token, `/api/progress` answers `401 {"error":"unauthorized"}`.
+Para leer no necesitás cuenta. Para guardar el progreso iniciás sesión con **GitHub** a través de
+**Neon Auth** (Managed Better Auth sobre tu proyecto de Neon):
 
-## Deploy (Vercel + Neon)
+1. En `/acceso` tocás "Continuar con GitHub". El SDK (`@neondatabase/auth`, cliente vanilla) se
+   carga recién ahí, fuera del paquete principal.
+2. Neon Auth hace el intercambio OAuth con GitHub y te devuelve a la página desde la que venías.
+3. Cada pedido a `/api/progress` lleva `Authorization: Bearer <JWT>` (el token de la sesión).
+4. La API verifica la firma contra el JWKS (`NEON_AUTH_JWKS_URL`), toma el id de usuario del claim
+   `sub` y lee o escribe **solo las filas de ese usuario**.
 
-One Vercel project serves both apps from the same origin:
+Sin un token válido, `/api/progress` responde `401 {"error":"unauthorized"}`.
 
-- The web app is built with `pnpm --filter @arquitecto/web build` and served from `apps/web/dist`.
-- `api/index.ts` exports the Express app as a Vercel Function. `vercel.json` rewrites `/api/*` to
-  that function; every other path falls back to `index.html`.
-- `packages/contracts` is written in TypeScript, but the function runs plain JavaScript. Before
-  packaging the function, Vercel runs the root `vercel-build` script, which compiles the contracts
-  to `packages/contracts/dist` (`pnpm --filter @arquitecto/contracts build`; ignored by Git). Plain
-  Node resolves the package to `dist` through the `node` export condition; Vite, Vitest and the API
-  scripts (`tsx --conditions=development`) keep using the TypeScript source. To load
-  `api/index.ts` with plain Node on your machine, run that build first.
+La API acepta solo tokens firmados con una clave del JWKS usando `EdDSA` (el único algoritmo que
+publica Neon Auth), con `exp` vigente y un `sub` no vacío. Neon Auth no documenta emisor ni
+audiencia para sus tokens, así que la API **no** verifica `iss` ni `aud`.
 
-The API reads its configuration only from environment variables:
+### Configurar Neon Auth (una vez por rama de Neon)
 
-| Variable             | Value                                                                   |
-| -------------------- | ----------------------------------------------------------------------- |
-| `DATABASE_URL`       | Neon **pooled** connection string (host ends in `-pooler`).             |
-| `NEON_AUTH_JWKS_URL` | `<Neon Auth base URL>/.well-known/jwks.json` (public keys, not secret). |
-| `DATABASE_POOL_MAX`  | Optional. Connections per function instance; the default there is `1`.  |
+Neon Auth ya está habilitado en la rama `production`; los usuarios viven en el esquema `neon_auth`
+de la misma base. En **Neon Console > tu proyecto > la rama > Settings > Auth**:
 
-The API accepts only tokens signed with a key from that JWKS using `EdDSA` (the only algorithm
-Neon Auth publishes), with a valid `exp` and a non-empty `sub`. Neon Auth documents neither an
-issuer nor an audience for its tokens, so the API does not check `iss` or `aud`.
+1. **Trusted domains**: agregá cada origen donde corre el sitio (el dominio de Vercel y
+   `http://localhost:5173` para desarrollo). El inicio de sesión solo redirige a esos orígenes.
+2. **OAuth providers**: GitHub necesita tu propia aplicación OAuth. Creala en
+   `github.com/settings/developers > OAuth Apps > New OAuth App` y registrá como **Authorization
+   callback URL** `<URL base de Neon Auth>/callback/github`. Después pegá el Client ID y el Client
+   secret en Neon, en **Add OAuth provider**.
+3. **Registro con correo**: desactivá "Sign-up with Email" si no querés que se creen cuentas por
+   fuera de GitHub.
 
-SSL follows the connection string: `sslmode=require` (what Neon gives you), `verify-ca` or
-`verify-full` turn on verified TLS; no `sslmode`, as in the local Docker URL, means no TLS.
+Cada rama de Neon tiene su propia URL base de Auth, así que otra rama necesita su propio JWKS,
+sus dominios de confianza y sus credenciales OAuth.
 
-### First deploy
+## Despliegue (Vercel + Neon)
 
-1. Create a Neon project at https://console.neon.tech. In **Connect**, copy two connection
-   strings for the same database: the **pooled** one (connection pooling on, host ends in
-   `-pooler`) for Vercel, and the **direct** one (connection pooling off) for migrations.
-2. Apply the migrations to Neon from your machine (see below), using the direct string.
-3. Import this repository at https://vercel.com/new. Keep the root directory as the repository
-   root; `vercel.json` already sets the install command, build command and output directory.
-4. Before deploying, add `DATABASE_URL` (pooled string), `NEON_AUTH_JWKS_URL` and the web build
-   variable `VITE_NEON_AUTH_URL` (the Neon **Auth base URL**, without `/.well-known/...`) under
-   **Settings > Environment Variables** for Production (and Preview if you use it). Vite inlines
-   `VITE_NEON_AUTH_URL` at build time: without it the sign-in code is dropped from the build and
-   nobody can sign in, so redeploy after adding it.
-5. Deploy. If the variables were added after a deploy, redeploy so the function picks them up.
-   The build log must show `Running "pnpm run vercel-build"` followed by
-   `tsc -p tsconfig.build.json`; without it the function cannot load the contracts.
-6. Check the API: open `https://<your-project>.vercel.app/api/progress`. It must answer
-   `{"entries":[]}` on a fresh database. Also open a deep link such as
-   `https://<your-project>.vercel.app/lectura/amazon-s3` and reload it: the site must load.
-7. In the site, sign in and press "Marcar como leído" on any page. The page is marked as read for
-   your account only.
+Un único proyecto de Vercel sirve las dos partes desde el mismo origen:
 
-### Neon Auth
+- La web se compila con `pnpm --filter @arquitecto/web build` y se sirve desde `apps/web/dist`.
+- `api/index.ts` exporta la app Express como una Vercel Function. `vercel.json` redirige `/api/*`
+  a esa función y cualquier otra ruta cae en `index.html`.
+- `packages/contracts` está escrito en TypeScript, pero la función corre JavaScript plano. Antes de
+  empaquetarla, Vercel ejecuta el script raíz `vercel-build`, que compila los contratos a
+  `packages/contracts/dist` (`pnpm --filter @arquitecto/contracts build`; ignorado por Git). Node
+  resuelve el paquete a `dist` por la condición de export `node`; Vite, Vitest y los scripts de la
+  API (`tsx --conditions=development`) siguen usando el código TypeScript.
 
-Neon Auth is enabled on the Neon project (branch `production`); its users live in the
-`neon_auth` schema of the same database. Copy the **Auth base URL** from **Neon Console > your
-project > branch > Settings > Auth**; the API's `NEON_AUTH_JWKS_URL` is that URL followed by
-`/.well-known/jwks.json`. Then, in the same screen:
+### Variables de entorno
 
-1. **Trusted domains**: add every origin the site runs on (the Vercel production domain, and
-   `http://localhost:5173` for local development). Sign-in redirects back only to these.
-2. **OAuth providers**: GitHub needs your own OAuth app, and Google should use your own in
-   production (Neon's shared Google credentials are for development only). Create the apps in
-   Google Cloud Console and GitHub, register as their redirect/callback URL the one shown in Neon's
-   **Add OAuth provider** dialog (`<Auth base URL>/callback/google` and `.../callback/github`), and
-   paste each Client ID and Client Secret into Neon.
-3. Remove the old `WRITE_KEY` variable from Vercel; the API no longer reads it.
+| Variable             | Dónde       | Valor                                                                             |
+| -------------------- | ----------- | --------------------------------------------------------------------------------- |
+| `DATABASE_URL`       | API         | Cadena de conexión **pooled** de Neon (el host termina en `-pooler`).             |
+| `NEON_AUTH_JWKS_URL` | API         | `<URL base de Neon Auth>/.well-known/jwks.json` (claves públicas, no es secreto). |
+| `DATABASE_POOL_MAX`  | API         | Opcional. Conexiones por instancia de la función; por defecto `1` en Vercel.      |
+| `VITE_NEON_AUTH_URL` | Web (build) | URL base de Neon Auth, sin `/.well-known/...`. En Vercel va como tipo **Config**. |
 
-Each Neon branch has its own Auth base URL, so a different branch needs its own JWKS URL, trusted
-domains and OAuth credentials.
+Vite incrusta `VITE_NEON_AUTH_URL` al compilar: **sin esa variable el código de inicio de sesión
+se descarta del build** y nadie puede entrar, así que redesplegá después de agregarla.
 
-### Migrations against Neon
+El SSL sigue a la cadena de conexión: `sslmode=require` (lo que te da Neon), `verify-ca` o
+`verify-full` activan TLS verificado; sin `sslmode`, como en la URL de Docker local, no hay TLS.
 
-`db:migrate` reads `DATABASE_URL` from the environment, and a variable already set in the
-environment wins over `apps/api/.env`. Paste the **direct** Neon string at a hidden prompt so it
-is not written to a file or to your shell history:
+### Primer despliegue
+
+1. Creá un proyecto en https://console.neon.tech. En **Connect**, copiá dos cadenas de la misma
+   base: la **pooled** (pooling activado, host con `-pooler`) para Vercel y la **directa**
+   (pooling desactivado) para las migraciones.
+2. Aplicá las migraciones en Neon desde tu máquina (ver abajo) con la cadena directa.
+3. Importá el repositorio en https://vercel.com/new. Dejá el directorio raíz como está;
+   `vercel.json` ya define el comando de instalación, el de build y el directorio de salida.
+4. Antes de desplegar, cargá `DATABASE_URL`, `NEON_AUTH_JWKS_URL` y `VITE_NEON_AUTH_URL` en
+   **Settings > Environment Variables** para Production (y Preview si lo usás).
+5. Desplegá. El log del build tiene que mostrar `Running "pnpm run vercel-build"` y después
+   `tsc -p tsconfig.build.json`; sin eso, la función no puede cargar los contratos.
+6. Probá la API: `https://<tu-proyecto>.vercel.app/api/progress` tiene que responder
+   `401 {"error":"unauthorized"}`. Abrí también un enlace profundo como `/lectura/amazon-s3` y
+   recargá: el sitio tiene que cargar.
+7. En el sitio, iniciá sesión y tocá "Marcar como leído" en cualquier página. Queda marcada solo
+   para tu cuenta.
+
+### Trampas que ya aparecieron
+
+- **pnpm 12 y los scripts de instalación**: en CI falla la instalación si una dependencia trae un
+  script de build sin revisar. Los de `esbuild` y `core-js` están denegados en
+  `pnpm-workspace.yaml` (`allowBuilds`); sus binarios vienen en paquetes opcionales.
+- **Antigüedad mínima de versiones**: pnpm rechaza versiones publicadas hace menos de un día. Por
+  eso `jose` está fijado en `6.2.13`.
+- **Contratos en TypeScript dentro de la función**: sin el script `vercel-build`, la función falla
+  con `ERR_MODULE_NOT_FOUND` al importar `@arquitecto/contracts`.
+
+## Migraciones
+
+`db:migrate` lee `DATABASE_URL` del entorno, y una variable ya seteada en el entorno gana sobre
+`apps/api/.env`. Pegá la cadena **directa** de Neon en un prompt oculto para que no quede en un
+archivo ni en el historial de tu shell:
 
 ```bash
-read -rs DATABASE_URL && export DATABASE_URL   # paste the direct string, then Enter
+read -rs DATABASE_URL && export DATABASE_URL   # pegá la cadena directa y Enter
 pnpm --filter @arquitecto/api db:migrate
 unset DATABASE_URL
 ```
 
-Run it again after every new migration in `apps/api/migrations`, before deploying the code that
-needs it.
+Corrélo de nuevo después de cada migración nueva en `apps/api/migrations`, **antes** de desplegar
+el código que la necesita.
 
-Migration `0001_per_user_progress` adds `read_pages.user_id` with the primary key
-`(user_id, page_id)` and deletes the rows of the single-user era, which have no owner. Drizzle
-applies a migration only when its `when` in `migrations/meta/_journal.json` is newer than the
-latest `created_at` in `drizzle.__drizzle_migrations`, so a hand-inserted row for `0000` must
-carry `0000`'s `when` (`1793296802636`) or an older value.
+La migración `0001_per_user_progress` agrega `read_pages.user_id` con la clave primaria
+`(user_id, page_id)` y borra las filas de la época de un solo usuario, que no tienen dueño.
+Drizzle aplica una migración solo si su `when` en `migrations/meta/_journal.json` es más nuevo que
+el último `created_at` de `drizzle.__drizzle_migrations`; por eso una fila insertada a mano para
+`0000` tiene que llevar el `when` de `0000` (`1793296802636`) o uno más viejo.
 
-## Checks
+## Calidad y convenciones
 
 ```bash
 pnpm lint && pnpm format:check && pnpm -r typecheck
 pnpm --filter @arquitecto/web test
 pnpm --filter @arquitecto/contracts test
-pnpm --filter @arquitecto/api test # needs `docker compose up -d --wait`
+pnpm --filter @arquitecto/api test # necesita `docker compose up -d --wait`
 ```
 
-See `AGENTS.md` for conventions and project rules.
+- TypeScript estricto (`noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`), ESLint y Prettier.
+- Tests con Vitest y Testing Library sobre el contenido real; la API se prueba contra un Postgres
+  real, con tokens firmados por un par de claves generado en el propio test.
+- Estructura por funcionalidades en `src/features`, archivos en `kebab-case`, funciones flecha con
+  exports con nombre.
+- Más detalle de las reglas del proyecto en `AGENTS.md`.
+
+## Cómo se trabajó
+
+Cada funcionalidad tiene un documento en `odd/tasks` con sus especificaciones (citando lo que se
+pidió), las tareas y una bitácora de decisiones y límites. El flujo fue: explorar, diseñar en
+Penpot cuando había pantallas nuevas, escribir los tests primero, implementar en tandas chicas
+y verificar en un navegador real antes de subir. Lo que no se pudo comprobar quedó anotado en
+esos mismos documentos.
+
+## Limitaciones conocidas
+
+- El texto de las páginas es una explicación propia y sigue sujeto a revisión: ante una duda,
+  mandá a la fuente oficial que cada página cita al final.
+- La API no verifica `iss` ni `aud` del token, porque Neon Auth no los documenta.
+- El inicio de sesión depende de que el navegador acepte la cookie del servicio de Neon Auth, que
+  vive en otro dominio.
+- Si te quedás sin sesión o sin conexión con la API, el sitio sigue funcionando para leer; solo se
+  pierde el guardado del progreso.
