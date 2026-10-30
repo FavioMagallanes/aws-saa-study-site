@@ -5,4 +5,5 @@ packages:
 # esbuild only ships a fallback install script; its prebuilt binaries come from optional
 # packages, so its scripts stay denied (pnpm fails CI installs on unreviewed build scripts).
 allowBuilds:
+  core-js: false
   esbuild: false
