@@ -12,10 +12,11 @@ Follows odd/tasks/design-polish.md. Direct pushes to main, no PRs. The owner app
 
 ## Tasks
 
-- [ ] T1 (S1) write key dialog
-- [ ] T2 (S2, S4 home/footer) empty state and home/footer tablet padding
-- [ ] T3 (S3, S4 top bar/reading) mobile menu and tablet top bar and reading layout
+- [x] T1 (S1) write key dialog
+- [x] T2 (S2, S4 home/footer) empty state and home/footer tablet padding
+- [x] T3 (S3, S4 top bar/reading) mobile menu and tablet top bar and reading layout
 
 ## Log
 
 - L1: "estan aprobados" (the owner approved the seven Penpot boards: Clave de escritura móvil/escritorio, Inicio vacío móvil/escritorio, Menú móvil, Inicio Tablet, Servicio Tablet)
+- L2: Built by three parallel workers (T1 dialog, T2 empty state + home/footer, T3 menu + top bar + reading); T2 was first rejected for overlapping T1 surfaces and relaunched with narrower ones. Parent verification: 403 web tests, lint, format, tsc, build; real Chrome against the dev server and the real API with no reads: breakpoints (home 44px at 768-1099, 200px from 1100; top bar burger below 1100), mobile menu (panel, rows, active colour, Escape and focus return, scrim, light and dark colours), reading column 680px and collapsible TOC, write key dialog (modal 440px at 768, sheet at 500, focus, Escape), empty state at 1280. Extra: exam-map and glossary had 200/280px padding from 768px; now 44px until 1100px. Differences from the Penpot designs: dialog button 43px high (41), phone sheet scrim stays rgba(0,0,0,.4) (design 27,24,20 at .35), top-bar icon swap confirmed by label only. Not checked: widths below 500, Safari, the empty state at 768 and 500, light theme of the '0 de 7' chip. The Penpot boards were approved in their drawn form; the worker built the Fundamentos chip because no chip existed.
