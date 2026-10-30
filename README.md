@@ -195,16 +195,6 @@ El SSL sigue a la cadena de conexión: `sslmode=require` (lo que te da Neon), `v
 7. En el sitio, iniciá sesión y tocá "Marcar como leído" en cualquier página. Queda marcada solo
    para tu cuenta.
 
-### Trampas que ya aparecieron
-
-- **pnpm 12 y los scripts de instalación**: en CI falla la instalación si una dependencia trae un
-  script de build sin revisar. Los de `esbuild` y `core-js` están denegados en
-  `pnpm-workspace.yaml` (`allowBuilds`); sus binarios vienen en paquetes opcionales.
-- **Antigüedad mínima de versiones**: pnpm rechaza versiones publicadas hace menos de un día. Por
-  eso `jose` está fijado en `6.2.13`.
-- **Contratos en TypeScript dentro de la función**: sin el script `vercel-build`, la función falla
-  con `ERR_MODULE_NOT_FOUND` al importar `@arquitecto/contracts`.
-
 ## Migraciones
 
 `db:migrate` lee `DATABASE_URL` del entorno, y una variable ya seteada en el entorno gana sobre
