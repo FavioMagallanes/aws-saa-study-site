@@ -1,6 +1,7 @@
 import { ArrowRight } from 'lucide-react';
 import { useRef } from 'react';
 import type { PageMeta } from '@arquitecto/contracts/content';
+import { useMediaQuery } from '../../glossary/hooks/use-media-query';
 import { ButtonLink } from '../../../shared/ui/button/button-link';
 import { TextLink } from '../../../shared/ui/text-link/text-link';
 import { MarkReadControl } from '../../progress/components/mark-read-control';
@@ -12,6 +13,9 @@ import { ReadingSidebar } from './reading-sidebar/reading-sidebar';
 import { ReadingToc } from './reading-toc/reading-toc';
 import styles from './reading-screen.module.css';
 
+// Matches the breakpoint in reading-screen.module.css where the sidebar and TOC columns appear.
+const WIDE_LAYOUT_QUERY = '(min-width: 1100px)';
+
 interface ReadingScreenProps {
   readonly page: PageMeta;
   readonly Content: PageContent;
@@ -21,6 +25,7 @@ interface ReadingScreenProps {
 export const ReadingScreen = ({ page, Content, context }: ReadingScreenProps) => {
   const articleRef = useRef<HTMLElement>(null);
   const { previous, next } = context;
+  const wide = useMediaQuery(WIDE_LAYOUT_QUERY);
 
   return (
     <div className={styles.reading}>
@@ -32,6 +37,7 @@ export const ReadingScreen = ({ page, Content, context }: ReadingScreenProps) =>
         <p className={styles.reading__breadcrumb}>{context.breadcrumb.join(' / ')}</p>
         <h1 className={styles.reading__title}>{page.title}</h1>
         {context.examTasks.length > 0 ? <ExamTasks tasks={context.examTasks} /> : null}
+        {wide ? null : <ReadingToc articleRef={articleRef} pageId={page.id} collapsible />}
         <div className={styles.reading__body}>
           <ReadingBody Content={Content} />
         </div>
@@ -55,9 +61,11 @@ export const ReadingScreen = ({ page, Content, context }: ReadingScreenProps) =>
         </nav>
       </main>
 
-      <aside className={styles.reading__toc}>
-        <ReadingToc articleRef={articleRef} pageId={page.id} />
-      </aside>
+      {wide ? (
+        <aside className={styles.reading__toc}>
+          <ReadingToc articleRef={articleRef} pageId={page.id} />
+        </aside>
+      ) : null}
 
       <div className={styles.reading__actions}>
         <MarkReadControl pageId={page.id} />

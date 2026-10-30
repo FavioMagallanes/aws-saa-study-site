@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import { Menu, Moon, Search, Sun, X } from 'lucide-react';
-import { Suspense, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { LazySearchDialog } from '../../../features/search/components/lazy-search-dialog';
 import { useSearchDialog } from '../../../features/search/hooks/use-search-dialog';
 import { useThemeStore } from '../../../features/theme/store/use-theme-store';
@@ -18,7 +18,33 @@ export const TopBar = () => {
   const theme = useThemeStore((state) => state.theme);
   const toggleTheme = useThemeStore((state) => state.toggle);
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLSpanElement>(null);
   const search = useSearchDialog();
+
+  const closeMenu = () => {
+    setMenuOpen(false);
+    menuButtonRef.current?.querySelector('button')?.focus();
+  };
+
+  const openSearch = () => {
+    setMenuOpen(false);
+    search.open();
+  };
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // An open dialog (search) handles its own Escape.
+      const inDialog = event.target instanceof Element && event.target.closest('dialog[open]');
+      if (event.key !== 'Escape' || event.defaultPrevented || inDialog) return;
+      setMenuOpen(false);
+      menuButtonRef.current?.querySelector('button')?.focus();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [menuOpen]);
 
   const navLinks = NAV_ITEMS.map((item) => (
     <Link
@@ -26,9 +52,18 @@ export const TopBar = () => {
       to={item.to}
       className={styles['top-bar__link']}
       activeOptions={{ exact: item.to === '/' }}
-      onClick={() => {
-        setMenuOpen(false);
-      }}
+    >
+      {item.label}
+    </Link>
+  ));
+
+  const menuLinks = NAV_ITEMS.map((item) => (
+    <Link
+      key={item.to}
+      to={item.to}
+      className={styles['top-bar__menu-link']}
+      activeOptions={{ exact: item.to === '/' }}
+      onClick={closeMenu}
     >
       {item.label}
     </Link>
@@ -50,7 +85,7 @@ export const TopBar = () => {
             className={styles['top-bar__search']}
             aria-haspopup="dialog"
             aria-keyshortcuts="Meta+K Control+K"
-            onClick={search.open}
+            onClick={openSearch}
           >
             <Search size={16} strokeWidth={1.75} aria-hidden="true" />
             <span className={styles['top-bar__search-text']}>
@@ -65,7 +100,7 @@ export const TopBar = () => {
               label="Buscar"
               aria-haspopup="dialog"
               icon={<Search size={18} strokeWidth={1.75} />}
-              onClick={search.open}
+              onClick={openSearch}
             />
           </span>
           <IconButton
@@ -79,7 +114,7 @@ export const TopBar = () => {
             }
             onClick={toggleTheme}
           />
-          <span className={styles['top-bar__mobile-only']}>
+          <span className={styles['top-bar__mobile-only']} ref={menuButtonRef}>
             <IconButton
               label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
               aria-expanded={menuOpen}
@@ -99,13 +134,17 @@ export const TopBar = () => {
         </div>
       </div>
       {menuOpen ? (
-        <nav
-          id="mobile-menu"
-          className={`${styles['top-bar__menu-panel'] ?? ''} ${styles['top-bar__mobile-only'] ?? ''}`}
-          aria-label="Principal"
-        >
-          {navLinks}
-        </nav>
+        <>
+          <div
+            className={styles['top-bar__menu-scrim']}
+            data-testid="mobile-menu-scrim"
+            aria-hidden="true"
+            onClick={closeMenu}
+          />
+          <nav id="mobile-menu" className={styles['top-bar__menu-panel']} aria-label="Principal">
+            {menuLinks}
+          </nav>
+        </>
       ) : null}
       {search.isOpen ? (
         <Suspense fallback={null}>

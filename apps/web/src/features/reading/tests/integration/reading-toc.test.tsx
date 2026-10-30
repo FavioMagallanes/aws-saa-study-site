@@ -12,7 +12,19 @@ const placeHeadings = (headings: readonly HTMLElement[], tops: readonly number[]
   fireEvent.scroll(window);
 };
 
+const WIDE_LAYOUT_QUERY = '(min-width: 1100px)';
+
+const stubViewport = (wide: boolean) => {
+  vi.stubGlobal('matchMedia', (query: string) => ({
+    matches: wide && query === WIDE_LAYOUT_QUERY,
+    media: query,
+    addEventListener: () => undefined,
+    removeEventListener: () => undefined,
+  }));
+};
+
 const renderSqsPage = async () => {
+  stubViewport(true);
   await renderApp('/lectura/amazon-sqs');
   const toc = await screen.findByRole('navigation', { name: 'En esta página' });
   const links = within(toc).getAllByRole('link');
@@ -28,6 +40,53 @@ const currentLinks = (links: readonly HTMLElement[]) =>
 describe('reading table of contents', () => {
   afterEach(() => {
     vi.restoreAllMocks();
+    stubViewport(false);
+  });
+
+  it('shows the full list beside the article from 1100px, without a toggle', async () => {
+    await renderSqsPage();
+    const toc = screen.getByRole('navigation', { name: 'En esta página' });
+    expect(
+      within(screen.getByRole('main')).queryByRole('navigation', { name: 'En esta página' }),
+    ).toBeNull();
+    expect(within(toc).queryByRole('button')).toBeNull();
+    expect(within(toc).getAllByRole('link')).toHaveLength(5);
+  });
+
+  it('starts collapsed inside the article column below 1100px', async () => {
+    stubViewport(false);
+    await renderApp('/lectura/amazon-sqs');
+    const main = await screen.findByRole('main');
+    const toc = await within(main).findByRole('navigation', { name: 'En esta página' });
+    const toggle = within(toc).getByRole('button', { name: 'En esta página' });
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(within(toc).queryAllByRole('link')).toEqual([]);
+    expect(screen.getAllByRole('navigation', { name: 'En esta página' })).toHaveLength(1);
+  });
+
+  it('expands and collapses the list below 1100px with the toggle', async () => {
+    stubViewport(false);
+    await renderApp('/lectura/amazon-sqs');
+    const toc = await screen.findByRole('navigation', { name: 'En esta página' });
+    const toggle = within(toc).getByRole('button', { name: 'En esta página' });
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    const list = within(toc).getByRole('list');
+    expect(toggle).toHaveAttribute('aria-controls', list.id);
+    expect(
+      within(list)
+        .getAllByRole('link')
+        .map((link) => link.getAttribute('href')),
+    ).toEqual([
+      '#que-problema-resuelve',
+      '#conceptos-clave',
+      '#como-se-conecta-con-otros-servicios',
+      '#como-elegir',
+      '#fuentes-oficiales',
+    ]);
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(within(toc).queryAllByRole('link')).toEqual([]);
   });
 
   it('lists every section heading of the real page as an in-page link', async () => {

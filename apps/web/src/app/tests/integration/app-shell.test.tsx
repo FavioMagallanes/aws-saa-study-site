@@ -1,8 +1,22 @@
-import { fireEvent, screen, within } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { renderApp } from '../render-app';
 
 const renderAt = (path: string) => renderApp(path);
+
+const openMenuPanel = () => {
+  const panel = document.getElementById('mobile-menu');
+  if (!panel) throw new Error('Mobile menu panel not found');
+  return panel;
+};
+
+const expectMenuClosedWithFocusOnButton = () => {
+  expect(document.getElementById('mobile-menu')).not.toBeInTheDocument();
+  expect(screen.queryByTestId('mobile-menu-scrim')).not.toBeInTheDocument();
+  const button = screen.getByRole('button', { name: 'Abrir menú' });
+  expect(button).toHaveAttribute('aria-expanded', 'false');
+  expect(button).toHaveFocus();
+};
 
 describe('app shell', () => {
   it('marks the current section in the main navigation', async () => {
@@ -32,5 +46,74 @@ describe('app shell', () => {
       'true',
     );
     expect(document.getElementById('mobile-menu')).toBeInTheDocument();
+  });
+
+  it('opens the menu panel with the four sections and highlights the current route', async () => {
+    await renderAt('/servicios');
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir menú' }));
+    const panel = openMenuPanel();
+    const links = within(panel).getAllByRole('link');
+    expect(links.map((link) => link.textContent)).toEqual([
+      'Ruta',
+      'Servicios',
+      'Arquitecturas',
+      'Glosario',
+    ]);
+    expect(
+      links
+        .filter((link) => link.getAttribute('aria-current') === 'page')
+        .map((l) => l.textContent),
+    ).toEqual(['Servicios']);
+    expect(screen.getByRole('button', { name: 'Cerrar menú' })).toHaveAttribute(
+      'aria-controls',
+      'mobile-menu',
+    );
+    expect(screen.getByTestId('mobile-menu-scrim')).toBeInTheDocument();
+  });
+
+  it('closes the menu with Escape and returns focus to the menu button', async () => {
+    await renderAt('/');
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir menú' }));
+    within(openMenuPanel()).getAllByRole('link')[1]?.focus();
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' });
+    expectMenuClosedWithFocusOnButton();
+  });
+
+  it('closes the menu when the scrim is clicked and returns focus to the menu button', async () => {
+    await renderAt('/');
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir menú' }));
+    fireEvent.click(screen.getByTestId('mobile-menu-scrim'));
+    expectMenuClosedWithFocusOnButton();
+  });
+
+  it('closes the menu when a link is chosen, navigates and returns focus to the menu button', async () => {
+    const { router } = await renderAt('/');
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir menú' }));
+    fireEvent.click(within(openMenuPanel()).getByRole('link', { name: 'Glosario' }));
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe('/glosario');
+    });
+    expectMenuClosedWithFocusOnButton();
+  });
+
+  it('ignores Escape while the menu is closed', async () => {
+    await renderAt('/');
+    const search = screen.getByRole('button', { name: 'Buscar servicio, concepto o sigla' });
+    search.focus();
+    fireEvent.keyDown(search, { key: 'Escape' });
+    expect(search).toHaveFocus();
+    expect(screen.getByRole('button', { name: 'Abrir menú' })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    );
+  });
+
+  it('closes the menu when the search dialog is opened from the top bar', async () => {
+    await renderAt('/');
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir menú' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Buscar' }));
+    expect(await screen.findByRole('dialog', { name: 'Buscar en el sitio' })).toBeInTheDocument();
+    expect(document.getElementById('mobile-menu')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('mobile-menu-scrim')).not.toBeInTheDocument();
   });
 });
