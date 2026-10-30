@@ -13,8 +13,10 @@ Follows odd/tasks/design-gaps.md. Direct pushes to main, no PRs. The owner's ord
 ## Tasks
 
 - [x] T1 (S1-S5) serverless entry for the Express app, vercel.json, SSL/pool handling, migration instructions, README deploy section, tests
+- [x] T2 (S1) first deploy crashed at load (ERR_MODULE_NOT_FOUND for `@arquitecto/contracts/src/progress/progress.ts`): the function now loads compiled contracts JavaScript
 
 ## Log
 
 - L1: "con el diseño, el deploy al final" (design is done; now prepare the deploy). Provisioning stays with the owner.
 - L2: Repository prepared by a worker, reviewed by the parent (lint, format, typecheck, 28 API tests, 403 web tests, web build pass; plain Node loaded api/index.ts and answered GET 200 and PUT without key 401). NOT deployed: still unverified until a real deploy are how Vercel compiles the TypeScript files and the contracts package (likely fixes: a pre-built JS entry, or contracts publishing JS), whether the Express app sees the original /api path after the rewrite, whether api/tsconfig.json is used, and TLS to Neon with channel_binding=require. sslmode prefer/allow/no-verify are now rejected. Provisioning (Neon, Vercel, secrets) belongs to the owner; steps are in README.md.
+- L3: First deploy (commit 706c099, runtime nodejs26.x): every /api/\* request failed with ERR_MODULE_NOT_FOUND for `apps/api/node_modules/@arquitecto/contracts/src/progress/progress.ts`. Cause (confirmed by running @vercel/node 29.0.0's own `build` on a clean copy): the builder traces the contracts `.ts` source, compiles it and renames it to `.js`, while the package `exports` still name the `.ts` file. Fix: the root `vercel-build` script (run by @vercel/node before tracing, per Vercel's "Custom build step for Node.js" docs) compiles the contracts with `tsc` to `packages/contracts/dist`, and the `exports` add a `node` condition pointing there, after a `development` condition that keeps Vite, Vitest and `tsx --conditions=development` on the TypeScript source. Emulated packaging served GET /api/progress 200 and PUT without key 401 on Node 26 and 24. Still unverified until the redeploy: Vercel's real packaging and the /api rewrite path.

@@ -42,6 +42,12 @@ One Vercel project serves both apps from the same origin:
 - The web app is built with `pnpm --filter @arquitecto/web build` and served from `apps/web/dist`.
 - `api/index.ts` exports the Express app as a Vercel Function. `vercel.json` rewrites `/api/*` to
   that function; every other path falls back to `index.html`.
+- `packages/contracts` is written in TypeScript, but the function runs plain JavaScript. Before
+  packaging the function, Vercel runs the root `vercel-build` script, which compiles the contracts
+  to `packages/contracts/dist` (`pnpm --filter @arquitecto/contracts build`; ignored by Git). Plain
+  Node resolves the package to `dist` through the `node` export condition; Vite, Vitest and the API
+  scripts (`tsx --conditions=development`) keep using the TypeScript source. To load
+  `api/index.ts` with plain Node on your machine, run that build first.
 
 The API reads its configuration only from environment variables:
 
@@ -65,6 +71,8 @@ SSL follows the connection string: `sslmode=require` (what Neon gives you), `ver
 4. Before deploying, add `DATABASE_URL` (pooled string) and `WRITE_KEY` under
    **Settings > Environment Variables** for Production (and Preview if you use it).
 5. Deploy. If the variables were added after a deploy, redeploy so the function picks them up.
+   The build log must show `Running "pnpm run vercel-build"` followed by
+   `tsc -p tsconfig.build.json`; without it the function cannot load the contracts.
 6. Check the API: open `https://<your-project>.vercel.app/api/progress`. It must answer
    `{"entries":[]}` on a fresh database. Also open a deep link such as
    `https://<your-project>.vercel.app/lectura/amazon-s3` and reload it: the site must load.

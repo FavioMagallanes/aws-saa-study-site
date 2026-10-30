@@ -3,11 +3,27 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./progress": "./src/progress/progress.ts",
-    "./content": "./src/content/page-meta.ts",
-    "./glossary": "./src/content/glossary-entry.ts"
+    "./progress": {
+      "types": "./src/progress/progress.ts",
+      "development": "./src/progress/progress.ts",
+      "node": "./dist/progress/progress.js",
+      "default": "./src/progress/progress.ts"
+    },
+    "./content": {
+      "types": "./src/content/page-meta.ts",
+      "development": "./src/content/page-meta.ts",
+      "node": "./dist/content/page-meta.js",
+      "default": "./src/content/page-meta.ts"
+    },
+    "./glossary": {
+      "types": "./src/content/glossary-entry.ts",
+      "development": "./src/content/glossary-entry.ts",
+      "node": "./dist/content/glossary-entry.js",
+      "default": "./src/content/glossary-entry.ts"
+    }
   },
   "scripts": {
+    "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },

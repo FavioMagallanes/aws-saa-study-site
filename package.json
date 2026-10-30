@@ -9,7 +9,8 @@
   "scripts": {
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "vercel-build": "pnpm --filter @arquitecto/contracts build"
   },
   "devDependencies": {
     "eslint": "^10.13.0",

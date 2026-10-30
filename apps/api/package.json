@@ -3,8 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch --env-file=.env src/server.ts",
-    "start": "tsx src/server.ts",
+    "dev": "tsx watch --conditions=development --env-file=.env src/server.ts",
+    "start": "tsx --conditions=development src/server.ts",
     "typecheck": "tsc --noEmit && tsc -p ../../api --noEmit",
     "test": "vitest run",
     "db:generate": "drizzle-kit generate",

@@ -1,0 +1,15 @@
+{
+  // Emits the JavaScript that Node loads in production (the Vercel Function). Types are checked by
+  // `typecheck` with tsconfig.json; this build only transpiles the sources.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "rewriteRelativeImportExtensions": true,
+    "noCheck": true,
+    "noEmit": false,
+    "rootDir": "src",
+    "outDir": "dist"
+  },
+  "include": ["src"]
+}
