@@ -58,7 +58,7 @@
 
 @media (min-width: 768px) {
   .exam-map {
-    padding: 72px 200px 96px;
+    padding: 72px 44px 96px;
   }
 
   .exam-map__title {
@@ -67,5 +67,11 @@
 
   .exam-map__summary {
     grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 1100px) {
+  .exam-map {
+    padding-inline: 200px;
   }
 }
