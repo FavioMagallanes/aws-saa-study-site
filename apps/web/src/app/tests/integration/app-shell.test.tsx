@@ -95,7 +95,7 @@ describe('app shell', () => {
     expect(document.getElementById('mobile-menu')).toBeInTheDocument();
   });
 
-  it('opens the menu panel with the four sections and highlights the current route', async () => {
+  it('opens the menu panel with the five sections and highlights the current route', async () => {
     await renderAt('/servicios');
     fireEvent.click(screen.getByRole('button', { name: 'Abrir menú' }));
     const panel = openMenuPanel();
@@ -104,6 +104,7 @@ describe('app shell', () => {
       'Ruta',
       'Servicios',
       'Arquitecturas',
+      'Repaso',
       'Glosario',
     ]);
     expect(

@@ -14,6 +14,7 @@ import { Route as AccesoRouteImport } from './routes/acceso'
 import { Route as ArquitecturasRouteImport } from './routes/arquitecturas'
 import { Route as GlosarioRouteImport } from './routes/glosario'
 import { Route as MapaDelExamenRouteImport } from './routes/mapa-del-examen'
+import { Route as RepasoRouteImport } from './routes/repaso'
 import { Route as ServiciosRouteImport } from './routes/servicios'
 import { Route as LecturaPageIdRouteImport } from './routes/lectura.$pageId'
 
@@ -42,6 +43,11 @@ const MapaDelExamenRoute = MapaDelExamenRouteImport.update({
   path: '/mapa-del-examen',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RepasoRoute = RepasoRouteImport.update({
+  id: '/repaso',
+  path: '/repaso',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ServiciosRoute = ServiciosRouteImport.update({
   id: '/servicios',
   path: '/servicios',
@@ -59,6 +65,7 @@ export interface FileRoutesByFullPath {
   '/arquitecturas': typeof ArquitecturasRoute
   '/glosario': typeof GlosarioRoute
   '/mapa-del-examen': typeof MapaDelExamenRoute
+  '/repaso': typeof RepasoRoute
   '/servicios': typeof ServiciosRoute
   '/lectura/$pageId': typeof LecturaPageIdRoute
 }
@@ -68,6 +75,7 @@ export interface FileRoutesByTo {
   '/arquitecturas': typeof ArquitecturasRoute
   '/glosario': typeof GlosarioRoute
   '/mapa-del-examen': typeof MapaDelExamenRoute
+  '/repaso': typeof RepasoRoute
   '/servicios': typeof ServiciosRoute
   '/lectura/$pageId': typeof LecturaPageIdRoute
 }
@@ -78,6 +86,7 @@ export interface FileRoutesById {
   '/arquitecturas': typeof ArquitecturasRoute
   '/glosario': typeof GlosarioRoute
   '/mapa-del-examen': typeof MapaDelExamenRoute
+  '/repaso': typeof RepasoRoute
   '/servicios': typeof ServiciosRoute
   '/lectura/$pageId': typeof LecturaPageIdRoute
 }
@@ -89,6 +98,7 @@ export interface FileRouteTypes {
     | '/arquitecturas'
     | '/glosario'
     | '/mapa-del-examen'
+    | '/repaso'
     | '/servicios'
     | '/lectura/$pageId'
   fileRoutesByTo: FileRoutesByTo
@@ -98,6 +108,7 @@ export interface FileRouteTypes {
     | '/arquitecturas'
     | '/glosario'
     | '/mapa-del-examen'
+    | '/repaso'
     | '/servicios'
     | '/lectura/$pageId'
   id:
@@ -107,6 +118,7 @@ export interface FileRouteTypes {
     | '/arquitecturas'
     | '/glosario'
     | '/mapa-del-examen'
+    | '/repaso'
     | '/servicios'
     | '/lectura/$pageId'
   fileRoutesById: FileRoutesById
@@ -117,6 +129,7 @@ export interface RootRouteChildren {
   ArquitecturasRoute: typeof ArquitecturasRoute
   GlosarioRoute: typeof GlosarioRoute
   MapaDelExamenRoute: typeof MapaDelExamenRoute
+  RepasoRoute: typeof RepasoRoute
   ServiciosRoute: typeof ServiciosRoute
   LecturaPageIdRoute: typeof LecturaPageIdRoute
 }
@@ -158,6 +171,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MapaDelExamenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/repaso': {
+      id: '/repaso'
+      path: '/repaso'
+      fullPath: '/repaso'
+      preLoaderRoute: typeof RepasoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/servicios': {
       id: '/servicios'
       path: '/servicios'
@@ -181,6 +201,7 @@ const rootRouteChildren: RootRouteChildren = {
   ArquitecturasRoute: ArquitecturasRoute,
   GlosarioRoute: GlosarioRoute,
   MapaDelExamenRoute: MapaDelExamenRoute,
+  RepasoRoute: RepasoRoute,
   ServiciosRoute: ServiciosRoute,
   LecturaPageIdRoute: LecturaPageIdRoute,
 }

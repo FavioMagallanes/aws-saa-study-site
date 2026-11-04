@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { label: 'Ruta', to: '/' },
   { label: 'Servicios', to: '/servicios' },
   { label: 'Arquitecturas', to: '/arquitecturas' },
+  { label: 'Repaso', to: '/repaso' },
   { label: 'Glosario', to: '/glosario' },
 ] as const;
 
