@@ -28,6 +28,18 @@ CloudFront acelera la distribución de contenido web estático y dinámico, como
 - **Conmutación por error de origen**: un grupo de orígenes con uno principal y uno secundario permite que CloudFront cambie al secundario si el principal no está disponible o devuelve ciertos códigos de error.
 - **Casos de uso**: acelerar sitios web estáticos, por ejemplo con un bucket de S3 como origen y control de acceso de origen (OAC); vídeo bajo demanda y en directo; personalizar en el borde con Lambda@Edge; y servir contenido privado con URL o cookies firmadas.
 
+Con un bucket de Amazon S3 como origen, el recorrido es este: el usuario llega a la ubicación de borde de CloudFront, que responde desde la caché o, si no tiene el objeto, lo pide a S3.
+
+<ArchitectureDiagram
+  label="Los usuarios piden contenido a Amazon CloudFront, que lo sirve desde su caché o lo obtiene de un bucket de Amazon S3"
+  source={`architecture-beta
+  service usuarios(aws:users)[Usuarios]
+  service cdn(aws:amazon-cloudfront)[Amazon CloudFront]
+  service origen(aws:amazon-s3)[Bucket de S3]
+  usuarios:R --> L:cdn
+  cdn:R --> L:origen`}
+/>
+
 ### AWS Global Accelerator
 
 Global Accelerator mejora el rendimiento y la disponibilidad de aplicaciones para usuarios locales y globales. No guarda contenido en caché: dirige las conexiones.
@@ -39,6 +51,22 @@ Global Accelerator mejora el rendimiento y la disponibilidad de aplicaciones par
 - **Disponibilidad**: reacciona a los cambios de estado de los puntos de enlace y, si detecta que falla el de la región principal, desvía el tráfico al de la siguiente región disponible más cercana.
 - **Protección**: oculta los orígenes detrás de las dos direcciones estáticas, que están protegidas de forma predeterminada contra ataques DDoS con AWS Shield.
 - **Aceleradores de enrutamiento personalizado**: asignan cada cliente a una instancia EC2 y un puerto concretos, útil en juegos multijugador o VoIP.
+
+Global Accelerator no guarda contenido: entra por las dos direcciones IP estáticas y dirige la conexión al punto de enlace sano más adecuado, aunque esté en otra región.
+
+<ArchitectureDiagram
+  label="Los usuarios entran por AWS Global Accelerator, que dirige la conexión a un Application Load Balancer en una de dos regiones"
+  source={`architecture-beta
+  group regiona(cloud)[Región A]
+  group regionb(cloud)[Región B]
+  service usuarios(aws:users)[Usuarios]
+  service ga(aws:aws-global-accelerator)[AWS Global Accelerator]
+  service alb1(aws:elastic-load-balancing)[Application Load Balancer] in regiona
+  service alb2(aws:elastic-load-balancing)[Application Load Balancer] in regionb
+  usuarios:R --> L:ga
+  ga:R --> L:alb1
+  ga:R --> L:alb2`}
+/>
 
 ### Diferencias clave
 

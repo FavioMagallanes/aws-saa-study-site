@@ -34,6 +34,20 @@ La documentación de AWS sugiere el peering cuando los recursos de una VPC deben
 
 AWS Transit Gateway es un centro de tránsito regional que interconecta VPC y redes locales. Es un servicio totalmente administrado: AWS gestiona su alta disponibilidad y escalabilidad, y no necesitas aparatos virtuales de terceros. Puedes conectarle VPC, conexiones VPN, puertas de enlace de Direct Connect y otros transit gateways, y controlar con sus tablas de enrutamiento qué redes se ven entre sí.
 
+En el esquema, tres VPC llegan unas a otras a través del transit gateway, sin una conexión por cada par.
+
+<ArchitectureDiagram
+  label="Tres VPC se conectan a un único AWS Transit Gateway, que las comunica entre sí"
+  source={`architecture-beta
+  service vpc1(aws:amazon-vpc)[VPC A]
+  service vpc2(aws:amazon-vpc)[VPC B]
+  service tgw(aws:aws-transit-gateway)[Transit Gateway]
+  service vpc3(aws:amazon-vpc)[VPC C]
+  vpc1:R -- L:tgw
+  vpc2:B -- T:tgw
+  tgw:R -- L:vpc3`}
+/>
+
 Con este modelo, cada VPC solo se conecta al transit gateway para llegar a las demás redes, lo que simplifica la gestión y reduce los costos operativos. También puedes conectar toda la conectividad híbrida a un único transit gateway en lugar de a cada VPC. A cambio, pagas el cargo por adjunto y por los datos que procesa.
 
 Para no pagar de más:
