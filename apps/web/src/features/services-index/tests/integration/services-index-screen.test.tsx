@@ -1,6 +1,7 @@
-import { screen, within } from '@testing-library/react';
+import { fireEvent, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { renderApp } from '../../../../app/tests/render-app';
+import { fakeAuth } from '../../../../app/tests/fake-auth-client';
+import { getTopBar, renderApp } from '../../../../app/tests/render-app';
 import { examGuide } from '../../../content/data/load-exam-guide';
 import { loadPages } from '../../../content/data/load-pages';
 
@@ -123,5 +124,53 @@ describe('Servicios page with the real content', () => {
     expect(screen.getAllByRole('heading', { level: 2 })).toHaveLength(16);
     expect(screen.queryByText('(leído)')).not.toBeInTheDocument();
     expect(screen.queryByText(/ de \d+ leídas?$/)).not.toBeInTheDocument();
+  });
+  it('shows only the read services when "Solo leídas" is on and everything again when off', async () => {
+    await renderServices([
+      { pageId: 'amazon-ec2', readAt },
+      { pageId: 'aws-batch', readAt },
+    ]);
+    const toggle = await screen.findByRole('checkbox', { name: 'Solo leídas' });
+    expect(toggle).not.toBeChecked();
+    const main = screen.getByRole('main');
+    const allLinks = within(main).getAllByRole('link').length;
+    fireEvent.click(toggle);
+    expect(toggle).toBeChecked();
+    expect(
+      within(main)
+        .getAllByRole('link')
+        .map((link) => link.textContent),
+    ).toEqual(['Amazon EC2', 'AWS Batch']);
+    expect(
+      screen.getAllByRole('heading', { level: 2 }).map((heading) => heading.textContent),
+    ).toEqual(['Computación']);
+    expect(within(categoryBlock('Computación')).getByText('2 de 8 leídas')).toBeInTheDocument();
+    fireEvent.click(toggle);
+    expect(toggle).not.toBeChecked();
+    expect(within(main).getAllByRole('link')).toHaveLength(allLinks);
+    expect(screen.getAllByRole('heading', { level: 2 })).toHaveLength(16);
+  });
+
+  it('says nothing matches when "Solo leídas" is on and no service is read', async () => {
+    const topic = loadPages().find((page) => page.kind === 'topic');
+    if (!topic) throw new Error('No topic page');
+    await renderServices([{ pageId: topic.id, readAt }]);
+    fireEvent.click(await screen.findByRole('checkbox', { name: 'Solo leídas' }));
+    expect(screen.getByText('Todavía no marcaste ningún servicio como leído.')).toBeInTheDocument();
+    expect(within(screen.getByRole('main')).queryAllByRole('link')).toHaveLength(0);
+    expect(screen.queryByRole('heading', { level: 2 })).not.toBeInTheDocument();
+  });
+
+  it('hides the "Solo leídas" filter from signed-out visitors', async () => {
+    fakeAuth.session = null;
+    await renderServices();
+    await within(getTopBar()).findByRole('link', { name: 'Iniciar sesión' });
+    expect(screen.getAllByRole('heading', { level: 2 })).toHaveLength(16);
+    expect(screen.queryByRole('checkbox', { name: 'Solo leídas' })).not.toBeInTheDocument();
+  });
+
+  it('hides the "Solo leídas" filter while the progress loads', async () => {
+    await renderApp('/servicios', [], () => new Promise<Response>(() => undefined));
+    expect(screen.queryByRole('checkbox', { name: 'Solo leídas' })).not.toBeInTheDocument();
   });
 });

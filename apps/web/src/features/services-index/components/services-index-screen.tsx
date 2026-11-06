@@ -1,5 +1,7 @@
 import type { PageMeta } from '@arquitecto/contracts/content';
 import { Link } from '@tanstack/react-router';
+import { useState } from 'react';
+import { CheckboxToggle } from '../../../shared/ui/checkbox-toggle/checkbox-toggle';
 import type { ExamGuide } from '../../content/model/exam-guide';
 import type { ReadPageIds } from '../../content/model/page-progress';
 import type { ProgressStatus } from '../../progress/hooks/use-reading-progress';
@@ -7,6 +9,7 @@ import {
   buildServiceCategories,
   countGuideServices,
   formatReadCount,
+  visibleServiceCategories,
 } from '../model/service-categories';
 import { ReadMark } from './read-mark/read-mark';
 import styles from './services-index-screen.module.css';
@@ -24,7 +27,12 @@ export const ServicesIndexScreen = ({
   readPageIds,
   progressStatus,
 }: ServicesIndexScreenProps) => {
+  const [onlyReadChecked, setOnlyReadChecked] = useState(false);
   const categories = buildServiceCategories(pages, guide, readPageIds);
+  // Signed-out visitors and unloaded progress have nothing read: the filter would only empty the page.
+  const canFilter = progressStatus === 'ready' && readPageIds.size > 0;
+  const onlyRead = canFilter && onlyReadChecked;
+  const visibleCategories = visibleServiceCategories(categories, onlyRead);
 
   return (
     <main className={styles['services-index']}>
@@ -34,10 +42,22 @@ export const ServicesIndexScreen = ({
         <p className={styles['services-index__lead']}>
           {`Los ${String(countGuideServices(guide))} servicios que la guía declara dentro del alcance, agrupados en sus ${String(categories.length)} categorías, como en la guía oficial. Cada nombre abre su página; las que ya leíste llevan una marca.`}
         </p>
+        {canFilter ? (
+          <CheckboxToggle
+            label="Solo leídas"
+            checked={onlyReadChecked}
+            onChange={setOnlyReadChecked}
+          />
+        ) : null}
       </header>
 
+      {visibleCategories.length === 0 ? (
+        <p className={styles['services-index__empty']}>
+          Todavía no marcaste ningún servicio como leído.
+        </p>
+      ) : null}
       <ul className={styles['services-index__categories']}>
-        {categories.map((category) => (
+        {visibleCategories.map(({ category, services }) => (
           <li key={category.name} className={styles['services-index__category']}>
             <div className={styles['services-index__category-header']}>
               <h2 className={styles['services-index__category-title']}>{category.name}</h2>
@@ -48,7 +68,7 @@ export const ServicesIndexScreen = ({
               ) : null}
             </div>
             <ul className={styles['services-index__services']}>
-              {category.services.map((service) => (
+              {services.map((service) => (
                 <li key={service.pageId} className={styles['services-index__service']}>
                   <Link
                     to="/lectura/$pageId"

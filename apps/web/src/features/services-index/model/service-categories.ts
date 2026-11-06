@@ -46,3 +46,19 @@ export const countGuideServices = (guide: ExamGuide): number =>
 
 export const formatReadCount = (read: number, total: number): string =>
   `${String(read)} de ${String(total)} ${total === 1 ? 'leída' : 'leídas'}`;
+
+export interface VisibleServiceCategory {
+  readonly category: ServiceCategory;
+  readonly services: readonly IndexedService[];
+}
+
+// With onlyRead, each category keeps just its read services and empty categories are dropped.
+export const visibleServiceCategories = (
+  categories: readonly ServiceCategory[],
+  onlyRead: boolean,
+): VisibleServiceCategory[] =>
+  categories.flatMap((category) => {
+    if (!onlyRead) return [{ category, services: category.services }];
+    const services = category.services.filter((service) => service.read);
+    return services.length > 0 ? [{ category, services }] : [];
+  });

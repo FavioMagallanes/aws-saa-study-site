@@ -1,10 +1,17 @@
 import type { PageMeta } from '@arquitecto/contracts/content';
 import { Link } from '@tanstack/react-router';
+import { useState } from 'react';
+import { CheckboxToggle } from '../../../shared/ui/checkbox-toggle/checkbox-toggle';
 import { ProgressBar } from '../../../shared/ui/progress-bar/progress-bar';
 import type { ExamGuide } from '../../content/model/exam-guide';
 import type { ReadPageIds } from '../../content/model/page-progress';
 import type { ProgressStatus } from '../../progress/hooks/use-reading-progress';
-import { buildTopicDomains, formatTopicReadCount, topicPages } from '../model/topic-domains';
+import {
+  buildTopicDomains,
+  formatTopicReadCount,
+  topicPages,
+  visibleTopicDomains,
+} from '../model/topic-domains';
 import { ReadMark } from './read-mark/read-mark';
 import styles from './architectures-index-screen.module.css';
 
@@ -21,7 +28,12 @@ export const ArchitecturesIndexScreen = ({
   readPageIds,
   progressStatus,
 }: ArchitecturesIndexScreenProps) => {
+  const [onlyReadChecked, setOnlyReadChecked] = useState(false);
   const domains = buildTopicDomains(pages, guide, readPageIds);
+  // Signed-out visitors and unloaded progress have nothing read: the filter would only empty the page.
+  const canFilter = progressStatus === 'ready' && readPageIds.size > 0;
+  const onlyRead = canFilter && onlyReadChecked;
+  const visibleDomains = visibleTopicDomains(domains, onlyRead);
 
   return (
     <main className={styles['architectures-index']}>
@@ -33,9 +45,21 @@ export const ArchitecturesIndexScreen = ({
         <p className={styles['architectures-index__lead']}>
           {`Los ${String(topicPages(pages).length)} temas transversales, ordenados por los cuatro dominios del examen. Cada uno explica qué problema resuelve y cuándo elegir una opción u otra.`}
         </p>
+        {canFilter ? (
+          <CheckboxToggle
+            label="Solo leídas"
+            checked={onlyReadChecked}
+            onChange={setOnlyReadChecked}
+          />
+        ) : null}
       </header>
 
-      {domains.map((domain) => {
+      {visibleDomains.length === 0 ? (
+        <p className={styles['architectures-index__empty']}>
+          Todavía no marcaste ningún tema como leído.
+        </p>
+      ) : null}
+      {visibleDomains.map(({ domain, topics }) => {
         const titleId = `architectures-domain-${String(domain.id)}`;
         return (
           <section
@@ -62,7 +86,7 @@ export const ArchitecturesIndexScreen = ({
               ) : null}
             </div>
             <ul className={styles['architectures-index__topics']}>
-              {domain.topics.map((topic) => (
+              {topics.map((topic) => (
                 <li key={topic.pageId} className={styles['architectures-index__topic']}>
                   <Link
                     to="/lectura/$pageId"

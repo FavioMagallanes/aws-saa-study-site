@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AccesoRouteImport } from './routes/acceso'
 import { Route as ArquitecturasRouteImport } from './routes/arquitecturas'
 import { Route as GlosarioRouteImport } from './routes/glosario'
+import { Route as LeidasRouteImport } from './routes/leidas'
 import { Route as MapaDelExamenRouteImport } from './routes/mapa-del-examen'
 import { Route as RepasoRouteImport } from './routes/repaso'
 import { Route as ServiciosRouteImport } from './routes/servicios'
@@ -36,6 +37,11 @@ const ArquitecturasRoute = ArquitecturasRouteImport.update({
 const GlosarioRoute = GlosarioRouteImport.update({
   id: '/glosario',
   path: '/glosario',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeidasRoute = LeidasRouteImport.update({
+  id: '/leidas',
+  path: '/leidas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MapaDelExamenRoute = MapaDelExamenRouteImport.update({
@@ -64,6 +70,7 @@ export interface FileRoutesByFullPath {
   '/acceso': typeof AccesoRoute
   '/arquitecturas': typeof ArquitecturasRoute
   '/glosario': typeof GlosarioRoute
+  '/leidas': typeof LeidasRoute
   '/mapa-del-examen': typeof MapaDelExamenRoute
   '/repaso': typeof RepasoRoute
   '/servicios': typeof ServiciosRoute
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/acceso': typeof AccesoRoute
   '/arquitecturas': typeof ArquitecturasRoute
   '/glosario': typeof GlosarioRoute
+  '/leidas': typeof LeidasRoute
   '/mapa-del-examen': typeof MapaDelExamenRoute
   '/repaso': typeof RepasoRoute
   '/servicios': typeof ServiciosRoute
@@ -85,6 +93,7 @@ export interface FileRoutesById {
   '/acceso': typeof AccesoRoute
   '/arquitecturas': typeof ArquitecturasRoute
   '/glosario': typeof GlosarioRoute
+  '/leidas': typeof LeidasRoute
   '/mapa-del-examen': typeof MapaDelExamenRoute
   '/repaso': typeof RepasoRoute
   '/servicios': typeof ServiciosRoute
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | '/acceso'
     | '/arquitecturas'
     | '/glosario'
+    | '/leidas'
     | '/mapa-del-examen'
     | '/repaso'
     | '/servicios'
@@ -107,6 +117,7 @@ export interface FileRouteTypes {
     | '/acceso'
     | '/arquitecturas'
     | '/glosario'
+    | '/leidas'
     | '/mapa-del-examen'
     | '/repaso'
     | '/servicios'
@@ -117,6 +128,7 @@ export interface FileRouteTypes {
     | '/acceso'
     | '/arquitecturas'
     | '/glosario'
+    | '/leidas'
     | '/mapa-del-examen'
     | '/repaso'
     | '/servicios'
@@ -128,6 +140,7 @@ export interface RootRouteChildren {
   AccesoRoute: typeof AccesoRoute
   ArquitecturasRoute: typeof ArquitecturasRoute
   GlosarioRoute: typeof GlosarioRoute
+  LeidasRoute: typeof LeidasRoute
   MapaDelExamenRoute: typeof MapaDelExamenRoute
   RepasoRoute: typeof RepasoRoute
   ServiciosRoute: typeof ServiciosRoute
@@ -162,6 +175,13 @@ declare module '@tanstack/react-router' {
       path: '/glosario'
       fullPath: '/glosario'
       preLoaderRoute: typeof GlosarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leidas': {
+      id: '/leidas'
+      path: '/leidas'
+      fullPath: '/leidas'
+      preLoaderRoute: typeof LeidasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mapa-del-examen': {
@@ -200,6 +220,7 @@ const rootRouteChildren: RootRouteChildren = {
   AccesoRoute: AccesoRoute,
   ArquitecturasRoute: ArquitecturasRoute,
   GlosarioRoute: GlosarioRoute,
+  LeidasRoute: LeidasRoute,
   MapaDelExamenRoute: MapaDelExamenRoute,
   RepasoRoute: RepasoRoute,
   ServiciosRoute: ServiciosRoute,

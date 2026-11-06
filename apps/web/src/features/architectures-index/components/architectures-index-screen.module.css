@@ -39,6 +39,13 @@
   line-height: 1.65;
 }
 
+.architectures-index__empty {
+  max-width: 720px;
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.6;
+}
+
 .architectures-index__domain {
   display: flex;
   flex-direction: column;

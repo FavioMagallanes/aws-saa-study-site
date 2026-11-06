@@ -58,3 +58,19 @@ export const buildTopicDomains = (
 
 export const formatTopicReadCount = (read: number, total: number): string =>
   `${String(read)} de ${String(total)} ${total === 1 ? 'leído' : 'leídos'}`;
+
+export interface VisibleTopicDomain {
+  readonly domain: TopicDomain;
+  readonly topics: readonly IndexedTopic[];
+}
+
+// With onlyRead, each domain keeps just its read topics and empty domains are dropped.
+export const visibleTopicDomains = (
+  domains: readonly TopicDomain[],
+  onlyRead: boolean,
+): VisibleTopicDomain[] =>
+  domains.flatMap((domain) => {
+    if (!onlyRead) return [{ domain, topics: domain.topics }];
+    const topics = domain.topics.filter((topic) => topic.read);
+    return topics.length > 0 ? [{ domain, topics }] : [];
+  });

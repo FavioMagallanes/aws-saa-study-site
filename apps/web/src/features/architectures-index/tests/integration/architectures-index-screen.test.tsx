@@ -1,6 +1,7 @@
-import { screen, within } from '@testing-library/react';
+import { fireEvent, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { renderApp } from '../../../../app/tests/render-app';
+import { fakeAuth } from '../../../../app/tests/fake-auth-client';
+import { getTopBar, renderApp } from '../../../../app/tests/render-app';
 import { loadPages } from '../../../content/data/load-pages';
 
 const renderArchitectures = (progress?: Parameters<typeof renderApp>[1]) =>
@@ -124,5 +125,52 @@ describe('Arquitecturas page with the real content', () => {
     expect(screen.getAllByRole('heading', { level: 2 })).toHaveLength(4);
     expect(screen.queryByText('(leído)')).not.toBeInTheDocument();
     expect(screen.queryByText(/ de \d+ leídos$/)).not.toBeInTheDocument();
+  });
+  it('shows only the read topics when "Solo leídas" is on and everything again when off', async () => {
+    const [security] = topicsOf('Seguridad');
+    const [cost] = topicsOf('Costos');
+    if (!security || !cost) throw new Error('Topics not found');
+    await renderArchitectures([
+      { pageId: security.id, readAt },
+      { pageId: cost.id, readAt },
+      { pageId: 'amazon-s3', readAt },
+    ]);
+    const toggle = await screen.findByRole('checkbox', { name: 'Solo leídas' });
+    fireEvent.click(toggle);
+    const main = screen.getByRole('main');
+    expect(
+      within(main)
+        .getAllByRole('link')
+        .map((link) => link.textContent),
+    ).toEqual([security.title, cost.title]);
+    expect(screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)).toEqual([
+      'Diseño de arquitecturas seguras',
+      'Diseño de arquitecturas con optimización de costos',
+    ]);
+    fireEvent.click(toggle);
+    expect(toggle).not.toBeChecked();
+    expect(within(main).getAllByRole('link')).toHaveLength(57);
+    expect(screen.getAllByRole('heading', { level: 2 })).toHaveLength(4);
+  });
+
+  it('says nothing matches when "Solo leídas" is on and no topic is read', async () => {
+    await renderArchitectures([{ pageId: 'amazon-s3', readAt }]);
+    fireEvent.click(await screen.findByRole('checkbox', { name: 'Solo leídas' }));
+    expect(screen.getByText('Todavía no marcaste ningún tema como leído.')).toBeInTheDocument();
+    expect(within(screen.getByRole('main')).queryAllByRole('link')).toHaveLength(0);
+    expect(screen.queryByRole('heading', { level: 2 })).not.toBeInTheDocument();
+  });
+
+  it('hides the "Solo leídas" filter from signed-out visitors', async () => {
+    fakeAuth.session = null;
+    await renderArchitectures();
+    await within(getTopBar()).findByRole('link', { name: 'Iniciar sesión' });
+    expect(screen.getAllByRole('heading', { level: 2 })).toHaveLength(4);
+    expect(screen.queryByRole('checkbox', { name: 'Solo leídas' })).not.toBeInTheDocument();
+  });
+
+  it('hides the "Solo leídas" filter while the progress loads', async () => {
+    await renderApp('/arquitecturas', [], () => new Promise<Response>(() => undefined));
+    expect(screen.queryByRole('checkbox', { name: 'Solo leídas' })).not.toBeInTheDocument();
   });
 });

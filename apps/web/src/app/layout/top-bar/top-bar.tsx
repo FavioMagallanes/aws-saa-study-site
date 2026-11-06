@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { label: 'Servicios', to: '/servicios' },
   { label: 'Arquitecturas', to: '/arquitecturas' },
   { label: 'Repaso', to: '/repaso' },
+  { label: 'Leídas', to: '/leidas' },
   { label: 'Glosario', to: '/glosario' },
 ] as const;
 

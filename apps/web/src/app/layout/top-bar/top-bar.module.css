@@ -37,6 +37,7 @@
   font-family: var(--font-mono);
   font-size: 11px;
   line-height: 1.5;
+  white-space: nowrap;
 }
 
 .top-bar__nav {
@@ -150,8 +151,9 @@
 }
 
 @media (min-width: 1100px) {
+  /* Six nav items plus the search box need tighter side padding until there is room for 80px. */
   .top-bar__inner {
-    padding: var(--space-5) 80px;
+    padding: var(--space-5) 40px;
   }
 
   .top-bar__brand-name {
@@ -165,16 +167,32 @@
 
   .top-bar__nav {
     display: flex;
+    gap: var(--space-6);
   }
 
   .top-bar__search {
     display: flex;
+    width: 240px;
   }
 
   .top-bar__mobile-only,
   .top-bar__menu-scrim,
   .top-bar__menu-panel {
     display: none;
+  }
+}
+
+@media (min-width: 1280px) {
+  .top-bar__inner {
+    padding-inline: 80px;
+  }
+
+  .top-bar__nav {
+    gap: var(--space-8);
+  }
+
+  .top-bar__search {
+    width: 300px;
   }
 }
 
