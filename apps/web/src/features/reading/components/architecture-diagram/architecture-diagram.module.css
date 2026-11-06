@@ -1,0 +1,28 @@
+.architecture-diagram {
+  --pele-bg: var(--color-bg);
+  --pele-fg: var(--color-text);
+  --pele-muted: var(--color-muted);
+  --pele-line: var(--color-muted);
+  --pele-surface: var(--color-surface);
+  --pele-surface-alt: var(--color-code);
+  --pele-border: var(--color-border);
+  --pele-accent: var(--color-accent);
+  --pele-font: var(--font-sans);
+
+  margin: var(--space-4) 0;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  overflow-x: auto;
+}
+
+.architecture-diagram__canvas {
+  display: flex;
+  justify-content: center;
+}
+
+.architecture-diagram__error {
+  color: var(--color-muted);
+  font-family: var(--font-sans);
+}

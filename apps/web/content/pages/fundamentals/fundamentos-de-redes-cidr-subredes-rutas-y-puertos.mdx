@@ -31,6 +31,21 @@ El tipo de subred depende de cómo configuras su enrutamiento:
 - **Solo VPN**: tiene una ruta a una conexión Site-to-Site VPN a través de una puerta de enlace privada virtual, pero no a internet.
 - **Aislada**: no tiene rutas a destinos fuera de su VPC, de modo que solo se comunica con otros recursos de la misma VPC.
 
+Un ejemplo típico separa los recursos expuestos de los internos: el balanceador de carga vive en la subred pública y recibe el tráfico, mientras que la aplicación y la base de datos quedan en la subred privada.
+
+<ArchitectureDiagram
+  label="Una VPC con un balanceador de carga en la subred pública y una instancia EC2 con una base de datos RDS en la subred privada"
+  source={`architecture-beta
+  group vpc(cloud)[VPC]
+  group publica(cloud)[Subred pública] in vpc
+  group privada(cloud)[Subred privada] in vpc
+  service alb(aws:elastic-load-balancing)[Elastic Load Balancing] in publica
+  service app(aws:amazon-ec2)[Amazon EC2] in privada
+  service db(aws:amazon-rds)[Amazon RDS] in privada
+  alb:R --> L:app
+  app:B --> T:db`}
+/>
+
 ### Tablas de rutas
 
 Una tabla de rutas es el controlador del tráfico de la VPC: un conjunto de reglas, llamadas rutas, que determinan hacia dónde se dirige el tráfico de una subred. Cada ruta indica un destino (un bloque CIDR o una lista de prefijos) y un destino de salida, como una puerta de enlace de internet, una puerta de enlace NAT, una conexión de emparejamiento de VPC o una conexión VPN. El tráfico se encamina según su dirección IP de destino.

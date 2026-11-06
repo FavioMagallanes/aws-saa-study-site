@@ -1,4 +1,5 @@
 import type { ElementType, ReactNode } from 'react';
+import { ArchitectureDiagram } from '../components/architecture-diagram/architecture-diagram';
 import { CardGrid } from '../components/card-grid/card-grid';
 import { ConnectionCard } from '../components/connection-card/connection-card';
 import { DecisionBox } from '../components/decision-box/decision-box';
@@ -22,6 +23,7 @@ export const SubsectionHeading = ({ children }: HeadingProps) => (
 export const mdxComponents: Record<string, ElementType> = {
   h2: SectionHeading,
   h3: SubsectionHeading,
+  ArchitectureDiagram,
   CardGrid,
   ConnectionCard,
   DecisionBox,
