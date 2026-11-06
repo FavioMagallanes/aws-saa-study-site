@@ -37,6 +37,20 @@ AWS recomienda desplegar y operar toda carga de producción en al menos dos zona
 
 En una implementación de instancia de base de datos Multi-AZ, Amazon RDS aprovisiona y mantiene una réplica en espera síncrona en otra zona de disponibilidad. Protege frente al fallo de la instancia y la interrupción de una zona y mejora la disponibilidad durante el mantenimiento planificado. La réplica en espera no atiende lecturas: para escalar lecturas se usan réplicas de lectura o un clúster de base de datos Multi-AZ.
 
+Con Multi-AZ activado, la aplicación habla siempre con el nodo principal, y la réplica en espera de otra zona se mantiene sincronizada para asumir el servicio si la primera zona falla.
+
+<ArchitectureDiagram
+  label="Una aplicación EC2 usa la base de datos principal de RDS en una zona de disponibilidad, replicada de forma síncrona en una réplica en espera de otra zona"
+  source={`architecture-beta
+  group az1(cloud)[Zona de disponibilidad A]
+  group az2(cloud)[Zona de disponibilidad B]
+  service app(aws:amazon-ec2)[Aplicación EC2] in az1
+  service principal(aws:amazon-rds)[RDS principal] in az1
+  service espera(aws:amazon-rds)[RDS en espera] in az2
+  app:R --> L:principal
+  principal:B --> T:espera`}
+/>
+
 ### Alta disponibilidad multirregión
 
 Para cargas que exigen una resiliencia extrema, como infraestructura crítica o aplicaciones de salud, puede hacer falta operar en al menos dos regiones, siempre que los requisitos de residencia de datos lo permitan.

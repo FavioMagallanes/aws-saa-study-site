@@ -15,6 +15,21 @@ Un dispositivo NAT traduce la dirección IP privada de las instancias para que p
 
 ## Conceptos clave
 
+El camino típico de salida es este: la instancia de la subred privada envía su tráfico a la NAT gateway, que vive en una subred pública, y desde allí sale por la puerta de enlace de internet de la VPC.
+
+<ArchitectureDiagram
+  label="Una instancia EC2 en una subred privada sale a internet a través de una NAT gateway en una subred pública y de la puerta de enlace de internet"
+  source={`architecture-beta
+  group vpc(cloud)[VPC]
+  group privada(cloud)[Subred privada] in vpc
+  group publica(cloud)[Subred pública] in vpc
+  service app(aws:amazon-ec2)[Instancia EC2] in privada
+  service nat(aws:nat-gateway)[NAT gateway] in publica
+  service igw(aws:internet-gateway)[Puerta de enlace de internet]
+  app:R --> L:nat
+  nat:R --> L:igw`}
+/>
+
 ### Cómo se cobra cada opción
 
 - **NAT gateway**: se cobra por cada hora que la puerta de enlace está disponible y por cada gigabyte de datos que procesa. En resumen, el costo depende de cuántas puertas de enlace uses, durante cuánto tiempo y cuántos datos envíes a través de ellas.

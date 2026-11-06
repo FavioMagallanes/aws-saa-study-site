@@ -60,6 +60,22 @@ Sirve para desplegar, escalar y administrar dispositivos virtuales de red, como 
 - **Cambio de zona (zonal shift)**: con Amazon Application Recovery Controller puedes apartar el tráfico de una zona dañada con una sola acción.
 - **Con Auto Scaling**: el grupo de Auto Scaling registra y elimina instancias del balanceador al escalar.
 
+Así se ve un balanceador con destinos en dos zonas de disponibilidad: si una zona falla, el tráfico sigue llegando a la otra.
+
+<ArchitectureDiagram
+  label="Un Application Load Balancer reparte el tráfico de los usuarios entre instancias EC2 de dos zonas de disponibilidad"
+  source={`architecture-beta
+  group az1(cloud)[Zona de disponibilidad A]
+  group az2(cloud)[Zona de disponibilidad B]
+  service usuarios(aws:users)[Usuarios]
+  service alb(aws:elastic-load-balancing)[Application Load Balancer]
+  service app1(aws:amazon-ec2)[Instancia EC2] in az1
+  service app2(aws:amazon-ec2)[Instancia EC2] in az2
+  usuarios:R --> L:alb
+  alb:R --> L:app1
+  alb:R --> L:app2`}
+/>
+
 ### Balanceo y costos
 
 Un solo Application Load Balancer puede atender varios dominios mediante reglas de host, y varias aplicaciones en una misma instancia mediante grupos de destino en puertos distintos, en lugar de desplegar un balanceador para cada uno.

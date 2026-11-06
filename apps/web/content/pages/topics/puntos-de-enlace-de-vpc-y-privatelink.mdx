@@ -33,6 +33,20 @@ Debes crear el tipo que necesites:
 
 Ofrecen conectividad fiable con S3 y DynamoDB sin necesitar una puerta de enlace de internet ni un NAT, y no tienen costo adicional. Al crearlos eliges las tablas de rutas de las subredes que habilitas, y se añade automáticamente una ruta cuyo destino es la lista de prefijos del servicio y cuyo destino de salida es el punto de enlace. Todas las instancias de las subredes asociadas a esa tabla lo usan de forma automática; las de subredes no asociadas usan el punto de enlace público del servicio. S3 y DynamoDB admiten tanto puntos de enlace de puerta de enlace como de interfaz.
 
+En el siguiente esquema, una instancia de la subred privada llega a Amazon S3 a través de un punto de enlace de puerta de enlace, sin puerta de enlace de internet ni NAT.
+
+<ArchitectureDiagram
+  label="Una instancia EC2 en una subred privada llega a Amazon S3 a través de un punto de enlace de puerta de enlace de la VPC"
+  source={`architecture-beta
+  group vpc(cloud)[VPC]
+  group privada(cloud)[Subred privada] in vpc
+  service app(aws:amazon-ec2)[Instancia EC2] in privada
+  service ep(aws:vpc-endpoint)[Punto de enlace] in vpc
+  service s3(aws:amazon-s3)[Amazon S3]
+  app:R --> L:ep
+  ep:R --> L:s3`}
+/>
+
 ### Políticas de punto de enlace
 
 Una política de punto de enlace es una política basada en recursos que se asocia a un punto de enlace y controla qué entidades pueden usarlo para acceder al servicio. No reemplaza a las políticas de identidad ni a las de recursos: por ejemplo, con un punto de enlace de interfaz hacia S3 también puedes usar políticas de bucket para controlar el acceso desde puntos de enlace o VPC concretos.
