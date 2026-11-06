@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { ArchitectureDiagram } from '../../components/architecture-diagram/architecture-diagram';
 import { resolveArchitectureIcon } from '../../components/architecture-diagram/architecture-icons';
@@ -9,18 +9,18 @@ const source = `architecture-beta
   alb:R --> L:app`;
 
 describe('ArchitectureDiagram', () => {
-  it('draws the labelled services with their official icons', () => {
+  it('draws the labelled services with their official icons', async () => {
     render(<ArchitectureDiagram source={source} label="Balanceador hacia EC2" />);
     const diagram = screen.getByRole('img', { name: 'Balanceador hacia EC2' });
-    expect(diagram).toHaveTextContent('Balanceador');
+    await waitFor(() => expect(diagram).toHaveTextContent('Balanceador'));
     expect(diagram).toHaveTextContent('Amazon EC2');
     expect(diagram.querySelectorAll('svg svg').length).toBeGreaterThanOrEqual(2);
     expect(diagram).not.toHaveTextContent('Arch_');
   });
 
-  it('shows an alert instead of throwing when the diagram source is invalid', () => {
+  it('shows an alert instead of throwing when the diagram source is invalid', async () => {
     render(<ArchitectureDiagram source="not a diagram" label="Diagrama roto" />);
-    expect(screen.getByRole('alert')).toHaveTextContent(
+    expect(await screen.findByRole('alert')).toHaveTextContent(
       'No se pudo dibujar el diagrama «Diagrama roto».',
     );
   });

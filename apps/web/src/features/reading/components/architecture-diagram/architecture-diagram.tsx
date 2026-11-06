@@ -1,4 +1,5 @@
-import { render } from 'pele';
+import { renderAsync } from 'pele/lazy';
+import { useEffect, useState } from 'react';
 import { resolveArchitectureIcon } from './architecture-icons';
 import styles from './architecture-diagram.module.css';
 
@@ -7,18 +8,31 @@ interface ArchitectureDiagramProps {
   readonly label: string;
 }
 
-const renderDiagram = (source: string): string | null => {
-  try {
-    return render(source, { icons: resolveArchitectureIcon, links: false, images: false }).svg;
-  } catch {
-    return null;
-  }
-};
+type DiagramState =
+  | { readonly status: 'loading' }
+  | { readonly status: 'ready'; readonly svg: string }
+  | { readonly status: 'error' };
 
 export const ArchitectureDiagram = ({ source, label }: ArchitectureDiagramProps) => {
-  const svg = renderDiagram(source);
+  const [state, setState] = useState<DiagramState>({ status: 'loading' });
 
-  if (svg === null) {
+  useEffect(() => {
+    let ignore = false;
+    // pele/lazy fetches only the architecture renderer, so pages without diagrams never download it.
+    renderAsync(source, { icons: resolveArchitectureIcon, links: false, images: false }).then(
+      (result) => {
+        if (!ignore) setState({ status: 'ready', svg: result.svg });
+      },
+      () => {
+        if (!ignore) setState({ status: 'error' });
+      },
+    );
+    return () => {
+      ignore = true;
+    };
+  }, [source]);
+
+  if (state.status === 'error') {
     return (
       <p className={styles['architecture-diagram__error']} role="alert">
         No se pudo dibujar el diagrama «{label}».
@@ -27,12 +41,12 @@ export const ArchitectureDiagram = ({ source, label }: ArchitectureDiagramProps)
   }
 
   return (
-    <figure className={styles['architecture-diagram']}>
+    <figure className={styles['architecture-diagram']} aria-busy={state.status === 'loading'}>
       <div
         className={styles['architecture-diagram__canvas']}
         role="img"
         aria-label={label}
-        dangerouslySetInnerHTML={{ __html: svg }}
+        dangerouslySetInnerHTML={{ __html: state.status === 'ready' ? state.svg : '' }}
       />
     </figure>
   );
