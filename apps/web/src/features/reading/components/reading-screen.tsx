@@ -1,9 +1,9 @@
-import { ArrowRight } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useRef } from 'react';
 import type { PageMeta } from '@arquitecto/contracts/content';
 import { useMediaQuery } from '../../glossary/hooks/use-media-query';
-import { ButtonLink } from '../../../shared/ui/button/button-link';
-import { TextLink } from '../../../shared/ui/text-link/text-link';
+import { cx } from '../../../shared/lib/class-names';
 import { VisuallyHidden } from '../../../shared/ui/visually-hidden/visually-hidden';
 import { MarkReadControl } from '../../progress/components/mark-read-control';
 import type { PageContent } from '../model/page-content';
@@ -17,24 +17,39 @@ import styles from './reading-screen.module.css';
 // Matches the breakpoint in reading-screen.module.css where the sidebar and TOC columns appear.
 const WIDE_LAYOUT_QUERY = '(min-width: 1100px)';
 
-interface PagerTextProps {
-  readonly label: string;
+interface PagerLinkProps {
+  readonly direction: 'previous' | 'next';
   readonly target: PagerTarget;
 }
 
-const PagerText = ({ label, target }: PagerTextProps) => (
-  <span className={styles['reading__pager-text']}>
-    <span>
-      {label}: {target.page.title}
-    </span>
-    {target.destination ? (
-      <span className={styles['reading__pager-destination']}>
-        <VisuallyHidden>, en </VisuallyHidden>
-        {target.destination}
+// The visually hidden colon keeps the accessible name "Siguiente: <title>, en <destination>".
+const PagerLink = ({ direction, target }: PagerLinkProps) => {
+  const isNext = direction === 'next';
+  return (
+    <Link
+      to="/lectura/$pageId"
+      params={{ pageId: target.page.id }}
+      className={cx(
+        styles['reading__pager-link'],
+        styles[isNext ? 'reading__pager-link--next' : 'reading__pager-link--previous'],
+      )}
+    >
+      <span className={styles['reading__pager-label']}>
+        {isNext ? null : <ArrowLeft size={14} strokeWidth={1.75} aria-hidden="true" />}
+        {isNext ? 'Siguiente' : 'Anterior'}
+        <VisuallyHidden>: </VisuallyHidden>
+        {isNext ? <ArrowRight size={14} strokeWidth={1.75} aria-hidden="true" /> : null}
       </span>
-    ) : null}
-  </span>
-);
+      <span className={styles['reading__pager-title']}>{target.page.title}</span>
+      {target.destination ? (
+        <span className={styles['reading__pager-destination']}>
+          <VisuallyHidden>, en </VisuallyHidden>
+          {target.destination}
+        </span>
+      ) : null}
+    </Link>
+  );
+};
 
 interface ReadingScreenProps {
   readonly page: PageMeta;
@@ -62,26 +77,8 @@ export const ReadingScreen = ({ page, Content, context }: ReadingScreenProps) =>
           <ReadingBody Content={Content} />
         </div>
         <nav className={styles.reading__pager} aria-label="Página anterior y siguiente">
-          {previous ? (
-            <TextLink
-              to="/lectura/$pageId"
-              params={{ pageId: previous.page.id }}
-              variant="previous"
-            >
-              <PagerText label="Anterior" target={previous} />
-            </TextLink>
-          ) : (
-            <span />
-          )}
-          {next ? (
-            <ButtonLink
-              to="/lectura/$pageId"
-              params={{ pageId: next.page.id }}
-              trailingIcon={<ArrowRight size={16} strokeWidth={1.75} />}
-            >
-              <PagerText label="Siguiente" target={next} />
-            </ButtonLink>
-          ) : null}
+          {previous ? <PagerLink direction="previous" target={previous} /> : null}
+          {next ? <PagerLink direction="next" target={next} /> : null}
         </nav>
       </main>
 
