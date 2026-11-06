@@ -1,7 +1,14 @@
 import type { PageMeta } from '@arquitecto/contracts/content';
 import type { ExamGuide } from '../../content/model/exam-guide';
-import { DOMAIN_SHORT_TITLES } from '../../content/model/domain-labels';
-import { byOrder, type ReadPageIds } from '../../content/model/page-progress';
+import type { ReadPageIds } from '../../content/model/page-progress';
+import {
+  nextInPath,
+  pathPosition,
+  previousInPath,
+  summarizeSection,
+  type PathPosition,
+  type ReadingPath,
+} from '../../content/model/reading-path';
 
 export interface SidebarPage {
   readonly id: string;
@@ -11,95 +18,113 @@ export interface SidebarPage {
 }
 
 export interface SidebarGroup {
+  readonly id: string;
+  /** Undefined when the section has a single group that its own title already names. */
   readonly label: string | undefined;
+  readonly current: boolean;
   readonly pages: readonly SidebarPage[];
+}
+
+export interface SidebarSection {
+  readonly id: string;
+  readonly title: string;
+  readonly open: boolean;
+  readonly read: number;
+  readonly total: number;
+  readonly groups: readonly SidebarGroup[];
+}
+
+export interface PagerTarget {
+  readonly page: PageMeta;
+  /** Where the neighbour leads when it is in another group or section of the path. */
+  readonly destination: string | undefined;
 }
 
 export interface ReadingContext {
   readonly breadcrumb: readonly string[];
   readonly examTasks: readonly { readonly id: string; readonly title: string }[];
-  readonly sidebarHeading: string;
-  readonly sidebarGroups: readonly SidebarGroup[];
-  readonly previous: PageMeta | undefined;
-  readonly next: PageMeta | undefined;
+  readonly sidebarSections: readonly SidebarSection[];
+  readonly previous: PagerTarget | undefined;
+  readonly next: PagerTarget | undefined;
 }
 
-const KIND_ROOT = {
-  fundamental: 'Fundamentos',
-  topic: 'Arquitecturas',
-  service: 'Servicios',
-} as const;
-
 const taskIdOf = (bulletId: string): string => bulletId.slice(0, bulletId.indexOf('-'));
-
-const toSidebarPage = (page: PageMeta, current: PageMeta, read: ReadPageIds): SidebarPage => ({
-  id: page.id,
-  title: page.title,
-  read: read.has(page.id),
-  current: page.id === current.id,
-});
 
 const taskIdsOf = (page: PageMeta): string[] =>
   [...new Set(page.covers.map(taskIdOf))].sort((a, b) =>
     a.localeCompare(b, undefined, { numeric: true }),
   );
 
+const describeDestination = (
+  from: PathPosition | undefined,
+  to: PathPosition,
+): string | undefined => {
+  const servicesLabel = `${to.section.title} · ${to.group.label}`;
+  if (from?.section.id !== to.section.id) {
+    return to.section.kind === 'services' ? servicesLabel : to.section.title;
+  }
+  if (from.group.id === to.group.id) return undefined;
+  return to.section.kind === 'services' ? servicesLabel : to.group.label;
+};
+
+const toPagerTarget = (
+  path: ReadingPath,
+  current: PathPosition | undefined,
+  page: PageMeta | undefined,
+): PagerTarget | undefined => {
+  if (!page) return undefined;
+  const position = pathPosition(path, page.id);
+  return {
+    page,
+    destination: position ? describeDestination(current, position) : undefined,
+  };
+};
+
 export const buildReadingContext = (
   page: PageMeta,
-  pages: readonly PageMeta[],
+  path: ReadingPath,
   guide: ExamGuide,
   readPageIds: ReadPageIds,
 ): ReadingContext => {
-  const ordered = [...pages].sort(byOrder);
-  const index = ordered.findIndex((candidate) => candidate.id === page.id);
-  const taskIds = taskIdsOf(page);
-  const examTasks = taskIds.flatMap((id) => {
+  const position = pathPosition(path, page.id);
+  const examTasks = taskIdsOf(page).flatMap((id) => {
     const task = guide.tasks.find((candidate) => candidate.id === id);
     return task ? [{ id, title: task.title }] : [];
   });
 
-  const primaryTaskId = taskIds[0];
-  const domainId = primaryTaskId === undefined ? undefined : Number(primaryTaskId.charAt(0));
-  const domain = guide.domains.find((candidate) => candidate.id === domainId);
+  const sidebarSections = path.sections.map((section): SidebarSection => {
+    const summary = summarizeSection(section, readPageIds);
+    return {
+      id: section.id,
+      title: section.title,
+      open: section.id === position?.section.id,
+      read: summary.read,
+      total: summary.total,
+      groups: section.groups.map((group) => ({
+        id: group.id,
+        label: section.kind === 'fundamentals' ? undefined : group.label,
+        current: section.id === position?.section.id && group.id === position.group.id,
+        pages: group.pages.map((candidate) => ({
+          id: candidate.id,
+          title: candidate.title,
+          read: readPageIds.has(candidate.id),
+          current: candidate.id === page.id,
+        })),
+      })),
+    };
+  });
 
-  let sidebarHeading: string;
-  let sidebarGroups: SidebarGroup[];
-
-  if (domain && primaryTaskId !== undefined) {
-    sidebarHeading = `Dominio ${String(domain.id)} · ${DOMAIN_SHORT_TITLES[domain.id] ?? domain.title}`;
-    sidebarGroups = guide.tasks
-      .filter((task) => task.id.startsWith(`${String(domain.id)}.`))
-      .map((task) => ({
-        label: `Tarea ${task.id} · ${task.title}`,
-        pages:
-          task.id === primaryTaskId
-            ? ordered
-                .filter((candidate) =>
-                  candidate.covers.some((bulletId) => bulletId.startsWith(`${task.id}-`)),
-                )
-                .map((candidate) => toSidebarPage(candidate, page, readPageIds))
-            : [],
-      }));
-  } else {
-    sidebarHeading = page.category ?? KIND_ROOT[page.kind];
-    sidebarGroups = [
-      {
-        label: undefined,
-        pages: ordered
-          .filter(
-            (candidate) => candidate.kind === page.kind && candidate.category === page.category,
-          )
-          .map((candidate) => toSidebarPage(candidate, page, readPageIds)),
-      },
-    ];
-  }
+  const breadcrumb = !position
+    ? []
+    : position.section.kind === 'fundamentals'
+      ? [position.section.crumb]
+      : [position.section.crumb, position.group.crumb];
 
   return {
-    breadcrumb: page.category ? [KIND_ROOT[page.kind], page.category] : [KIND_ROOT[page.kind]],
+    breadcrumb,
     examTasks,
-    sidebarHeading,
-    sidebarGroups,
-    previous: index > 0 ? ordered[index - 1] : undefined,
-    next: ordered[index + 1],
+    sidebarSections,
+    previous: toPagerTarget(path, position, previousInPath(path, page.id)),
+    next: toPagerTarget(path, position, nextInPath(path, page.id)),
   };
 };

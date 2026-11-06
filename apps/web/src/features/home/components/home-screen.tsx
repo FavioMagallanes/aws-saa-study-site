@@ -9,11 +9,15 @@ import {
   VISIBLE_SERVICES_PER_CATEGORY,
 } from '../model/home-copy';
 import {
-  nextPageToRead,
   summarizeProgress,
   type ProgressSummary,
   type ReadPageIds,
 } from '../../content/model/page-progress';
+import {
+  firstUnreadIn,
+  firstUnreadInPath,
+  type ReadingPath,
+} from '../../content/model/reading-path';
 import {
   countCategories,
   overviewDomains,
@@ -36,6 +40,7 @@ const fundamentalsStatus = (
 interface HomeScreenProps {
   readonly pages: readonly PageMeta[];
   readonly guide: ExamGuide;
+  readonly readingPath: ReadingPath;
   readonly readPageIds: ReadPageIds;
   readonly lastReadTitle?: string;
   readonly progressStatus: ProgressStatus;
@@ -44,11 +49,13 @@ interface HomeScreenProps {
 export const HomeScreen = ({
   pages,
   guide,
+  readingPath,
   readPageIds,
   lastReadTitle,
   progressStatus,
 }: HomeScreenProps) => {
-  const fundamentals = pages.filter((page) => page.kind === 'fundamental');
+  const fundamentals =
+    readingPath.sections.find((section) => section.kind === 'fundamentals')?.pages ?? [];
   const fundamentalsSummary = summarizeProgress(fundamentals, readPageIds);
 
   const chapters: GuidedChapter[] = [
@@ -58,9 +65,9 @@ export const HomeScreen = ({
       summary: FUNDAMENTALS_SUMMARY,
       status: fundamentalsStatus(fundamentalsSummary, progressStatus),
       percentage: fundamentalsSummary.percentage,
-      startPageId: nextPageToRead(fundamentals, readPageIds)?.id,
+      startPageId: firstUnreadIn(fundamentals, readPageIds)?.id,
     },
-    ...overviewDomains(pages, guide, readPageIds).map((domain): GuidedChapter => ({
+    ...overviewDomains(readingPath, guide, readPageIds).map((domain): GuidedChapter => ({
       number: domain.id,
       title: domain.title,
       summary: `Tareas ${domain.firstTask} – ${domain.lastTask} · ${DOMAIN_HIGHLIGHTS[domain.id] ?? ''}`,
@@ -85,7 +92,7 @@ export const HomeScreen = ({
         </p>
         <ContinueCard
           summary={summarizeProgress(pages, readPageIds)}
-          nextPage={nextPageToRead(pages, readPageIds)}
+          nextPage={firstUnreadInPath(readingPath, readPageIds)}
           progressStatus={progressStatus}
           {...(lastReadTitle === undefined ? {} : { lastReadTitle })}
         />

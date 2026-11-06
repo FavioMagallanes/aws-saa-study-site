@@ -5,14 +5,16 @@ import { loadPages } from '../features/content/data/load-pages';
 import { ReadingScreen } from '../features/reading/components/reading-screen';
 import { useReadingProgress } from '../features/progress/hooks/use-reading-progress';
 import { loadPageContent } from '../features/reading/model/page-content';
+import { buildReadingPath } from '../features/content/model/reading-path';
 import { buildReadingContext } from '../features/reading/model/reading-context';
 
 const pages = loadPages();
+const readingPath = buildReadingPath(pages, examGuide);
 const ReadingRoute = () => {
   const { page, Content } = Route.useLoaderData();
   const { readPageIds } = useReadingProgress();
   const context = useMemo(
-    () => buildReadingContext(page, pages, examGuide, readPageIds),
+    () => buildReadingContext(page, readingPath, examGuide, readPageIds),
     [page, readPageIds],
   );
   return <ReadingScreen page={page} Content={Content} context={context} />;

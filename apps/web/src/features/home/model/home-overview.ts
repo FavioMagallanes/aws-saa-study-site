@@ -1,12 +1,11 @@
 import type { PageMeta } from '@arquitecto/contracts/content';
 import type { ExamGuide } from '../../content/model/exam-guide';
 import {
-  nextPageToRead,
-  pagesOfDomain,
   summarizeProgress,
   type ProgressSummary,
   type ReadPageIds,
 } from '../../content/model/page-progress';
+import { firstUnreadIn, type ReadingPath } from '../../content/model/reading-path';
 
 export interface DomainOverview {
   readonly id: number;
@@ -28,14 +27,19 @@ export interface ServiceCategoryOverview {
   readonly hiddenCount: number;
 }
 
+// Progress and the start page come from the domain's own section of the reading path, so each
+// topic counts once and the card opens the same page the sidebar would.
 export const overviewDomains = (
-  pages: readonly PageMeta[],
+  path: ReadingPath,
   guide: ExamGuide,
   readPageIds: ReadPageIds,
 ): DomainOverview[] =>
   guide.domains.map((domain) => {
     const tasks = guide.tasks.filter((task) => task.id.startsWith(`${String(domain.id)}.`));
-    const domainPages = pagesOfDomain(pages, domain.id);
+    const section = path.sections.find(
+      (candidate) => candidate.kind === 'domain' && candidate.domainId === domain.id,
+    );
+    const domainPages = section?.pages ?? [];
     return {
       id: domain.id,
       title: domain.title,
@@ -43,7 +47,7 @@ export const overviewDomains = (
       firstTask: tasks[0]?.id ?? '',
       lastTask: tasks[tasks.length - 1]?.id ?? '',
       summary: summarizeProgress(domainPages, readPageIds),
-      startPageId: nextPageToRead(domainPages, readPageIds)?.id,
+      startPageId: firstUnreadIn(domainPages, readPageIds)?.id,
     };
   });
 

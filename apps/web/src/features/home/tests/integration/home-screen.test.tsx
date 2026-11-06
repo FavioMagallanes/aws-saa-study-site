@@ -140,6 +140,55 @@ describe('Inicio screen with the real content', () => {
   });
 });
 
+describe('Inicio follows the reading path', () => {
+  // The fundamentals and every domain 1 topic up to order 16 are read; the global order would
+  // continue at order 17, but the path still has two task 1.2 topics before task 1.3.
+  const readUpToOrder16 = loadPages()
+    .filter((page) => page.kind === 'fundamental' || (page.kind === 'topic' && page.order <= 16))
+    .map((page) => ({ pageId: page.id, readAt }));
+
+  it('continues at the first unread page of the path', async () => {
+    await renderHome(readUpToOrder16);
+    expect(await screen.findByRole('link', { name: 'Continuar leyendo' })).toHaveAttribute(
+      'href',
+      '/lectura/diseno-de-red-subredes-enrutamiento-y-direccionamiento-ip',
+    );
+  });
+
+  it('lists Fundamentos and then the domains in order, as the reading path does', async () => {
+    await renderHome();
+    const route = screen.getByRole('region', { name: 'Ruta guiada' });
+    expect(
+      within(route)
+        .getAllByRole('heading', { level: 3 })
+        .map((heading) => heading.textContent),
+    ).toEqual([
+      'Fundamentos',
+      'Diseño de arquitecturas seguras',
+      'Diseño de arquitecturas resistentes',
+      'Diseño de arquitecturas de alto rendimiento',
+      'Diseño de arquitecturas con optimización de costos',
+    ]);
+  });
+
+  it('starts and measures each domain with its own section of the path', async () => {
+    await renderHome(fundamentalIds.map((pageId) => ({ pageId, readAt })));
+    const route = await screen.findByRole('region', { name: 'Ruta guiada' });
+    await screen.findByText('Llevas 7 de 182 páginas');
+    expect(
+      within(route).getByRole('progressbar', {
+        name: 'Progreso de Diseño de arquitecturas seguras',
+      }),
+    ).toHaveAttribute('aria-valuenow', '0');
+    expect(
+      within(route).getByRole('link', { name: 'Diseño de arquitecturas seguras' }),
+    ).toHaveAttribute('href', '/lectura/iam-usuarios-grupos-roles-politicas-y-mfa');
+    expect(
+      within(route).getByRole('link', { name: 'Diseño de arquitecturas resistentes' }),
+    ).toHaveAttribute('href', '/lectura/arquitecturas-de-varios-niveles');
+  });
+});
+
 describe('featured categories copy', () => {
   it('only names categories that exist in the exam guide', () => {
     const categories = new Set(examGuide.services.map((service) => service.category));

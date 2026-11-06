@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { PageMeta } from '@arquitecto/contracts/content';
 import type { ExamGuide } from '../../../content/model/exam-guide';
+import { buildReadingPath } from '../../../content/model/reading-path';
 import { overviewDomains, overviewServiceCategories } from '../../model/home-overview';
 
 const page = (id: string, order: number, overrides: Partial<PageMeta> = {}): PageMeta => ({
@@ -31,23 +32,26 @@ const guide: ExamGuide = {
 
 describe('overviewDomains', () => {
   const pages = [
-    page('iam', 1, { covers: ['1.1-k1'] }),
-    page('vpc', 2, { covers: ['1.2-s1', '2.1-k1'] }),
-    page('queues', 3, { covers: ['2.1-k2'] }),
+    page('global', 1, { kind: 'fundamental', covers: ['1.1-k2'] }),
+    page('iam', 2, { covers: ['1.1-k1'] }),
+    page('vpc', 3, { covers: ['1.2-s1', '2.1-k1'] }),
+    page('queues', 4, { covers: ['2.1-k2'] }),
+    page('amazon-sqs', 5, { kind: 'service', title: 'Amazon EC2', covers: ['2.1-k2'] }),
   ];
+  const path = buildReadingPath(pages, guide);
 
-  it('derives the task range and progress of each domain', () => {
-    const [first, second] = overviewDomains(pages, guide, new Set(['vpc']));
+  it('derives the task range, progress and start page from the domain section of the path', () => {
+    const [first, second] = overviewDomains(path, guide, new Set(['iam']));
     expect(first).toMatchObject({ id: 1, firstTask: '1.1', lastTask: '1.2', weight: 60 });
     expect(first?.summary).toEqual({ total: 2, read: 1, percentage: 50 });
-    expect(first?.startPageId).toBe('iam');
-    expect(second?.summary).toEqual({ total: 2, read: 1, percentage: 50 });
+    expect(first?.startPageId).toBe('vpc');
+    expect(second?.summary).toEqual({ total: 1, read: 0, percentage: 0 });
     expect(second?.startPageId).toBe('queues');
   });
 
-  it('counts a page that covers several domains in each of them', () => {
-    const overview = overviewDomains(pages, guide, new Set());
-    expect(overview.map((domain) => domain.summary.total)).toEqual([2, 2]);
+  it('counts a topic once, in the domain of its lowest task, and leaves out other kinds', () => {
+    const overview = overviewDomains(path, guide, new Set());
+    expect(overview.map((domain) => domain.summary.total)).toEqual([2, 1]);
   });
 });
 

@@ -21,14 +21,6 @@ export const summarizeProgress = (
   return { total: pages.length, read, percentage: percentageOf(read, pages.length) };
 };
 
-export const nextPageToRead = (
-  pages: readonly PageMeta[],
-  readPageIds: ReadPageIds,
-): PageMeta | undefined => {
-  const ordered = [...pages].sort(byOrder);
-  return ordered.find((page) => !readPageIds.has(page.id)) ?? ordered[0];
-};
-
 const pageDomains = (page: PageMeta): Set<number> =>
   new Set(page.covers.map((bulletId) => Number(bulletId.charAt(0))));
 
