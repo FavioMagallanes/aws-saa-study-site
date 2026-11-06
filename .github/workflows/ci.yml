@@ -1,9 +1,12 @@
 name: CI
 
+# Manual only while the GitHub account budget for Actions blocks every job. To run it on every
+# push and pull request again, replace workflow_dispatch with:
+#   push:
+#     branches: [main]
+#   pull_request:
 on:
-  push:
-    branches: [main]
-  pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
