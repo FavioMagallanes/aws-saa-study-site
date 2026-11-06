@@ -6,6 +6,10 @@ export const SiteFooter = () => (
     <p className={styles['site-footer__note']}>
       Basado en la Guía de examen SAA-C03 y en docs.aws.amazon.com. No es material oficial de AWS.
     </p>
+    <p className={styles['site-footer__note']}>
+      Sitio educativo sin fines de lucro, no afiliado ni respaldado por AWS. AWS, los nombres de sus
+      servicios y sus iconos son marcas de Amazon.com, Inc. o de sus afiliadas.
+    </p>
     <nav className={styles['site-footer__links']} aria-label="Pie de página">
       <Link to="/glosario" className={styles['site-footer__link']}>
         Glosario de siglas

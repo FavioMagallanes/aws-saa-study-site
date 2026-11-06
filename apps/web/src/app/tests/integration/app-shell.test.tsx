@@ -29,6 +29,9 @@ describe('app shell', () => {
           'Basado en la Guía de examen SAA-C03 y en docs.aws.amazon.com. No es material oficial de AWS.',
         ),
       ).toBeInTheDocument();
+      expect(
+        within(footer).getByText(/no afiliado ni respaldado por AWS.*marcas de Amazon\.com, Inc\./),
+      ).toBeInTheDocument();
       expect(within(footer).getByRole('navigation', { name: 'Pie de página' })).toBeInTheDocument();
     },
   );
