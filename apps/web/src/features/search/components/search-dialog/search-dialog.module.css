@@ -19,8 +19,29 @@
   display: none;
 }
 
+/* The dialog mounts on open and unmounts on close, so only its entrance is animated. It is opened
+   from the keyboard (Cmd/Ctrl+K) often, so the entrance stays at the fast duration and the input
+   has focus from the first frame. */
+.search-dialog[open] {
+  animation: search-dialog-enter var(--motion-fast) var(--ease-out);
+}
+
 .search-dialog::backdrop {
   background: rgb(27 24 20 / 0.4);
+  animation: search-backdrop-enter var(--motion-fast) var(--ease-out);
+}
+
+@keyframes search-dialog-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+@keyframes search-backdrop-enter {
+  from {
+    opacity: 0;
+  }
 }
 
 .search-dialog__header {

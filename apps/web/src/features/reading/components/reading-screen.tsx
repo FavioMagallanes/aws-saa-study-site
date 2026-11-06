@@ -4,6 +4,7 @@ import { useRef } from 'react';
 import type { PageMeta } from '@arquitecto/contracts/content';
 import { useMediaQuery } from '../../glossary/hooks/use-media-query';
 import { cx } from '../../../shared/lib/class-names';
+import motion from '../../../shared/styles/motion.module.css';
 import { VisuallyHidden } from '../../../shared/ui/visually-hidden/visually-hidden';
 import { MarkReadControl } from '../../progress/components/mark-read-control';
 import type { PageContent } from '../model/page-content';
@@ -68,12 +69,16 @@ export const ReadingScreen = ({ page, Content, context }: ReadingScreenProps) =>
         <ReadingSidebar key={page.id} sections={context.sidebarSections} />
       </aside>
 
+      {/* Only the page's own content is keyed, so it fades in on every page change while the
+          sidebar, the table of contents and the pager (which may hold focus) stay in place. */}
       <main className={styles.reading__article} ref={articleRef}>
-        <p className={styles.reading__breadcrumb}>{context.breadcrumb.join(' › ')}</p>
-        <h1 className={styles.reading__title}>{page.title}</h1>
-        {context.examTasks.length > 0 ? <ExamTasks tasks={context.examTasks} /> : null}
+        <div key={`${page.id}-heading`} className={motion['page-enter-group']}>
+          <p className={styles.reading__breadcrumb}>{context.breadcrumb.join(' › ')}</p>
+          <h1 className={styles.reading__title}>{page.title}</h1>
+          {context.examTasks.length > 0 ? <ExamTasks tasks={context.examTasks} /> : null}
+        </div>
         {wide ? null : <ReadingToc articleRef={articleRef} pageId={page.id} collapsible />}
-        <div className={styles.reading__body}>
+        <div key={`${page.id}-body`} className={cx(styles.reading__body, motion['page-enter'])}>
           <ReadingBody Content={Content} />
         </div>
         <nav className={styles.reading__pager} aria-label="Página anterior y siguiente">

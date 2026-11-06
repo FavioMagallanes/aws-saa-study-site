@@ -10,6 +10,7 @@
   background: transparent;
   color: var(--color-muted);
   cursor: pointer;
+  transition: color var(--motion-fast) ease;
 }
 
 .icon-button:hover {

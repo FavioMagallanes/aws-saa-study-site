@@ -95,10 +95,20 @@
   color: var(--color-text);
   font-family: var(--font-sans);
   text-decoration: none;
+  transition:
+    border-color var(--motion-fast) ease,
+    transform var(--motion-fast) var(--ease-out);
 }
 
 .reading__pager-link:hover {
   border-color: var(--color-accent);
+}
+
+/* Touch screens fire a hover on tap, so the lift is only for a real pointer. */
+@media (hover: hover) and (pointer: fine) {
+  .reading__pager-link:hover {
+    transform: translateY(-1px);
+  }
 }
 
 .reading__pager-link--previous {

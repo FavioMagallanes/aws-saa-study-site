@@ -52,6 +52,7 @@
   font-weight: 500;
   line-height: 1.5;
   text-decoration: none;
+  transition: color var(--motion-fast) ease;
 }
 
 .top-bar__link:hover,
@@ -80,6 +81,7 @@
   line-height: 1.5;
   text-align: start;
   cursor: pointer;
+  transition: border-color var(--motion-fast) ease;
 }
 
 .top-bar__search:hover {
@@ -106,6 +108,7 @@
   inset: 0;
   z-index: -1;
   background: rgb(27 24 20 / 0.35);
+  animation: menu-scrim-enter var(--motion-base) var(--ease-out);
 }
 
 .top-bar__menu-panel {
@@ -115,6 +118,22 @@
   flex-direction: column;
   padding: var(--space-2) var(--layout-margin-mobile) var(--space-4);
   background: var(--color-bg);
+  animation: menu-panel-enter var(--motion-base) var(--ease-out);
+}
+
+/* The menu mounts on open and unmounts on close, so only its entrance is animated; focus and the
+   links are usable from the first frame. */
+@keyframes menu-scrim-enter {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes menu-panel-enter {
+  from {
+    opacity: 0;
+    transform: translateY(calc(-2 * var(--motion-shift)));
+  }
 }
 
 .top-bar__menu-link {
@@ -127,6 +146,7 @@
   font-weight: 500;
   line-height: 1.5;
   text-decoration: none;
+  transition: color var(--motion-fast) ease;
 }
 
 .top-bar__menu-link + .top-bar__menu-link {
@@ -211,6 +231,7 @@
   line-height: 1.5;
   text-decoration: none;
   white-space: nowrap;
+  transition: color var(--motion-fast) ease;
 }
 
 .top-bar__sign-in:hover {

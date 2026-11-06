@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react';
+import { fireEvent, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { renderApp } from '../../../../app/tests/render-app';
 
@@ -44,6 +44,23 @@ describe('reading page with the real content', () => {
     await renderAt('/lectura/amazon-sqs');
     const pager = await screen.findByRole('navigation', { name: 'Página anterior y siguiente' });
     expect(within(pager).getAllByRole('link')).toHaveLength(2);
+  });
+
+  it('renders the heading and pager of the next page after following the pager', async () => {
+    await renderAt('/lectura/politicas-basadas-en-recursos');
+    const pager = await screen.findByRole('navigation', { name: 'Página anterior y siguiente' });
+    fireEvent.click(within(pager).getByRole('link', { name: /^Siguiente:/ }));
+    expect(
+      await screen.findByRole('heading', {
+        level: 1,
+        name: 'Seguridad de la VPC: grupos de seguridad, ACL de red y segmentación',
+      }),
+    ).toBeInTheDocument();
+    const nextPager = screen.getByRole('navigation', { name: 'Página anterior y siguiente' });
+    expect(within(nextPager).getByRole('link', { name: /^Anterior:/ })).toHaveAttribute(
+      'href',
+      '/lectura/politicas-basadas-en-recursos',
+    );
   });
 
   it('shows the whole path with only the section of the current page open', async () => {
